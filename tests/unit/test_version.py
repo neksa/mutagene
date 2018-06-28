@@ -1,6 +1,5 @@
-from packagename.version import Version
+from pymutagene.version import Version
 from tests import *
-from tests.helpers import *
 
 
 class TestVersion(unittest.TestCase):

@@ -1,5 +1,3 @@
-import tests.helpers
-
 
 def list_has(value, lst):
     found = False
