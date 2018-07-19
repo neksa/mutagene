@@ -1,0 +1,61 @@
+Patient ID	Sample ID	Cancer Studies	Cancer Type	Cancer Type Detailed	Diagnosis Age	Doubling Time (hrs)	Epithelial	MDR	Oncotree Code	P53	Person Gender	Ploidy	Prior Treatment	Sample Type	Tumor Other Histologic Subtype
+BT_549	BT_549	cellline_nci60	Breast Cancer	Invasive Breast Carcinoma	72	53.9	yes	-45	BRCA	?	F	NaN		Metastasis	Papillary infiltrating ductal carcinoma-mammary gland; breast
+HS_578_T	HS578T	cellline_nci60	Breast Cancer	Invasive Breast Carcinoma	74	53.8	yes		BRCA	MT	F	NaN		Primary	Carcinosarcoma-mammary gland; breast
+MCF7	MCF7	cellline_nci60	Breast Cancer	Invasive Breast Carcinoma	69	25.4	yes	14	BRCA	WT	F	NaN		Pleural effusion	Adenocarcinoma- mammary gland; breast; metastatic site: pleural effusion;
+MDA_MB_231	MDA_MB_231	cellline_nci60	Breast Cancer	Invasive Breast Carcinoma	51	41.9	yes	29	BRCA	MT	F	NaN		Pleural effusion	Adenocarcinoma-mammary gland; breast; epithelial; metastatic site: pleural effusion;
+T47D	T47D	cellline_nci60	Breast Cancer	Invasive Breast Carcinoma	54	45.5	yes	19	BRCA	MT	F	NaN			infiltrating ductal carcinoma
+SF268	SF_268	cellline_nci60	CNS/Brain Cancer, NOS	CNS/Brain	24	33.1	no	-38	BRAIN	MT	F	NaN	Rad		"Glioblastoma, ud"
+SF295	SF_295	cellline_nci60	CNS/Brain Cancer, NOS	CNS/Brain	67	29.5	no	91	BRAIN	MT	F	NaN	Rad		"Glioblastoma, ud"
+SF539	SF_539	cellline_nci60	CNS/Brain Cancer, NOS	CNS/Brain	34	35.4	no	-40	BRAIN	WT	F	NaN	Rad/BCNU/5FU/HU/6MP		Glial cell neoplasm
+SNB_19	SNB_19	cellline_nci60	CNS/Brain Cancer, NOS	CNS/Brain	47	34.6	no	-41	BRAIN	MT	M	NaN	None		"Glioblastoma, ud"
+U251	U251	cellline_nci60	CNS/Brain Cancer, NOS	CNS/Brain	75	23.8	no	-19	BRAIN	MT	M	NaN			"Glioblastoma,ud"
+COLO_205	COLO205	cellline_nci60	Colorectal Cancer	Colorectal Adenocarcinoma	70	23.8	yes	7	COADREAD	MT	M	NaN		Ascites	Adenocarcinoma
+HT_29	HT29	cellline_nci60	Colorectal Cancer	Colorectal Adenocarcinoma	44	19.5	yes	15	COADREAD	MT	F	NaN	None	Primary	Adenocarcinoma-md
+SW620	SW_620	cellline_nci60	Colorectal Cancer	Colorectal Adenocarcinoma	51	20.4	yes	31	COADREAD	MT	M	NaN			Carcinoma-ud
+A549	A549	cellline_nci60	Non-Small Cell Lung Cancer	Non-Small Cell Lung Cancer	58	22.9	yes	10	NSCLC	WT	M	NaN			Adenocarcinoma-p/md
+HOP_62	HOP_62	cellline_nci60	Non-Small Cell Lung Cancer	Non-Small Cell Lung Cancer	60	39	yes	61	NSCLC	MT	F	NaN	None		adenocarcinoma-ud
+HOP_92	HOP_92	cellline_nci60	Non-Small Cell Lung Cancer	Non-Small Cell Lung Cancer	62	79.5	yes	-4	NSCLC	MT	M	NaN	None		Large cell-ud
+NCI_H322M	NCI_H322M	cellline_nci60	Non-Small Cell Lung Cancer	Non-Small Cell Lung Cancer	52	35.3	yes	-10	NSCLC	MT	M	NaN	None		Small cell Bronchioalveolar Carcinoma
+CCRF_CEM	CCRF_CEM	cellline_nci60	Leukemia	Leukemia	4	26.7	no	35	LEUK	MT	F	NaN	Rad/Mtx/Cyx		ALL
+HL_60	HL_60	cellline_nci60	Leukemia	Leukemia	36	28.6	no	-11	LEUK	MT	M	NaN	None	PBL	Pro myelocytic leukemia
+K_562	K_562	cellline_nci60	Leukemia	Leukemia	53	19.6	no	-1	LEUK	MT	F	NaN	Bisulfan/PiBr	Pleural effusion	CML
+MOLT_4	MOLT_4	cellline_nci60	Leukemia	Leukemia	19	27.9	no	10	LEUK	WT	M	NaN	VB/6MP/Pred	PB	ALL (cells were taken when patient was in relapse)
+RPMI_8226	RPMI_8226	cellline_nci60	Leukemia	Leukemia	61	33.5	no	-3	LEUK	WT	M	NaN	None	PB	Myeloma
+SR	SR	cellline_nci60	Leukemia	Leukemia	11	28.7	no	4	LEUK	?	M	NaN	Y		Lymphoma
+LOXIMVI	LOXIMVI	cellline_nci60	Melanoma	Melanoma	58	20.5	no	12	MEL	WT	M	NaN	None		Malignant amelanotic melanoma
+MALME_3M	MALME_3M	cellline_nci60	Melanoma	Melanoma	43	46.2	no	22	MEL	WT	M	NaN	None	Metastasis	Malignant melanotic melanoma
+MDA_MB_435	MDA_MB_435	cellline_nci60	Melanoma	Melanoma	31	25.8	no	20	MEL	MT	F	NaN		Pleural effusion	Ductal carcinoma- mammary gland; breast; duct; metastatic site: pleural effusion;
+MDA_N	MDA_N	cellline_nci60	Melanoma	Melanoma	31	22.5	no	12	MEL	MT	F			Pleural effusion	Ductal carcinoma- mammary gland; breast; duct; metastatic site: pleural effusion;
+SK_MEL_2	SK_MEL_2	cellline_nci60	Melanoma	Melanoma	60	45.5	no	14	MEL	WT	M	NaN	None	Metastasis	Malignant melanotic melanoma
+SK_MEL_28	SK_MEL_28	cellline_nci60	Melanoma	Melanoma	51	35.1	no	11	MEL	MT	M	NaN	None		Malignant melanotic melanoma
+SK_MEL_5	SK_MEL_5	cellline_nci60	Melanoma	Melanoma	24	25.2	no	12	MEL	WT	F	NaN	None	Metastasis	Malignant melanotic melanoma
+IGROV_1	IGROV1	cellline_nci60	Ovarian/Fallopian Tube Cancer, NOS	Ovary/Fallopian Tube	47	31	yes	20	OVARY	MT	F	NaN	Rad		Cystoadenocarcinoma-pd
+OVCAR_3	OVCAR_3	cellline_nci60	Ovarian/Fallopian Tube Cancer, NOS	Ovary/Fallopian Tube	60	34.7	yes	-12	OVARY	MT	F	NaN	CyPh/CsPt/Adr	Ascites	Adenocarcinoma-md
+OVCAR_4	OVCAR_4	cellline_nci60	Ovarian/Fallopian Tube Cancer, NOS	Ovary/Fallopian Tube	42	41.4	yes	-4	OVARY	WT	F	NaN	CyPh/CsPt/Adr		Adenocarcinoma-md
+OVCAR_5	OVCAR_5	cellline_nci60	Ovarian/Fallopian Tube Cancer, NOS	Ovary/Fallopian Tube	67	48.8	yes	13	OVARY	MT	F	NaN	None		Adenocarcinoma-wd
+OVCAR_8	OVCAR_8	cellline_nci60	Ovarian/Fallopian Tube Cancer, NOS	Ovary/Fallopian Tube	64	26.1	yes	7	OVARY	MT	F	NaN	Ctx/Adr/CsPt/CyPh		Carcinoma-ud
+SK_OV_3	SK_OV_3	cellline_nci60	Ovarian/Fallopian Tube Cancer, NOS	Ovary/Fallopian Tube	64	48.7	yes	15	OVARY	?	F	NaN	Thiotepa	Ascites	Adenocarcinoma-vpd
+DU_145	DU_145	cellline_nci60	Prostate Cancer, NOS	Prostate	69	32.3	yes	4	PROSTATE	?	M	NaN	Androgen independent and unresposive to hormone therapy	Metastasis	prostate; metastatic site: brain; carcinoma (patient with metastatic carcinoma of the prostate and a 3 year history of lymphocytic leukemia.)
+PC_3	PC_3	cellline_nci60	Prostate Cancer, NOS	Prostate	62	27.1	yes	11	PROSTATE	MT	M	NaN			Adenocarcinoma- prostate; metastatic site: bone;
+786_0	786_0	cellline_nci60	Renal Cell Carcinoma	Renal Cell Carcinoma	58	22.4	yes	-44	RCC	MT	M	NaN	None		Adenocarcinoma
+A498	A498	cellline_nci60	Renal Cell Carcinoma	Renal Cell Carcinoma	52	66.8	yes	78	RCC	WT	M	NaN			Adenocarcinoma
+ACHN	ACHN	cellline_nci60	Renal Cell Carcinoma	Renal Cell Carcinoma	22	27.5	yes	120	RCC	WT	M	NaN	Rad/VB/CCNU/Mto/Pred		Renal cell carcinoma-p/md
+CAKI_1	CAKI_1	cellline_nci60	Renal Cell Carcinoma	Renal Cell Carcinoma	49	39	yes	171	RCC	WT	M	NaN	Rad/HU/5FU/Mtx/Ctx	Metastasis	Clear cell carcinoma
+RXF_393	RXF393	cellline_nci60	Renal Cell Carcinoma	Renal Cell Carcinoma	54	62.9	yes	42	RCC	MT	M	NaN	None		hypernephroma-pd
+SN12C	SN12C	cellline_nci60	Renal Cell Carcinoma	Renal Cell Carcinoma	43	29.5	yes	-86	RCC	MT	M	NaN	None		Renal cell carcinoma-pd
+TK10	TK_10	cellline_nci60	Renal Cell Carcinoma	Renal Cell Carcinoma	43	51.3	yes	-4	RCC	MT	M	NaN	None		Renal Spindle cell carcinoma
+SNB75	SNB_75	cellline_nci60	CNS/Brain Cancer, NOS	CNS/Brain		62.8	no	-38	BRAIN	MT	F	NaN	None		Astrocytoma
+HCT_116	HCT_116	cellline_nci60	Colorectal Cancer	Colorectal Adenocarcinoma		17.4	yes	26	COADREAD	?	M	NaN			carcinoma-vpd
+EKVX	EKVX	cellline_nci60	Non-Small Cell Lung Cancer	Non-Small Cell Lung Cancer		43.6	yes	-9	NSCLC	MT	M	NaN			Adenocarcinoma-md
+NCI_H226	NCI_H226	cellline_nci60	Non-Small Cell Lung Cancer	Non-Small Cell Lung Cancer		61	yes	7	NSCLC	MT	M	NaN	None (non smoker)		Squamous cell carcinoma-vpd
+NCI_H23	NCI_H23	cellline_nci60	Non-Small Cell Lung Cancer	Non-Small Cell Lung Cancer		33.4	yes	-2	NSCLC	MT	M	NaN	None		Adenocarcinoma-ud
+NCI_H460	NCI_H460	cellline_nci60	Non-Small Cell Lung Cancer	Non-Small Cell Lung Cancer		17.8	yes	25	NSCLC	WT	M	NaN		Pleural effusion	Large Cell Carcinoma-ud
+NCI_H522	NCI_H522	cellline_nci60	Non-Small Cell Lung Cancer	Non-Small Cell Lung Cancer		38.2	yes	16	NSCLC	MT	M	NaN	None		Adenocarcinoma-vpd
+NCI_ADR_RES	NCI_ADR_RES	cellline_nci60	Ovarian/Fallopian Tube Cancer, NOS	Ovary/Fallopian Tube		34	yes	352	OVARY	MT	F	NaN			Adenocarinoma
+U031	UO_31	cellline_nci60	Renal Cell Carcinoma	Renal Cell Carcinoma		41.7	yes	59	RCC	WT	F	NaN	None		Renal cell carcinoma-vpd
+HCC2998	HCC_2998	cellline_nci60	Colorectal Cancer	Colorectal Adenocarcinoma		31.5	yes	-5	COADREAD	MT		NaN			carcinoma
+HCT_15	HCT_15	cellline_nci60	Colorectal Cancer	Colorectal Adenocarcinoma		20.6	yes	414	COADREAD	?		NaN	None		Adenocarcinoma p/md
+KM12	KM12	cellline_nci60	Colorectal Cancer	Colorectal Adenocarcinoma		23.7	yes	-19	COADREAD	MT		NaN	None		Adenocarcinome-pd
+M14	M14	cellline_nci60	Melanoma	Melanoma		26.3	no	14	MEL	MT		NaN			Melanotic melanoma
+UACC_257	UACC_257	cellline_nci60	Melanoma	Melanoma		38.5	no	26	MEL	WT		NaN			Melanotic melanoma
+UACC_62	UACC_62	cellline_nci60	Melanoma	Melanoma		31.3	no	8	MEL	WT		NaN			Melanotic melanoma
