@@ -1,5 +1,6 @@
 import argparse
 
+
 def main():
     parser = argparse.ArgumentParser(description='Analysis of mutational processes with PyMutaGene package')
     # parser.add_argument('integers', metavar='N', type=int, nargs='+',
@@ -7,31 +8,34 @@ def main():
     # parser.add_argument('--sum', dest='accumulate', action='store_const',
     #                     const=sum, default=max,
     #                     help='sum the integers (default: find the max)')
-    parser.add_argument('cmd', choices=['benchmark', 'run'])
+    parser.add_argument('cmd', choices=['benchmark'])
     args = parser.parse_args()
+
     if args.cmd == 'benchmark':
         benchmark()
 
 
 def benchmark():
-    import numpy as np
-    from .benchmark import benchmark_simulated, benchmark_2combinations
-    from .io import read_profile, format_profile
+    from .io import read_profile, format_profile, read_signatures
+    from .generate_benchmark import gen_benchmark_2combinations
+    from .generate_benchmark import run_benchmark_2combinations, run_benchmark_2combinations_deconstruct_sigs
+    from .generate_benchmark import aggregate_benchmarks
+    from .multiple_benchmark import multiple_benchmark, multiple_benchmark_run, aggregate_multiple_benchmarks
 
-    W = []
-    signature_names = []
-    for i in range(5):
-        fname = "data/signatures/A_{}.profile".format(i + 1)
-        profile = read_profile(fname)
-        W.append(profile)
-        signature_names.append("{}".format(i + 1))
+    ##### multiple
+    # multiple_benchmark()
 
-    W = np.array(W)
-    # print(W.shape)
-    # print(signature_names)
-    # benchmark_simulated("/tmp/test_benchmark.txt", signature_names, W)
+    ##### pairwise
+    # for i in [5, 10, 30]:
+    for i in [30, ]:
+        W, signature_names = read_signatures(i)
+        # gen_benchmark_2combinations(signature_names, W)        
+        # run_benchmark_2combinations_deconstruct_sigs(i, signature_names, W)
+        # multiple_benchmark_run(i, signature_names, W, force=False)
+        # run_benchmark_2combinations(i, signature_names, W, force=False)
 
-    benchmark_2combinations("/tmp/test_benchmark2.txt", signature_names, W)
+    aggregate_multiple_benchmarks()
+    # aggregate_benchmarks()
 
 
 if __name__ == '__main__':

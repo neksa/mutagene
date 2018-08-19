@@ -7,10 +7,12 @@ import math
 
 from scipy.optimize import minimize
 from scipy.optimize import nnls
-# from scipy.optimize import basinhopping, differential_evolution
+from scipy.optimize import basinhopping  # , differential_evolution
 # from scipy.optimize import fmin_cobyla
 
 from scipy.stats import entropy
+
+from .io import get_dummy_signatures_lists
 
 
 def multi_kl(p, q):
@@ -61,27 +63,61 @@ def FrobeniusZero(x, A, b):
     return np.linalg.norm(error)
 
 
-# def DerLogLik(x, A, b):
+# def DerNegLogLik(x, A, b):
 #     print(b / A.dot(x))
 #     DLL = - np.ma.divide(b, A.dot(x)).filled(0)
 #     print(x, DLL)
 #     return DLL
 
 
-def LogLik(x, A, b):
+def NegLogLik(x, A, b):
     """
     Log Likelihood of a mixture of multinomials
     x = parameters of the mixture
     A = signature x 96 channels
     b = the observed profile (includes counts for 96 channels)
     """
-    if np.sum(x) > 1.0:
-        return 1000
 
-    LL = 0. - np.sum(b * np.ma.log(A.dot(x)).filled(0))
+    # if x.sum() - 0.00011 > 1.0:
+    #     return 1e6
+
+    if x.sum() > 1.0:
+        x /= x.sum()
+
+    LL = np.sum(b * np.ma.log(A.dot(x)).filled(0))
 
     # print("LOG\t{}\t{}\t{}".format(len(x), "\t".join(map(lambda a: "{:.2f}".format(a), x)), LL))
-    return LL
+    return -LL
+
+
+def AIC(x, A, b):
+    """
+    AIC https://en.wikipedia.org/wiki/Akaike_information_criterion
+    """
+    k = np.count_nonzero(x)
+    n = b.sum()
+    return 2*NegLogLik(x, A, b) + 2*k
+
+
+def AICc(x, A, b):
+    """
+    AIC with small sample correction
+    """
+    k = np.count_nonzero(x)
+    n = b.sum()
+    if n - k - 1 <= 0:
+        return AIC(x, A, b)
+    else:
+        return AIC(x, A, b) + 2*k*(k + 1) / (n - k - 1)
+
+
+def BIC(x, A, b):
+    """
+    BIC https://en.wikipedia.org/wiki/Bayesian_information_criterion
+    """
+    k = np.count_nonzero(x)
+    n = b.sum()
+    return 2*NegLogLik(x, A, b) + k*np.log(n)
 
 
 def get_fingerprint_url(a):
@@ -89,7 +125,7 @@ def get_fingerprint_url(a):
     return urllib.parse.urlencode(data)
 
 
-def decompose_mutational_profile_counts(profile, signature_type, func="Frobenius", debug=True, others_threshold=0.05):
+def decompose_mutational_profile_counts(profile, signatures, func="Frobenius", debug=True, others_threshold=0.05):
 
     config = {
         'enable_dummy': False,
@@ -99,59 +135,37 @@ def decompose_mutational_profile_counts(profile, signature_type, func="Frobenius
     W = []
     results = []
 
-    if isinstance(signature_type, str):
-        if signature_type == "TEST":
-            W = np.array([
-                [0,    0,   0,  0.5,  0.5],
-                [0.5,  0.5, 0,  0,    0],
-                [0,    0,   1,  0,    0],
-                [1/5.0,    1/5.0,   1/5.0,  1/5.0,    1/5.0]])
+    W, signature_names = list(signatures)
+    signature_names = signature_names[:]  # make a copy
+    for name in signature_names:
+        results.append({
+            'accession': 0,
+            'id': 0,
+            'pid': 0,
+            'name': name,
+            'annotation': '',
+            'score': 0.0,
+            'mutations': 0
+        })
 
-            for s in range(W.shape[0]):
-                results.append({
-                    'accession': str(s),
-                    'name': "Signature #" + str(s),
-                    'annotation': "",
-                    'score': 0.0
-                })
-            W = np.array(W).T
-        else:
-            signature_list = db.query(Signature).filter(Signature.signature_type == signature_type).order_by(Signature.id)
-            for s in signature_list:
-                values = get_signature_values_list(s)
-                # print("Signature", s.name)
-                # print(values)
-                W.append(values)
-                results.append({
-                    'accession': s.id,
-                    'id': 0,
-                    'pid': 0,
-                    'name': s.name,
-                    'annotation': s.annotation,
-                    'score': 0.0,
-                    'mutations': 0
-                })
-
-            if config['enable_dummy']:
-                for name, values in get_dummy_signatures_lists():
-                    W.append(values)
-                    # print(values)
-                    results.append({
-                        'accession': 0,
-                        'profile': get_fingerprint_url(values),
-                        'id': 0,
-                        'pid': 0,
-                        'name': 'Dummy ' + name,
-                        'annotation': 'Dummy ' + name,
-                        'score': 0.0,
-                        'mutations': 0
-                    })
-            # print(W)
-            W = np.array(W).T
-            # print(W)
-            # a = 1 / 0
-    else:
-        W = signature_type
+    # add dummy signatures
+    if func.lower().endswith('z'):
+        for i, (name, values) in enumerate(get_dummy_signatures_lists()):
+            dummy = "d" + str(i)
+            signature_names.append(dummy)
+            W = np.append(W.T, np.array([values, ]), axis=0).T
+            results.append({
+                'accession': 0,
+                'profile': get_fingerprint_url(values),
+                'id': 0,
+                'pid': 0,
+                'name': dummy,
+                'annotation': 'Dummy ' + name,
+                'score': 0.0,
+                'mutations': 0
+            })
+    # print(W)
+    # print(signature_names)
 
     v = np.array([profile]).ravel()
     v_freq = v / v.sum()
@@ -176,15 +190,19 @@ def decompose_mutational_profile_counts(profile, signature_type, func="Frobenius
         'divergencekl': DivergenceKL,
         'js': DivergenceJS,
         'divergencejs': DivergenceJS,
-        'MLE': LogLik,
-        'mle': LogLik
+        'mle': NegLogLik,  # MLE maximizes LogLik or minimizes NegLogLik
+        'mlez': NegLogLik,  # MLE with added context-independent signatures
+        'aicc': AICc,  # AIC corrected for small samples 
+        'bic': BIC,  # BIC 
+        'aiccz': AICc,  # AIC corrected for small samples with added context-independent signatures
+        'bicz': BIC,  # BIC with added context-independent signatures
     }
     min_func = min_funcs.get(func.lower(), Frobenius)
 
     if debug:
         np.set_printoptions(precision=4)
         print("--------------------------------------\n")
-        print("Signature", signature_type)
+        print("Signature", signatures)
         print("NNLS", h0)
         print("FRO", round(Frobenius(h0, W, v), 4), "DIV", round(DivergenceKL(h0, W, v), 4))
 
@@ -195,14 +213,13 @@ def decompose_mutational_profile_counts(profile, signature_type, func="Frobenius
     bounds = [[0., 1.0] for _ in range(h0.shape[0])]
 
     # Call minimization subject to these values
-    if min_func == LogLik:
+    if min_func == NegLogLik:
         v_target = v_freq
     else:
         v_target = v
 
     def print_fun(x, f, accepted):
         print("{} at minimum {} accepted {}".format(x, f, accepted))
-
 
     class RandomDisplacementBounds(object):
         """random displacement with bounds"""
@@ -280,7 +297,7 @@ def decompose_mutational_profile_counts(profile, signature_type, func="Frobenius
     ##############################################################################
     if config['global_optimization']:
         # L-BFGS-B COBYLA SLSQP
-        minout = basinhopping(LogLik, h0, minimizer_kwargs={ # 'jac': DerLogLik,
+        minout = basinhopping(NegLogLik, h0, minimizer_kwargs={ # 'jac': DerNegLogLik,
             'args': (W, v_target), 'method': 'SLSQP',
             'constraints': cobyla_constraints, 'options': {'disp': False, 'ftol': 0.00001, 'eps': 0.0000001}}, niter=100, T=0.001, take_step=take_step, accept_test=accept_test, callback=print_fun)  #, take_step=take_step , callback=print_fun)
 
@@ -299,7 +316,7 @@ def decompose_mutational_profile_counts(profile, signature_type, func="Frobenius
         else:
             h = minout.x
             if debug:
-                print("MAX LIK", h, round(-LogLik(h, W, v_target), 4))
+                print("MAX LIK", h, round(-NegLogLik(h, W, v_target), 4))
                 print("MIN FRO", h, round(min_func(h, W, v_target), 4))
                 print("FRO", round(Frobenius(h, W, v_target), 4), "DIV", round(DivergenceKL(h, W, v), 4))
 
@@ -311,8 +328,8 @@ def decompose_mutational_profile_counts(profile, signature_type, func="Frobenius
                 print("MINIMIZATION:", minout.message, minout.nit)
             h = minout.x
             if debug:
-                print("MAX LIK", h, round(-LogLik(h, W, v_target), 4))
-                # print("LIK", round(-LogLik(h, W, v), 4), "DIV", round(DivergenceKL(h, W, v), 4))
+                print("MAX LIK", h, round(-NegLogLik(h, W, v_target), 4))
+                # print("LIK", round(-NegLogLik(h, W, v), 4), "DIV", round(DivergenceKL(h, W, v), 4))
         else:
             if debug:
                 print("MINIMIZATION FAILED:", minout.message, minout.nit)
@@ -326,6 +343,11 @@ def decompose_mutational_profile_counts(profile, signature_type, func="Frobenius
     for i in range(len(results)):
         results[i]['score'] = h[i]
         results[i]['mutations'] = round(N_mutations * h[i])
+
+    # remove dummy signatures
+    if func.lower().endswith('z'):
+        results = results[:-6]
+        signature_names = signature_names[:-6]
 
     # residuals = min_func(h, W, v)
     reconstructed_profile = W.dot(h)
@@ -373,7 +395,7 @@ def decompose_mutational_profile_counts(profile, signature_type, func="Frobenius
                 r['pid'] = 100
                 results.append(r)
 
-    loglik = -LogLik(h, W, v_target)
+    ll = -NegLogLik(h, W, v_target)
     results.append({
         'accession': 0,
         'id': 201,
@@ -382,7 +404,7 @@ def decompose_mutational_profile_counts(profile, signature_type, func="Frobenius
         'annotation': '',
         'profile': '',
         'mutations': '',
-        'score': loglik,
+        'score': ll,
     })
 
     frobenius = Frobenius(h, W, v_freq)

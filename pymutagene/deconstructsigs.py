@@ -46,7 +46,7 @@ toJSON(w)
     return result
 
 
-def deconstruct_sigs_custom(profile_fname, sample='sample', signatures=30, cutoff=0.00):
+def deconstruct_sigs_custom(profile_fname, sample='sample', signatures=30, cutoff=0.00, reverse=False):
     script1 = """
 library(jsonlite)
 library(deconstructSigs)
@@ -60,12 +60,18 @@ library(deconstructSigs)
         30: "C"
     }
 
-    for i in range(signatures):
+    if reverse:
+        signatures_list = list(reversed(range(signatures)))
+    else:
+        signatures_list = list(range(signatures))
+    # print(signatures_list)
+
+    for i in signatures_list:
         script1 += """
 W <- rbind(W, t(read.table('/Users/agoncear/projects/pymutagene/data/signatures/{}_{}.profile', sep="\t", header=FALSE, row.names=1)))
 """.format(sig_map[signatures], i + 1)
 
-    script1 += "row.names(W) <- c(" + ",".join(["'Signature." + str(i + 1) + "'" for i in range(signatures)]) + ")\n"
+    script1 += "row.names(W) <- c(" + ",".join(["'Signature." + str(i + 1) + "'" for i in signatures_list]) + ")\n"
     script1 += "W <- as.data.frame(W)\n"
 
     script2 = """s <- t(read.table('{}', sep="\t", header=FALSE, row.names=1))

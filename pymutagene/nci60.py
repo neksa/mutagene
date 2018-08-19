@@ -414,11 +414,10 @@ library(deconstructSigs)
 s <- t(read.table('{}', sep="\t", header=FALSE, row.names=1))
 row.names(s) <- '{}'
 s <- as.data.frame(s)
-w <- whichSignatures(s, signatures.ref=signatures.cosmic)
+w <- whichSignatures(s/sum(s), signatures.ref=signatures.cosmic)
 toJSON(w)
 """
     script = script.format(profile_fname, sample).encode("utf-8")
-
     proc = Popen(["/Users/gonceare/anaconda3/envs/mutagene/bin/Rscript", "-"], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     out, err = proc.communicate(script)
     # exitcode = proc.returncode

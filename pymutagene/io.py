@@ -1,8 +1,29 @@
-
-# import numpy as np
+import numpy as np
 from collections import defaultdict
 
 from .dna import nucleotides
+
+
+def read_signatures(n_signatures):
+    signatures_dict = {5: 'A', 10: 'B', 30: 'C'}
+    assert n_signatures in signatures_dict
+
+    W = []
+    signature_names = []
+    for i in range(n_signatures):
+        fname = "data/signatures/{}_{}.profile".format(signatures_dict[n_signatures], i + 1)
+        profile = read_profile(fname)
+        W.append(profile)
+        signature_names.append("{}".format(i + 1))
+
+    W = np.array(W).T
+    return W, signature_names
+
+
+def write_profile(profile_file, p, counts=True):
+    with open(profile_file, 'w') as o:
+        formatted_profile = format_profile(p, counts)
+        o.write(formatted_profile)
 
 
 def read_profile(profile_file):
@@ -16,46 +37,48 @@ def read_profile(profile_file):
     Returns:
         mutations, stats --
     """
-    with open(profile_file) as f:
-        mutations = defaultdict(float)
-        for line in f:
-            if len(line) == 0:
-                continue
-            fields = line.strip().upper().split()
-            if len(fields) != 2:
-                return None, None
+    try:
+        with open(profile_file) as f:
+            mutations = defaultdict(float)
+            for line in f:
+                if len(line) == 0:
+                    continue
+                fields = line.strip().upper().split()
+                if len(fields) != 2:
+                    return None, None
 
-            if len(fields[0]) != 7:
-                return None, None
+                if len(fields[0]) != 7:
+                    return None, None
 
-            if fields[0][1] != "[" or fields[0][3] != ">" or fields[0][5] != "]":
-                return None, None
+                if fields[0][1] != "[" or fields[0][3] != ">" or fields[0][5] != "]":
+                    return None, None
 
-            p5, _, x, _, y, _, p3 = tuple(fields[0])
+                p5, _, x, _, y, _, p3 = tuple(fields[0])
 
-            if p5 not in nucleotides or p3 not in nucleotides or y not in nucleotides:
-                return None, None
+                if p5 not in nucleotides or p3 not in nucleotides or y not in nucleotides:
+                    return None, None
 
-            if x not in "TC":
-                return None, None
+                if x not in "TC":
+                    return None, None
 
-            try:
-                f = float(fields[1])
-            except:
-                return None, None
+                try:
+                    f = float(fields[1])
+                except:
+                    return None, None
 
-            mutations[p5 + p3 + x + y] = f
-            # print(p5, p3, x, y)
+                mutations[p5 + p3 + x + y] = f
+                # print(p5, p3, x, y)
 
-        values = []
-        for p5 in nucleotides:
-            for p3 in nucleotides:
-                for x in "CT":
-                    for y in nucleotides:
-                        if x != y:
-                            values.append(mutations.get(p5 + p3 + x + y, 0.0))
-
-        return values
+            values = []
+            for p5 in nucleotides:
+                for p3 in nucleotides:
+                    for x in "CT":
+                        for y in nucleotides:
+                            if x != y:
+                                values.append(mutations.get(p5 + p3 + x + y, 0.0))
+            return values
+    except IOError:
+        return None
 
 
 def get_dummy_signatures_lists():
