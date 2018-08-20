@@ -133,13 +133,14 @@ def run_benchmark_2combinations_deconstruct_sigs_helper(data):
     write_decomposition(ds_info, np.array(exposure), signature_ids)
 
 
-def run_benchmark_2combinations_deconstruct_sigs(N, signature_ids, W):
+def run_benchmark_2combinations_deconstruct_sigs(N, signature_ids, W, force=False):
     def get_iterator():
         for fname in glob.glob("data/benchmark/2comb/{}_**/*.profile".format(N), recursive=True):
             sigtype = fname.split("/")[-2].split("_")[0]
             ds_info = fname.split(".")[0] + ".ds.info"
-            if not isfile(ds_info):
-                yield (fname, ds_info, signature_ids, sigtype)
+            if isfile(ds_info) and not force:
+                continue
+            yield (fname, ds_info, signature_ids, sigtype)
 
     with Pool(8) as p:
         p.map(run_benchmark_2combinations_deconstruct_sigs_helper, get_iterator())
@@ -151,10 +152,10 @@ def aggregate_benchmarks():
         "mle": ".MLE.info",
         "mlez": ".MLEZ.info",
         "ds": ".ds.info",
-        'aicc': 'AICc',
-        'bic': 'BIC',
-        'aiccz': 'AICcz',
-        'bicz': 'BICz',
+        'aicc': '.AICc.info',
+        'bic': '.BIC.info',
+        'aiccz': '.AICcz.info',
+        'bicz': '.BICz.info',
     }
 
     # generate full panel for all signatures in 30 x 30 signatures analysis
