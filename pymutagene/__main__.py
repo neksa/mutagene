@@ -27,15 +27,15 @@ def benchmark():
 
     ##### pairwise
     # for i in [5, 10, 30]:
-    # for i in [30, ]:
-    #     W, signature_names = read_signatures(i)
-    #     # gen_benchmark_2combinations(signature_names, W)        
-    #     run_benchmark_2combinations_deconstruct_sigs(i, signature_names, W, force=True)
-    #     # multiple_benchmark_run(i, signature_names, W, force=False)
-    #     # run_benchmark_2combinations(i, signature_names, W, force=False)
+    for i in [30, ]:
+        W, signature_names = read_signatures(i)
+        # gen_benchmark_2combinations(signature_names, W)
+        # run_benchmark_2combinations_deconstruct_sigs(i, signature_names, W, force=True)
+        # multiple_benchmark_run(i, signature_names, W, force=True)
+        # run_benchmark_2combinations(i, signature_names, W, force=True)
 
-    # aggregate_multiple_benchmarks()
-    aggregate_benchmarks()
+    aggregate_multiple_benchmarks()
+    # aggregate_benchmarks()
 
 
 if __name__ == '__main__':

@@ -83,15 +83,18 @@ def multiple_benchmark():
 
 def multiple_benchmark_run_helper(data):
     fname, signature_ids, W, force = data
-    methods = ['MLE', 'MLEZ', 'AICc', 'BIC', 'AICcZ', 'BICZ']
+    # methods = ['MLE', 'MLEZ', 'AICc', 'BIC', 'AICcZ', 'BICZ']
+    methods = ['AICc', 'AICcZ']
 
-    print(fname)
+    # print(fname)
     profile = read_profile(fname)
 
     for method in methods:
         info = "{}.{}.info".format(fname.split(".")[0], method)
         if isfile(info) and not force:
             continue
+
+        print(info)
 
         _, _, results = decompose_mutational_profile_counts(
             profile,
@@ -111,7 +114,7 @@ def multiple_benchmark_run(N, signature_ids, W, force=False):
 
     random.seed(13425)
     with Pool(10) as p:
-        p.map(multiple_benchmark_run_helper, get_iterator())
+        p.map(multiple_benchmark_run_helper, get_iterator(), 100)
 
 
 def aggregate_multiple_benchmarks():
@@ -119,10 +122,10 @@ def aggregate_multiple_benchmarks():
         "mle": ".MLE.info",
         "mlez": ".MLEZ.info",
         "ds": ".ds.info",
-        'aicc': 'AICc',
-        'bic': 'BIC',
-        'aiccz': 'AICcz',
-        'bicz': 'BICz',
+        'aicc': '.AICc.info',
+        'bic': '.BIC.info',
+        'aiccz': '.AICcz.info',
+        'bicz': '.BICz.info',
     }
 
     # signatures_thresholds = {
@@ -150,14 +153,33 @@ def aggregate_multiple_benchmarks():
             sigtype, r, nmut, replica = fname.split("/")[-1].split(".")[0].split("_")
             sigtype = int(sigtype)
 
+            if sigtype != 30:
+                continue
+
             W, signature_names = read_signatures(sigtype)
-            threshold = signatures_thresholds[sigtype]
 
             info_fname = fname.split(".")[0] + '.info'
             orig_profile = read_profile(fname)
             h0, names = read_decomposition(info_fname)
-            h0_threshold = np.where(h0 >= threshold, h0, 0.0)  # zero below threshold
-            h0_binary = np.array(h0) >= threshold   # true / false for threshold
+
+            # threshold = 0.06
+            threshold = 0.06
+
+            # threshold = 1.0 / np.sqrt(int(nmut)) if method != "ds" else 0.06
+            h0_threshold = np.where(h0 > threshold, h0, 0.0)  # zero below threshold
+            h0_binary = np.array(h0_threshold) > 0.0   # true / false for threshold
+            nsig = np.count_nonzero(h0_binary)
+
+            if nsig < int(r):
+                print("LESS", sigtype, nsig, r)
+
+            if nsig > int(r):
+                print("MORE", sigtype, nsig, r)
+
+            if nsig <= 1:
+                continue
+            if nsig > 10:
+                continue
 
             for method in methods:
                 method_fname = fname.split(".")[0] + methods[method]
@@ -172,7 +194,7 @@ def aggregate_multiple_benchmarks():
                 if h.sum() == 0:
                     continue
 
-                h_threshold = np.where(h >= threshold, h, 0.0)  # zero below threshold
+                h_threshold = np.where(h > threshold, h, 0.0)  # zero below threshold
 
                 reconstructed_profile = W.dot(h)
                 # print(h)
@@ -191,11 +213,11 @@ def aggregate_multiple_benchmarks():
                 # print(h0.sum())
                 # print(h.sum())
 
-                h_binary = np.array(h) >= threshold  # true / false for threshold
+                h_binary = np.array(h_threshold) > 0.0  # true / false for threshold
                 precision = precision_score(h0_binary, h_binary)
                 recall = recall_score(h0_binary, h_binary)
                 accuracy = accuracy_score(h0_binary, h_binary)
                 f1 = f1_score(h0_binary, h_binary)
 
                 o.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                    sigtype, r, nmut, method, SRMSE, PRMSE, STRMSE, LLIK, LLIK0, TLLIK, TLLIK0, precision, recall, accuracy, f1))
+                    sigtype, nsig, nmut, method, SRMSE, PRMSE, STRMSE, LLIK, LLIK0, TLLIK, TLLIK0, precision, recall, accuracy, f1))

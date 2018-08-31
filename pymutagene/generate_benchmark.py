@@ -86,12 +86,12 @@ def gen_sample_2combinations(signature_ids, W, ratio=0.7, noise_level=0.05, n_mu
                 info_fname = fname + ".info"
 
                 h0 = np.zeros(N)
-                h0[i] = (ratio - noise_level) * n_mutations
-                h0[j] = (1.0 - noise_level - ratio) * n_mutations
+                h0[i] = ratio
+                h0[j] = 1.0 - ratio
                 h0 /= h0.sum()
 
                 v0 = W.dot(h0)
-                v0_counts = np.random.multinomial(n_mutations, v0 / v0.sum())
+                v0_counts = np.random.multinomial(ceil((1.0 - noise_level) * n_mutations), v0 / v0.sum())
                 # print(v0_counts)
                 v0_counts += np.random.multinomial(ceil(noise_level * n_mutations), [1.0 / v0.shape[0]] * v0.shape[0])  # uniform distribution
                 # print(v0_counts)
@@ -143,7 +143,7 @@ def run_benchmark_2combinations_deconstruct_sigs(N, signature_ids, W, force=Fals
             yield (fname, ds_info, signature_ids, sigtype)
 
     with Pool(8) as p:
-        p.map(run_benchmark_2combinations_deconstruct_sigs_helper, get_iterator())
+        p.map(run_benchmark_2combinations_deconstruct_sigs_helper, get_iterator(), 100)
 
 
 def aggregate_benchmarks():
