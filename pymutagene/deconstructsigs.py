@@ -1,5 +1,5 @@
 import json
-from subprocess import Popen, PIPE, TimeoutExpired
+from subprocess import Popen, PIPE # , TimeoutExpired
 
 
 def deconstruct_sigs(profile_fname, sample='sample'):
@@ -15,7 +15,6 @@ library(deconstructSigs)
     #     out = proc.stdout.read()
     # else:
     #     proc = deconstruct_sigs.proc
-
 
     script2 = """s <- t(read.table('{}', sep="\t", header=FALSE, row.names=1))
 row.names(s) <- '{}'

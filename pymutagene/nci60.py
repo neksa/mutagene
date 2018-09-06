@@ -70,7 +70,6 @@ def make_NCI60_report(prefix, n=30, decomposition='L'):
             o.write("\t".join(["{0:.2f}".format(exposure["{}{}".format(s, x)]) for x in range(1, n + 1)]) + "\t{:.2f}\t{:.2f}\n".format(exposure['other'], unexplained))
 
 
-
 def read_MAF_extended(muts, asm=None):
     cn = complementary_nucleotide
     N_skipped = 0

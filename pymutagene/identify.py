@@ -96,7 +96,7 @@ def AIC(x, A, b):
     """
     k = np.count_nonzero(x)
     n = b.sum()
-    return 2*NegLogLik(x, A, b) + 2*k
+    return 2 * NegLogLik(x, A, b) + 2 * k
 
 
 def AICc(x, A, b):
@@ -108,7 +108,7 @@ def AICc(x, A, b):
     if n - k - 1 <= 0:
         return AIC(x, A, b)
     else:
-        return AIC(x, A, b) + 2*k*(k + 1) / (n - k - 1)
+        return AIC(x, A, b) + 2 * k * (k + 1) / (n - k - 1)
 
 
 def BIC(x, A, b):
@@ -117,7 +117,7 @@ def BIC(x, A, b):
     """
     k = np.count_nonzero(x)
     n = b.sum()
-    return 2*NegLogLik(x, A, b) + k*np.log(n)
+    return 2 * NegLogLik(x, A, b) + k * np.log(n)
 
 
 def get_fingerprint_url(a):
@@ -281,7 +281,6 @@ def decompose_mutational_profile_counts(profile, signatures, func="Frobenius", d
             return x[i] - 0.0
 
         return a if upper else b
-
 
     cobyla_constraints = [
         {'type': 'ineq', 'fun': lambda x: 1.0 - np.sum(x)}  # total upper
