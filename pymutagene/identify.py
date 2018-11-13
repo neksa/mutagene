@@ -63,7 +63,7 @@ def FrobeniusZero(x, A, b):
     return np.linalg.norm(error)
 
 
-# def DerNegLogLik(x, A, b):
+# def DerNegLogLik(x, A, b):    
 #     print(b / A.dot(x))
 #     DLL = - np.ma.divide(b, A.dot(x)).filled(0)
 #     print(x, DLL)
@@ -296,7 +296,7 @@ def decompose_mutational_profile_counts(profile, signatures, func="Frobenius", d
     ##############################################################################
     if config['global_optimization']:
         # L-BFGS-B COBYLA SLSQP
-        minout = basinhopping(NegLogLik, h0, minimizer_kwargs={ # 'jac': DerNegLogLik,
+        minout = basinhopping(NegLogLik, h0, minimizer_kwargs={  # 'jac': DerNegLogLik,
             'args': (W, v_target), 'method': 'SLSQP',
             'constraints': cobyla_constraints, 'options': {'disp': False, 'ftol': 0.00001, 'eps': 0.0000001}}, niter=100, T=0.001, take_step=take_step, accept_test=accept_test, callback=print_fun)  #, take_step=take_step , callback=print_fun)
 
