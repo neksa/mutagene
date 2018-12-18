@@ -125,12 +125,15 @@ def get_fingerprint_url(a):
     return urllib.parse.urlencode(data)
 
 
-def decompose_mutational_profile_counts(profile, signatures, func="Frobenius", debug=True, others_threshold=0.05):
+def decompose_mutational_profile_counts(profile, signatures, func="Frobenius", debug=True, others_threshold=0.05, global_optimization=None):
 
     config = {
         'enable_dummy': False,
         'global_optimization': False,
     }
+
+    if global_optimization is not None:
+        config['global_optimization'] = global_optimization
 
     W = []
     results = []
@@ -296,6 +299,7 @@ def decompose_mutational_profile_counts(profile, signatures, func="Frobenius", d
     ##############################################################################
     if config['global_optimization']:
         # L-BFGS-B COBYLA SLSQP
+        """
         minout = basinhopping(NegLogLik, h0, minimizer_kwargs={  # 'jac': DerNegLogLik,
             'args': (W, v_target), 'method': 'SLSQP',
             'constraints': cobyla_constraints, 'options': {'disp': False, 'ftol': 0.00001, 'eps': 0.0000001}}, niter=100, T=0.001, take_step=take_step, accept_test=accept_test, callback=print_fun)  #, take_step=take_step , callback=print_fun)
@@ -318,6 +322,17 @@ def decompose_mutational_profile_counts(profile, signatures, func="Frobenius", d
                 print("MAX LIK", h, round(-NegLogLik(h, W, v_target), 4))
                 print("MIN FRO", h, round(min_func(h, W, v_target), 4))
                 print("FRO", round(Frobenius(h, W, v_target), 4), "DIV", round(DivergenceKL(h, W, v), 4))
+        """
+        # Bayesian Optimization
+        from bayes_opt import BayesianOptimization
+        from functools import partial
+
+        optimizer = BayesianOptimization(
+            f=partial(min_func, A=W, b=v_target),
+            pbounds=pbounds,
+            verbose=2,  # verbose = 1 prints only when a maximum is observed, verbose = 0 is silent
+            random_state=1,
+        )
 
     ##############################################################################
     if not config['global_optimization']:
