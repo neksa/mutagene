@@ -7,39 +7,9 @@ from math import ceil
 from os.path import isfile
 from multiprocessing import Pool
 
-from .io import write_profile, read_profile
+from .io import write_profile, read_profile, write_decomposition, read_decomposition
 from .identify import decompose_mutational_profile_counts
 from .deconstructsigs import deconstruct_sigs, deconstruct_sigs_custom
-
-
-def write_decomposition(fname, results, signature_ids):
-    with open(fname, 'w') as o:
-        if type(results) is np.ndarray:
-            h = results
-        else:
-            exposure_dict = {x['name']: x['score'] for x in results}
-            exposure = [exposure_dict[name] for name in signature_ids]
-            h = np.array(exposure)
-        for i in range(h.shape[0]):
-            o.write("{}\t{:.4f}\n".format(signature_ids[i], h[i]))
-
-
-def read_decomposition(fname):
-    signature_ids = []
-    h = []
-
-    try:
-        with open(fname) as f:
-            for line in f:
-                a, b = line.strip().split()
-                signature_ids.append(a)
-                h.append(float(b))
-    except:
-        return None, None
-    # except FileNotFoundError:
-    #     return None, None
-
-    return np.array(h), signature_ids
 
 
 def gen_benchmark_2combinations(signature_names, W):

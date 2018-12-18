@@ -1,7 +1,14 @@
-import numpy as np
 from collections import defaultdict
+import json
+import multiprocessing
+import requests
 
-from .dna import nucleotides
+import numpy as np
+import twobitreader as tbr
+
+from .dna import nucleotides, complementary_nucleotide
+
+TWOBIT_GENOMES_PATH = '/Users/agoncear/data/'
 
 
 def read_signatures(n_signatures):
@@ -79,6 +86,61 @@ def read_profile(profile_file):
             return values
     except IOError:
         return None
+
+
+def get_mutational_profile(mutations, counts=False):
+    attrib = get_signature_attributes_dict()
+    values = []
+    total_mut_number = sum(mutations.values())
+    for i, attr in enumerate(attrib):
+        number = mutations[attr['context'] + attr['mutation']]
+        # freq = 0.000001 * number / total_mut_number
+        if counts:
+            freq = number
+        else:
+            freq = number / float(total_mut_number)
+        # trinucleotide = attr['context'][0] + attr['mutation'][0] + attr['context'][1]
+        # trinucleotide_freq = exome_trinucleotide_freq[trinucleotide]
+        # values.append(3.0 * freq / trinucleotide_freq)
+        values.append(freq)
+    # print(values)
+    return values
+
+
+def write_decomposition(fname, results, signature_ids):
+    if type(results) is np.ndarray:
+        h = results
+    else:
+        exposure_dict = {x['name']: x['score'] for x in results}
+        exposure = [exposure_dict[name] for name in signature_ids]
+        h = np.array(exposure)
+
+    # FIXME: code duplication
+    if isinstance(fname, (str, bytes)):
+        with open(fname, 'w') as o:
+            for i in range(h.shape[0]):
+                o.write("{}\t{:.4f}\n".format(signature_ids[i], h[i]))
+    else:
+        for i in range(h.shape[0]):
+            fname.write("{}\t{:.4f}\n".format(signature_ids[i], h[i]))
+
+
+def read_decomposition(fname):
+    signature_ids = []
+    h = []
+
+    try:
+        with open(fname) as f:
+            for line in f:
+                a, b = line.strip().split()
+                signature_ids.append(a)
+                h.append(float(b))
+    except:
+        return None, None
+    # except FileNotFoundError:
+    #     return None, None
+
+    return np.array(h), signature_ids
 
 
 def get_dummy_signatures_lists():
@@ -164,3 +226,378 @@ def format_profile(values, counts=False):
 #         p5, p3 = attrib[i]['context']
 #         result["{}[{}>{}]{}".format(p5, x, y, p3)] = v
 #     return result
+
+
+def get_context_twobit(mutations, assembly):
+    """
+    User twobitreader to get context of mutations
+    """
+    contexts = {}
+
+    # TWOBIT_GENOMES_PATH = '/net/pan1/mutagene/data/genomes/'
+    genomes_path = globals().get('TWOBIT_GENOMES_PATH', None)
+
+    twobit_files = {
+        38: 'hg38',
+        37: 'hg19'
+    }
+
+    if assembly not in twobit_files:
+        return contexts
+    else:
+        twobit_file = genomes_path + "/" + twobit_files[assembly] + ".2bit"
+        f = tbr.TwoBitFile(twobit_file)
+
+        cn = complementary_nucleotide
+        for (chrom, pos, x, y) in mutations:
+            start = int(pos) - 1  # zero-based numbering
+            chrom = str(chrom)
+            chromosome = chrom if chrom.startswith('chr') else 'chr' + chrom
+
+            nuc5 = 'N'
+            nuc3 = 'N'
+            nuc = 'N'
+            if chromosome in f:
+                try:
+                    seq = f[chromosome][start - 1: start + 2]  # +/- 1 nucleotide
+                    nuc5, nuc, nuc3 = tuple(seq.upper())
+                except:
+                    nuc = 'N'
+                    # print(chromosome, x, nuc5, nuc, nuc3)
+                if nuc != 'N' and nuc != x:
+                    if cn[nuc] == x:
+                        nuc3 = cn[nuc5]
+                        nuc5 = cn[nuc3]
+                    else:
+                        nuc3 = nuc5 = 'N'
+            else:
+                # print("NO CHROM", chromosome)
+                pass
+            contexts[(chrom, pos)] = (nuc5, nuc3)
+    return contexts
+
+
+def get_context_batch(mutations, assembly, method='twobit'):
+    """
+        Get context for a list of mutations [(chrom, pos, x, y) ] format
+    """
+    if assembly is None:
+        assembly = 38
+
+    if method is None:
+        method = 'twobit'
+
+    methods = {
+        'ensembl': get_context_ensembl,
+        'twobit': get_context_twobit
+    }
+
+    contexts = methods[method](mutations, assembly)
+    return contexts
+
+
+def read_mutations(muts, fmt=None, asm=None):
+    mutations = None
+    processing_stats = None
+    if fmt is not None:
+        fmt = fmt.upper()
+
+    if fmt is None or fmt == "AUTO" or fmt == "":
+        for line in muts.split("\n"):
+            if line.startswith("#version 2."):
+                fmt = "MAF"
+                break
+            if len(line.strip()) == 0 or line.startswith("#"):
+                continue
+            tabs = line.split()
+            if len(tabs) == 2 and "[" in tabs[0] and "]" in tabs[0]:
+                fmt = "PROFILE"
+                break
+            if (len(tabs) == 3 and tabs[1] == ">") or (len(tabs) == 1 and ">" in tabs[0]):
+                fmt = "TRI"
+                break
+            if len(tabs) > 3:
+                fmt = "VCF"
+                if tabs[0].lower().startswith("chr"):
+                    break  # yes, it's VCF
+                if tabs[4].lower().startswith("chr"):
+                    fmt = "MAF"
+                    break
+            continue
+
+    print("DATA FORMAT:", fmt)
+
+    if fmt is None or fmt == "AUTO" or fmt == "" or fmt == "TRI":
+        try:
+            mutations, processing_stats = read_trinucleotide(muts)
+        except:
+            pass
+
+    if fmt == "VCF":
+        mutations, processing_stats = read_VCF(muts, asm)
+    if fmt == "MAF":
+        mutations, processing_stats = read_MAF(muts, asm)
+    if fmt == "PROFILE":
+        mutations, processing_stats = read_PROFILE(muts)
+
+    return mutations, processing_stats
+
+
+def read_MAF(muts, asm=None):
+    cn = complementary_nucleotide
+    mutations = defaultdict(float)
+    N_skipped = 0
+
+    raw_mutations = []
+    for i, line in enumerate(muts):
+        if line.startswith("#"):
+            continue
+        if line.startswith("Hugo_Symbol"):
+            continue
+        if len(line) < 10:
+            continue
+
+        col_list = line.split()
+        if len(col_list) < 13:
+            continue
+
+        try:
+            # assembly_build = col_list[3]  # MAF ASSEMBLY
+            # strand = col_list[7]    # MAF STRAND
+            # ID = col_list[2]
+
+            # chromosome is expected to be one or two number or one letter
+            chrom = col_list[4]  # MAF CHROM
+            if chrom.lower().startswith("chr"):
+                chrom = chrom[3:]
+            # if len(chrom) == 2 and chrom[1] not in "0123456789":
+            #     chrom = chrom[0]
+
+            pos = int(col_list[5])      # MAF POS START
+            pos_end = int(col_list[6])  # MAF POS END
+            x = col_list[10]            # MAF REF
+            y1 = col_list[11]           # MAF ALT1
+            y2 = col_list[12]           # MAF ALT2
+        except:
+            # raise
+            continue
+
+        if pos != pos_end:
+            continue
+
+        # skip if found unexpected nucleotide characters
+        if len(set([x, y1, y2]) - set(nucleotides)) > 0:
+            continue
+
+        y = y1 if y1 != x else None
+        y = y2 if y2 != x else y
+        if y is None:
+            continue
+
+        raw_mutations.append((chrom, pos, x, y))
+
+    MAX = 100000000
+    if len(raw_mutations) > 0:
+        if len(raw_mutations) > MAX:
+            raw_mutations = raw_mutations[:MAX]
+
+        contexts = get_context_batch(raw_mutations, asm)
+
+        if contexts is None:
+            return None, None
+
+        if len(contexts) == 0:
+            return None, None
+
+        for (chrom, pos, x, y) in raw_mutations:
+            p5, p3 = contexts.get((chrom, pos), ("N", "N"))
+
+            if len(set([p5, x, y, p3]) - set(nucleotides)) > 0:
+                # print("Skipping invalid nucleotides")
+                N_skipped += 1
+                continue
+
+            if x in "CT":
+                mutations[p5 + p3 + x + y] += 1.0
+            else:
+                # complementary mutation
+                mutations[cn[p3] + cn[p5] + cn[x] + cn[y]] += 1.0
+
+    N_loaded = int(sum(mutations.values()))
+    processing_stats = {'loaded': N_loaded, 'skipped': N_skipped, 'format': 'MAF'}
+    return mutations, processing_stats
+
+
+def read_VCF(muts, asm=None):
+    cn = complementary_nucleotide
+    mutations = defaultdict(float)
+    N_skipped = 0
+
+    raw_mutations = []
+    for line in muts:
+        if line.startswith("#"):
+            continue
+        if len(line) < 10:
+            continue
+
+        col_list = line.split()
+        if len(col_list) < 4:
+            continue
+
+        # ID = col_list[2]
+
+        # chromosome is expected to be one or two number or one letter
+        chrom = col_list[0]  # VCF CHROM
+        if chrom.lower().startswith("chr"):
+            chrom = chrom[3:]
+        # if len(chrom) == 2 and chrom[1] not in "0123456789":
+        #     chrom = chrom[0]
+
+        pos = int(col_list[1])  # VCF POS
+        x = col_list[3]         # VCF REF
+        y = col_list[4]         # VCF ALT
+
+        # if multiple REF or ALT alleles are given, ignore mutation entry (could mean seq error, could mean deletion)
+        if len(x) != 1:
+            N_skipped += 1
+            continue
+        if len(y) != 1:
+            N_skipped += 1
+            continue
+
+        raw_mutations.append((chrom, pos, x, y))
+    # print("RAW", raw_mutations)
+
+    MAX = 100000000
+    if len(raw_mutations) > 0:
+        if len(raw_mutations) > MAX:
+            raw_mutations = raw_mutations[:MAX]
+
+        contexts = get_context_batch(raw_mutations, asm)
+        # print("CONTEXTS", contexts)
+
+        if contexts is None:
+            return None, None
+
+        if len(contexts) == 0:
+            return None, None
+
+        for (chrom, pos, x, y) in raw_mutations:
+            p5, p3 = contexts.get((chrom, pos), ("N", "N"))
+            # print("RESULT: {} {}".format(p5, p3))
+
+            if len(set([p5, x, y, p3]) - set(nucleotides)) > 0:
+                # print(chrom, pos, p5, p3, x)
+                # print("Skipping invalid nucleotides")
+                N_skipped += 1
+                continue
+
+            if x in "CT":
+                mutations[p5 + p3 + x + y] += 1.0
+            else:
+                # complementary mutation
+                mutations[cn[p3] + cn[p5] + cn[x] + cn[y]] += 1.0
+
+    N_loaded = int(sum(mutations.values()))
+    processing_stats = {'loaded': N_loaded, 'skipped': N_skipped, 'format': 'VCF'}
+    return mutations, processing_stats
+
+
+
+def mp_ensembl_worker(raw_mutations_chunk):
+    """ Helper function for ENSEMBL API call """
+
+    cn = complementary_nucleotide
+    verify_reference = {}
+
+    contexts = {}  # result
+
+    api_input = {'regions': []}
+    for i, (assembly, chrom, pos, x, y) in enumerate(raw_mutations_chunk):
+        # print("!!!", assembly, chrom, pos, x, y)
+        api_input['regions'].append("{}:{}..{}".format(chrom, int(pos) - 1, int(pos) + 1))
+        verify_reference[(chrom, int(pos))] = x
+    api_input_json = json.dumps(api_input)
+
+    asm = {
+        38: "GRCh38",
+        37: "GRCh37",
+        36: "NCBI36",
+        35: "NCBI35",
+        34: "NCBI34"}
+
+    server = "https://rest.ensembl.org"
+    ext = "/sequence/region/human/?coord_system_version={}".format(asm.get(int(assembly), "GRCh38"))
+
+    r = requests.post(server + ext, headers={
+        "Content-Type": "application/json",
+        "Accept": "application/json"}, data=api_input_json, timeout=2.000, verify=False)  # 2 second timeout
+    if not r.ok:
+        print("ENSEMBL Exception")
+        return contexts
+        # raise Exception("POST request does not work")
+    decoded = r.json()
+
+    if 'error' in decoded:
+        return contexts
+
+    for i, record in enumerate(decoded):
+        if 'id' not in record:
+            continue
+        _, asm, chrom, begin, end, expand = record['id'].split(":")
+        pos = int(begin) + 1
+        if _ != "chromosome":
+            continue
+
+        seq = record['seq']
+        nuc5 = seq[0]
+        nuc = seq[1]
+        nuc3 = seq[2]
+        x = verify_reference.get((chrom, pos))
+        if nuc != x:
+            if cn[nuc] == x:
+                nuc3 = cn[nuc5]
+                nuc5 = cn[nuc3]
+            else:
+                # print("Could not match reference allele in ", raw_mutations_chunk[i], "in sequence", seq)
+                nuc3 = 'N'
+                nuc5 = 'N'
+        # print("{} {}: {} [{} > ?] {}".format(chrom, pos, nuc5, x, nuc3))
+        contexts[(chrom, pos)] = (nuc5, nuc3)
+    return contexts
+
+
+def get_context_ensembl(mutations, assembly):
+    """
+    Use Ensembl to get context of mutations
+    ENSEMBL REST API http://rest.ensembl.org/documentation/info/sequence_region_post
+    """
+    raw_mutations = []
+    for (chrom, pos, x, y) in mutations:
+        raw_mutations.append((assembly, chrom, pos, x, y))
+
+    L = len(raw_mutations)
+    MAX_POST_SIZE = 50  # https://github.com/Ensembl/ensembl-rest/blob/78eebccb589798662c0ea758081ba2b2cb6acbca/ensembl_rest.conf.default     max_post_size = 50
+
+    chunks = []
+    for chunk in range(0, L, MAX_POST_SIZE):
+        chunks.append(raw_mutations[chunk: chunk + MAX_POST_SIZE])
+
+    try:
+        p = multiprocessing.Pool(7)
+        cc = p.map(mp_ensembl_worker, chunks, MAX_POST_SIZE)
+    except:
+        # raise
+        cc = []
+    finally:
+        p.close()
+        p.join()
+
+    contexts = {}
+    for c in cc:
+        contexts.update(c)
+
+    if len(contexts) != len(raw_mutations):
+        # print("Not all mutations have context")
+        pass
+    return contexts
