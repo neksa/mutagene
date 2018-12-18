@@ -148,8 +148,9 @@ def aggregate_multiple_benchmarks():
 
     # only report the signature 2 value (as in DeconstructSigs benchmark)
     with open("data/benchmark/multiple/res1.txt", 'w') as o:
-        o.write("sigtype\tnsig\tnmut\tmethod\tSRMSE\tPRMSE\tSTRMSE\tLLIK\tLLIK0\tTLLIK\tTLLIK0\tprecision\trecall\taccuracy\tf1\n")
+        o.write("file_id\tsigtype\tnsig\tnmut\tmethod\tSRMSE\tPRMSE\tSTRMSE\tLLIK\tLLIK0\tTLLIK\tTLLIK0\tprecision\trecall\taccuracy\tf1\n")
         for fname in glob.glob("data/benchmark/multiple/*.profile", recursive=True):
+            file_id = fname.split("/")[-1].split(".")[0]
             sigtype, r, nmut, replica = fname.split("/")[-1].split(".")[0].split("_")
             sigtype = int(sigtype)
 
@@ -219,5 +220,5 @@ def aggregate_multiple_benchmarks():
                 accuracy = accuracy_score(h0_binary, h_binary)
                 f1 = f1_score(h0_binary, h_binary)
 
-                o.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                    sigtype, nsig, nmut, method, SRMSE, PRMSE, STRMSE, LLIK, LLIK0, TLLIK, TLLIK0, precision, recall, accuracy, f1))
+                o.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                    file_id, sigtype, nsig, nmut, method, SRMSE, PRMSE, STRMSE, LLIK, LLIK0, TLLIK, TLLIK0, precision, recall, accuracy, f1))
