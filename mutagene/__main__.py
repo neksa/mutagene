@@ -7,6 +7,7 @@ import mutagene
 from mutagene.io import read_profile_file, format_profile, read_signatures
 from mutagene.io import read_VCF_profile, read_MAF_with_genomic_context, get_mutational_profile, write_decomposition
 from mutagene.io import read_cohort_mutations_from_tar
+from mutagene.io import fetch_genome, fetch_cohorts
 
 from mutagene.profile import calc_profile
 
@@ -21,7 +22,7 @@ def main():
         # usage="%(prog)s [options]",
         # formatter_class=argparse.RawTextHelpFormatter
     )
-    parser.add_argument('cmd', choices=['identify', 'rank', 'calc_freq', 'calc_profile', 'benchmark', ])
+    parser.add_argument('cmd', choices=['identify', 'rank', 'calc_profile', 'fetch_cohorts', 'fetch_genome'])
     # parser.add_argument('integers', metavar='N', type=int, nargs='+',
     #                     help='an integer for the accumulator')
     # parser.add_argument('--sum', dest='accumulate', action='store_const',
@@ -43,11 +44,19 @@ def main():
     parser.add_argument('--mut-rate', "-r", help="Mutation rate overrides the rate inferred from profile", type=float)
     args = parser.parse_args()
 
+    if args.cmd == 'fetch_genome':
+        if not args.genome:
+            logging.warning('requires genome name argument: hg19 or hg38')
+            return
+        fetch_genome(args.genome)
+        logging.info("Twobit file saved to current directory")
+
+    if args.cmd == 'fetch_cohorts':
+        fetch_cohorts()
+        logging.info("cohorts.tar.gz saved to current directory")
+
     if args.cmd == 'benchmark':
         benchmark()
-
-    if args.cmd == 'calc_freq':
-        calc_freq()
 
     if args.cmd == 'calc_profile':
         calc_profile(args.infile, args.outfile, args.genome)
@@ -70,16 +79,7 @@ def main():
             return
 
         mutations_to_rank = read_MAF_with_genomic_context(args.infile, args.genome)
-
-        results = rank(mutations_to_rank, args.outfile, profile, cohort_aa_mutations, cohort_size)
-        import pprint
-        pprint.pprint(results)
-        
-    # if args.cmd == 'gdc':
-    #     gdc()
-
-    # if args.cmd == 'global':
-    #     global_optimization(args.infile)
+        rank(mutations_to_rank, args.outfile, profile, cohort_aa_mutations, cohort_size)
 
 
 def gdc():

@@ -4,6 +4,8 @@ from functools import lru_cache, reduce
 from scipy.stats import binom_test
 from statsmodels.stats.multitest import multipletests
 
+import pandas as pd
+
 # import json
 # import multiprocessing
 # import requests
@@ -104,29 +106,30 @@ def calculate_codon_mutability(mutation_model, seq5, mutated_seq5s):
 # def rank(mutations_to_rank, outfile, profile, cohort_aa_mutations, cohort_size, genome):
 def rank(mutations_to_rank, outfile, profile, cohort_aa_mutations, cohort_size):
     mutation_model = profile_to_dict(profile)
-    results = []    
+    results = []
     for gene, mut, seq5 in mutations_to_rank:
         P, Q = mut[0], mut[-1]
         all_substitutions = get_all_codon_substitutions(P, seq5, Q)
-        # print(gene, mut, seq5, all_substitutions)
-        # mutability p
         mutability = calculate_codon_mutability(mutation_model, seq5, all_substitutions)
-        # pseudocount?
+
+        # Observed N with pseudocount:
         observed_k = cohort_aa_mutations[gene].get(mut, 0) + 1
+
         pval, label, *_ = predict_driver(observed_k, cohort_size, mutability)
         # print(gene, mut, seq5, all_substitutions, " = ", mutability, observed_k, cohort_size, " = ", pval, label)
         results.append({
             'gene': gene,
-            'mut': mut,
+            'mutation': mut,
             'mutability': mutability,
             'pvalue': pval,
+            'qvalue': pval,  # temporarily set to pval
             'label': label,
-            'qvalue': pval,
         })
     pvalues = [result['pvalue'] for result in results]
     qvalues = multipletests(pvals=pvalues, method='fdr_bh')[1]
     for i, qvalue in enumerate(qvalues):
         results[i]['qvalue'] = qvalue
 
-    return results
-    # output to outfile
+    results = sorted(results, key=lambda k: k['qvalue'])
+    df = pd.DataFrame.from_dict(results, index=False, doublequote=False)
+    df.to_csv(outfile, sep="\t")

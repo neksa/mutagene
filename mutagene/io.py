@@ -5,6 +5,7 @@ import requests
 import tarfile
 import os
 import csv
+import urllib
 
 import numpy as np
 import twobitreader as tbr
@@ -684,7 +685,7 @@ def read_MAF_with_genomic_context(infile, genome):
     # get names from column headers
     # MAF = namedtuple("MAF", map(str.lower, next(reader)))
     header = next(reader)
-    print(header)
+    # print(header)
     MAF = namedtuple("MAF", header)
     # print(MAF)
     for data in map(MAF._make, reader):
@@ -766,4 +767,12 @@ def read_na_mutations_map(na_str):
         count = int(count)
         mutations[chrom][(pos, ref, alt)] = count
     return mutations
+
+
+def fetch_genome(name):
+    tbr.download.save_genome(name, destdir=None, mode='ftp')
+
+
+def fetch_cohorts():
+    urllib.request.urlretrieve("https://www.ncbi.nlm.nih.gov/mutagene/static/data/cohorts.tar.gz", filename='cohorts.tar.gz')
 
