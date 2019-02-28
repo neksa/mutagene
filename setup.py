@@ -1,16 +1,19 @@
 import setuptools
-from pymutagene.version import Version
+from mutagene.version import __version__
 
-
-setuptools.setup(name='pymutagene',
-                 version=Version('0.0.1').number,
+setuptools.setup(name='mutagene',
+                 version=__version__,
                  description='Mutational analysis with python',
                  long_description=open('README.md').read().strip(),
                  author='Alexander Goncearenco',
                  author_email='alexandr.goncearenco@nih.gov',
                  url='http://www.ncbi.nlm.nih.gov/projects/mutagene/',
-                 py_modules=['pymutagene'],
+                 py_modules=['mutagene'],
                  install_requires=[],
+                 test_suite='nose.collector',
+                 tests_require=['nose'],
+                 scripts=['bin/mutagene'],
+                 include_package_data=True,
                  license='MIT License',
                  zip_safe=False,
                  keywords='bioinformatics cancer mutations',
