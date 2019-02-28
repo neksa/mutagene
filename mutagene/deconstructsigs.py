@@ -67,7 +67,7 @@ library(deconstructSigs)
 
     for i in signatures_list:
         script1 += """
-W <- rbind(W, t(read.table('/Users/agoncear/projects/pymutagene/data/signatures/{}_{}.profile', sep="\t", header=FALSE, row.names=1)))
+W <- rbind(W, t(read.table('/Users/agoncear/projects/mutagene/data/signatures/{}_{}.profile', sep="\t", header=FALSE, row.names=1)))
 """.format(sig_map[signatures], i + 1)
 
     script1 += "row.names(W) <- c(" + ",".join(["'Signature." + str(i + 1) + "'" for i in signatures_list]) + ")\n"

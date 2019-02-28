@@ -43,3 +43,7 @@ exome_trinucleotides = {
     "ACC": 1369960, "CCA": 2359526, "TTG": 1588902, "ATA": 841828, "TCA": 1853413, "CCG": 1009679, "TTA": 774505,
     "TCG": 640487, "ATG": 1654761, "GTA": 798348, "CTT": 1881403, "GCT": 1983552, "CTA": 713831, "TTT": 1756413,
     "CCC": 1827705, "TCC": 2026380, "TCT": 2000322, "CTG": 2769315}
+
+aa_short = amino_acids_with_stop
+aa_long = ["Ala", "Leu", "Pro", "Gly", "Met", "Ser", "Thr", "Trp", "Ile", "Val", "Cys", "Asp", "Glu", "Phe", "His", "Lys", "Asn", "Gln", "Arg", "Tyr", "STOP"]
+aa_dict = dict(zip(aa_short, aa_long))
