@@ -1,28 +1,32 @@
-import logging
 import argparse
+import signal
 import sys
 
 import mutagene
 
-from mutagene.io import read_profile_file, format_profile, read_signatures
+# from mutagene.io import format_profile
+from mutagene.io import read_profile_file, read_signatures
 from mutagene.io import read_VCF_profile, read_MAF_with_genomic_context, get_mutational_profile, write_decomposition
 from mutagene.io import read_cohort_mutations_from_tar
 from mutagene.io import fetch_genome, fetch_cohorts
+from mutagene.io import read_cohort_size_from_profile_file
 
 from mutagene.profile import calc_profile
 
 from mutagene.mutability import rank
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 def main():
-    logging.basicConfig(level=logging.DEBUG)
-
     parser = argparse.ArgumentParser(
+        prog="mutagene",
         description='MutaGene version {} - Analysis of mutational processes and driver mutations'.format(mutagene.__version__),
         # usage="%(prog)s [options]",
         # formatter_class=argparse.RawTextHelpFormatter
     )
-    parser.add_argument('cmd', choices=['identify', 'rank', 'calc_profile', 'fetch_cohorts', 'fetch_genome'])
+    parser.add_argument('cmd', choices=['fetch_cohorts', 'fetch_genome', 'calc_profile', 'rank'])
     # parser.add_argument('integers', metavar='N', type=int, nargs='+',
     #                     help='an integer for the accumulator')
     # parser.add_argument('--sum', dest='accumulate', action='store_const',
@@ -30,77 +34,94 @@ def main():
     #                     help='sum the integers (default: find the max)')
     parser.add_argument("--infile", "-i", nargs='?', help="Input file format", type=argparse.FileType('r'))
     parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout)
-    parser.add_argument('--signatures', type=str)
-    parser.add_argument('--motifs', type=str)
-    # parser.add_argument('--assembly', "-a", type=str)
-    parser.add_argument('--cohort', "-c", type=str, help="Name of cohort with observed mutations")
-    parser.add_argument('--nsamples', "-n", type=str, help="Cohort size, overrides the value in profile")
-    parser.add_argument('--cohorts-file', type=str, help="Location of tar.gz container or directory for cohorts", default="cohorts.tar.gz")
+    # parser.add_argument('--signatures', type=str)
+    # parser.add_argument('--motifs', type=str)
     parser.add_argument('--genome', "-g", help="Location of genome assembly file", type=str)
-    # parser.add_argument('--normalization', "-n", help="Nucleotide composition normalization: exome_xy, genome_xy(default)", type=str)
-    parser.add_argument('--mode', "-m", help="n (nucleotide) or aa (amino acid) mode", type=str, default="aa")
+
+    # parser.add_argument('--mode', "-m", help="n (nucleotide) or aa (amino acid) mode", type=str, default="aa")
+
+    parser.add_argument('--cohorts-file', type=str, help="Location of tar.gz container or directory for cohorts", default="cohorts.tar.gz")
+    parser.add_argument('--cohort', "-c", type=str, help="Name of cohort with observed mutations")
+    parser.add_argument('--nsamples', "-n", type=int, help="Cohort size, overrides the value in profile")
     parser.add_argument('--profile', "-p", help="profile to calculate mutability, may also describe cohort size", type=str)
-    parser.add_argument('--threshold', "-t", help="B-score thresholds for drivers", type=float)
-    parser.add_argument('--mut-rate', "-r", help="Mutation rate overrides the rate inferred from profile", type=float)
+
+    # parser.add_argument('--threshold', "-t", help="B-score thresholds for drivers", type=float)
+    # parser.add_argument('--mut-rate', "-r", help="Mutation rate overrides the rate inferred from profile", type=float)
+    parser.add_argument('-v', '--verbose', action='count', default=0)
+
     args = parser.parse_args()
+
+    # LOGGER INIT
+    levels = [logging.WARNING, logging.INFO, logging.DEBUG]
+    level = levels[min(len(levels) - 1, args.verbose)]  # capped to number of levels
+
+    logging.basicConfig(level=level,
+                        format="%(levelname)s %(message)s")
 
     if args.cmd == 'fetch_genome':
         if not args.genome:
-            logging.warning('requires genome name argument: hg19 or hg38')
+            logger.warning('requires genome name argument: hg19 or hg38')
             return
         fetch_genome(args.genome)
-        logging.info("Twobit file saved to current directory")
+        logger.info("Twobit file saved to current directory")
 
     if args.cmd == 'fetch_cohorts':
         fetch_cohorts()
-        logging.info("cohorts.tar.gz saved to current directory")
-
-    if args.cmd == 'benchmark':
-        benchmark()
+        logger.info("cohorts.tar.gz saved to current directory")
 
     if args.cmd == 'calc_profile':
+        if not args.genome:
+            logger.warning('requires genome name argument: hg19 or hg38')
+            return
         calc_profile(args.infile, args.outfile, args.genome)
 
-    if args.cmd == 'identify':
-        if args.signatures:
-            identify_signatures(args.infile, args.outfile, args.signatures, args.genome)
-        elif args.motifs:
-            identify_motifs(args.infile, args.outfile, args.signatures, args.genome)
-
     if args.cmd == 'rank':
-        if args.mode == 'na':
-            logging.warning('DNA mutations ranking not supported')
+        # if args.mode == 'na':
+        #     logger.warning('DNA mutations ranking not supported')
+        #     return
+
+        if not args.genome:
+            logger.warning('requires genome name argument: hg19 or hg38')
             return
 
         if args.cohort and args.cohorts_file:
             profile, cohort_size, cohort_aa_mutations, cohort_na_mutations = read_cohort_mutations_from_tar(args.cohorts_file, args.cohort)
+            logger.info('Profile and cohort size loaded from precalculated cohorts N=' + str(cohort_size))
         else:
-            logging.warning('Cohort required')
+            logger.warning('Cohort required')
             return
+
+        if args.profile:
+            profile = read_profile_file(args.profile)
+            logger.info('Profile overridden')
+            cohort_size_new = read_cohort_size_from_profile_file(args.profile)
+            if cohort_size_new:
+                cohort_size = cohort_size_new
+                logger.info('Cohort size loaded from profile N=' + str(cohort_size))
+
+        if args.nsamples:
+            cohort_size = args.nsamples
+            logger.info('Cohort size manually overridden N=' + str(cohort_size))
 
         mutations_to_rank = read_MAF_with_genomic_context(args.infile, args.genome)
         rank(mutations_to_rank, args.outfile, profile, cohort_aa_mutations, cohort_size)
 
+    """
+    if args.cmd == 'benchmark':
+        benchmark()
 
-def gdc():
-    from .gdc import gdc_read_file
-    print(gdc_read_file())
-
-
-def global_optimization(input_file):
-    from .identify import decompose_mutational_profile_counts
-
-    profile = read_profile_file(input_file)
-    W, signature_names = read_signatures(30)
-    _, _, results = decompose_mutational_profile_counts(
-        profile,
-        (W, signature_names),
-        'MLEZ-GLOB',
-        debug=False,
-        others_threshold=0.0)
-    print(results)
+    if args.cmd == 'identify':
+        if not args.genome:
+            logger.warning('requires genome name argument: hg19 or hg38')
+            return
+        if args.signatures:
+            identify_signatures(args.infile, args.outfile, args.signatures, args.genome)
+        elif args.motifs:
+            identify_motifs(args.infile, args.outfile, args.signatures, args.genome)
+    """
 
 
+"""
 def identify_signatures(input_file, output_file, signatures, genome):
     from mutagene.identify import decompose_mutational_profile_counts
 
@@ -133,6 +154,24 @@ def identify_motifs(input_file, output_file, signatures, genome):
         others_threshold=0.0)
     write_decomposition(output_file, results, signature_names)
 
+# def gdc():
+#     from .gdc import gdc_read_file
+#     print(gdc_read_file())
+
+
+def global_optimization(input_file):
+    from .identify import decompose_mutational_profile_counts
+
+    profile = read_profile_file(input_file)
+    W, signature_names = read_signatures(30)
+    _, _, results = decompose_mutational_profile_counts(
+        profile,
+        (W, signature_names),
+        'MLEZ-GLOB',
+        debug=False,
+        others_threshold=0.0)
+    print(results)
+
 
 def benchmark():
     from .generate_benchmark import gen_benchmark_2combinations
@@ -154,7 +193,14 @@ def benchmark():
 
     aggregate_multiple_benchmarks()
     # aggregate_benchmarks()
+"""
+
+
+def signal_handler(signal, frame):
+    # logger.warning('Interrupted')
+    sys.exit(0)
 
 
 if __name__ == '__main__':
+    signal.signal(signal.SIGINT, signal_handler)
     main()

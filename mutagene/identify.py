@@ -1,18 +1,18 @@
-import numpy as np
-
 import urllib
 import math
-# import scipy.spatial.distance
-# import sklearn.cluster
+
+import numpy as np
 
 from scipy.optimize import minimize
 from scipy.optimize import nnls
-from scipy.optimize import basinhopping  # , differential_evolution
+# from scipy.optimize import basinhopping  # , differential_evolution
 # from scipy.optimize import fmin_cobyla
-
 from scipy.stats import entropy
 
 from .io import get_dummy_signatures_lists
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 def multi_kl(p, q):

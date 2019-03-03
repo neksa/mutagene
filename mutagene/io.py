@@ -1,18 +1,21 @@
-from collections import defaultdict, namedtuple
-import json
-import multiprocessing
-import requests
-import tarfile
 import os
+import sys
 import csv
-import urllib
+import json
+import tarfile
+import requests
+import multiprocessing
 
 import numpy as np
 import twobitreader as tbr
 
+from collections import defaultdict, namedtuple
+from tqdm import tqdm
+
 from .dna import nucleotides, complementary_nucleotide
 
-# TWOBIT_GENOMES_PATH = '/Users/agoncear/data/'
+import logging
+logger = logging.getLogger(__name__)
 
 
 def read_signatures(n_signatures):
@@ -24,9 +27,7 @@ def read_signatures(n_signatures):
     W = []
     signature_names = []
     for i in range(n_signatures):
-        # fname = dirname + "/data/signatures/{}_{}.profile".format(signatures_dict[n_signatures], i + 1)
         fname = dirname + "/../data/signatures/{}_{}.profile".format(signatures_dict[n_signatures], i + 1)
-        # print(fname)
         profile = read_profile_file(fname)
         W.append(profile)
         signature_names.append("{}".format(i + 1))
@@ -76,7 +77,6 @@ def read_profile_str(profile_str):
             return None, None
 
         mutations[p5 + p3 + x + y] = f
-        # print(p5, p3, x, y)
 
     values = []
     for p5 in nucleotides:
@@ -107,6 +107,15 @@ def read_profile_file(profile_file):
         return None
 
 
+def read_cohort_size_from_profile_file(profile_file):
+    try:
+        with open(profile_file) as f:
+            profile_str = f.read()
+            return read_cohort_size_from_profile_str(profile_str)
+    except IOError:
+        return 0
+
+
 def read_cohort_size_from_profile_str(profile_str):
     for line in profile_str.splitlines():
         if line.startswith("#"):
@@ -114,6 +123,7 @@ def read_cohort_size_from_profile_str(profile_str):
             a, b = line.strip().split()
             if a == "#NSAMPLES":
                 return int(b)
+    return 0
 
 
 def get_mutational_profile(mutations, counts=False):
@@ -265,7 +275,7 @@ def get_context_twobit(mutations, twobit_file):
     f = tbr.TwoBitFile(twobit_file)
 
     cn = complementary_nucleotide
-    for (chrom, pos, x, y) in mutations:
+    for (chrom, pos, x, y) in tqdm(mutations):
         start = int(pos) - 1  # zero-based numbering
         chrom = str(chrom)
         chromosome = chrom if chrom.startswith('chr') else 'chr' + chrom
@@ -319,8 +329,9 @@ def read_mutations(muts, fmt=None, asm=None):
         fmt = fmt.upper()
 
     if fmt is None or fmt == "AUTO" or fmt == "":
-        # for line in muts.split("\n"):
+        mutations_lines = []
         for line in muts:
+            mutations_lines.append(line)
             if line.startswith("#version 2."):
                 fmt = "MAF"
                 break
@@ -341,21 +352,18 @@ def read_mutations(muts, fmt=None, asm=None):
                     fmt = "MAF"
                     break
             continue
+    else:
+        mutations_lines = muts.readlines()
 
-    print("DATA FORMAT:", fmt)
+    logger.info("DATA FORMAT:" + fmt)
 
     if fmt is None or fmt == "AUTO" or fmt == "" or fmt == "TRI":
-        try:
-            mutations, processing_stats = read_trinucleotide(muts)
-        except:
-            pass
+        logger.warning("The dataformat is not supported")
 
     if fmt == "VCF":
-        mutations, processing_stats = read_VCF_profile(muts, asm)
+        mutations, processing_stats = read_VCF_profile(mutations_lines, asm)
     if fmt == "MAF":
-        mutations, processing_stats = read_MAF_profile(muts, asm)
-    # if fmt == "PROFILE":
-    #     mutations, processing_stats = read_PROFILE(muts)
+        mutations, processing_stats = read_MAF_profile(mutations_lines, asm)
 
     return mutations, processing_stats
 
@@ -413,10 +421,10 @@ def read_MAF_profile(muts, asm=None):
 
         raw_mutations.append((chrom, pos, x, y))
 
-    MAX = 100000000
+    # MAX = 100000000
     if len(raw_mutations) > 0:
-        if len(raw_mutations) > MAX:
-            raw_mutations = raw_mutations[:MAX]
+        # if len(raw_mutations) > MAX:
+        #     raw_mutations = raw_mutations[:MAX]
 
         contexts = get_context_batch(raw_mutations, asm)
 
@@ -451,7 +459,7 @@ def read_VCF_profile(muts, asm=None):
     N_skipped = 0
 
     raw_mutations = []
-    for line in muts:
+    for i, line in enumerate(muts):
         if line.startswith("#"):
             continue
         if len(line) < 10:
@@ -462,7 +470,6 @@ def read_VCF_profile(muts, asm=None):
             continue
 
         # ID = col_list[2]
-
         # chromosome is expected to be one or two number or one letter
         chrom = col_list[0]  # VCF CHROM
         if chrom.lower().startswith("chr"):
@@ -483,12 +490,11 @@ def read_VCF_profile(muts, asm=None):
             continue
 
         raw_mutations.append((chrom, pos, x, y))
-    # print("RAW", raw_mutations)
 
-    MAX = 100000000
+    # MAX = 1e7
     if len(raw_mutations) > 0:
-        if len(raw_mutations) > MAX:
-            raw_mutations = raw_mutations[:MAX]
+        # if len(raw_mutations) > MAX:
+        #     raw_mutations = raw_mutations[:MAX]
 
         contexts = get_context_batch(raw_mutations, asm)
         # print("CONTEXTS", contexts)
@@ -601,7 +607,7 @@ def get_context_ensembl(mutations, assembly):
 
     try:
         p = multiprocessing.Pool(7)
-        cc = p.map(mp_ensembl_worker, chunks, MAX_POST_SIZE)
+        cc = p.map(mp_ensembl_worker, tqdm(chunks), MAX_POST_SIZE)
     except:
         # raise
         cc = []
@@ -642,34 +648,34 @@ def read_cohort_mutations_from_tar(tar_fname, cohort):
     return profile, cohort_size, aa_mutations, na_mutations
 
 
-def get_genome_sequence_twobit(twobit):
-    cn = complementary_nucleotide
-    for (chrom, pos, x, y) in mutations:
-        start = int(pos) - 1  # zero-based numbering
-        chrom = str(chrom)
-        chromosome = chrom if chrom.startswith('chr') else 'chr' + chrom
+# def get_genome_sequence_twobit(twobit):
+#     cn = complementary_nucleotide
+#     for (chrom, pos, x, y) in mutations:
+#         start = int(pos) - 1  # zero-based numbering
+#         chrom = str(chrom)
+#         chromosome = chrom if chrom.startswith('chr') else 'chr' + chrom
 
-        nuc5 = 'N'
-        nuc3 = 'N'
-        nuc = 'N'
-        if chromosome in f:
-            try:
-                seq = f[chromosome][start - 1: start + 2]  # +/- 1 nucleotide
-                nuc5, nuc, nuc3 = tuple(seq.upper())
-            except:
-                nuc = 'N'
-                # print(chromosome, x, nuc5, nuc, nuc3)
-            if nuc != 'N' and nuc != x:
-                if cn[nuc] == x:
-                    nuc3 = cn[nuc5]
-                    nuc5 = cn[nuc3]
-                else:
-                    nuc3 = nuc5 = 'N'
-        else:
-            # print("NO CHROM", chromosome)
-            pass
-        contexts[(chrom, pos)] = (nuc5, nuc3)
-    return contexts
+#         nuc5 = 'N'
+#         nuc3 = 'N'
+#         nuc = 'N'
+#         if chromosome in f:
+#             try:
+#                 seq = f[chromosome][start - 1: start + 2]  # +/- 1 nucleotide
+#                 nuc5, nuc, nuc3 = tuple(seq.upper())
+#             except:
+#                 nuc = 'N'
+#                 # print(chromosome, x, nuc5, nuc, nuc3)
+#             if nuc != 'N' and nuc != x:
+#                 if cn[nuc] == x:
+#                     nuc3 = cn[nuc5]
+#                     nuc5 = cn[nuc3]
+#                 else:
+#                     nuc3 = nuc5 = 'N'
+#         else:
+#             # print("NO CHROM", chromosome)
+#             pass
+#         contexts[(chrom, pos)] = (nuc5, nuc3)
+#     return contexts
 
 
 def read_MAF_with_genomic_context_fname(fname, genome):
@@ -712,7 +718,7 @@ def read_MAF_with_genomic_context(infile, genome):
         elif seq5_rev[1:4] == c1:
             seq5 = seq5_rev
         else:
-            print("Sequence missmatch of mutation with the genome, check if using the correct genome assembly:", data.Protein_Change)
+            logger.info("Sequence missmatch of mutation with the genome, check if using the correct genome assembly: " + data.Protein_Change)
             continue
         # data.Chromosome,
         # data.Start_position,
@@ -769,10 +775,49 @@ def read_na_mutations_map(na_str):
     return mutations
 
 
+# ########### URL ##############
+
+def download_from_url(url, dst):
+    """
+    @param: url to download file
+    @param: dst place to put the file
+    """
+    try:
+        file_size = int(requests.head(url).headers["Content-Length"])
+    except:
+        logger.warning("Could not access URL " + url)
+        sys.exit(1)
+    if os.path.exists(dst):
+        first_byte = os.path.getsize(dst)
+    else:
+        first_byte = 0
+    if first_byte >= file_size:
+        return file_size
+    header = {"Range": "bytes=%s-%s" % (first_byte, file_size)}
+    pbar = tqdm(
+        total=file_size, initial=first_byte,
+        unit='B', unit_scale=True, desc=url.split('/')[-1])
+    req = requests.get(url, headers=header, stream=True)
+    with(open(dst, 'ab')) as f:
+        for chunk in req.iter_content(chunk_size=1024):
+            if chunk:
+                f.write(chunk)
+                pbar.update(1024)
+    pbar.close()
+    return file_size
+
+
 def fetch_genome(name):
-    tbr.download.save_genome(name, destdir=None, mode='ftp')
+    # ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit
+    # http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit
+    assembly = name.lower()
+    mode = 'http'
+    url = f'{mode}://hgdownload.cse.ucsc.edu/goldenPath/{assembly}/bigZips/{assembly}.2bit'
+    dst = f'{assembly}.2bit'
+    download_from_url(url, dst)
 
 
 def fetch_cohorts():
-    urllib.request.urlretrieve("https://www.ncbi.nlm.nih.gov/mutagene/static/data/cohorts.tar.gz", filename='cohorts.tar.gz')
-
+    url = "https://www.ncbi.nlm.nih.gov/mutagene/static/data/cohorts.tar.gz"
+    dst = "cohorts.tar.gz"
+    download_from_url(url, dst)

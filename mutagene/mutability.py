@@ -1,23 +1,16 @@
-from collections import defaultdict
-import math
+import pandas as pd
+
+from collections import defaultdict, OrderedDict
 from functools import lru_cache, reduce
+
 from scipy.stats import binom_test
 from statsmodels.stats.multitest import multipletests
 
-import pandas as pd
-
-# import json
-# import multiprocessing
-# import requests
-
-# import numpy as np
-# import twobitreader as tbr
-
-# from .dna import nucleotides, complementary_nucleotide
-from .io import (
-    read_mutations, get_mutational_profile, write_profile_file,
-    get_signature_attributes_dict)
 from .dna import *
+from .io import get_signature_attributes_dict
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 def get_all_codon_substitutions(P, seq5, Q):
@@ -27,9 +20,9 @@ def get_all_codon_substitutions(P, seq5, Q):
     seq5_codon = seq5[1:-1]
     mutated_seq5s = []
     if seq5_codon not in codon_table:
-        print("Invalid codon", seq5_codon)
+        logger.warning("Invalid codon " + seq5_codon)
     if codon_table[seq5_codon] != P:
-        print("Codon P does not match the sequence", seq5_codon, P)
+        logger.warning("Codon P does not match the sequence " + seq5_codon + " " + P)
     for codon, A in codon_table.items():
         if A != Q:
             continue
@@ -102,8 +95,6 @@ def calculate_codon_mutability(mutation_model, seq5, mutated_seq5s):
     return 1.0 - reduce(lambda x, y: x * (1.0 - y), positional_mutability.values(), 1.0)
 
 
-# def rank(infile, outfile, genome):
-# def rank(mutations_to_rank, outfile, profile, cohort_aa_mutations, cohort_size, genome):
 def rank(mutations_to_rank, outfile, profile, cohort_aa_mutations, cohort_size):
     mutation_model = profile_to_dict(profile)
     results = []
@@ -114,22 +105,24 @@ def rank(mutations_to_rank, outfile, profile, cohort_aa_mutations, cohort_size):
 
         # Observed N with pseudocount:
         observed_k = cohort_aa_mutations[gene].get(mut, 0) + 1
+        N = cohort_size + 1
 
-        pval, label, *_ = predict_driver(observed_k, cohort_size, mutability)
+        pval, label, *_ = predict_driver(observed_k, N, mutability)
         # print(gene, mut, seq5, all_substitutions, " = ", mutability, observed_k, cohort_size, " = ", pval, label)
         results.append({
             'gene': gene,
             'mutation': mut,
             'mutability': mutability,
-            'pvalue': pval,
+            'bscore': pval,
             'qvalue': pval,  # temporarily set to pval
-            'label': label,
+            # 'label': label,
         })
-    pvalues = [result['pvalue'] for result in results]
+    pvalues = [result['bscore'] for result in results]
     qvalues = multipletests(pvals=pvalues, method='fdr_bh')[1]
     for i, qvalue in enumerate(qvalues):
         results[i]['qvalue'] = qvalue
 
-    results = sorted(results, key=lambda k: k['qvalue'])
-    df = pd.DataFrame.from_dict(results, index=False, doublequote=False)
-    df.to_csv(outfile, sep="\t")
+    results = list(map(OrderedDict, sorted(results, key=lambda k: k['qvalue'])))
+    df = pd.DataFrame(results, columns=results[0].keys())
+    df.drop(df[df.mutability == 0].index, inplace=True)
+    df.to_csv(outfile, sep="\t", index=False, doublequote=False)
