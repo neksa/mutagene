@@ -1,8 +1,8 @@
 import requests
 import json
+import os
 
-
-TOKEN_FILE_PATH = "/Users/agoncear/data/gdc-user-token.txt"
+TOKEN_FILE_PATH = os.environ['GDC_TOKEN']
 
 
 def gdc_read_file(file_id="11443f3c-9b8b-4e47-b5b7-529468fec098"):

@@ -1,7 +1,8 @@
 #
 import numpy as np
 
-from .io import read_profile, format_profile
+# from .io import read_profile
+# from .io import format_profile
 from .identify import decompose_mutational_profile_counts
 
 
@@ -194,5 +195,3 @@ def benchmark_2combinations(results_fname, signature_names, W):
                         report.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(SE_E, MSE_M, MSE_E, ll, frob, frob0, js, kl))
 
                     print(signature_ids[i], N_mutations, iteration, round(MSE_M, 4), round(MSE_E, 4), round(ll, 4), round(frob, 4), round(frob0, 4), round(js, 4), round(kl, 4))
-
-
