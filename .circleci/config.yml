@@ -54,7 +54,7 @@ jobs:
           name: verify package
           command: |
             . venv/bin/activate
-            python setup.py verify
+            python setup.py check
 
       - run:
           name: create packages
