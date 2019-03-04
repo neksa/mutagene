@@ -57,13 +57,6 @@ jobs:
             python setup.py check
 
       - run:
-          name: create packages
-          command: |
-            . venv/bin/activate
-            python setup.py sdist
-            python setup.py bdist_wheel
-
-      - run:
           name: install package
           command: |
             . venv/bin/activate
