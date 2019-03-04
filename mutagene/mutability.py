@@ -118,11 +118,15 @@ def rank(mutations_to_rank, outfile, profile, cohort_aa_mutations, cohort_size):
             # 'label': label,
         })
     pvalues = [result['bscore'] for result in results]
-    qvalues = multipletests(pvals=pvalues, method='fdr_bh')[1]
+    qvalues = []
+    if len(pvalues):
+        qvalues = multipletests(pvals=pvalues, method='fdr_bh')[1]
     for i, qvalue in enumerate(qvalues):
         results[i]['qvalue'] = qvalue
 
     results = list(map(OrderedDict, sorted(results, key=lambda k: k['qvalue'])))
+    if len(results) == 0:
+        return
     df = pd.DataFrame(results, columns=results[0].keys())
     df.drop(df[df.mutability == 0].index, inplace=True)
     df.to_csv(outfile, sep="\t", index=False, doublequote=False)

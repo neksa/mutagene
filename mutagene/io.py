@@ -104,6 +104,7 @@ def read_profile_file(profile_file):
             profile_str = f.read()
             return read_profile_str(profile_str)
     except IOError:
+        logger.warning("Could not read profile file")
         return None
 
 
@@ -113,6 +114,7 @@ def read_cohort_size_from_profile_file(profile_file):
             profile_str = f.read()
             return read_cohort_size_from_profile_str(profile_str)
     except IOError:
+        logger.warning("Could not read profile file")
         return 0
 
 
@@ -272,7 +274,8 @@ def get_context_twobit(mutations, twobit_file):
     """
     contexts = {}
 
-    f = tbr.TwoBitFile(twobit_file)
+    fname = twobit_file if twobit_file.endswith('.2bit') else twobit_file + '.2bit'
+    f = tbr.TwoBitFile(fname)
 
     cn = complementary_nucleotide
     for (chrom, pos, x, y) in tqdm(mutations):
@@ -351,7 +354,7 @@ def read_mutations(muts, fmt=None, asm=None):
                 if tabs[4].lower().startswith("chr"):
                     fmt = "MAF"
                     break
-            continue
+        mutations_lines.extend(muts.readlines())
     else:
         mutations_lines = muts.readlines()
 
@@ -626,6 +629,7 @@ def get_context_ensembl(mutations, assembly):
 
 
 def read_cohort_mutations_from_tar(tar_fname, cohort):
+    """ Loads up profile, cohort size, aa mutations and na mutations from precalculated cohorts tar file """
     aa_mutations = {}
     na_mutations = {}
     profile = []
@@ -646,6 +650,17 @@ def read_cohort_mutations_from_tar(tar_fname, cohort):
                     na_mutations_str = tar.extractfile(t).read().decode('utf-8')
                     na_mutations = read_na_mutations_map(na_mutations_str)
     return profile, cohort_size, aa_mutations, na_mutations
+
+
+def list_cohorts_in_tar(tar_fname):
+    """ Returns a multiline string formatted list of cohorts contained in tar file """
+    cohorts = []
+    with tarfile.open(tar_fname, 'r:gz') as tar:
+        for t in tar:
+            haystack = t.name.lower()
+            if haystack.endswith(".aa_mutations.txt"):
+                cohorts.append("\t" + haystack.split("/")[1].split('.')[0])
+    return "\n".join(cohorts)
 
 
 # def get_genome_sequence_twobit(twobit):
@@ -680,56 +695,73 @@ def read_cohort_mutations_from_tar(tar_fname, cohort):
 
 def read_MAF_with_genomic_context_fname(fname, genome):
     with open(fname) as infile:
-        read_MAF_with_genomic_context(infile, genome)
+        return read_MAF_with_genomic_context(infile, genome)
 
 
 def read_MAF_with_genomic_context(infile, genome):
-    twobit = tbr.TwoBitFile(genome)
-
     mutations = []
-    reader = csv.reader(infile, delimiter='\t')
-    # get names from column headers
-    # MAF = namedtuple("MAF", map(str.lower, next(reader)))
-    header = next(reader)
-    # print(header)
-    MAF = namedtuple("MAF", header)
-    # print(MAF)
+    if not infile:
+        logger.warning("No input file")
+        return mutations
+
+    fname = genome if genome.endswith('.2bit') else genome + '.2bit'
+    twobit = tbr.TwoBitFile(fname)
+
+    try:
+        reader = csv.reader((row for row in infile if not row.startswith('#')), delimiter='\t')
+        # get names from column headers
+        header = next(reader)
+        # MAF = namedtuple("MAF", map(str.lower, next(reader)))
+        MAF = namedtuple("MAF", header)
+    except ValueError:
+        logger.warning("MAF format not recognized")
+        return mutations
+
+    N_loaded = N_skipped = 0
+
     for data in map(MAF._make, reader):
-        if '_' in data.Protein_Change:
-            continue
-        if data.Protein_Change.endswith('fs'):
-            continue
-        if not data.Codon_Change.startswith("c."):
-            continue
-        c1, c2 = data.Codon_Change.split(")")[1].split(">")
-        for offset in range(3):
-            if c1[offset] != c2[offset]:
-                break
-        chrom = data.Chromosome
-        start = int(data.Start_position)
-        chromosome = chrom if chrom.startswith('chr') else 'chr' + chrom
-        seq5_fwd = twobit[chromosome][start - offset - 2: start - offset + 3].upper()
-        seq5_rev = "".join(
-            [complementary_nucleotide[x] for x in reversed(
-                twobit[chromosome][start - (2 - offset) - 2: start - (2 - offset) + 3].upper())])
+        try:
+            if '_' in data.Protein_Change:
+                continue
+            if data.Protein_Change.endswith('fs'):
+                continue
+            if not data.Codon_Change.startswith("c."):
+                continue
+            c1, c2 = data.Codon_Change.split(")")[1].split(">")
+            for offset in range(3):
+                if c1[offset] != c2[offset]:
+                    break
+            chrom = data.Chromosome
+            start = int(data.Start_position)
+            chromosome = chrom if chrom.startswith('chr') else 'chr' + chrom
+            seq5_fwd = twobit[chromosome][start - offset - 2: start - offset + 3].upper()
+            seq5_rev = "".join(
+                [complementary_nucleotide[x] for x in reversed(
+                    twobit[chromosome][start - (2 - offset) - 2: start - (2 - offset) + 3].upper())])
 
-        if seq5_fwd[1:4] == c1:
-            seq5 = seq5_fwd
-        elif seq5_rev[1:4] == c1:
-            seq5 = seq5_rev
-        else:
-            logger.info("Sequence missmatch of mutation with the genome, check if using the correct genome assembly: " + data.Protein_Change)
-            continue
-        # data.Chromosome,
-        # data.Start_position,
-        # data.Strand,
-        # data.Codon_Change,
-        mutations.append((
-            data.Hugo_Symbol,
-            data.Protein_Change.split(".")[1],
-            seq5
-        ))
+            if seq5_fwd[1:4] == c1:
+                seq5 = seq5_fwd
+            elif seq5_rev[1:4] == c1:
+                seq5 = seq5_rev
+            else:
+                # print(seq5_fwd[1:4], seq5_rev[1:4], c1)
+                N_skipped += 1
+                logger.debug("Sequence missmatch of mutation with the genome, check if using the correct genome assembly: " + data.Protein_Change)
+                continue
+            # data.Chromosome,
+            # data.Start_position,
+            # data.Strand,
+            # data.Codon_Change,
 
+            N_loaded += 1
+            mutations.append((
+                data.Hugo_Symbol,
+                data.Protein_Change.split(".")[1],
+                seq5
+            ))
+        except:
+            N_skipped += 1
+            continue
         # print(data.Codon_Change, data.Strand, offset, seq5)
 
         # print(data.cDNA_position, data.CDS_position, data.Protein_position)
@@ -744,7 +776,8 @@ def read_MAF_with_genomic_context(infile, genome):
         # End_Position
         # Strand
         # HGVSp
-    return mutations
+    processing_stats = {'loaded': N_loaded, 'skipped': N_skipped, 'format': 'MAF'}
+    return mutations, processing_stats
 
 
 def read_aa_mutations_map(aa_str):
@@ -776,48 +809,69 @@ def read_na_mutations_map(na_str):
 
 
 # ########### URL ##############
-
 def download_from_url(url, dst):
     """
+    Download file with progressbar
+
     @param: url to download file
     @param: dst place to put the file
     """
+    chunk_size = 1024  # 1048576
+
     try:
         file_size = int(requests.head(url).headers["Content-Length"])
     except:
         logger.warning("Could not access URL " + url)
         sys.exit(1)
-    if os.path.exists(dst):
-        first_byte = os.path.getsize(dst)
-    else:
-        first_byte = 0
+
+    first_byte = os.path.getsize(dst) if os.path.exists(dst) else 0
+
     if first_byte >= file_size:
+        logger.warning("Looks like the file has been downloaded already: " + dst)
         return file_size
+
     header = {"Range": "bytes=%s-%s" % (first_byte, file_size)}
-    pbar = tqdm(
-        total=file_size, initial=first_byte,
-        unit='B', unit_scale=True, desc=url.split('/')[-1])
-    req = requests.get(url, headers=header, stream=True)
-    with(open(dst, 'ab')) as f:
-        for chunk in req.iter_content(chunk_size=1024):
-            if chunk:
-                f.write(chunk)
-                pbar.update(1024)
-    pbar.close()
+    try:
+        r = requests.get(url, headers=header, stream=True)
+        file_size = int(r.headers['Content-Length'])
+    except:
+        logger.warning("Could not access URL " + url)
+        sys.exit(1)
+
+    def generate(raw, chunk_size):
+        while True:
+            chunk = raw.read(chunk_size)
+            if not chunk:
+                break
+            yield chunk
+
+    # need to access raw stream because r.iter_content() deflates .gz automatically
+    # opening file in append mode
+    with open(dst, 'ab') as fp:
+        for chunk in tqdm(
+                generate(r.raw, chunk_size=chunk_size),
+                initial=first_byte // chunk_size,
+                total=file_size // chunk_size,
+                unit='KB',
+                desc=dst,
+                leave=True):
+            fp.write(chunk)
     return file_size
 
 
 def fetch_genome(name):
     # ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit
     # http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit
-    assembly = name.lower()
+    assembly = name.rsplit('.', 1)[0] if '.2bit' in name else name
+    assembly = assembly.lower()
     mode = 'http'
+
     url = f'{mode}://hgdownload.cse.ucsc.edu/goldenPath/{assembly}/bigZips/{assembly}.2bit'
     dst = f'{assembly}.2bit'
     download_from_url(url, dst)
 
 
 def fetch_cohorts():
-    url = "https://www.ncbi.nlm.nih.gov/mutagene/static/data/cohorts.tar.gz"
+    url = "https://www.ncbi.nlm.nih.gov/research/mutagene/static/data/cohorts.tar.gz"
     dst = "cohorts.tar.gz"
     download_from_url(url, dst)

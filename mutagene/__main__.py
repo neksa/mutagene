@@ -9,11 +9,10 @@ from mutagene.io import read_profile_file, read_signatures
 from mutagene.io import read_VCF_profile, read_MAF_with_genomic_context, get_mutational_profile, write_decomposition
 from mutagene.io import read_cohort_mutations_from_tar
 from mutagene.io import fetch_genome, fetch_cohorts
-from mutagene.io import read_cohort_size_from_profile_file
-
+from mutagene.io import read_cohort_size_from_profile_file, list_cohorts_in_tar
 from mutagene.profile import calc_profile
-
 from mutagene.mutability import rank
+from mutagene.version import __version__
 
 import logging
 logger = logging.getLogger(__name__)
@@ -21,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="mutagene",
+        prog="MutaGene",
         description='MutaGene version {} - Analysis of mutational processes and driver mutations'.format(mutagene.__version__),
         # usage="%(prog)s [options]",
         # formatter_class=argparse.RawTextHelpFormatter
@@ -48,6 +47,7 @@ def main():
     # parser.add_argument('--threshold', "-t", help="B-score thresholds for drivers", type=float)
     # parser.add_argument('--mut-rate', "-r", help="Mutation rate overrides the rate inferred from profile", type=float)
     parser.add_argument('-v', '--verbose', action='count', default=0)
+    parser.add_argument('-V', '--version', action='version', version="%(prog)s " + __version__)
 
     args = parser.parse_args()
 
@@ -58,9 +58,11 @@ def main():
     logging.basicConfig(level=level,
                         format="%(levelname)s %(message)s")
 
+    genome_error_message = 'requires genome name argument -g hg19, hg38, mm10, see http://hgdownload.cse.ucsc.edu/downloads.html for more'
+
     if args.cmd == 'fetch_genome':
         if not args.genome:
-            logger.warning('requires genome name argument: hg19 or hg38')
+            logger.warning(genome_error_message)
             return
         fetch_genome(args.genome)
         logger.info("Twobit file saved to current directory")
@@ -70,8 +72,11 @@ def main():
         logger.info("cohorts.tar.gz saved to current directory")
 
     if args.cmd == 'calc_profile':
+        if not args.infile:
+            logger.warning("Provide input file in VCF or MAF format (-i) and a corresponding genome assembly (-g)")
+            return
         if not args.genome:
-            logger.warning('requires genome name argument: hg19 or hg38')
+            logger.warning(genome_error_message)
             return
         calc_profile(args.infile, args.outfile, args.genome)
 
@@ -81,7 +86,7 @@ def main():
         #     return
 
         if not args.genome:
-            logger.warning('requires genome name argument: hg19 or hg38')
+            logger.warning(genome_error_message)
             return
 
         if args.cohort and args.cohorts_file:
@@ -89,11 +94,17 @@ def main():
             logger.info('Profile and cohort size loaded from precalculated cohorts N=' + str(cohort_size))
         else:
             logger.warning('Cohort required')
+
+            if args.cohorts_file:
+                logger.warning("List of available cohorts:\n" + list_cohorts_in_tar(args.cohorts_file))
             return
 
         if args.profile:
             profile = read_profile_file(args.profile)
-            logger.info('Profile overridden')
+            if profile:
+                logger.info('Profile overridden')
+            else:
+                return
             cohort_size_new = read_cohort_size_from_profile_file(args.profile)
             if cohort_size_new:
                 cohort_size = cohort_size_new
@@ -101,9 +112,19 @@ def main():
 
         if args.nsamples:
             cohort_size = args.nsamples
-            logger.info('Cohort size manually overridden N=' + str(cohort_size))
+            logger.info('Cohort size overridden N=' + str(cohort_size))
 
-        mutations_to_rank = read_MAF_with_genomic_context(args.infile, args.genome)
+        mutations_to_rank, processing_stats = read_MAF_with_genomic_context(args.infile, args.genome)
+
+        if not len(mutations_to_rank):
+            logger.warning('No mutations to rank')
+            return
+
+        msg = "Loaded {} mutations".format(processing_stats['loaded'])
+        if processing_stats['skipped'] > 0:
+            msg += " skipped {} mutations due to mismatches with the reference genome".format(processing_stats['skipped'])
+        logger.info(msg)
+
         rank(mutations_to_rank, args.outfile, profile, cohort_aa_mutations, cohort_size)
 
     """
@@ -112,7 +133,7 @@ def main():
 
     if args.cmd == 'identify':
         if not args.genome:
-            logger.warning('requires genome name argument: hg19 or hg38')
+            logger.warning(genome_error_message)
             return
         if args.signatures:
             identify_signatures(args.infile, args.outfile, args.signatures, args.genome)
