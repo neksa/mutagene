@@ -1,25 +1,18 @@
-import pathlib
 import glob
-import pprint
 import random
-import numpy as np
 import uuid
+import numpy as np
 
 from multiprocessing import Pool
+from sklearn.metrics import (
+    recall_score, precision_score, accuracy_score, f1_score, mean_squared_error)
 
-
-from sklearn.metrics import recall_score, precision_score, accuracy_score, f1_score, mean_squared_error
-
-# from math import ceil
-# from os.path import isfile
-# from multiprocessing import Pool
-
-from .io import read_profile, format_profile, read_signatures
-from .io import write_profile
-from .identify import NegLogLik
-# from .identify import decompose_mutational_profile_counts
-from .deconstructsigs import deconstruct_sigs_custom
-from .generate_benchmark import *
+from mutagene.io import read_profile_file, read_signatures
+from mutagene.io import write_profile
+from mutagene.identify import NegLogLik
+from mutagene.deconstructsigs import deconstruct_sigs_custom
+from mutagene.generate_benchmark import *
+# from mutagene.identify import decompose_mutational_profile_counts
 
 
 def multiple_benchmark_helper(j):
@@ -62,7 +55,7 @@ def multiple_benchmark_helper(j):
         results = deconstruct_sigs_custom(profile_fname, signatures=i)
         write_decomposition(ds_info, results, signature_names)
         ##################################################
-        profile = read_profile(profile_fname)
+        profile = read_profile_file(profile_fname)
         for method, method_fname in [("MLE", mle_info), ("MLEZ", mlez_info)]:
             _, _, results = decompose_mutational_profile_counts(
                 profile,
@@ -87,7 +80,7 @@ def multiple_benchmark_run_helper(data):
     methods = ['AICc', 'AICcZ']
 
     # print(fname)
-    profile = read_profile(fname)
+    profile = read_profile_file(fname)
 
     for method in methods:
         info = "{}.{}.info".format(fname.split(".")[0], method)
@@ -160,7 +153,7 @@ def aggregate_multiple_benchmarks():
             W, signature_names = read_signatures(sigtype)
 
             info_fname = fname.split(".")[0] + '.info'
-            orig_profile = read_profile(fname)
+            orig_profile = read_profile_file(fname)
             h0, names = read_decomposition(info_fname)
 
             # threshold = 0.06

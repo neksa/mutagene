@@ -7,7 +7,7 @@ from math import ceil
 from os.path import isfile
 from multiprocessing import Pool
 
-from .io import write_profile, read_profile, write_decomposition, read_decomposition
+from .io import write_profile, read_profile_file, write_decomposition, read_decomposition
 from .identify import decompose_mutational_profile_counts
 from .deconstructsigs import deconstruct_sigs, deconstruct_sigs_custom
 
@@ -75,7 +75,7 @@ def run_benchmark_2combinations(N, signature_ids, W, force=False):
 
     for fname in glob.glob("data/benchmark/2comb/{}_**/*.profile".format(N), recursive=True):
         print(fname)
-        profile = read_profile(fname)
+        profile = read_profile_file(fname)
 
         for method in methods:
             info = "{}.{}.info".format(fname.split(".")[0], method)
