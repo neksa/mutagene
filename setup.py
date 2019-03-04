@@ -3,7 +3,7 @@ from mutagene.version import __version__
 
 setuptools.setup(name='mutagene',
                  version=__version__,
-                 description='Mutational analysis with python',
+                 description='Mutational analysis with Python',
                  long_description=open('README.md').read().strip(),
                  author='Alexander Goncearenco',
                  author_email='alexandr.goncearenco@nih.gov',
