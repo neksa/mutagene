@@ -1,0 +1,14 @@
+pytest
+pytest-cov
+bayesian-optimization
+clustergrammer
+coverage
+nose
+numpy
+pandas
+requests
+scikit-learn
+scipy
+statsmodels
+twobitreader
+tqdm
