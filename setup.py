@@ -17,4 +17,13 @@ setuptools.setup(name='mutagene',
                  license='MIT License',
                  zip_safe=False,
                  keywords='bioinformatics cancer mutations',
-                 classifiers=['Mutations', ])
+                 classifiers=[
+                        'Development Status :: 4 - Beta',
+                        'License :: Public Domain',
+                        'Intended Audience :: Science/Research',
+                        'License :: OSI Approved :: MIT License',
+                        'Programming Language :: Python :: 3 :: Only',
+                        'Topic :: Scientific/Engineering :: Bio-Informatics',
+                        'Topic :: Scientific/Engineering :: Medical Science Apps.',
+                        'Environment :: Console'
+                 ])
