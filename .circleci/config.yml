@@ -50,6 +50,26 @@ jobs:
             . venv/bin/activate
             pytest
 
+      - run:
+          name: verify package
+          command: |
+            . venv/bin/activate
+            python setup.py verify
+
+      - run:
+          name: create packages
+          command: |
+            . venv/bin/activate
+            python setup.py sdist
+            python setup.py bdist_wheel
+
+      - run:
+          name: install package
+          command: |
+            . venv/bin/activate
+            python setup.py install
+            mutagene --help
+
       - store_artifacts:
           path: test-reports
           destination: test-reports
