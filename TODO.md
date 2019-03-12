@@ -26,6 +26,9 @@
 
 
 
+mutagene rank -g hg38.2bit -i sample1.maf -o ranking.txt
+
+
 mutagene -i TCRBOA1-T-WEX_TCRBOA1-N-WEX.vcf -o out --signatures 5 --genome /Users/agoncear/data/hg38.2bit identify
 mutagene identify -i TCRBOA1-T-WEX_TCRBOA1-N-WEX.vcf -o out --signatures 5 --genome /Users/agoncear/data/hg38.2bit
 

@@ -2,6 +2,8 @@ import argparse
 import signal
 import sys
 
+from pathlib import Path
+
 import mutagene
 
 # from mutagene.io import format_profile
@@ -31,7 +33,7 @@ def main():
     # parser.add_argument('--sum', dest='accumulate', action='store_const',
     #                     const=sum, default=max,
     #                     help='sum the integers (default: find the max)')
-    parser.add_argument("--infile", "-i", nargs='?', help="Input file format", type=argparse.FileType('r'))
+    parser.add_argument("--infile", "-i", nargs='*', help="Input file format", type=argparse.FileType('r'))
     parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout)
     # parser.add_argument('--signatures', type=str)
     # parser.add_argument('--motifs', type=str)
@@ -89,7 +91,11 @@ def main():
             logger.warning(genome_error_message)
             return
 
-        if args.cohort and args.cohorts_file:
+        if not Path(args.cohorts_file).is_file():
+            logger.warning("Cohorts file missing. Download with \"mutagene fetch_cohorts\"")
+            return
+
+        if args.cohort and Path(args.cohorts_file).is_file():
             profile, cohort_size, cohort_aa_mutations, cohort_na_mutations = read_cohort_mutations_from_tar(args.cohorts_file, args.cohort)
             logger.info('Profile and cohort size loaded from precalculated cohorts N=' + str(cohort_size))
         else:
@@ -114,7 +120,17 @@ def main():
             cohort_size = args.nsamples
             logger.info('Cohort size overridden N=' + str(cohort_size))
 
-        mutations_to_rank, processing_stats = read_MAF_with_genomic_context(args.infile, args.genome)
+        if isinstance(args.infile, list):
+            logger.info('Multiple input files provided')
+            mutations_to_rank = []
+            processing_stats = {'loaded': 0, 'skipped': 0}
+            for infile in args.infile:
+                mut, stats = read_MAF_with_genomic_context(infile, args.genome)
+                mutations_to_rank.extend(mut)
+                processing_stats['loaded'] += stats['loaded']
+                processing_stats['skipped'] += stats['skipped']
+        else:
+            mutations_to_rank, processing_stats = read_MAF_with_genomic_context(args.infile, args.genome)
 
         if not len(mutations_to_rank):
             logger.warning('No mutations to rank')
@@ -122,7 +138,7 @@ def main():
 
         msg = "Loaded {} mutations".format(processing_stats['loaded'])
         if processing_stats['skipped'] > 0:
-            msg += " skipped {} mutations due to mismatches with the reference genome".format(processing_stats['skipped'])
+            msg += " skipped {} mutations".format(processing_stats['skipped'])
         logger.info(msg)
 
         rank(mutations_to_rank, args.outfile, profile, cohort_aa_mutations, cohort_size)

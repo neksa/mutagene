@@ -700,12 +700,15 @@ def read_MAF_with_genomic_context_fname(fname, genome):
 
 def read_MAF_with_genomic_context(infile, genome):
     mutations = []
+    processing_stats = {'loaded': 0, 'skipped': 0, 'format': 'Unknown'}
+
     if not infile:
         logger.warning("No input file")
-        return mutations
+        return mutations, processing_stats
 
-    fname = genome if genome.endswith('.2bit') else genome + '.2bit'
-    twobit = tbr.TwoBitFile(fname)
+    if genome.upper() != 'MAF':
+        fname = genome if genome.endswith('.2bit') else genome + '.2bit'
+        twobit = tbr.TwoBitFile(fname)
 
     try:
         reader = csv.reader((row for row in infile if not row.startswith('#')), delimiter='\t')
@@ -715,29 +718,110 @@ def read_MAF_with_genomic_context(infile, genome):
         MAF = namedtuple("MAF", header)
     except ValueError:
         logger.warning("MAF format not recognized")
-        return mutations
+        return mutations, processing_stats
 
     N_loaded = N_skipped = 0
 
+    samples = set()
+
     for data in map(MAF._make, reader):
         try:
-            if '_' in data.Protein_Change:
+            if hasattr(data, 'Tumor_Sample_Barcode'):
+                samples.add(data.Tumor_Sample_Barcode)
+
+            HGVSp = None
+            if hasattr(data, 'Protein_Change'):
+                HGVSp = data.Protein_Change
+            if hasattr(data, 'HGVSp_Short'):
+                HGVSp = data.HGVSp_Short
+
+            if HGVSp is None:
+                logger.warning("Could not find HGVSp_Short or Protein_Change fields in MAF file")
+                break
+
+            if not HGVSp.startswith("p."):
+                N_skipped += 1
+                logger.debug("HGVSp p.")
                 continue
-            if data.Protein_Change.endswith('fs'):
+
+            if '_' in HGVSp or HGVSp.endswith('fs'):
+                N_skipped += 1
+                logger.debug("HGVSp fs")
                 continue
-            if not data.Codon_Change.startswith("c."):
+
+            if not hasattr(data, 'Hugo_Symbol'):
+                logger.warning("Could not find Hugo_Symbol in MAF file")
+                break
+
+            if not hasattr(data, 'Variant_Classification'):
+                logger.warning("Could not find Variant_Classification in MAF file")
+                break
+
+            if data.Variant_Classification.lower() not in ("nonsense_mutation", "missense_mutation", "silent"):
+                N_skipped += 1
+                logger.debug("Variant_Classification")
                 continue
-            c1, c2 = data.Codon_Change.split(")")[1].split(">")
+
+            chrom = None
+            start = None
+
+            if hasattr(data, 'Chromosome'):
+                chrom = data.Chromosome
+            if hasattr(data, 'Start_position'):
+                start = int(data.Start_position)
+            if hasattr(data, 'Start_Position'):
+                start = int(data.Start_Position)
+
+            if not chrom or not start:
+                logger.warning("Could not find Chromosome and Start_Position or Start_position in MAF file")
+                break
+
+            if not hasattr(data, 'Codon_Change') and not hasattr(data, 'Codons'):
+                logger.warning("MutaGen requires Codon_Change or Codons fields in MAF files")
+                break
+
+            if hasattr(data, 'Codon_Change'):
+                c1, c2 = data.Codon_Change.upper().split(")")[1].split(">")
+
+            if hasattr(data, 'Codons'):
+                c1, c2 = data.Codons.upper().split("/")
+
+            if c1 == c2:
+                N_skipped += 1
+                logger.debug("Codon1 == Codon2")
+                continue
             for offset in range(3):
                 if c1[offset] != c2[offset]:
                     break
-            chrom = data.Chromosome
-            start = int(data.Start_position)
+
             chromosome = chrom if chrom.startswith('chr') else 'chr' + chrom
-            seq5_fwd = twobit[chromosome][start - offset - 2: start - offset + 3].upper()
-            seq5_rev = "".join(
-                [complementary_nucleotide[x] for x in reversed(
-                    twobit[chromosome][start - (2 - offset) - 2: start - (2 - offset) + 3].upper())])
+
+            if hasattr(data, 'ref_context'):
+                # context bundled in MAF file
+                context = data.ref_context.upper()
+                start = 10 + 1  # ref_context: 10 + 1 + 10
+                seq5_fwd = context[start - offset - 2: start - offset + 3]
+                seq5_rev_mirror = context[start - (2 - offset) - 2: start - (2 - offset) + 3]
+                seq5_rev = "".join([complementary_nucleotide[x] for x in reversed(seq5_rev_mirror)])
+            else:
+                if genome.upper() == 'MAF':
+                    logger.warning("ref_context not found in MAF file. Provide genome name argument -g hg19, hg38, mm10, see http://hgdownload.cse.ucsc.edu/downloads.html for more")
+                    break
+                try:
+                    seq5_fwd = twobit[chromosome][start - offset - 2: start - offset + 3].upper()
+                    seq5_rev_mirror = twobit[chromosome][start - (2 - offset) - 2: start - (2 - offset) + 3].upper()
+                except ValueError:
+                    # could not read reference genome with given coordinates
+                    logger.warning("Chr {} {} {}".format(chromosome, start, offset))
+                    N_skipped += 1
+                    continue
+
+                if len(set(seq5_fwd + seq5_rev_mirror) - set(nucleotides)) > 0:
+                    # detected non-nucleotide letters (including N)
+                    N_skipped += 1
+                    logger.debug("Detected non-nucleotide letters (including N)")
+                    continue
+                seq5_rev = "".join([complementary_nucleotide[x] for x in reversed(seq5_rev_mirror)])
 
             if seq5_fwd[1:4] == c1:
                 seq5 = seq5_fwd
@@ -746,7 +830,11 @@ def read_MAF_with_genomic_context(infile, genome):
             else:
                 # print(seq5_fwd[1:4], seq5_rev[1:4], c1)
                 N_skipped += 1
-                logger.debug("Sequence missmatch of mutation with the genome, check if using the correct genome assembly: " + data.Protein_Change)
+                # logger.debug(data.Reference_Allele)
+                # logger.debug(data.Tumor_Seq_Allele1)
+                # logger.debug(data.Tumor_Seq_Allele2)
+                # logger.debug(context[:10] + " " + context[10] + " " + context[11:] + " " + seq5_fwd + " " + seq5_rev + " " + c1 + " " + c2)
+                logger.debug("Sequence missmatch of mutation with the genome, check if using the correct genome assembly: " + HGVSp)
                 continue
             # data.Chromosome,
             # data.Start_position,
@@ -756,11 +844,12 @@ def read_MAF_with_genomic_context(infile, genome):
             N_loaded += 1
             mutations.append((
                 data.Hugo_Symbol,
-                data.Protein_Change.split(".")[1],
+                HGVSp.split(".")[1],
                 seq5
             ))
         except:
             N_skipped += 1
+            logger.debug("General MAF parsing exception")
             continue
         # print(data.Codon_Change, data.Strand, offset, seq5)
 
