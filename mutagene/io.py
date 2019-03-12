@@ -812,7 +812,8 @@ def read_MAF_with_genomic_context(infile, genome):
                     seq5_rev_mirror = twobit[chromosome][start - (2 - offset) - 2: start - (2 - offset) + 3].upper()
                 except ValueError:
                     # could not read reference genome with given coordinates
-                    logger.warning("Chr {} {} {}".format(chromosome, start, offset))
+                    logger.debug("Sequence missmatch of mutation with the genome, check if using the correct genome assembly: " + data.Protein_Change)
+                    # logger.warning("Chr {} {} {}".format(chromosome, start, offset))
                     N_skipped += 1
                     continue
 
