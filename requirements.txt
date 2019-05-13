@@ -10,5 +10,6 @@ requests
 scikit-learn
 scipy
 statsmodels
+pyvcf
 twobitreader
 tqdm
