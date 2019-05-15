@@ -1,4 +1,61 @@
 
+annotated_motifs = [
+    {
+        'name': 'APOBEC',
+        'logo': 'T[C>K]W or W[G>M]A',
+        'motif': 'TCW',
+        'position': 1,
+        'ref': 'C',
+        'alt': 'K',
+        'references': 'Starrett G. J. et al. Nature Communications (2016), Roberts S.A. et al. Nature Genetics (2013), Glaser A.P. et al. Oncotarget (2018)'
+    },
+    {
+        'name': 'AGEING',
+        'logo': '[C>T]G or C[G>A]',
+        'motif': 'CG',
+        'position': 0,
+        'ref': 'C',
+        'alt': 'T',
+        'references': 'Jarvis M.C. et al. JNCL Natl Cancer Inst (2018), Ruzicka M. et al. Plos One (2017)'
+    },
+    {
+        'name': 'UV Light',
+        'logo': 'Y[C>T] or [G>A]R',
+        'motif': 'YC',
+        'position': 1,
+        'ref': 'C',
+        'alt': 'T',
+        'references': 'Jarvis M.C. et al. JNCL Natl Cancer Inst (2018)'
+    },
+    {
+        'name': 'AID',
+        'logo': 'N[T>S]W or W[A>W]N',
+        'motif': 'NTW',
+        'position': 1,
+        'ref': 'T',
+        'alt': 'S',
+        'references': 'Tsukamoto et al. Scientific Reports (2017)'
+    },
+    {
+        'name': 'Tobacco',
+        'logo': '[C>R]G',
+        'motif': 'CG',
+        'position': 0,
+        'ref': 'C',
+        'alt': 'R',
+        'references': 'Alexandrov L.B. et al. Nature (2013)'
+    },
+    {
+        'name': 'Aristolochic Acid (AA)',
+        'logo': 'C[T>A]G',
+        'motif': 'CTG',
+        'position': 1,
+        'ref': 'T',
+        'alt': 'A',
+        'references': 'Hoang M. L. et al. Science Translational Medicine (2013)'
+    }
+]
+
 """
 Motif & References
 APOBEC
@@ -68,60 +125,3 @@ Overlap of AID and CpG
 WRCG/CGYW with C --> G
 * Rogozin et al. Scientific Reports (2016)
 """
-
-annotated_motifs = [
-    {
-        'name': 'APOBEC',
-        'logo': 'T[C>K]W or W[G>M]A',
-        'motif': 'TCW',
-        'position': 1,
-        'ref': 'C',
-        'alt': 'K',
-        'references': 'Starrett G. J. et al. Nature Communications (2016), Roberts S.A. et al. Nature Genetics (2013), Glaser A.P. et al. Oncotarget (2018)'
-    },
-    {
-        'name': 'AGEING',
-        'logo': '[C>T]G or C[G>A]',
-        'motif': 'CG',
-        'position': 0,
-        'ref': 'C',
-        'alt': 'T',
-        'references': 'Jarvis M.C. et al. JNCL Natl Cancer Inst (2018), Ruzicka M. et al. Plos One (2017)'
-    },
-    {
-        'name': 'UV Light',
-        'logo': 'Y[C>T] or [G>A]R',
-        'motif': 'YC',
-        'position': 1,
-        'ref': 'C',
-        'alt': 'T',
-        'references': 'Jarvis M.C. et al. JNCL Natl Cancer Inst (2018)'
-    },
-    {
-        'name': 'AID',
-        'logo': 'N[T>S]W or W[A>W]N',
-        'motif': 'NTW',
-        'position': 1,
-        'ref': 'T',
-        'alt': 'S',
-        'references': 'Tsukamoto et al. Scientific Reports (2017)'
-    },
-    {
-        'name': 'Tobacco',
-        'logo': '[C>R]G',
-        'motif': 'CG',
-        'position': 0,
-        'ref': 'C',
-        'alt': 'R',
-        'references': 'Alexandrov L.B. et al. Nature (2013)'
-    },
-    {
-        'name': 'Aristolochic Acid (AA)',
-        'logo': 'C[T>A]G',
-        'motif': 'CTG',
-        'position': 1,
-        'ref': 'T',
-        'alt': 'A',
-        'references': 'Hoang M. L. et al. Science Translational Medicine (2013)'
-    }
-]

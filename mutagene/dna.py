@@ -47,3 +47,16 @@ exome_trinucleotides = {
 aa_short = amino_acids_with_stop
 aa_long = ["Ala", "Leu", "Pro", "Gly", "Met", "Ser", "Thr", "Trp", "Ile", "Val", "Cys", "Asp", "Glu", "Phe", "His", "Lys", "Asn", "Gln", "Arg", "Tyr", "STOP"]
 aa_dict = dict(zip(aa_short, aa_long))
+
+bases_dict = {"A": "A", "G": "G", "T": "T", "C": "C", "W": "AT", "S": "CG", "M": "AC", "K": "GT", "R": "AG", "Y": "CT",
+              "B": "TCG", "D": "AGT", "H": "ACT", "V": "ACG", "N": "ATGC"}
+
+comp_dict = {"A": "T", "T": "A", "C": "G", "G": "C", "W": "AT", "S": "CG", "K": "AC", "M": "GT", "Y": "AG",
+             "R": "CT", "V": "TCG", "H": "AGT", "D": "ACT", "B": "ACG", "N": "ATGC"}
+
+chromosome_name_mapping = {
+    "chr23": "chrX",
+    "chr24": "chrY",
+    "chr25": "chrXY",
+    "chr26": "chrM",
+}

@@ -1,55 +1,151 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*- 
-
-# from collections import defaultdict
-# from pprint import pprint
-# from statsmodels.stats.multitest import multipletests
-
-import scipy.stats as stats
+import re
 import math
+import scipy.stats as stats
 import numpy as np
-# from itertools import cycle
-
-from mutations_io import *
-from .annotated_motifs import annotated_motifs
 
 
-def identify_motifs(mutations, custom_motifs=None):
+nucleotides = "ACGT"  # this order of nucleotides is important for reversing
+complementary_nucleotide = dict(zip(nucleotides, reversed(nucleotides)))
+complementary_nucleotide['N'] = 'N'
+
+bases_dict = {
+    "A": "A", "G": "G", "T": "T", "C": "C",
+    "W": "AT", "S": "CG", "M": "AC", "K": "GT", "R": "AG", "Y": "CT",
+    "B": "TCG", "D": "AGT", "H": "ACT", "V": "ACG", "N": "ATGC"}
+
+extended_nucleotides = "ACTGWSMKRYBDHVN"
+
+comp_dict = {
+    "A": "T", "T": "A", "C": "G", "G": "C",
+    "W": "AT", "S": "CG", "K": "AC", "M": "GT", "Y": "AG", "R": "CT",
+    "V": "TCG", "H": "AGT", "D": "ACT", "B": "ACG", "N": "ATGC"}
+
+
+motifs = [
+    {
+        'name': 'APOBEC1 and APOBEC3A/B',
+        'logo': 'T[C>K]W',
+        'motif': 'TCW',
+        'position': 1,
+        'ref': 'C',
+        'alt': 'K',
+        'references': ' Biochemistry  2011;76:131–46. Nat Immunol  2001;2:530–6. Biochim Biophys Acta  1992;1171:11–18'
+    },
+    {
+        'name': 'APOBEC3G',
+        'logo': 'C[C>K]R',
+        'motif': 'CCR',
+        'position': 1,
+        'ref': 'C',
+        'alt': 'K',
+        'references': ' Biochemistry  2011;76:131–46'
+    },
+    {
+        'name': 'Spontaneous G:C>A:T mutations',
+        'logo': '[C>T]G',
+        'motif': 'CG',
+        'position': 0,
+        'ref': 'C',
+        'alt': 'T',
+        'references': 'Hum Genet  1988;78:151–5'
+    },
+    {
+        'name': 'UV Light',
+        'logo': 'Y[C>T]',
+        'motif': 'YC',
+        'position': 1,
+        'ref': 'C',
+        'alt': 'T',
+        'references': 'JNCL Natl Cancer Inst (2018)'
+    },
+    {
+        'name': 'Pol Eta',
+        'logo': 'W[A>T]',
+        'motif': 'WA',
+        'position': 1,
+        'ref': 'A',
+        'alt': 'T',
+        'references': 'Nat Genet  2013;45:970–6'
+    },
+    {
+        'name': 'AID',
+        'logo': 'W[R>S]C',
+        'motif': 'WRC',
+        'position': 1,
+        'ref': 'R',
+        'alt': 'S',
+        'references': 'Nature  2003;424:103–7'
+    },
+]
+
+
+def identify_motifs(samples_mutations, custom_motif=None):
     motif_matches = []
 
-    selected_motifs = custom_motifs if custom_motifs else motifs
+    if custom_motif:
+        search_motifs = scanf_motif(custom_motif)
+    else:
+        search_motifs = motifs.copy()
+    # search_motifs.extend(scanf_motif(custom_motif))
 
-    if mutations is not None and len(mutations) > 0:
-        first_mut_seq_with_coords = mutations[0][-1]
-        window_size = (len(first_mut_seq_with_coords) - 1) // 2
+    for sample, mutations in samples_mutations.items():
+        # print(sample, len(mutations))
+        if mutations is not None and len(mutations) > 0:
+            first_mut_seq_with_coords = mutations[0][-1]
+            window_size = (len(first_mut_seq_with_coords) - 1) // 2
 
-        for m in selected_motifs:
-            print("IDENTIFYING MOTIF: ", m['name'])
-            result = get_enrichment(mutations, m['motif'], m['position'], m['ref'], m['alt'], window_size)
-            print(result)
-            print()
-            # enrichment, math.ceil(mut_load), p_val[1], p_val[2], motif_mutation_count, mutation_count, motif_count, ref_count
-            enrichment, mut_burden, pvalue_fisher, pvalue_chi, motif_mut, mut, motif_count, ref_count = result
+            for m in search_motifs:
+                # print("IDENTIFYING MOTIF: ", m['name'])
+                result = get_enrichment(mutations, m['motif'], m['position'], m['ref'], m['alt'], window_size)
+                # print(result)
+                # print()
+                # enrichment, math.ceil(mut_load), p_val[1], p_val[2], motif_mutation_count, mutation_count, motif_count, ref_count
+                enrichment, mut_burden, pvalue_fisher, pvalue_chi, motif_mut, mut, motif_count, ref_count = result
 
-            motif_matches.append({
-                'name': m['name'],
-                'motif': m['logo'],
-                'enrichment': enrichment,
-                'pvalue': pvalue_fisher,
-                'mutations': mut_burden,
+                if mut_burden == 0:
+                    continue
+
+                motif_matches.append({
+                    'sample': sample,
+                    'name': m['name'],
+                    'motif': m['logo'],
+                    'enrichment': enrichment,
+                    'pvalue': pvalue_fisher,
+                    'mutations': mut_burden,
                 })
     return motif_matches
 
 
+def scanf_motif(custom_motif):
+    """ recognize motif syntax like A[C>T]G and create a motif entry """
+    m = re.search(
+        r'([' + extended_nucleotides + ']*)\[([' + nucleotides + '])\>([' + extended_nucleotides + '])\]([' + extended_nucleotides + ']*)',
+        custom_motif.upper())
+    if m:
+        g = m.groups('')
+        # print("GROUPS", m.group(1), m.group(2), m.group(3), m.group(4))
+        entry = {}
+        entry['logo'] = m.group(0)
+        entry['motif'] = g[0] + g[1] + g[3]
+        entry['position'] = len(g[0])
+        entry['ref'] = g[1]
+        entry['alt'] = g[2]
+        if entry['ref'] == entry['alt']:
+            return []
+        entry['name'] = 'Custom motif'
+        entry['references'] = ''
+        return [entry, ]
+    return []
+
+
 def get_stats(motif_mutation_count, mutation_count, motif_count, ref_count):
-    p_val = stats.fisher_exact([[mutation_count, motif_mutation_count], [ref_count, motif_count]], alternative= "less")
+    p_val = stats.fisher_exact([[mutation_count, motif_mutation_count], [ref_count, motif_count]], alternative="less")
     p_value = p_val[1]
     chi_array = np.array([[mutation_count , motif_mutation_count], [ref_count, motif_count]])
-    if motif_mutation_count > 0 and mutation_count > 0 and motif_count > 0 and ref_count > 0:
+    try:
         chi = stats.chi2_contingency(chi_array)[1]
-    else:
-        chi = 1.00
-
+    except ValueError:
+        chi = 0.0
     # if p_value <= 0.05:
     #  qvalues = multipletests(pvals=p_value, method='fdr_bh')
     #  print(qvalues)
@@ -96,15 +192,14 @@ def find_matching_motifs(seq, motif, motif_position):
 
 def find_matching_bases(seq, ref, motif, motif_position):
     # print("Looking for motif {} in {}, {}".format(motif, sequence, len(sequence) - len(motif)))
-    for i in range(len(seq)):
-        s = seq[i]
-        if s[2] in ref:
+    for i in range(motif_position, len(seq) - (len(motif) - motif_position)):
+        s = seq[i][2]
+        if s in bases_dict[ref]:
             yield seq[i]
 
 
 def get_enrichment(mutations, motif, motif_position, ref, alt, range_size):
     assert range_size >= 0
-    assert range_size == 50, "code will break if you use different range size"
     assert len(ref) == 1
     assert len(alt) == 1
     assert 0 <= motif_position < len(motif)
@@ -113,7 +208,6 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size):
     matching_motifs = set()
     matching_mutated_motifs = set()
     matching_mutated_bases = set()
-    matching_mutated_refs = set()
 
     # extra loop for sample in sample list
     for chrom, pos, x, y, seq in mutations:
@@ -121,23 +215,15 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size):
         mutation = chrom, pos, x, y
         rev_seq = get_rev_comp_seq(seq)
 
-        rev_motif_pos = len(motif) - motif_position - 1
-        ref_seq = seq[motif_position:len(seq) - (len(motif) - motif_position) + 1]
-
-        if mutation[2] == bases_dict[ref] or mutation[2] == comp_dict[ref]:  # checks to see how many times ref base is mutated
-            matching_mutated_refs.add(mutation[0:2])
-
         # not mutated:
-        for ref_match in find_matching_bases(ref_seq, ref, motif, motif_position):
+        for ref_match in find_matching_bases(seq, ref, motif, motif_position):
             matching_bases.add(ref_match[0:2])
 
         for motif_match in find_matching_motifs(seq, motif, motif_position):
             matching_motifs.add(motif_match[0:2])
 
         # rev compl: not mutated:
-        ref_rev_seq = rev_seq[rev_motif_pos: len(seq) - (len(motif) - rev_motif_pos) + 1]
-
-        for ref_match in find_matching_bases(ref_rev_seq, ref, motif, len(motif) - motif_position - 1):
+        for ref_match in find_matching_bases(rev_seq, ref, motif, len(motif) - motif_position - 1):
             matching_bases.add(ref_match[0:2])
 
         for motif_match in find_matching_motifs(rev_seq, motif, len(motif) - motif_position - 1):
@@ -163,64 +249,20 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size):
 
     motif_mutation_count = len(matching_mutated_motifs)  # mutated
     mutation_count = len(matching_mutated_bases - matching_mutated_motifs)  # mutated
-    ref_count = len(matching_bases - matching_motifs - matching_mutated_refs)  # not mutated
-    motif_count = len(matching_motifs - matching_mutated_refs)  # not mutated
+    ref_count = len(matching_bases - matching_motifs)  # not mutated
+    motif_count = len(matching_motifs)  # not mutated
 
-    stat_motif_count = len(matching_motifs - matching_mutated_motifs - matching_mutated_refs)
-    stat_ref_count = len(matching_bases - matching_motifs - matching_mutated_bases - matching_mutated_refs)
+    stat_motif_count = len(matching_motifs - matching_mutated_motifs)
+    stat_ref_count = len(matching_bases - matching_motifs - matching_mutated_bases)
 
     try:
-        enrichment = (float(motif_mutation_count) / float(mutation_count)) / (float(motif_count) / float(ref_count))
+        enrichment = (motif_mutation_count / mutation_count) / (motif_count / ref_count)
     except ZeroDivisionError:
         enrichment = 0.0
     p_val = get_stats(motif_mutation_count, mutation_count, stat_motif_count, stat_ref_count)
-    chi = p_val[2]
 
-    if enrichment > 1 and p_val[1] < 0.05 and chi < 0.05:
+    if enrichment > 1 and p_val[1] < 0.05 and p_val[2] < 0.05:
         mut_load = (motif_mutation_count * (enrichment - 1)) / enrichment
     else:
         mut_load = 0.0
-    if chi == 1.00:
-        chi = "chi cannot compute due to zero count"
-    return enrichment, math.ceil(mut_load), p_val[1], chi, motif_mutation_count, mutation_count, motif_count, ref_count
-
-
-def scan_window_range(filename, motif, motif_position, ref, alt, assembly=None):
-    mut_burden_count = []
-    range_sizes = []
-    with open("APOBEC_window.csv", "w") as csvfile: #create csv file
-        filewriter = csv.writer(csvfile, delimiter=",", quotechar="|", quoting=csv.QUOTE_MINIMAL)
-        filewriter.writerow([motif])
-        filewriter.writerow(["range_size", "enrichment", "motif_mut_count", "mut_count", "motif_count", "ref_count", "mutation load", "fisher p-value", "chi p-value"])
-        for val in range(0, 200 + 1, 5):
-            range_sizes.append(val * 2 + len(motif))
-            analysis = get_enrichment(filename, motif, motif_position, ref, alt, val, assembly=assembly)
-            result = analysis[0]
-            mut_burden = analysis[1]
-            mut_burden_count.append(mut_burden)
-            pvalue = analysis[2]
-            chi_pvalue = analysis[3]
-            motif_mut = analysis[4]
-            mut = analysis[5]
-            motif_count = analysis[6]
-            ref_count = analysis[7]
-            filewriter.writerow([val, result, motif_mut, mut, motif_count, ref_count, mut_burden, pvalue, chi_pvalue])
-        plt.plot(range_sizes, mut_burden_count, color='b')
-        plt.xlabel("Window Size")
-        plt.ylabel("Mutational Burden")
-        plt.title("APOBEC Mutational Burden Depends Upon Window Size")
-        plt.show()
-        return list(zip(range_sizes, mut_burden_count))
-
-
-if __name__ == '__main__':
-    pass
-    # pprint(get_values("tcga_A0C8.maf", "TCW", 1, "C", "G", assembly=37))
-    # mutations = read_MAF(filename)
-    # pprint(get_enrichment(mutations, "TW", 0, "T", "G", 29, assembly=37))
-    # pprint(get_enrichment("tcga_A0C8.maf", "NTW", 1, "T", "G", 29, assembly=37))
-
-    # pprint(get_enrichment("tcga_A0C8.maf", "NTW", 1, "T", "G", 29, assembly=37))
-    # pprint(get_enrichment("tcga_A0C8.maf", "TCW", 1, "T", "G", 29, assembly=37))
-    # pprint(get_enrichment("tcga_A0C8.maf", "AGA", 1, "G", "A", 29, assembly=37))
-    # pprint(get_enrichment("tcga_A0C8.maf", "TGC", 1, "G", "T", 29, assembly=37))
+    return enrichment, math.ceil(mut_load), p_val[1], p_val[2], motif_mutation_count, mutation_count, motif_count, ref_count

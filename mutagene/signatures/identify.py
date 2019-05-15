@@ -9,7 +9,7 @@ from scipy.optimize import nnls
 # from scipy.optimize import fmin_cobyla
 from scipy.stats import entropy
 
-from .io import get_dummy_signatures_lists
+from mutagene.signatures import get_dummy_signatures_lists
 
 import logging
 logger = logging.getLogger(__name__)

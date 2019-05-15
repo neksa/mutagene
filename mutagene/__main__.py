@@ -5,13 +5,16 @@ import sys
 from pathlib import Path
 import mutagene
 from mutagene.version import __version__
-from mutagene.io.io import fetch_genome, fetch_cohorts, fetch_examples
+from mutagene.io.fetch import fetch_genome, fetch_cohorts, fetch_examples
 
-from mutagene.io.io import format_profile
-from mutagene.io.io import read_profile_file, read_signatures
-from mutagene.io.io import read_VCF_profile, read_MAF_with_genomic_context, get_mutational_profile, write_decomposition
-from mutagene.io.io import read_cohort_mutations_from_tar
-from mutagene.io.io import read_cohort_size_from_profile_file, list_cohorts_in_tar
+from mutagene.io.profile import format_profile
+from mutagene.io.profile import read_profile_file, read_signatures
+from mutagene.io.mutations_profile import read_VCF_profile
+from mutagene.io.protein_mutations_MAF import read_MAF_with_genomic_context
+from mutagene.profiles.profile import get_mutational_profile
+# from mutagene.io.decomposition import write_decomposition
+from mutagene.io.cohorts import read_cohort_mutations_from_tar
+from mutagene.io.cohorts import read_cohort_size_from_profile_file, list_cohorts_in_tar
 from mutagene.mutability.mutability import rank
 
 import logging
@@ -94,33 +97,103 @@ class ProfileMenu(object):
             logger.warning(genome_error_message)
             return
         calc_profile(args.infile, args.outfile, args.genome)
+
 ################################################
+################################################
+
 
 class MotifMenu(object):
     def __init__(self, parser):
         parser.add_argument('action', choices=['search'])
-        parser.add_argument("--infile", "-i", nargs='*', help="Input file format", type=argparse.FileType('r'))
+        parser.add_argument("--motif", "-m", help="Motif to search for, use the 'R[C>T]GY' syntax for the motif. Use quotes", type=str)
+        parser.add_argument("--infile", "-i", help="Input file in MAF or VCF format with one or multiple samples", type=argparse.FileType('r'))
         parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout)
+        parser.add_argument('--genome', "-g", help="Location of genome assembly file in 2bit format", type=str)
+
+    @classmethod
+    def search(cls, args):
+        from mutagene.io.context_window import read_MAF_with_context_window
+        from mutagene.motifs.motifs import identify_motifs
+        from mutagene.io.motifs import write_motif_matches
+
+        if not args.infile:
+            logger.warning("Provide input file in VCF or MAF format (-i) and a corresponding genome assembly (-g)")
+            return
+        if not args.genome:
+            logger.warning(genome_error_message)
+            return
+        if not args.motif:
+            logger.info("Searching for predefined motifs")
+            custom_motif = None
+        else:
+            custom_motif = args.motif
+            custom_motif = custom_motif.replace('-', '>')
+            custom_motif = custom_motif.replace('/', '>')
+            custom_motif = custom_motif.replace('.', '>')
+            custom_motif = custom_motif.replace('->', '>')
+            logger.info("Searching for motif {}".format(custom_motif))
+
+        mutations, mutations_with_context, processing_stats = read_MAF_with_context_window(args.infile, args.genome)
+        matching_motifs = identify_motifs(mutations_with_context, custom_motif) if mutations_with_context is not None else []
+        if len(matching_motifs) == 0:
+            logger.warning("No significant motif matches found")
+        else:
+            write_motif_matches(args.outfile, matching_motifs)
 
     @classmethod
     def callback(cls, args):
-        print('MotifMenu', args.action)
+        # print('MotifMenu', args.action)
+        getattr(cls, args.action)(args)
 
 
 class SignatureMenu(object):
     def __init__(self, parser):
-        parser.add_argument('action', choices=['identify', 'new'])
-        parser.add_argument("--infile", "-i", nargs='*', help="Input file format", type=argparse.FileType('r'))
+        parser.add_argument('action', choices=['identify', ])  # 'new'])
+        parser.add_argument("--signatures", "-s", choices=[5, 10, 30], help="Collection of signatures to use", type=int)
+        parser.add_argument("--infile", "-i", help="Input file in VCF or MAF format", type=argparse.FileType('r'))
         parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout)
+        parser.add_argument('--genome', "-g", help="Location of genome assembly file in 2bit format", type=str)
+
+    @classmethod
+    def identify(cls, args):
+        # def identify_signatures(input_file, output_file, signatures, genome):
+        from mutagene.io.mutations_profile import read_auto_profile
+        from mutagene.signatures.identify import decompose_mutational_profile_counts
+        from mutagene.io.decomposition import write_decomposition
+
+        if not args.infile:
+            logger.warning("Provide input file in VCF or MAF format (-i) and a corresponding genome assembly (-g)")
+            return
+        if not args.genome:
+            logger.warning(genome_error_message)
+            return
+        if not args.signatures:
+            logger.warning("Set of signatures required. Use 5 and 10 for MUTAGENE-5 and MUTAGENE-10. Use 30 for COSMIC-30")
+            return
+
+        # mutations, processing_stats = read_VCF_profile(args.infile, asm=args.genome)
+        mutations, processing_stats = read_auto_profile(args.infile, fmt='auto', asm=args.genome)
+        W, signature_names = read_signatures(int(args.signatures))
+        # print(W, signature_names)
+        profile = get_mutational_profile(mutations, counts=True)
+
+        _, _, results = decompose_mutational_profile_counts(
+            profile,
+            (W, signature_names),
+            'MLEZ',
+            debug=False,
+            others_threshold=0.0)
+        write_decomposition(args.outfile, results, signature_names)
 
     @classmethod
     def callback(cls, args):
-        print('SignatureMenu', args.action)
+        # print('SignatureMenu', args.action)
+        getattr(cls, args.action)(args)
 
 
 class RankMenu(object):
     def __init__(self, parser):
-        parser.add_argument("--infile", "-i", nargs='*', help="Input file format", type=argparse.FileType('r'))
+        parser.add_argument("--infile", "-i", nargs='*', help="Input file in MAF format", type=argparse.FileType('r'))
         parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout)
         parser.add_argument('--genome', "-g", help="Location of genome assembly file", type=str)
 
@@ -178,7 +251,8 @@ class RankMenu(object):
             logger.info('Cohort size overridden N=' + str(cohort_size))
 
         if isinstance(args.infile, list):
-            logger.info('Multiple input files provided')
+            if len(args.infile) > 1:
+                logger.info('Multiple input files provided')
             mutations_to_rank = []
             processing_stats = {'loaded': 0, 'skipped': 0}
             for infile in args.infile:
@@ -238,8 +312,8 @@ class MutaGeneApp(object):
             'fetch': FetchMenu,
             'profile': ProfileMenu,
             'rank': RankMenu,
-            # 'motif': MotifMenu,
-            # 'signature': SignatureMenu,
+            'motif': MotifMenu,
+            'signature': SignatureMenu,
         }
 
         for command, menu in parser_mapping.items():
@@ -359,22 +433,6 @@ def identify_signatures(input_file, output_file, signatures, genome):
         others_threshold=0.0)
     write_decomposition(output_file, results, signature_names)
 
-
-def identify_motifs(input_file, output_file, signatures, genome):
-    from mutagene.motifs import decompose_mutational_profile_counts
-
-    mutations, processing_stats = read_VCF_profile(input_file, asm=genome)
-    W, signature_names = read_signatures(signatures)
-    profile = get_mutational_profile(mutations, counts=True)
-
-    _, _, results = decompose_mutational_profile_counts(
-        profile,
-        (W, signature_names),
-        'MLEZ',
-        debug=False,
-        others_threshold=0.0)
-    write_decomposition(output_file, results, signature_names)
-
 # def gdc():
 #     from .gdc import gdc_read_file
 #     print(gdc_read_file())
@@ -415,7 +473,6 @@ def benchmark():
     aggregate_multiple_benchmarks()
     # aggregate_benchmarks()
 """
-
 
 
 if __name__ == '__main__':

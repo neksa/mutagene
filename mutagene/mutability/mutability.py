@@ -7,7 +7,7 @@ from scipy.stats import binom_test
 from statsmodels.stats.multitest import multipletests
 
 from mutagene.dna import *
-from mutagene.io.io import get_signature_attributes_dict
+from mutagene.io.profile import profile_to_dict
 
 import logging
 logger = logging.getLogger(__name__)
@@ -64,20 +64,6 @@ def predict_driver(observed, N, p):
     return pvalue, prediction, prediction_value
 
 
-def profile_to_dict(counts_profile):
-    mutation_prob = defaultdict(dict)
-    total_count = sum(counts_profile)
-    freqs = [x / total_count for x in counts_profile]
-
-    for i, attrib in enumerate(get_signature_attributes_dict()):
-        x, y = attrib['mutation']
-        p5, p3 = attrib['context']
-        tri = p5 + x + p3
-        mutation_prob[tri][y] = freqs[i]
-        mutation_prob[complementary_trinucleotide[tri]][complementary_nucleotide[y]] = freqs[i]
-    return mutation_prob
-
-
 def calculate_codon_mutability(mutation_model, seq5, mutated_seq5s):
     positional_mutability = defaultdict(float)
     for mutated_seq5 in mutated_seq5s:
@@ -98,7 +84,10 @@ def calculate_codon_mutability(mutation_model, seq5, mutated_seq5s):
 def rank(mutations_to_rank, outfile, profile, cohort_aa_mutations, cohort_size):
     mutation_model = profile_to_dict(profile)
     results = []
-    for gene, mut, seq5 in mutations_to_rank:
+    for mutation in mutations_to_rank:
+        gene = mutation['gene']
+        mut = mutation['mutation']
+        seq5 = mutation['seq5']
         P, Q = mut[0], mut[-1]
         all_substitutions = get_all_codon_substitutions(P, seq5, Q)
         mutability = calculate_codon_mutability(mutation_model, seq5, all_substitutions)
