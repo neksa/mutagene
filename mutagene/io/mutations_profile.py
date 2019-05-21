@@ -20,7 +20,7 @@ def get_context_53_twobit(mutations, twobit_file):
     f = tbr.TwoBitFile(fname)
 
     cn = complementary_nucleotide
-    for (chrom, pos, x, y) in tqdm(mutations):
+    for (chrom, pos, x, y) in tqdm(mutations, leave=False):
         start = int(pos) - 1  # zero-based numbering
         chrom = str(chrom)
         chromosome = chrom if chrom.startswith('chr') else 'chr' + chrom

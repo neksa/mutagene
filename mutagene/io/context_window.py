@@ -12,10 +12,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def get_context_twobit_window(mutations, twobit_file, window_size=50):
+def get_context_twobit_window(mutations, twobit_file, window_size):
     """
     User twobitreader to get context of mutations
     """
+    if window_size is None:
+        window_size = 50
+
     contexts = {}
 
     fname = twobit_file if twobit_file.endswith('.2bit') else twobit_file + '.2bit'
@@ -38,7 +41,8 @@ def get_context_twobit_window(mutations, twobit_file, window_size=50):
             except Exception as e:
                 logger.warning("TwoBit exception: ", str(e), (chrom, pos, x, y))
         else:
-            logger.warning("NO CHROM", chromosome)
+            logger.debug("NO CHROM", chromosome)
+            continue
 
         seq_with_coords = list(zip(
             cycle([chrom]),
@@ -61,7 +65,7 @@ def get_context_twobit_window(mutations, twobit_file, window_size=50):
     return contexts
 
 
-def read_MAF_with_context_window(infile, asm=None):
+def read_MAF_with_context_window(infile, asm, window_size):
     cn = complementary_nucleotide
     mutations = defaultdict(lambda: defaultdict(float))
     N_skipped = 0
@@ -85,7 +89,7 @@ def read_MAF_with_context_window(infile, asm=None):
 
     raw_mutations = defaultdict(list)
     # for line in tqdm(infile):
-    for data in tqdm(map(MAF._make, reader)):
+    for data in tqdm(map(MAF._make, reader), leave=False):
         try:
             # assembly_build = col_list[3]  # MAF ASSEMBLY
             # strand = col_list[7]    # MAF STRAND
@@ -127,7 +131,7 @@ def read_MAF_with_context_window(infile, asm=None):
 
     for sample, sample_mutations in raw_mutations.items():
         if len(sample_mutations) > 0:
-            contexts = get_context_twobit_window(sample_mutations, asm)
+            contexts = get_context_twobit_window(sample_mutations, asm, window_size)
 
             if contexts is None or len(contexts) == 0:
                 return None, None
@@ -159,7 +163,7 @@ def read_MAF_with_context_window(infile, asm=None):
     return mutations, mutations_with_context, processing_stats
 
 
-def read_VCF_with_context_window(muts, asm=None):
+def read_VCF_with_context_window(muts, asm, window_size):
     cn = complementary_nucleotide
     mutations = defaultdict(float)
     N_skipped = 0
@@ -203,7 +207,7 @@ def read_VCF_with_context_window(muts, asm=None):
 
     mutations_with_context = []
     if len(raw_mutations) > 0:
-        contexts = get_context_twobit_window(raw_mutations, asm)
+        contexts = get_context_twobit_window(raw_mutations, asm, window_size)
         if contexts is None or len(contexts) == 0:
             return None, None
 

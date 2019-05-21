@@ -22,7 +22,7 @@ def read_MAF_with_genomic_context_fname(fname, genome, motifs=False):
 
 
 def read_MAF_with_genomic_context(infile, genome, motifs=False):
-    mutations = []
+    mutations = {}
     processing_stats = {'loaded': 0, 'skipped': 0, 'format': 'Unknown'}
 
     if not infile:
@@ -49,7 +49,7 @@ def read_MAF_with_genomic_context(infile, genome, motifs=False):
 
     samples = set()
 
-    for data in tqdm(map(MAF._make, reader)):
+    for data in tqdm(map(MAF._make, reader), leave=False):
         # print(data)
         try:
             if hasattr(data, 'tumor_sample_barcode'):
@@ -221,11 +221,11 @@ def read_MAF_with_genomic_context(infile, genome, motifs=False):
                 continue
 
             N_loaded += 1
-            mutations.append({
-                'gene': data.hugo_symbol,
-                'mutation': HGVSp.split(".")[1],
-                'seq5': seq5,
-            })
+            mutations[(
+                data.hugo_symbol, HGVSp.split(".")[1]
+            )] = {
+                'seq5': seq5
+            }
         except Exception as e:
             N_skipped += 1
             logger.debug("General MAF parsing exception " + str(e))

@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 def calc_profile(infile, outfile, genome):
     all_mutations = {}
     for f in infile:
-        mutations, processing_stats = read_auto_profile(f, None, genome)
+        mutations, processing_stats = read_auto_profile(f, fmt='auto', asm=genome)
         msg = "Loaded {} mutations".format(processing_stats['loaded'])
         if processing_stats['skipped'] > 0:
             msg += " skipped {} mutations due to mismatches with the reference genome".format(processing_stats['skipped'])
@@ -29,7 +29,7 @@ def get_mutational_profile(mutations, counts=False):
     values = []
     total_mut_number = sum(mutations.values())
     for i, attr in enumerate(attrib):
-        number = mutations[attr['context'] + attr['mutation']]
+        number = mutations.get(attr['context'] + attr['mutation'], 0)
         # freq = 0.000001 * number / total_mut_number
         if counts:
             freq = number

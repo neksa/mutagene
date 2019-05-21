@@ -3,6 +3,10 @@ import math
 import scipy.stats as stats
 import numpy as np
 
+import pprint
+import logging
+logger = logging.getLogger(__name__)
+
 
 nucleotides = "ACGT"  # this order of nucleotides is important for reversing
 complementary_nucleotide = dict(zip(nucleotides, reversed(nucleotides)))
@@ -97,21 +101,22 @@ def identify_motifs(samples_mutations, custom_motif=None):
             for m in search_motifs:
                 # print("IDENTIFYING MOTIF: ", m['name'])
                 result = get_enrichment(mutations, m['motif'], m['position'], m['ref'], m['alt'], window_size)
-                # print(result)
-                # print()
-                # enrichment, math.ceil(mut_load), p_val[1], p_val[2], motif_mutation_count, mutation_count, motif_count, ref_count
-                enrichment, mut_burden, pvalue_fisher, pvalue_chi, motif_mut, mut, motif_count, ref_count = result
 
-                if mut_burden == 0:
+                debug_data = {'sample': sample, 'motif': m['logo']}
+                debug_data.update(result)
+                debug_string = pprint.pformat(debug_data, indent=4)
+                logger.debug(debug_string)
+
+                if result['mutation_load'] == 0:
                     continue
 
                 motif_matches.append({
                     'sample': sample,
                     'name': m['name'],
                     'motif': m['logo'],
-                    'enrichment': enrichment,
-                    'pvalue': pvalue_fisher,
-                    'mutations': mut_burden,
+                    'enrichment': result['enrichment'],
+                    'pvalue': result['pvalue_fisher'],
+                    'mutations': result['mutation_load'],
                 })
     return motif_matches
 
@@ -139,20 +144,22 @@ def scanf_motif(custom_motif):
 
 
 def get_stats(motif_mutation_count, mutation_count, motif_count, ref_count):
-    p_val = stats.fisher_exact([[mutation_count, motif_mutation_count], [ref_count, motif_count]], alternative="less")
-    p_value = p_val[1]
-    chi_array = np.array([[mutation_count , motif_mutation_count], [ref_count, motif_count]])
+    contingency_table = np.array(
+        [[mutation_count, motif_mutation_count],
+         [ref_count, motif_count]])
+
+    p_val_fisher = stats.fisher_exact(contingency_table, alternative="less")[1]
     try:
-        chi = stats.chi2_contingency(chi_array)[1]
+        p_val_chi2 = stats.chi2_contingency(contingency_table)[1]
     except ValueError:
-        chi = 0.0
+        p_val_chi2 = 1.0
     # if p_value <= 0.05:
     #  qvalues = multipletests(pvals=p_value, method='fdr_bh')
     #  print(qvalues)
     #  if qvalues[3] <= 0.05:
     #     print("significant")
     # print("odds_ratio: ", "p-value")
-    return p_val[0], p_value, chi
+    return p_val_fisher, p_val_chi2
 
 
 def get_rev_comp_seq(sequence):
@@ -247,22 +254,37 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size):
             for motif_match in find_matching_motifs(context_of_mutation, motif, len(motif) - motif_position - 1):
                 matching_mutated_motifs.add(motif_match[0:2])
 
-    motif_mutation_count = len(matching_mutated_motifs)  # mutated
-    mutation_count = len(matching_mutated_bases - matching_mutated_motifs)  # mutated
-    ref_count = len(matching_bases - matching_motifs)  # not mutated
-    motif_count = len(matching_motifs)  # not mutated
+    motif_mutation_count = len(matching_mutated_motifs)  # bases mutated in motif
+    mutation_count = len(matching_mutated_bases - matching_mutated_motifs)  # bases mutated not in motif
+    motif_count = len(matching_motifs)  # bases in motif
+    ref_count = len(matching_bases - matching_motifs)  # bases not in motif
 
-    stat_motif_count = len(matching_motifs - matching_mutated_motifs)
-    stat_ref_count = len(matching_bases - matching_motifs - matching_mutated_bases)
+    stat_motif_count = len(matching_motifs - matching_mutated_motifs)  # bases not mutated in motif
+    stat_ref_count = len(matching_bases - matching_motifs - matching_mutated_bases)  # bases not mutated not in motif
 
     try:
         enrichment = (motif_mutation_count / mutation_count) / (motif_count / ref_count)
     except ZeroDivisionError:
         enrichment = 0.0
-    p_val = get_stats(motif_mutation_count, mutation_count, stat_motif_count, stat_ref_count)
+    p_val_fisher, p_val_chi2 = get_stats(motif_mutation_count, mutation_count, stat_motif_count, stat_ref_count)
 
-    if enrichment > 1 and p_val[1] < 0.05 and p_val[2] < 0.05:
+    if enrichment > 1 and p_val_fisher < 0.05 and p_val_chi2 < 0.05:
         mut_load = (motif_mutation_count * (enrichment - 1)) / enrichment
     else:
         mut_load = 0.0
-    return enrichment, math.ceil(mut_load), p_val[1], p_val[2], motif_mutation_count, mutation_count, motif_count, ref_count
+
+    result = {
+        'enrichment': enrichment,
+        'mutation_load': math.ceil(mut_load),
+        'pvalue_fisher': p_val_fisher,
+        'pvalue_chi2': p_val_chi2,
+        'bases_mutated_in_motif': motif_mutation_count,
+        'bases_mutated_not_in_motif': mutation_count,
+        'bases_in_motif': motif_count,
+        'bases_not_in_motif': ref_count,
+        'bases_not_mutated_in_motif': stat_motif_count,
+        'bases_not_mutated_not_in_motif': stat_ref_count,
+        'total_mutations': len(mutations)
+    }
+
+    return result

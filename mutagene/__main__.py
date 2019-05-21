@@ -15,7 +15,7 @@ from mutagene.profiles.profile import get_mutational_profile
 # from mutagene.io.decomposition import write_decomposition
 from mutagene.io.cohorts import read_cohort_mutations_from_tar
 from mutagene.io.cohorts import read_cohort_size_from_profile_file, list_cohorts_in_tar
-from mutagene.mutability.mutability import rank
+from mutagene.mutability.mutability import rank, THRESHOLD_DRIVER, THRESHOLD_PASSENGER
 
 import logging
 logger = logging.getLogger(__name__)
@@ -33,10 +33,25 @@ class FetchMenu(object):
             title='subcommands',
             description='Choose data source',
             help='additional help available for subcommands')
-        examples_parser = subparsers.add_parser('examples')
-        cohorts_parser = subparsers.add_parser('cohorts')
-        cohorts_parser.add_argument('--cohort', choices=('COSMIC', 'GDC', 'MSKC', 'ICGC'))
-        genome_parser = subparsers.add_parser('genome')
+        subparsers.add_parser('examples',
+            description="""
+This command will download sample1.maf and sample2.vcf files from the MutaGene server.
+These files are only needed to reproduce examples in the manual.""")
+        cohorts_parser = subparsers.add_parser('cohorts',
+            description="""
+This command will download mutational profiles and counts of observed mutations for cohorts available in online repositories.
+The files are downloaded in one bundle cohorts.tar.gz that will be saved in the current directory.
+Currently, only cohorts representing cancer types in COSMIC are provided.
+Cohorts are required for ranking of mutations, because ranking relies upon counts of observed mutations and cancer type-specific profiles.
+""")
+        cohorts_parser.add_argument('--source', choices=('COSMIC', 'GDC', 'MSKC', 'ICGC'), default='COSMIC')
+        genome_parser = subparsers.add_parser('genome', description="""
+This command will download reference genome assembly sequence in 2bit format from the UCSC genome browser website.
+
+You need to specify the name of genome assembly in --genome (-g) argument.
+
+Partial download is supported: if the process is interupted run the same command again to continue downloading.
+""")
         genome_parser.add_argument('--genome', '-g', type=str, help='hg38, hg19, mm10 according to UCSC genome browser nomenclature')
 
     @classmethod
@@ -69,7 +84,7 @@ class FetchMenu(object):
             logger.warning('No resource specified')
             sys.exit(1)
 
-        print('FetchMenu', args.resource)
+        # print('FetchMenu', args.resource)
         getattr(cls, args.resource)(args)
 
 ################### PROFILE ####################
@@ -109,6 +124,7 @@ class MotifMenu(object):
         parser.add_argument("--infile", "-i", help="Input file in MAF or VCF format with one or multiple samples", type=argparse.FileType('r'))
         parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout)
         parser.add_argument('--genome', "-g", help="Location of genome assembly file in 2bit format", type=str)
+        parser.add_argument('--window-size', "-w", help="Context window size for motif search", type=int, default=50)
 
     @classmethod
     def search(cls, args):
@@ -133,7 +149,11 @@ class MotifMenu(object):
             custom_motif = custom_motif.replace('->', '>')
             logger.info("Searching for motif {}".format(custom_motif))
 
-        mutations, mutations_with_context, processing_stats = read_MAF_with_context_window(args.infile, args.genome)
+        if args.window_size > 250 or args.window_size < 1:
+            logger.warning('window-size should be between 1 and 250 nucleotides')
+            return
+
+        mutations, mutations_with_context, processing_stats = read_MAF_with_context_window(args.infile, args.genome, args.window_size)
         matching_motifs = identify_motifs(mutations_with_context, custom_motif) if mutations_with_context is not None else []
         if len(matching_motifs) == 0:
             logger.warning("No significant motif matches found")
@@ -201,8 +221,11 @@ class RankMenu(object):
 
         parser.add_argument('--cohorts-file', type=str, help="Location of tar.gz container or directory for cohorts", default="cohorts.tar.gz")
         parser.add_argument('--cohort', "-c", type=str, help="Name of cohort with observed mutations")
-        parser.add_argument('--nsamples', "-n", type=int, help="Cohort size, overrides the value in profile")
-        parser.add_argument('--profile', "-p", help="profile to calculate mutability, may also describe cohort size", type=str)
+
+        parser.add_argument('--profile', "-p", help="Override profile to calculate mutability, may also describe cohort size", type=str)
+        parser.add_argument('--nsamples', "-n", type=int, help="Override cohort size")
+        parser.add_argument('--threshold-driver', "-td", help="BScore threshold between Driver and Pontential Driver mutations", type=float, default=THRESHOLD_DRIVER)
+        parser.add_argument('--threshold-passenger', "-tp", help="BScore threshold between Pontential Driver and Passenger mutations", type=float, default=THRESHOLD_PASSENGER)
 
     @classmethod
     def callback(cls, args):
@@ -253,11 +276,11 @@ class RankMenu(object):
         if isinstance(args.infile, list):
             if len(args.infile) > 1:
                 logger.info('Multiple input files provided')
-            mutations_to_rank = []
+            mutations_to_rank = {}
             processing_stats = {'loaded': 0, 'skipped': 0}
             for infile in args.infile:
                 mut, stats = read_MAF_with_genomic_context(infile, args.genome)
-                mutations_to_rank.extend(mut)
+                mutations_to_rank.update(mut)
                 processing_stats['loaded'] += stats['loaded']
                 processing_stats['skipped'] += stats['skipped']
         else:
@@ -272,7 +295,18 @@ class RankMenu(object):
             msg += " skipped {} mutations".format(processing_stats['skipped'])
         logger.info(msg)
 
-        rank(mutations_to_rank, args.outfile, profile, cohort_aa_mutations, cohort_size)
+        # mutations_to_rank = list(mutations_to_rank)
+
+        # not_unique = len(mutations_to_rank)
+        # mutations_to_rank = list(set(mutations_to_rank))
+        # unique = len(mutations_to_rank)
+        # if not_unique != unique:
+        #     logger.info("Removed {} duplicate mutations".format(not_unique - unique))
+
+        logger.info("THRESHOLD_DRIVER: {}".format(args.threshold_driver))
+        logger.info("THRESHOLD_PASSENGER: {}".format(args.threshold_passenger))
+
+        rank(mutations_to_rank, args.outfile, profile, cohort_aa_mutations, cohort_size, args.threshold_driver, args.threshold_passenger)
 
 
 """
@@ -296,9 +330,11 @@ parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), d
 class MutaGeneApp(object):
     def __init__(self):
         signal.signal(signal.SIGINT, self.signal_handler)
+        # ignore BrokenPipeError: [Errno 32] Broken pipe which occurs when using less or head
+        signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
         parser = argparse.ArgumentParser(
-            prog="MutaGene",
+            prog="mutagene",
             description='MutaGene version {} - Analysis of mutational processes and driver mutations'.format(mutagene.__version__),
             # usage="%(prog)s [options]",
             # formatter_class=argparse.RawTextHelpFormatter
