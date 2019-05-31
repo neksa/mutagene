@@ -1,5 +1,5 @@
 import unittest
-import numpy as np
+# import numpy as np
 from motifs_in_mutagene import *
 from mutations_io import *
 
