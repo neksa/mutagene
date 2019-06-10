@@ -25,7 +25,7 @@ def get_context_twobit_window(mutations, twobit_file, window_size):
     f = tbr.TwoBitFile(fname)
 
     cn = complementary_nucleotide
-    for (chrom, pos, x, y) in mutations:
+    for (chrom, pos, transcript_strand, x, y) in mutations:
         start = int(pos) - 1  # zero-based numbering
         chrom = str(chrom)
 
@@ -44,11 +44,12 @@ def get_context_twobit_window(mutations, twobit_file, window_size):
             logger.debug("NO CHROM", chromosome)
             continue
 
+        strand = transcript_strand
         seq_with_coords = list(zip(
             cycle([chrom]),
             range(pos - window_size, pos + window_size + 1),
             seq,
-            cycle("+")))
+            cycle(strand)))
 
         nuc3 = seq_with_coords[window_size - 1][2]
         nuc = seq_with_coords[window_size][2]
@@ -58,6 +59,7 @@ def get_context_twobit_window(mutations, twobit_file, window_size):
             if cn[nuc] == x:
                 nuc3 = cn[nuc5]
                 nuc5 = cn[nuc3]
+                print('debug: complementary REF sequence detected')
             else:
                 print("{}:{}  {}>{}   {}[{}]{}".format(chromosome, pos, x, y, nuc5, nuc, nuc3))
                 nuc3 = nuc5 = 'N'
@@ -109,6 +111,7 @@ def read_MAF_with_context_window(infile, asm, window_size):
             y1 = data.tumor_seq_allele1           # MAF ALT1
             y2 = data.tumor_seq_allele2           # MAF ALT2
             sample = data.tumor_sample_barcode       # Tumor barcode
+            transcript_strand = data.transcript_strand
         except:
             # raise
             continue
@@ -125,7 +128,7 @@ def read_MAF_with_context_window(infile, asm, window_size):
         if y is None:
             continue
 
-        raw_mutations[sample].append((chrom, pos, x, y))
+        raw_mutations[sample].append((chrom, pos, transcript_strand, x, y))
 
     mutations_with_context = defaultdict(list)
 
@@ -136,7 +139,7 @@ def read_MAF_with_context_window(infile, asm, window_size):
             if contexts is None or len(contexts) == 0:
                 return None, None
 
-            for (chrom, pos, x, y) in sample_mutations:
+            for (chrom, pos, transcript_strand, x, y) in sample_mutations:
                 (p5, p3), seq_with_coords = contexts.get((chrom, pos), (("N", "N"), []))
 
                 if len(set([p5, x, y, p3]) - set(nucleotides)) > 0:
@@ -149,7 +152,7 @@ def read_MAF_with_context_window(infile, asm, window_size):
                 else:
                     # complementary mutation
                     mutations[sample][cn[p3] + cn[p5] + cn[x] + cn[y]] += 1.0
-                mutations_with_context[sample].append((chrom, pos, x, y, seq_with_coords))
+                mutations_with_context[sample].append((chrom, pos, transcript_strand, x, y, seq_with_coords))
 
     N_loaded = 0
     for sample, sample_mutations in mutations.items():

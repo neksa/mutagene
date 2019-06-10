@@ -19,6 +19,7 @@ class MotifMenu(object):
         parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout)
         parser.add_argument('--genome', "-g", help="Location of genome assembly file in 2bit format", type=str)
         parser.add_argument('--window-size', "-w", help="Context window size for motif search", type=int, default=50)
+        parser.add_argument('--strand', "-s", help="Transcribed strand (+), non-transcribed (-) or both (*) - default", type=str, default='*', choices=['*', '+', '-'])
 
     @classmethod
     def search(cls, args):
@@ -44,7 +45,7 @@ class MotifMenu(object):
             return
 
         mutations, mutations_with_context, processing_stats = read_MAF_with_context_window(args.infile, args.genome, args.window_size)
-        matching_motifs = identify_motifs(mutations_with_context, custom_motif) if mutations_with_context is not None else []
+        matching_motifs = identify_motifs(mutations_with_context, custom_motif, args.strand) if mutations_with_context is not None else []
         if len(matching_motifs) == 0:
             logger.warning("No significant motif matches found")
         else:

@@ -84,8 +84,13 @@ motifs = [
 ]
 
 
-def identify_motifs(samples_mutations, custom_motif=None):
+def identify_motifs(samples_mutations, custom_motif=None, strand=None):
     motif_matches = []
+
+    if strand is None:
+        strand = '*'
+    if strand == '*':
+        strand = '+-'
 
     if custom_motif:
         search_motifs = scanf_motif(custom_motif)
@@ -100,25 +105,28 @@ def identify_motifs(samples_mutations, custom_motif=None):
             window_size = (len(first_mut_seq_with_coords) - 1) // 2
 
             for m in search_motifs:
-                # print("IDENTIFYING MOTIF: ", m['name'])
-                result = get_enrichment(mutations, m['motif'], m['position'], m['ref'], m['alt'], window_size)
+                for s in strand:
+                    # print("IDENTIFYING MOTIF: ", m['name'])
+                    result = get_enrichment(mutations, m['motif'], m['position'], m['ref'], m['alt'], window_size, s)
 
-                debug_data = {'sample': sample, 'motif': m['logo']}
-                debug_data.update(result)
-                debug_string = pprint.pformat(debug_data, indent=4)
-                # logger.debug(debug_string)
+                    debug_data = {'sample': sample, 'motif': m['logo'], 'strand': s}
+                    debug_data.update(result)
+                    debug_string = pprint.pformat(debug_data, indent=4)
+                    logger.debug(debug_string)
 
-                if result['mutation_load'] == 0:
-                    continue
+                    if result['mutation_load'] == 0:
+                        continue
 
-                motif_matches.append({
-                    'sample': sample,
-                    'name': m['name'],
-                    'motif': m['logo'],
-                    'enrichment': result['enrichment'],
-                    'pvalue': result['pvalue_fisher'],
-                    'mutations': result['mutation_load'],
-                })
+                    motif_matches.append({
+                        'sample': sample,
+                        'name': m['name'],
+                        'motif': m['logo'],
+                        'strand': s,
+                        'enrichment': result['enrichment'],
+                        'pvalue': result['pvalue_fisher'],
+                        'mutations_low_est': result['mutation_load'],
+                        'mutations_high_est': result['bases_mutated_in_motif'],
+                    })
     return motif_matches
 
 
@@ -210,7 +218,7 @@ def find_matching_bases(seq, ref, motif, motif_position):
             yield seq[i]
 
 
-def get_enrichment(mutations, motif, motif_position, ref, alt, range_size):
+def get_enrichment(mutations, motif, motif_position, ref, alt, range_size, strand):
     assert range_size >= 0
     assert len(ref) == 1
     assert len(alt) == 1
@@ -222,42 +230,46 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size):
     matching_mutated_bases = set()
 
     # extra loop for sample in sample list
-    for chrom, pos, x, y, seq in mutations:
+    for chrom, pos, transcript_strand, x, y, seq in mutations:
         # extract the longest sequence we would ever need (motif + range_size)
         mutation = chrom, pos, x, y
         rev_seq = get_rev_comp_seq(seq)
 
-        # not mutated:
-        for ref_match in find_matching_bases(seq, ref, motif, motif_position):
-            matching_bases.add(ref_match[0:2])
+        # if strand == '+':
+        if transcript_strand == strand:
+            # not mutated:
+            for ref_match in find_matching_bases(seq, ref, motif, motif_position):
+                matching_bases.add(ref_match[0:2])
+            for motif_match in find_matching_motifs(seq, motif, motif_position):
+                matching_motifs.add(motif_match[0:2])
 
-        for motif_match in find_matching_motifs(seq, motif, motif_position):
-            matching_motifs.add(motif_match[0:2])
+            # mutated:
+            if mutated_base(mutation, bases_dict[ref], bases_dict[alt]):
+                # m = (mutation[0], mutation[1], mutation[2], "+")
+                matching_mutated_bases.add(mutation[0:2])
 
-        # rev compl: not mutated:
-        for ref_match in find_matching_bases(rev_seq, ref, motif, len(motif) - motif_position - 1):
-            matching_bases.add(ref_match[0:2])
+                context_of_mutation = seq[range_size - motif_position: range_size - motif_position + len(motif)]
+                for motif_match in find_matching_motifs(context_of_mutation, motif, motif_position):
+                    matching_mutated_motifs.add(motif_match[0:2])
 
-        for motif_match in find_matching_motifs(rev_seq, motif, len(motif) - motif_position - 1):
-            matching_motifs.add(motif_match[0:2])
+        # elif strand == '-':
+        elif transcript_strand != strand:
+            # rev compl: not mutated:
+            for ref_match in find_matching_bases(rev_seq, ref, motif, len(motif) - motif_position - 1):
+                matching_bases.add(ref_match[0:2])
 
-        # mutated:
-        if mutated_base(mutation, bases_dict[ref], bases_dict[alt]):
-            # m = (mutation[0], mutation[1], mutation[2], "+")
-            matching_mutated_bases.add(mutation[0:2])
+            for motif_match in find_matching_motifs(rev_seq, motif, len(motif) - motif_position - 1):
+                matching_motifs.add(motif_match[0:2])
 
-            context_of_mutation = seq[range_size - motif_position: range_size - motif_position + len(motif)]
-            for motif_match in find_matching_motifs(context_of_mutation, motif, motif_position):
-                matching_mutated_motifs.add(motif_match[0:2])
+            # rev compl: mutated:
+            if mutated_base(mutation, comp_dict[ref], comp_dict[alt]):
+                # m = (mutation[0], mutation[1], mutation[2], "-")
+                matching_mutated_bases.add(mutation[0:2])
 
-        if mutated_base(mutation, comp_dict[ref], comp_dict[alt]):
-            # m = (mutation[0], mutation[1], mutation[2], "-")
-            matching_mutated_bases.add(mutation[0:2])
-
-            # rev comp:
-            context_of_mutation = rev_seq[range_size - motif_position: range_size - motif_position + len(motif)]
-            for motif_match in find_matching_motifs(context_of_mutation, motif, len(motif) - motif_position - 1):
-                matching_mutated_motifs.add(motif_match[0:2])
+                # rev comp:
+                context_of_mutation = rev_seq[range_size - motif_position: range_size - motif_position + len(motif)]
+                for motif_match in find_matching_motifs(context_of_mutation, motif, len(motif) - motif_position - 1):
+                    matching_mutated_motifs.add(motif_match[0:2])
 
         # if seq[0][0] == '19':
         #     print(seq)
@@ -299,8 +311,8 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size):
         mut_load = 0.0
 
     table = pd.DataFrame(data={
-        "mutated '{}' sites".format(ref): [motif_mutation_count, mutation_count],
-        "not mutated '{}' sites".format(ref): [stat_motif_count, stat_ref_count]},
+        "'{}>{}' mutation".format(ref, alt): [motif_mutation_count, mutation_count],
+        "no '{}>{}' mutation".format(ref, alt): [stat_motif_count, stat_ref_count]},
         index=("'{}' motif".format(motif), "no '{}' motif".format(motif)))
     logger.debug("\n" + table.to_string() + "\n")
 
