@@ -2,6 +2,7 @@ import re
 import math
 import scipy.stats as stats
 import numpy as np
+import pandas as pd
 
 import pprint
 import logging
@@ -105,7 +106,7 @@ def identify_motifs(samples_mutations, custom_motif=None):
                 debug_data = {'sample': sample, 'motif': m['logo']}
                 debug_data.update(result)
                 debug_string = pprint.pformat(debug_data, indent=4)
-                logger.debug(debug_string)
+                # logger.debug(debug_string)
 
                 if result['mutation_load'] == 0:
                     continue
@@ -198,7 +199,11 @@ def find_matching_motifs(seq, motif, motif_position):
 
 
 def find_matching_bases(seq, ref, motif, motif_position):
-    # print("Looking for motif {} in {}, {}".format(motif, sequence, len(sequence) - len(motif)))
+    # print("Looking for motif {} in {}, {}".format(motif, seq, len(seq) - len(motif)))
+    ss = ""
+    for i in range(motif_position, len(seq) - (len(motif) - motif_position)):
+        ss += seq[i][2]
+    # print(ref, ss)
     for i in range(motif_position, len(seq) - (len(motif) - motif_position)):
         s = seq[i][2]
         if s in bases_dict[ref]:
@@ -254,6 +259,14 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size):
             for motif_match in find_matching_motifs(context_of_mutation, motif, len(motif) - motif_position - 1):
                 matching_mutated_motifs.add(motif_match[0:2])
 
+        # if seq[0][0] == '19':
+        #     print(seq)
+
+        # if seq[0][0] == '19' and seq[0][1] == 51022172:
+        #     for s in seq:
+        #         print(s[2], end='')
+        #     print()
+
     motif_mutation_count = len(matching_mutated_motifs)  # bases mutated in motif
     mutation_count = len(matching_mutated_bases - matching_mutated_motifs)  # bases mutated not in motif
     motif_count = len(matching_motifs)  # bases in motif
@@ -262,16 +275,34 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size):
     stat_motif_count = len(matching_motifs - matching_mutated_motifs)  # bases not mutated in motif
     stat_ref_count = len(matching_bases - matching_motifs - matching_mutated_bases)  # bases not mutated not in motif
 
+    # try:
+    #     enrichment = (motif_mutation_count / mutation_count) / (motif_count / ref_count)
+    # except ZeroDivisionError:
+    #     enrichment = 0.0
+
+    # haldane correction:
+    motif_mutation_count += 0.5
+    mutation_count += 0.5
+    stat_motif_count += 0.5
+    stat_ref_count += 0.5
+
     try:
-        enrichment = (motif_mutation_count / mutation_count) / (motif_count / ref_count)
+        enrichment = (motif_mutation_count / mutation_count) / (stat_motif_count / stat_ref_count)
     except ZeroDivisionError:
         enrichment = 0.0
+
     p_val_fisher, p_val_chi2 = get_stats(motif_mutation_count, mutation_count, stat_motif_count, stat_ref_count)
 
     if enrichment > 1 and p_val_fisher < 0.05 and p_val_chi2 < 0.05:
         mut_load = (motif_mutation_count * (enrichment - 1)) / enrichment
     else:
         mut_load = 0.0
+
+    table = pd.DataFrame(data={
+        "mutated '{}' sites".format(ref): [motif_mutation_count, mutation_count],
+        "not mutated '{}' sites".format(ref): [stat_motif_count, stat_ref_count]},
+        index=("'{}' motif".format(motif), "no '{}' motif".format(motif)))
+    logger.debug("\n" + table.to_string() + "\n")
 
     result = {
         'enrichment': enrichment,
