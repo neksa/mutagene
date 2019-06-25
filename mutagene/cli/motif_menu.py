@@ -18,8 +18,8 @@ class MotifMenu(object):
         parser.add_argument("--infile", "-i", help="Input file in MAF or VCF format with one or multiple samples", type=argparse.FileType('r'))
         parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout)
         parser.add_argument('--genome', "-g", help="Location of genome assembly file in 2bit format", type=str)
-        parser.add_argument('--window-size', "-w", help="Context window size for motif search", type=int, default=50)
-        parser.add_argument('--strand', "-s", help="Transcribed strand (+), non-transcribed (-) or both (*): default setting", type=str, default='*', choices=['*', '+', '-'])
+        parser.add_argument('--window-size', "-w", help="Context window size for motif search, default setting is 50", type=int, default=50)
+        parser.add_argument('--strand', "-s", help="Transcribed strand (+), non-transcribed (-), or both (*): the default setting", type=str, default='*', choices=['*', '+', '-'])
 
     @classmethod
     def search(cls, args):
