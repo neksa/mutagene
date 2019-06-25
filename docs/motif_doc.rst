@@ -14,7 +14,7 @@ and the characters in brackets represent the single-base substitution.
 
 ----------
 Examples
-----------
+---------- 
 
 "A[C>A]G" represents the DNA sequence "ACG" mutated into the DNA sequence "AAG"
 
