@@ -27,5 +27,4 @@ Where can I read more about motifs?
 =============================================
 
 This `publication <www.ncbi.nlm.nih.gov/pubmed/28498882/>`_ describes motifs and their uses 
-.. publication: www.ncbi.nlm.nih.gov/pubmed/28498882
 
