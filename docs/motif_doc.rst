@@ -17,7 +17,9 @@ Examples
 ----------
 
 "A[C>A]G" represents the DNA sequence "ACG" mutated into the DNA sequence "AAG"
+
 "C[G>T]" represents the DNA sequence "CG" mutated into the DNA sequence "CT"
+
 "[C>A]C" represents the DNA sequence "CC" mutated into the DNA sequence "AC"
 
 =============================================
