@@ -13,6 +13,8 @@ genome_error_message = 'requires genome name argument -g hg19, hg38, mm10, see h
 
 class MotifMenu(object):
     def __init__(self, parser):
+        parser.description = "Run the motif command by stating: mutagene motif <action (search/list)> <file name> <genome>"
+        parser.epilog = "TEST Epilog"
         parser.add_argument('action', choices=['search'])
         parser.add_argument("infile", help="Input file in MAF or VCF format with one or multiple samples", type=argparse.FileType('r'))
         parser.add_argument('genome', help="Location of genome assembly file in 2bit format", type=str)
