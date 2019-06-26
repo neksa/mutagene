@@ -5,6 +5,7 @@ import logging
 from mutagene.io.context_window import read_MAF_with_context_window
 from mutagene.motifs.motifs import identify_motifs
 from mutagene.io.motifs import write_motif_matches
+from mutagene.motifs.motifs import motifs as list_of_motifs
 
 
 logger = logging.getLogger(__name__)
@@ -13,7 +14,7 @@ genome_error_message = 'requires genome name argument -g hg19, hg38, mm10, see h
 
 class MotifMenu(object):
     def __init__(self, parser):
-        parser.add_argument('action', choices=['search'])
+        parser.add_argument('action', choices=['search', 'list'])
         parser.add_argument("--motif", "-m", help="Motif to search for, use the 'R[C>T]GY' syntax for the motif. Use quotes", type=str)
         parser.add_argument("--infile", "-i", help="Input file in MAF or VCF format with one or multiple samples", type=argparse.FileType('r'))
         parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout)
@@ -50,6 +51,11 @@ class MotifMenu(object):
             logger.warning("No significant motif matches found")
         else:
             write_motif_matches(args.outfile, matching_motifs)
+
+    @classmethod
+    def list(cls, args):
+        for m in list_of_motifs:
+            print("{:20}\t{}".format(m['name'], m['logo']))
 
     @classmethod
     def callback(cls, args):
