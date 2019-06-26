@@ -9,8 +9,7 @@ Welcome to MutaGene's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
-
+	History <HISTORY.rst>
 
 Indices and tables
 ==================

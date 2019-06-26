@@ -18,7 +18,7 @@ Changes
 =======
 
 0.8.5.1 Bug-Fix Release
--------------
+-----------------------
 
 * several error messages downgraded in log level
 * correct handling of missing parameters

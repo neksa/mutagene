@@ -14,7 +14,9 @@ genome_error_message = 'requires genome name argument -g hg19, hg38, mm10, see h
 
 class MotifMenu(object):
     def __init__(self, parser):
-        parser.add_argument('action', choices=['search', 'list'])
+        parser.description = "TEST"
+        parser.epilog = "TEST Epilog"
+        parser.add_argument('action', choices=['search', 'list'], help="search for a motif, list all predefined motifs")
         parser.add_argument("--motif", "-m", help="Motif to search for, use the 'R[C>T]GY' syntax for the motif. Use quotes", type=str)
         parser.add_argument("--infile", "-i", help="Input file in MAF or VCF format with one or multiple samples", type=argparse.FileType('r'))
         parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout)
