@@ -13,8 +13,11 @@ genome_error_message = 'requires genome name argument -g hg19, hg38, mm10, see h
 
 class MotifMenu(object):
     def __init__(self, parser):
-        parser.description = "Run the motif command by stating: mutagene motif <action (search or list)> <file name> <genome>"
-        parser.epilog = "TEST Epilog"
+        parser.description = "Motif function requires: mutagene motif <action (search or list)>, if search is specified, infile & genome are also required"
+        parser.epilog = "Example motif commands:" + \n + '1. mutagene motif search -i sample1.maf -g hg19 -m "C[A>T]" --> searches for the presence of the C[A>T] motif in sample1.maf using human genome 19'
+                         + \n + '2. mutagene motif search -i sample2.vcf -g hg18 --> searches in sample2.vcf for all preidentified motifs in mutagene using hg18' 
+                         + \n + '3. mutagene motif list --> lists all pre-identified motifs in mutagene'
+                
         parser.add_argument('action', choices=['search'])
         
         parser.add_argument("--infile", "-i", help="Input file in MAF or VCF format with one or multiple samples", type=argparse.FileType('r'))
@@ -27,10 +30,10 @@ class MotifMenu(object):
 
     @classmethod
     def search(cls, args):
-        if not args.infile:
+        if not args.infile and args.action != "list":
             logger.warning("Provide input file in VCF or MAF format (-i) and a corresponding genome assembly (-g)")
             return
-        if not args.genome:
+        if not args.genome and args.action != "list":
             logger.warning(genome_error_message)
             return
         if not args.motif:
