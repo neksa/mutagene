@@ -14,7 +14,12 @@ genome_error_message = 'requires genome name argument -g hg19, hg38, mm10, see h
 class MotifMenu(object):
     def __init__(self, parser):
         parser.description = "Motif function requires: mutagene motif <action (search or list)>, if search is specified, infile & genome are also required"
-        parser.epilog = "Example motif commands:\n1. mutagene motif search -i sample1.maf -g hg19 -m 'C[A>T]' --> searches for the presence of the C[A>T] motif in sample1.maf using human genome 19\n2. mutagene motif search -i sample2.vcf -g hg18 --> searches in sample2.vcf for all preidentified motifs in mutagene using hg18' + \n + '3. mutagene motif list --> lists all pre-identified motifs in mutagene"
+        parser.epilog = """
+                        Example motif commands:
+                        1. mutagene motif search -i sample1.maf -g hg19 -m 'C[A>T]' --> searches for the presence of the C[A>T] motif in sample1.maf using hg19
+                        2. mutagene motif search -i sample2.vcf -g hg18 --> searches in sample2.vcf for all preidentified motifs in mutagene using hg18
+                        3. mutagene motif list --> lists all pre-identified motifs in mutagene
+                        """
                 
         parser.add_argument('action', choices=['search'])
         
@@ -22,7 +27,7 @@ class MotifMenu(object):
         parser.add_argument('--genome', "-g", help="Location of genome assembly file in 2bit format", type=str)
        
         parser.add_argument("--motif", "-m", help="Motif to search for, use the 'R[C>T]GY' syntax for the motif. Use quotes", type=str)
-        parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout, help="Name of output file, will be generated in txt format")
+        parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout, help="Name of output file, will be generated in TSV format")
         parser.add_argument('--window-size', "-w", help="Context window size for motif search, default setting is 50", type=int, default=50)
         parser.add_argument('--strand', "-s", help="Transcribed strand (+), non-transcribed (-), or both (*): the default setting", type=str, default='*', choices=['*', '+', '-'])
 
