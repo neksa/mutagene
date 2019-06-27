@@ -3,7 +3,7 @@ What are motifs?
 ==============================
 
 A motif is a characteristic pattern of DNA change, often associated with a carcinogen or a biological process. 
-A motif's pattern includes a characteristic DNA context and a single-base substitution.
+A motif's pattern includes a characteristic DNA context and a single-base substitution. 
 
 ----------------------------------------
 How does MutaGene represent motifs?
@@ -20,6 +20,11 @@ Examples
 "C[G>T]" represents the DNA sequence "CG" mutated into the DNA sequence "CT"
 
 "[C>A]C" represents the DNA sequence "CC" mutated into the DNA sequence "AC"
+
+Motif Visualization
+--------------------
+
+.. image:: motif_viz.jpg
 
 --------------------------------------------------
 Where can I read more about motifs?
