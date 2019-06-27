@@ -54,7 +54,7 @@ class MotifMenu(object):
         if len(matching_motifs) == 0:
             logger.warning("No significant motif matches found")
         else:
-            write_motif_matches(args.outfile, matching_motifs)
+             write_motif_matches(args.outfile, matching_motifs)
 
     @classmethod
     def callback(cls, args):
