@@ -25,9 +25,9 @@ Motif Visualization
 --------------------
 
 .. image:: motif_viz.jpg
-   align: center
-   width: 100px
-   height: 100px
+   :align: center
+   :width: 100px
+   :height: 100px
 
 --------------------------------------------------
 Where can I read more about motifs?
