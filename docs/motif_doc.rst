@@ -26,8 +26,8 @@ Motif Visualization
 
 .. image:: motif_viz.jpg
    :align: center
-   :width: 50px
-   :height: 50px
+   :width: 50
+   :height: 50
 
 --------------------------------------------------
 Where can I read more about motifs?
