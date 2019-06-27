@@ -23,10 +23,9 @@ Examples
 
 Motif Visualization
 --------------------
-
-.. image:: motif_viz.jpg
 .. :align: center
    :scale: 1
+   image:: motif_viz.jpg
 
 --------------------------------------------------
 Where can I read more about motifs?
