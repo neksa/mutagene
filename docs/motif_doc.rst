@@ -25,7 +25,7 @@ Motif Visualization
 --------------------
 
 .. image:: motif_viz.jpg
-   :align: center
+.. :align: center
    :scale: 1
 
 --------------------------------------------------
