@@ -14,7 +14,7 @@ genome_error_message = 'requires genome name argument -g hg19, hg38, mm10, see h
 class MotifMenu(object):
     def __init__(self, parser):
         parser.description = "Motif function requires: mutagene motif <action (search or list)>, if search is specified, infile & genome are also required"
-        parser.epilog = "Example motif commands:" + \n + '1. mutagene motif search -i sample1.maf -g hg19 -m "C[A>T]" --> searches for the presence of the C[A>T] motif in sample1.maf using human genome 19'+ \n + '2. mutagene motif search -i sample2.vcf -g hg18 --> searches in sample2.vcf for all preidentified motifs in mutagene using hg18' + \n + '3. mutagene motif list --> lists all pre-identified motifs in mutagene'
+        parser.epilog = "Example motif commands:" + \n + "1. mutagene motif search -i sample1.maf -g hg19 -m 'C[A>T]' --> searches for the presence of the C[A>T] motif in sample1.maf using human genome 19"+ \n + "2. mutagene motif search -i sample2.vcf -g hg18 --> searches in sample2.vcf for all preidentified motifs in mutagene using hg18' + \n + '3. mutagene motif list --> lists all pre-identified motifs in mutagene"
                 
         parser.add_argument('action', choices=['search'])
         
