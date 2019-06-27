@@ -25,7 +25,7 @@ Motif Visualization
 --------------------
 .. image:: motif_viz.jpg
    :align: center
-   :scale: 1
+   :scale: 1 #need to scale down 
 
 --------------------------------------------------
 Where can I read more about motifs?
