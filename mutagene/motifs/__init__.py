@@ -90,8 +90,6 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None):
 
     if strand is None:
         strand = '*'
-    if strand == '*':
-        strand = '+-'
 
     if custom_motif:
         search_motifs = scanf_motif(custom_motif)
@@ -229,7 +227,7 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size, stran
         rev_seq = get_rev_comp_seq(seq)
 
         # if strand == '+':
-        if transcript_strand == strand:
+        if strand == '*' or transcript_strand == strand:
             # not mutated:
             for ref_match in find_matching_bases(seq, ref, motif, motif_position):
                 matching_bases.add(ref_match[0:2])
@@ -246,7 +244,7 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size, stran
                     matching_mutated_motifs.add(motif_match[0:2])
 
         # elif strand == '-':
-        elif transcript_strand != strand:
+        if strand == '*' or transcript_strand != strand:
             # rev compl: not mutated:
             for ref_match in find_matching_bases(rev_seq, ref, motif, len(motif) - motif_position - 1):
                 matching_bases.add(ref_match[0:2])

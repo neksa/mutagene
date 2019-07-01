@@ -31,7 +31,7 @@ class MotifMenu(object):
         parser.add_argument("--motif", "-m", help="Motif to search for, use the 'R[C>T]GY' syntax for the motif. Use quotes", type=str)
         parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout, help="Name of output file, will be generated in TSV format")
         parser.add_argument('--window-size', "-w", help="Context window size for motif search, default setting is 50", type=int, default=50)
-        parser.add_argument('--strand', "-s", help="Transcribed strand (+), non-transcribed (-), or both (*): the default setting", type=str, default='*', choices=['*', '+', '-'])
+        parser.add_argument('--strand', "-s", help="Transcribed strand (+), non-transcribed (-), any (* default), or all (-+*) ", type=str, default='*', choices=['+', '-', '*'])
 
     @classmethod
     def search(cls, args):
@@ -59,7 +59,9 @@ class MotifMenu(object):
         mutations, mutations_with_context, processing_stats = read_MAF_with_context_window(args.infile, args.genome, args.window_size)
         if len(mutations_with_context) == 0:
             logger.warning("No mutations loaded")
+
         matching_motifs = identify_motifs(mutations_with_context, custom_motif, args.strand) if mutations_with_context is not None else []
+
         if len(matching_motifs) == 0:
             logger.warning("No significant motif matches found")
         else:
