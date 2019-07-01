@@ -6,7 +6,7 @@ from collections import defaultdict
 from itertools import cycle
 
 from mutagene.dna import chromosome_name_mapping
-from mutagene.motifs.motifs import nucleotides, complementary_nucleotide
+from mutagene.motifs import nucleotides, complementary_nucleotide
 
 import logging
 logger = logging.getLogger(__name__)

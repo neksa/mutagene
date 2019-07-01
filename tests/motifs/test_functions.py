@@ -1,5 +1,5 @@
 import pytest
-from mutagene.motifs.motifs import *
+from mutagene.motifs import *
 
 
 # (record.CHROM, record.POS, record.REF, record.ALT)]

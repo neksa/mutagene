@@ -3,9 +3,9 @@ import sys
 import logging
 
 from mutagene.io.context_window import read_MAF_with_context_window
-from mutagene.motifs.motifs import identify_motifs
+from mutagene.motifs import identify_motifs
 from mutagene.io.motifs import write_motif_matches
-from mutagene.motifs.motifs import motifs as list_of_motifs
+from mutagene.motifs import motifs as list_of_motifs
 
 
 logger = logging.getLogger(__name__)
