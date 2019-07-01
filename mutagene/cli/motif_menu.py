@@ -22,13 +22,12 @@ class MotifMenu(object):
                         2. mutagene motif search -i sample2.vcf -g hg18 --> searches in sample2.vcf for all preidentified motifs in mutagene using hg18
                         3. mutagene motif list --> lists all pre-identified motifs in mutagene
                         """
-                
 
         parser.add_argument('action', choices=['search', 'list'], help="search for a motif, list all predefined motifs")
 
         parser.add_argument("--infile", "-i", help="Input file in MAF or VCF format with one or multiple samples", type=argparse.FileType('r'))
         parser.add_argument('--genome', "-g", help="Location of genome assembly file in 2bit format", type=str)
-       
+
         parser.add_argument("--motif", "-m", help="Motif to search for, use the 'R[C>T]GY' syntax for the motif. Use quotes", type=str)
         parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout, help="Name of output file, will be generated in TSV format")
         parser.add_argument('--window-size', "-w", help="Context window size for motif search, default setting is 50", type=int, default=50)
@@ -58,11 +57,13 @@ class MotifMenu(object):
             return
 
         mutations, mutations_with_context, processing_stats = read_MAF_with_context_window(args.infile, args.genome, args.window_size)
+        if len(mutations_with_context) == 0:
+            logger.warning("No mutations loaded")
         matching_motifs = identify_motifs(mutations_with_context, custom_motif, args.strand) if mutations_with_context is not None else []
         if len(matching_motifs) == 0:
             logger.warning("No significant motif matches found")
         else:
-             write_motif_matches(args.outfile, matching_motifs)
+            write_motif_matches(args.outfile, matching_motifs)
 
     @classmethod
     def list(cls, args):

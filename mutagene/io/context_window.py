@@ -92,41 +92,55 @@ def read_MAF_with_context_window(infile, asm, window_size):
     raw_mutations = defaultdict(list)
     # for line in tqdm(infile):
     for data in tqdm(map(MAF._make, reader), leave=False):
-        try:
-            # assembly_build = col_list[3]  # MAF ASSEMBLY
-            # strand = col_list[7]    # MAF STRAND
-            # ID = col_list[2]
+        # assembly_build = col_list[3]  # MAF ASSEMBLY
 
-            # chromosome is expected to be one or two number or one letter
+        # chromosome is expected to be one or two number or one letter
+        if hasattr(data, 'chromosome'):
             chrom = data.chromosome  # MAF CHROM
-            # if chrom.lower().startswith("chr"):
-            #     chrom = chrom[3:]
+        else:
+            raise ValueError('Chromosome is not defined in MAF file')
 
-            # if len(chrom) == 2 and chrom[1] not in "0123456789":
-            #     chrom = chrom[0]
+        if hasattr(data, 'tumor_sample_barcode'):
+            sample = data.tumor_sample_barcode       # Tumor barcode
+        elif hasattr(data, 'sample_id'):
+            sample = data.sample_id
+        else:
+            raise ValueError("Sample ID is not defined in MAF file")
 
-            pos = int(data.start_position)
-            # pos_end = int(col_list[6])  # MAF POS END
+        if hasattr(data, 'reference_allele'):
             x = data.reference_allele            # MAF REF
+        else:
+            raise ValueError('Reference allele is not defined in MAF file')
+
+        if hasattr(data, 'variant_allele'):
+            y = data.variant_allele
+        elif hasattr(data, 'tumor_seq_allele1') and hasattr(data, 'tumor_seq_allele2'):
             y1 = data.tumor_seq_allele1           # MAF ALT1
             y2 = data.tumor_seq_allele2           # MAF ALT2
-            sample = data.tumor_sample_barcode       # Tumor barcode
-            transcript_strand = data.transcript_strand
-        except:
-            # raise
-            continue
+            y = y1 if y1 != x else None
+            y = y2 if y2 != x else y
+        else:
+            raise ValueError('Variant allele is not defined in MAF file')
 
-        # if pos != pos_end:
-        #     continue
-
-        # skip if found unexpected nucleotide characters
-        if len(set([x, y1, y2]) - set(nucleotides)) > 0:
-            continue
-
-        y = y1 if y1 != x else None
-        y = y2 if y2 != x else y
         if y is None:
             continue
+        # skip if found unexpected nucleotide characters
+        if len(set([x, y]) - set(nucleotides)) > 0:
+            continue
+
+        if hasattr(data, 'start_position'):
+            try:
+                pos = int(data.start_position)
+            except ValueError:
+                raise ValueError('Start position is not a number in MAF file')
+        else:
+            raise ValueError('Start position is not defined in MAF file')
+
+        if hasattr(data, 'transcript_strand'):
+            transcript_strand = data.transcript_strand
+        else:
+            # this is an incorrect assumption about transcription strand
+            transcript_strand = '+'
 
         raw_mutations[sample].append((chrom, pos, transcript_strand, x, y))
 
@@ -157,6 +171,7 @@ def read_MAF_with_context_window(infile, asm, window_size):
     N_loaded = 0
     for sample, sample_mutations in mutations.items():
         N_loaded += int(sum(sample_mutations.values()))
+
     processing_stats = {
         'loaded': N_loaded,
         'skipped': N_skipped,
