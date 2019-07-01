@@ -14,22 +14,32 @@ genome_error_message = 'requires genome name argument -g hg19, hg38, mm10, see h
 
 class MotifMenu(object):
     def __init__(self, parser):
-        parser.description = "TEST"
-        parser.epilog = "TEST Epilog"
+
+        parser.description = "Motif function requires: mutagene motif <action (search or list)>, if search is specified, infile & genome are also required"
+        parser.epilog = """
+                        Example motif commands:
+                        1. mutagene motif search -i sample1.maf -g hg19 -m 'C[A>T]' --> searches for the presence of the C[A>T] motif in sample1.maf using hg19
+                        2. mutagene motif search -i sample2.vcf -g hg18 --> searches in sample2.vcf for all preidentified motifs in mutagene using hg18
+                        3. mutagene motif list --> lists all pre-identified motifs in mutagene
+                        """
+                
+
         parser.add_argument('action', choices=['search', 'list'], help="search for a motif, list all predefined motifs")
-        parser.add_argument("--motif", "-m", help="Motif to search for, use the 'R[C>T]GY' syntax for the motif. Use quotes", type=str)
+
         parser.add_argument("--infile", "-i", help="Input file in MAF or VCF format with one or multiple samples", type=argparse.FileType('r'))
-        parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout)
         parser.add_argument('--genome', "-g", help="Location of genome assembly file in 2bit format", type=str)
-        parser.add_argument('--window-size', "-w", help="Context window size for motif search", type=int, default=50)
-        parser.add_argument('--strand', "-s", help="Transcribed strand (+), non-transcribed (-) or both (*) - default", type=str, default='*', choices=['*', '+', '-'])
+       
+        parser.add_argument("--motif", "-m", help="Motif to search for, use the 'R[C>T]GY' syntax for the motif. Use quotes", type=str)
+        parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout, help="Name of output file, will be generated in TSV format")
+        parser.add_argument('--window-size', "-w", help="Context window size for motif search, default setting is 50", type=int, default=50)
+        parser.add_argument('--strand', "-s", help="Transcribed strand (+), non-transcribed (-), or both (*): the default setting", type=str, default='*', choices=['*', '+', '-'])
 
     @classmethod
     def search(cls, args):
-        if not args.infile:
+        if not args.infile and args.action != "list":
             logger.warning("Provide input file in VCF or MAF format (-i) and a corresponding genome assembly (-g)")
             return
-        if not args.genome:
+        if not args.genome and args.action != "list":
             logger.warning(genome_error_message)
             return
         if not args.motif:
@@ -52,7 +62,7 @@ class MotifMenu(object):
         if len(matching_motifs) == 0:
             logger.warning("No significant motif matches found")
         else:
-            write_motif_matches(args.outfile, matching_motifs)
+             write_motif_matches(args.outfile, matching_motifs)
 
     @classmethod
     def list(cls, args):
