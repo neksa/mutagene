@@ -19,6 +19,7 @@ bases_dict = {
     "B": "TCG", "D": "AGT", "H": "ACT", "V": "ACG", "N": "ATGC"}
 
 extended_nucleotides = "ACTGWSMKRYBDHVN"
+complementary_extended_nucleotide = dict(zip(extended_nucleotides, "TGACWSKMYRVHDBN"))
 
 comp_dict = {
     "A": "T", "T": "A", "C": "G", "G": "C",
@@ -28,7 +29,7 @@ comp_dict = {
 
 motifs = [
     {
-        'name': 'APOBEC1 and APOBEC3A/B',
+        'name': 'APOBEC1/3A/B',
         'logo': 'T[C>K]W',
         'motif': 'TCW',
         'position': 1,
@@ -46,7 +47,7 @@ motifs = [
         'references': ' Biochemistry  2011;76:131–46'
     },
     {
-        'name': 'Spontaneous G:C>A:T mutations',
+        'name': 'C>T in CpG',
         'logo': '[C>T]G',
         'motif': 'CG',
         'position': 0,
@@ -73,7 +74,7 @@ motifs = [
         'references': 'Nat Genet  2013;45:970–6'
     },
     {
-        'name': 'AID',
+        'name': 'AID       ',
         'logo': 'W[R>S]C',
         'motif': 'WRC',
         'position': 1,
@@ -133,7 +134,7 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None):
 def scanf_motif(custom_motif):
     """ recognize motif syntax like A[C>T]G and create a motif entry """
     m = re.search(
-        r'([' + extended_nucleotides + ']*)\[([' + nucleotides + '])\>([' + extended_nucleotides + '])\]([' + extended_nucleotides + ']*)',
+        r'([' + extended_nucleotides + ']*)\\[([' + nucleotides + '])>([' + extended_nucleotides + '])\\]([' + extended_nucleotides + ']*)',
         custom_motif.upper())
     if m:
         g = m.groups('')
@@ -180,18 +181,15 @@ def get_rev_comp_seq(sequence):
 def mutated_base(mutation, ref, alt):
     """
     :param mutation: [(record.CHROM, record.POS, record.REF, record.ALT)]
-    :param ref: the nucleotide base pre-mutation
-    :param alt: the nucleotide base post-mutation
-    :return: how many mutations match specified ref and alt
+    :param ref: list the nucleotide base pre-mutation
+    :param alt: list the nucleotide base post-mutation
+    :return: True if mutation matches the specified ref and alt
     """
-    assert ref != alt, "mutation should have different ref and alt nucleotides"
-
     # makes sure single base substitution
-    if mutation[3] and mutation[2] and len(mutation[2]) == 1 \
-            and len(mutation[3]) == 1 and len(mutation[3]) == 1 \
-            and len(mutation[2]) == 1 and mutation[2] != mutation[3]:
+    _, _, mut_ref, mut_alt = mutation
+    if mut_alt and mut_ref and len(mut_ref) == 1 and len(mut_alt) == 1 and mut_ref != mut_alt:
         # mutation matches the substitution
-        if mutation[2] in ref and mutation[3] in alt:
+        if mutation[2] in bases_dict[ref] and mutation[3] in bases_dict[alt]:
             return True
 
 
@@ -207,12 +205,7 @@ def find_matching_motifs(seq, motif, motif_position):
 
 
 def find_matching_bases(seq, ref, motif, motif_position):
-    # print("Looking for motif {} in {}, {}".format(motif, seq, len(seq) - len(motif)))
-    ss = ""
-    for i in range(motif_position, len(seq) - (len(motif) - motif_position)):
-        ss += seq[i][2]
-    # print(ref, ss)
-    for i in range(motif_position, len(seq) - (len(motif) - motif_position)):
+    for i in range(motif_position, len(seq) - (len(motif) - motif_position) + 1):
         s = seq[i][2]
         if s in bases_dict[ref]:
             yield seq[i]
@@ -244,7 +237,7 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size, stran
                 matching_motifs.add(motif_match[0:2])
 
             # mutated:
-            if mutated_base(mutation, bases_dict[ref], bases_dict[alt]):
+            if mutated_base(mutation, ref, alt):
                 # m = (mutation[0], mutation[1], mutation[2], "+")
                 matching_mutated_bases.add(mutation[0:2])
 
@@ -262,7 +255,7 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size, stran
                 matching_motifs.add(motif_match[0:2])
 
             # rev compl: mutated:
-            if mutated_base(mutation, comp_dict[ref], comp_dict[alt]):
+            if mutated_base(mutation, complementary_extended_nucleotide[ref], complementary_extended_nucleotide[alt]):
                 # m = (mutation[0], mutation[1], mutation[2], "-")
                 matching_mutated_bases.add(mutation[0:2])
 
