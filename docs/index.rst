@@ -6,10 +6,21 @@
 Welcome to MutaGene's documentation!
 ====================================
 
+------------------
+What is MutaGene?
+------------------
+- explain subpackages (fetch, profile, rank, motif, signature) 
+- link to docs for each subpackage (after dev)
+
+------------------
+Details
+------------------
+- insert technical stuff
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-	History <HISTORY.rst>
+
 
 Indices and tables
 ==================
