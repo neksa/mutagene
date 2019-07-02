@@ -3,6 +3,7 @@
 ## Adding features or fixing bugs
 
 * Fork the repo
+* install package in development mode as setup.py develop
 * Check out a feature or bug branch
 * Add your changes
 * Update README when needed
@@ -13,4 +14,4 @@
 
 ## Testing
 
-* Please make sure tests pass with `./script/test`
+* Please make sure tests pass pytest
