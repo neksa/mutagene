@@ -51,6 +51,11 @@ class MotifMenu(object):
             custom_motif = custom_motif.replace('/', '>')
             custom_motif = custom_motif.replace('.', '>')
             custom_motif = custom_motif.replace('->', '>')
+            
+            if ">" not in custom_motif or "]" not in custom_motif:
+                logger.warning("Mutagene motif search failed because motif cannot be processed. Check to make sure motif input is in quotes")
+                return
+            
             logger.info("Searching for motif {}".format(custom_motif))
 
         if args.window_size > 250 or args.window_size < 1:
