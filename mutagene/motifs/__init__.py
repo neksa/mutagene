@@ -297,6 +297,10 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size, stran
     p_val_fisher, p_val_chi2 = get_stats(motif_mutation_count, mutation_count, stat_motif_count, stat_ref_count)
 
     if enrichment > 1 and p_val_fisher < 0.05 and p_val_chi2 < 0.05:
+        motif_mutation_count += 0.5
+        mutation_count += 0.5
+        stat_motif_count += 0.5
+        stat_ref_count += 0.5
         mut_load = (motif_mutation_count * (enrichment - 1)) / enrichment
     else:
         mut_load = 0.0
