@@ -1,3 +1,15 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:c96497f994427f9b0ec53b3c8ec3f89f63af219e8f005935d1e4db2b46bda696
-size 145
+pytest
+pytest-cov
+bayesian-optimization
+clustergrammer
+coverage
+nose
+numpy
+pandas
+requests
+scikit-learn
+scipy
+statsmodels
+pyvcf
+twobitreader
+tqdm
