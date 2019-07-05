@@ -33,8 +33,46 @@ Motif Visualization
 Where can I read more about motifs?
 --------------------------------------------------
 
-This `publication <http://www.ncbi.nlm.nih.gov/pubmed/28498882/>`_ describes motifs and their uses 
+This `publication <https://doi.org/10.1093/bib/bbx049>`_ describes motifs and their uses
 
 ==============================
 Motif Subpackage Documentation
 ==============================
+
+Option 1 - Search for motifs in genomic data
+
+Usage: mutagene motif search [--infile][--genome][--motif][--outfile][--window-size][--strand][--help]
+
+Required arguments (must be specified):
+
+--infile, -i
+     Input file in MAF or VCF format with one or multiple samples
+
+--genome, -g
+    Location of genome assembly file in 2bit format
+
+Optional arguments (can be specified):
+
+--motif, -m
+    Motif to search for, use the 'R[C>T]GY' syntax for the motif. Use quotes. If left unspecified, MutaGene will search
+    for all pre-identified motifs
+
+--outfile, -o
+    Name of output file, will be generated in TSV format
+
+--window-size, -w
+    Context window size for motif search, default setting is 50
+
+--strand, -s
+    Transcribed strand (+), non-transcribed (-), any (*default), or all (-+*)
+
+--help, -h
+    show this help message and exit
+
+Option 2 - List all pre-identified motifs in MutaGene
+
+Usage: mutagene motif list
+
+--------------------------------------------------
+Example Command-Line Arguments Using
+--------------------------------------------------

@@ -12,7 +12,8 @@ class ProfileMenu(object):
     def __init__(self, parser):
         parser.add_argument('action', choices=['calculate'])  # , 'plot', 'fingerprint', 'compare'])
         parser.add_argument("--infile", "-i", nargs='*', help="Input file format", type=argparse.FileType('r'))
-        parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout)
+        parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout,
+                            help="Name of output file, will be generated in TSV format")
         parser.add_argument('--genome', "-g", help="Location of genome assembly file", type=str)
 
     @classmethod
