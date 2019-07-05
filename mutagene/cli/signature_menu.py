@@ -18,7 +18,8 @@ class SignatureMenu(object):
         parser.add_argument('action', choices=['identify', ])  # 'new'])
         parser.add_argument("--signatures", "-s", choices=[5, 10, 30], help="Collection of signatures to use", type=int)
         parser.add_argument("--infile", "-i", help="Input file in VCF or MAF format", type=argparse.FileType('r'))
-        parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout)
+        parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout,
+                            help="Name of output file, will be generated in TSV format")
         parser.add_argument('--genome', "-g", help="Location of genome assembly file in 2bit format", type=str)
 
     @classmethod
