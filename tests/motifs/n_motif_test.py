@@ -1,26 +1,28 @@
 import unittest
-import numpy as np
-from motifs_in_mutagene import identify_motifs
-from mutations_io import read_mutations
+from mutagene.motifs import *
+# purpose: check  processing of motifs w/ "N"
 
 
 class MyTestCase(unittest.TestCase):
     def test_something(self):
-        mymotifs = [{
-            'name': 'Test N Motif',
-            'logo': 'N[T>A]N',
+        mymotifs = {
             'motif': 'NTN',
             'position': 1,
             'ref': 'T',
             'alt': 'C',
-            "references": "N/A"
-        }]
-        with open("TCGA-2F-A9KP-01.maf.txt") as f:
-            mut = f.read()
-            _, mutations_with_context, _ = read_mutations(mut, 'auto', 19)
-            observed = identify_motifs(mutations_with_context, mymotifs)
-            expected = [{'name': 'Test N Motif', 'motif': 'N[T>A]N', 'enrichment': 0.0, 'pvalue': 1.0, 'mutations': 0}]
-            assert observed == expected
+        }
+
+        mutations_with_context = [('20', 29628279, '+', "T", "C", [('20', 29628278, "C", '+'),
+                                                                    ('20', 29628279, "T", '+'),
+                                                                    ('20', 29628280, "T", '+')]),
+
+                                  ('20', 11, '-', "A", "G", [('20', 10, "A", '-'),
+                                                               ('20', 11, "A", '-'),
+                                                               ('20', 12, "G", '-')])
+                                  ]
+
+        observed = get_enrichment(mutations_with_context, mymotifs['motif'], mymotifs['position'], mymotifs['ref'], mymotifs['alt'], 1, "*")
+        assert int(observed['bases_mutated_in_motif']) == 2
 
 
 if __name__ == '__main__':

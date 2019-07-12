@@ -1,20 +1,50 @@
 import unittest
-import numpy as np
-from motifs_in_mutagene import identify_motifs, get_enrichment
-from mutations_io import read_mutations
+# import numpy as np
+from mutagene.motifs import *
+# purpose: check that no over counting occurs when overlapping mutations present
 
 
 class MyTestCase(unittest.TestCase):
     def test_something(self):
-        with open("TCGA-2F-A9KP-01.maf.txt") as f:
-            _, mutations, _ = read_mutations(f.read(), 'MAF', 19)
-            observed = get_enrichment(mutations, "TCW", 1, "C", "G", 50)
-            expected = (23, 10, 1218, 6927)
-        assert observed[4:] == expected
-        #assert np.isclose([observed[0], expected[0]])  # compare enrichment
-        #assert observed[1] == expected[1]  # compare mut burden
-        #assert np.isclose([observed[2], expected[2]], [observed[3], expected[3]])  # compare p-values
-        #assert observed[4:] == expected[4:]  # compare enrichment input
+        mymotifs = {'motif': 'TCT',
+                    'position': 1,
+                    'ref': 'C',
+                    'alt': 'G'}
+
+        mutations_with_context = [
+                                  ('20', 101, '+', "C", "G", [('20', 97, "T", '+'),
+                                                              ('20', 98, "C", '+'),
+                                                              ('20', 99, "T", '+'),
+
+                                                              ('20', 100, "T", '+'),
+                                                              ('20', 101, "C", '+'),
+                                                              ('20', 102, "T", '+'),
+
+                                                              ('20', 103, "T", '+'),
+                                                              ('20', 104, "C", '+'),
+                                                              ('20', 105, "T", '+')
+                                                              ]),
+
+                                  ('20', 104, '+', "C", "G", [('20', 100, "T", '+'),
+                                                              ('20', 101, "C", '+'),
+                                                              ('20', 102, "T", '+'),
+
+                                                              ('20', 103, "T", '+'),
+                                                              ('20', 104, "C", '+'),
+                                                              ('20', 105, "T", '+'),
+
+                                                              ('20', 106, "A", '+'),
+                                                              ('20', 107, "A", '+'),
+                                                              ('20', 108, "A", '+'),
+                                                              ])
+                                  ]
+
+        observed = get_enrichment(mutations_with_context, mymotifs['motif'], mymotifs['position'], mymotifs['ref'],
+                                  mymotifs['alt'], 4, "*")
+
+        assert int(observed['bases_mutated_in_motif']) == 2 \
+            and int(observed['bases_not_mutated_in_motif']) == 1 \
+            and int(observed['bases_mutated_not_in_motif']) == 0
 
 
 if __name__ == '__main__':

@@ -6,8 +6,8 @@ import pandas as pd
 
 import pprint
 import logging
-logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
 
 nucleotides = "ACGT"  # this order of nucleotides is important for reversing
 complementary_nucleotide = dict(zip(nucleotides, reversed(nucleotides)))
@@ -25,7 +25,6 @@ comp_dict = {
     "A": "T", "T": "A", "C": "G", "G": "C",
     "W": "AT", "S": "CG", "K": "AC", "M": "GT", "Y": "AG", "R": "CT",
     "V": "TCG", "H": "AGT", "D": "ACT", "B": "ACG", "N": "ATGC"}
-
 
 motifs = [
     {
@@ -125,10 +124,10 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None):
                         'pvalue': result['pvalue_fisher'],
                         'mutations_low_est': result['mutation_load'],
                         'mutations_high_est': result['bases_mutated_in_motif'],
-                         #'mut_motif': result['bases_mutated_in_motif'],
-                        'mut_not_in_motif': result['bases_mutated_not_in_motif'],
-                        'stat_count': result['bases_not_mutated_in_motif'],
-                        'ref_count': result['bases_not_mutated_not_in_motif']
+                        # 'mut_motif': result['bases_mutated_in_motif'],
+                        #'mut_not_in_motif': result['bases_mutated_not_in_motif'],
+                        #'stat_count': result['bases_not_mutated_in_motif'],
+                        #'ref_count': result['bases_not_mutated_not_in_motif']
                     })
     return motif_matches
 
@@ -226,12 +225,12 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size, stran
 
     # extra loop for sample in sample list
     for chrom, pos, transcript_strand, x, y, seq in mutations:
-        # extract the longest sequence we would ever need (motif + range_size)
+        # extract the longest sequence we would ever need (motif + range_size); range size = # bases outside mutation
         mutation = chrom, pos, x, y
         rev_seq = get_rev_comp_seq(seq)
 
         # if strand == '+':
-        
+
         if strand == '*' or transcript_strand == strand:
             # not mutated:
             for ref_match in find_matching_bases(seq, ref, motif, motif_position):
@@ -247,7 +246,6 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size, stran
                 context_of_mutation = seq[range_size - motif_position: range_size - motif_position + len(motif)]
                 for motif_match in find_matching_motifs(context_of_mutation, motif, motif_position):
                     matching_mutated_motifs.add(motif_match[0:2])
-      
 
         # elif strand == '-':
         if strand == '*' or transcript_strand != strand:
@@ -275,7 +273,6 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size, stran
         #     for s in seq:
         #         print(s[2], end='')
         #     print()
-
 
     motif_mutation_count = len(matching_mutated_motifs)  # bases mutated in motif
     mutation_count = len(matching_mutated_bases - matching_mutated_motifs)  # bases mutated not in motif
