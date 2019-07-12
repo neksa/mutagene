@@ -4,7 +4,7 @@ from final_maf_code import get_enrichment
 
 
 def testing_mut(self):
-    observed = get_enrichment("TCGA-2F-A9KP-01.maf.txt", "TCW", 1, "C", "K", 50, assembly=37)
+    observed = get_enrichment("CGA-2F-A9KP-01.maf.txt", "TCW", 1, "C", "K", 50, assembly=37)
     expected = (4.394267654751525,
                 45,
                 8.041476308812957e-15,
@@ -18,7 +18,7 @@ def testing_mut(self):
     assert np.isclose([observed[2], expected[2]], [observed[3], expected[3]]) #compare p-values
     assert observed[4:] == expected[4:] #compare enrichment input
 
-    observed1 = get_enrichment("TCGA-2F-A9KQ-01.maf.txt", "TCW", 1, "C", "K", 50, assembly=37)
+    observed1 = get_enrichment("test_mutations.txt", "TCW", 1, "C", "K", 50, assembly=37)
     expected1 = (2.284126365054602,
                  10,
                  0.005675513210048566,

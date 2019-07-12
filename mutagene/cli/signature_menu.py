@@ -10,7 +10,8 @@ from mutagene.io.decomposition import write_decomposition
 
 
 logger = logging.getLogger(__name__)
-genome_error_message = 'requires genome name argument -g hg19, hg38, mm10, see http://hgdownload.cse.ucsc.edu/downloads.html for more'
+genome_error_message = """requires genome name argument -g hg19, hg38, mm10, see http://hgdownload.cse.ucsc.edu/downloads.html for more
+                          Use mutagene fetch to download genome assemblies"""
 
 
 class SignatureMenu(object):

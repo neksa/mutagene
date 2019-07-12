@@ -38,7 +38,7 @@ This command will download reference genome assembly sequence in 2bit format fro
 
 You need to specify the name of genome assembly in --genome (-g) argument.
 
-Partial download is supported: if the process is interupted run the same command again to continue downloading.
+Partial download is supported: if the process is interrupted run the same command again to continue downloading.
 """)
         genome_parser.add_argument('--genome', '-g', type=str, help='hg38, hg19, mm10 according to UCSC genome browser nomenclature', required=True)
 
