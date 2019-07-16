@@ -1,4 +1,9 @@
 ==================================
+Description
+==================================
+Use mutagene signature to search for the presence of mutational signatures in mutational data
+
+==================================
 Signature Subpackage Documentation
 ==================================
 
@@ -24,14 +29,17 @@ Optional arguments (can be specified):
     show this help message and exit
 
 Examples:
-    1. mutagene signature identify -s 5 -i sample1.maf -g hg19 --> identifies presence of MutaGene-5 signatures in
-       sample1.maf using hg19
 
-    2. mutagene signature identify -s 10 -i sample2.vcf -g hg18 ---> identifies presence of MutaGene-10 signatures in
-       sample2.vcf using hg18
+To search for presence of MutaGene-5 signatures in sample1.maf using hg19:
+
+ $ mutagene signature identify -s 5 -i sample1.maf -g hg19
+
+To search for presence of MutaGene-5 signatures in sample1.maf using hg19:
+
+ $ mutagene signature identify -s 10 -i sample2.vcf -g hg18
 
 ----------------------------------------------------
-What Signatures Can I Analyze Using MutaGene Package
+Signatures Available for Analysis
 ----------------------------------------------------
 
 The MutaGene signature package allows for the analysis of 3 different "bundles" of mutational signatures: MutaGene-5 Signatures, MutaGene-10 Signatures, and Cosmic-30 Signatures.
