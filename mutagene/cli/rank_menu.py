@@ -91,7 +91,7 @@ class RankMenu(object):
             mutations_to_rank, processing_stats = read_MAF_with_genomic_context(args.infile, args.genome)
 
         if not len(mutations_to_rank):
-            logger.warning('No mutations to rank')
+            logger.warning('MutaGene rank failed: No mutations to rank. Check that the infile is in MAF format')
             return
 
         msg = "Loaded {} mutations".format(processing_stats['loaded'])

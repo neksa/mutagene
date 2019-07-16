@@ -1,4 +1,9 @@
 ==================================
+Description
+==================================
+Use mutagene fetch to download example data files, genome assemblies, and cohorts to run mutagene commands
+
+==================================
 Fetch Subpackage Documentation
 ==================================
 
@@ -16,6 +21,9 @@ Fetch example mutational files (automatically download to current directory)
 
     Usage in MutaGene: These files are only needed to reproduce examples in the manual. Files can be inputted as
     infiles in other MutaGene subpackages.
+
+    Data Fetched:
+    Both sample1.maf and sample2.vcf are downloaded
 
 
 Fetch cohorts
@@ -58,8 +66,15 @@ Fetch genome assemblies
     Genome assemblies required for genome argument in MutaGene subpackages.
 
     Examples:
-     - mutagene fetch genome -g hg19 --> downloads hg19 file
-     - mutagene fetch genome -g hg38 --> downloads hg38 file
+
+    To download hg19 file:
+      $ mutagene fetch genome -g hg19
+
+    To download hg38 file:
+     $ mutagene fetch genome -g hg38
+
+    Data Fetched:
+    Any reference genome available for download on the `UCSC Sequence and Annotation Data Webpage <http://hgdownload.soe.ucsc.edu/downloads.html>`_
 
 
 
