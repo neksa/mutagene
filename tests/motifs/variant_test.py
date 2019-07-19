@@ -1,13 +1,12 @@
 import unittest
-from motifs_in_mutagene import get_enrichment
-from mutations_io import read_mutations
-import numpy as np
+# import numpy as np
+from mutagene.motifs import *
+# purpose: test motif w/ variant base outside mutation
 
 
 class MyTestCase(unittest.TestCase):
     def test_something(self):
-        mymotifs = [
-            {
+        mymotifs = {
                 'name': 'Test border Motif',
                 'logo': 'T[C>T]W',
                 'motif': 'TCW',
@@ -16,12 +15,47 @@ class MyTestCase(unittest.TestCase):
                 'alt': 'T',
                 "references": "N/A"
             }
-        ]
-        with open("TCGA-2F-A9KP-01.maf.txt") as f:
-            _, mutations_with_context, _ = read_mutations(f.read(), 'auto', 19)
-            observed = get_enrichment(mutations_with_context, "TCW", 1, "C", "T", 50)
-            expected = (34, 64, 1218, 6927)
-            assert observed[4:] == expected
+
+
+        mutations_with_context = [
+                                  ('20', 101, '+', "C", "T", [('20', 97, "T", '+'),
+                                                              ('20', 98, "C", '+'),
+                                                              ('20', 99, "T", '+'),
+
+                                                              ('20', 100, "T", '+'),
+                                                              ('20', 101, "C", '+'),
+                                                              ('20', 102, "T", '+'),
+
+                                                              ('20', 103, "T", '+'),
+                                                              ('20', 104, "C", '+'),
+                                                              ('20', 105, "T", '+')
+                                                              ])]
+
+        mutations_with_context_2 = [('20', 110, '+', "C", "T", [('20', 106, "T", '+'),
+                                                              ('20', 107, "C", '+'),
+                                                              ('20', 108, "A", '+'),
+
+                                                              ('20', 109, "T", '+'),
+                                                              ('20', 110, "C", '+'),
+                                                              ('20', 111, "A", '+'),
+
+                                                              ('20', 112, "T", '+'),
+                                                              ('20', 113, "C", '+'),
+                                                              ('20', 114, "A", '+'),
+                                                              ]),
+
+                                                             ]
+
+        observed_1 = get_enrichment(mutations_with_context, mymotifs['motif'], mymotifs['position'],
+                                      mymotifs['ref'], mymotifs['alt'], 4, "*")
+
+        observed_2 = get_enrichment(mutations_with_context_2, mymotifs['motif'], mymotifs['position'],
+                                      mymotifs['ref'], mymotifs['alt'], 4, "*")
+
+        assert int(observed_1['bases_mutated_in_motif']) == int(observed_2['bases_mutated_in_motif']) \
+            and int(observed_1['bases_not_mutated_in_motif']) == int(observed_2['bases_not_mutated_in_motif']) \
+            and int(observed_1['bases_mutated_not_in_motif']) == int(observed_2['bases_mutated_not_in_motif']) \
+            and int(observed_1['bases_not_mutated_not_in_motif'])==int(observed_2['bases_not_mutated_not_in_motif'])
 
 
 if __name__ == '__main__':
