@@ -2,14 +2,17 @@
 from mutagene.io.profile import write_profile_file, get_profile_attributes_dict
 from mutagene.io.mutations_profile import read_auto_profile
 
+# from collections import defaultdict
+# from mutagene.dna import complementary_nucleotide
+
 import logging
 logger = logging.getLogger(__name__)
 
 
-def calc_profile(infile, outfile, genome):
+def calc_profile(infile, outfile, genome, fmt='auto'):
     all_mutations = {}
     for f in infile:
-        mutations, processing_stats = read_auto_profile(f, fmt='auto', asm=genome)
+        mutations, processing_stats = read_auto_profile(f, fmt=fmt, asm=genome)
         msg = "Loaded {} mutations".format(processing_stats['loaded'])
         if processing_stats['skipped'] > 0:
             msg += " skipped {} mutations due to mismatches with the reference genome".format(processing_stats['skipped'])
@@ -24,12 +27,12 @@ def calc_profile(infile, outfile, genome):
     # print(profile)
 
 
-def get_mutational_profile(mutations, counts=False):
+def get_mutational_profile(mutational_profile_dict, counts=False):
     attrib = get_profile_attributes_dict()
     values = []
-    total_mut_number = sum(mutations.values())
+    total_mut_number = sum(mutational_profile_dict.values())
     for i, attr in enumerate(attrib):
-        number = mutations.get(attr['context'] + attr['mutation'], 0)
+        number = mutational_profile_dict.get(attr['context'] + attr['mutation'], 0)
         # freq = 0.000001 * number / total_mut_number
         if counts:
             freq = number
@@ -41,3 +44,13 @@ def get_mutational_profile(mutations, counts=False):
         values.append(freq)
     # print(values)
     return values
+
+
+def get_multisample_mutational_profile(samples_mutations, counts=False):
+    samples_profiles = {}
+
+    for sample, mutations in samples_mutations.items():
+        # print(mutations)
+        samples_profiles[sample] = get_mutational_profile(mutations, counts)
+
+    return samples_profiles

@@ -16,6 +16,7 @@ class ProfileMenu(object):
         parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout,
                             help="Name of output file, will be generated in TSV format")
         parser.add_argument('--genome', "-g", help="Location of genome assembly file", type=str)
+        parser.add_argument('--input-format', "-f", help="Input format: auto, MAF, VCF", type=str, default='auto')
 
     @classmethod
     def callback(cls, args):
@@ -32,6 +33,6 @@ class ProfileMenu(object):
         if not args.genome:
             logger.warning(genome_error_message)
             return
-        calc_profile(args.infile, args.outfile, args.genome)
+        calc_profile(args.infile, args.outfile, args.genome, args.input_format)
 
 ################################################
