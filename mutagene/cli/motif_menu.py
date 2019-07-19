@@ -18,11 +18,13 @@ class MotifMenu(object):
 
         parser.description = "Motif function requires: mutagene motif <action (search or list)>, if search is specified, infile & genome are also required"
         parser.epilog = """
-                        Examples:                                     
-                        
-                        1. mutagene motif search -i sample1.maf -g hg19 -m 'C[A>T]' --> searches for the presence of the C[A>T] motif in sample1.maf using hg19
-                        
-                        2. mutagene motif search -i sample2.vcf -g hg18 --> searches in sample2.vcf for all preidentified motifs in mutagene using hg18                                             
+                        Examples:
+
+                        # search for the presence of the C[A>T] motif in sample1.maf using hg19
+                        mutagene motif search -i sample1.maf -g hg19 -m 'C[A>T]'
+
+                        # search in sample2.vcf for all preidentified motifs in mutagene using hg18
+                        mutagene motif search -i sample2.vcf -g hg18
                         """
 
         parser.add_argument('action', choices=['search', 'list'], help="search for a motif, list all predefined motifs")
@@ -33,7 +35,7 @@ class MotifMenu(object):
         parser.add_argument("--motif", "-m", help="Motif to search for, use the 'R[C>T]GY' syntax for the motif. Use quotes", type=str)
         parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout, help="Name of output file, will be generated in TSV format")
         parser.add_argument('--window-size', "-w", help="Context window size for motif search, default setting is 50", type=int, default=50)
-        parser.add_argument('--strand', "-s", help="Transcribed strand (+), non-transcribed (-), any (* default), or all (-+*) ", type=str, default='*', choices=['+', '-', '*'])
+        parser.add_argument('--strand', "-s", help="Transcribed strand (+), non-transcribed (-), any (=), or all (-+= default) ", type=str, default='-+*', choices=['+', '-', '='])
 
     @classmethod
     def search(cls, args):

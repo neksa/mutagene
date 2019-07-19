@@ -132,7 +132,7 @@ def read_MAF_profile(muts, asm):
         # print(header)
         MAF = namedtuple("MAF", header, rename=True)
     except ValueError:
-        raise
+        # raise
         logger.warning("MAF format not recognized")
         return mutations, {}
 
@@ -140,26 +140,23 @@ def read_MAF_profile(muts, asm):
 
     raw_mutations = []
     for data in map(MAF._make, reader):
-        try:
-            # assembly_build = col_list[3]  # MAF ASSEMBLY
-            # strand = col_list[7]    # MAF STRAND
-            # ID = col_list[2]
+        # assembly_build = col_list[3]  # MAF ASSEMBLY
+        # strand = col_list[7]    # MAF STRAND
+        # ID = col_list[2]
 
-            # chromosome is expected to be one or two number or one letter
-            chrom = data.chromosome  # MAF CHROM
-            if chrom.lower().startswith("chr"):
-                chrom = chrom[3:]
-            # if len(chrom) == 2 and chrom[1] not in "0123456789":
-            #     chrom = chrom[0]
+        # chromosome is expected to be one or two number or one letter
+        chrom = data.chromosome  # MAF CHROM
+        if chrom.lower().startswith("chr"):
+            chrom = chrom[3:]
+        # if len(chrom) == 2 and chrom[1] not in "0123456789":
+        #     chrom = chrom[0]
 
-            pos = int(data.start_position)    # MAF POS START
-            pos_end = int(data.end_position)  # MAF POS END
-            x = data.reference_allele         # MAF REF
-            y1 = data.tumor_seq_allele1       # MAF ALT1
-            y2 = data.tumor_seq_allele2       # MAF ALT2
-        except:
-            raise
-            continue
+        pos = int(data.start_position)    # MAF POS START
+        pos_end = int(data.end_position)  # MAF POS END
+        x = data.reference_allele         # MAF REF
+
+        y1 = data.tumor_seq_allele1       # MAF ALT1
+        y2 = data.tumor_seq_allele2       # MAF ALT2
 
         if pos != pos_end:
             continue
