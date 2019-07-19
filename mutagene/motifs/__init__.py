@@ -6,8 +6,8 @@ import pandas as pd
 
 import pprint
 import logging
-logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
 
 nucleotides = "ACGT"  # this order of nucleotides is important for reversing
 complementary_nucleotide = dict(zip(nucleotides, reversed(nucleotides)))
@@ -25,7 +25,6 @@ comp_dict = {
     "A": "T", "T": "A", "C": "G", "G": "C",
     "W": "AT", "S": "CG", "K": "AC", "M": "GT", "Y": "AG", "R": "CT",
     "V": "TCG", "H": "AGT", "D": "ACT", "B": "ACG", "N": "ATGC"}
-
 
 motifs = [
     {
@@ -125,6 +124,10 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None):
                         'pvalue': result['pvalue_fisher'],
                         'mutations_low_est': result['mutation_load'],
                         'mutations_high_est': result['bases_mutated_in_motif'],
+                        # 'mut_motif': result['bases_mutated_in_motif'],
+                        #'mut_not_in_motif': result['bases_mutated_not_in_motif'],
+                        #'stat_count': result['bases_not_mutated_in_motif'],
+                        #'ref_count': result['bases_not_mutated_not_in_motif']
                     })
     return motif_matches
 
@@ -222,11 +225,12 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size, stran
 
     # extra loop for sample in sample list
     for chrom, pos, transcript_strand, x, y, seq in mutations:
-        # extract the longest sequence we would ever need (motif + range_size)
+        # extract the longest sequence we would ever need (motif + range_size); range size = # bases outside mutation
         mutation = chrom, pos, x, y
         rev_seq = get_rev_comp_seq(seq)
 
         # if strand == '+':
+
         if strand == '*' or transcript_strand == strand:
             # not mutated:
             for ref_match in find_matching_bases(seq, ref, motif, motif_position):
@@ -297,6 +301,10 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size, stran
     p_val_fisher, p_val_chi2 = get_stats(motif_mutation_count, mutation_count, stat_motif_count, stat_ref_count)
 
     if enrichment > 1 and p_val_fisher < 0.05 and p_val_chi2 < 0.05:
+        motif_mutation_count -= 0.5
+        mutation_count -= 0.5
+        stat_motif_count -= 0.5
+        stat_ref_count -= 0.5
         mut_load = (motif_mutation_count * (enrichment - 1)) / enrichment
     else:
         mut_load = 0.0

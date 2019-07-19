@@ -11,7 +11,8 @@ from mutagene.io.protein_mutations_MAF import read_MAF_with_genomic_context
 
 
 logger = logging.getLogger(__name__)
-genome_error_message = 'requires genome name argument -g hg19, hg38, mm10, see http://hgdownload.cse.ucsc.edu/downloads.html for more'
+genome_error_message = """requires genome name argument -g hg19, hg38, mm10, see http://hgdownload.cse.ucsc.edu/downloads.html for more
+                          Use mutagene fetch to download genome assemblies"""
 
 
 class RankMenu(object):
@@ -90,7 +91,7 @@ class RankMenu(object):
             mutations_to_rank, processing_stats = read_MAF_with_genomic_context(args.infile, args.genome)
 
         if not len(mutations_to_rank):
-            logger.warning('No mutations to rank')
+            logger.warning('MutaGene rank failed: No mutations to rank. Check that the infile is in MAF format')
             return
 
         msg = "Loaded {} mutations".format(processing_stats['loaded'])

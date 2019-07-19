@@ -9,7 +9,8 @@ from mutagene.motifs import motifs as list_of_motifs
 
 
 logger = logging.getLogger(__name__)
-genome_error_message = 'requires genome name argument -g hg19, hg38, mm10, see http://hgdownload.cse.ucsc.edu/downloads.html for more'
+genome_error_message = """requires genome name argument -g hg19, hg38, mm10, see http://hgdownload.cse.ucsc.edu/downloads.html for more
+                        Use mutagene fetch to download genome assemblies"""
 
 
 class MotifMenu(object):
@@ -17,10 +18,11 @@ class MotifMenu(object):
 
         parser.description = "Motif function requires: mutagene motif <action (search or list)>, if search is specified, infile & genome are also required"
         parser.epilog = """
-                        Example motif commands:
+                        Examples:                                     
+                        
                         1. mutagene motif search -i sample1.maf -g hg19 -m 'C[A>T]' --> searches for the presence of the C[A>T] motif in sample1.maf using hg19
-                        2. mutagene motif search -i sample2.vcf -g hg18 --> searches in sample2.vcf for all preidentified motifs in mutagene using hg18
-                        3. mutagene motif list --> lists all pre-identified motifs in mutagene
+                        
+                        2. mutagene motif search -i sample2.vcf -g hg18 --> searches in sample2.vcf for all preidentified motifs in mutagene using hg18                                             
                         """
 
         parser.add_argument('action', choices=['search', 'list'], help="search for a motif, list all predefined motifs")
@@ -35,10 +37,10 @@ class MotifMenu(object):
 
     @classmethod
     def search(cls, args):
-        if not args.infile and args.action != "list":
+        if not args.infile:
             logger.warning("Provide input file in VCF or MAF format (-i) and a corresponding genome assembly (-g)")
             return
-        if not args.genome and args.action != "list":
+        if not args.genome:
             logger.warning(genome_error_message)
             return
         if not args.motif:
@@ -50,6 +52,11 @@ class MotifMenu(object):
             custom_motif = custom_motif.replace('/', '>')
             custom_motif = custom_motif.replace('.', '>')
             custom_motif = custom_motif.replace('->', '>')
+            
+            if ">" not in custom_motif or "]" not in custom_motif:
+                logger.warning("Mutagene motif search failed because motif cannot be processed. Check to make sure motif input is in quotes")
+                return
+            
             logger.info("Searching for motif {}".format(custom_motif))
 
         if args.window_size > 250 or args.window_size < 1:
@@ -69,8 +76,28 @@ class MotifMenu(object):
 
     @classmethod
     def list(cls, args):
+
+        if args.genome:
+            logger.warning("Genome argument not accepted for motif list")
+
+        if args.infile:
+            logger.warning("Infile argument not accepted for motif list")
+
+        if args.motif:
+            logger.warning("Motif argument not accepted for motif list")
+
+        if args.window_size != 50:
+            logger.warning("Window size argument not accepted for motif list")
+
+        if args.strand != '*':
+            logger.warning("Strand argument not accepted for motif list")
+
+        if args.outfile != sys.stdout:
+            logger.warning("Outfile: argument not accepted for motif list")
+
         for m in list_of_motifs:
             print("{:20}\t{}".format(m['name'], m['logo']))
+
 
     @classmethod
     def callback(cls, args):
