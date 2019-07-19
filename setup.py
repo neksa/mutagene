@@ -40,7 +40,6 @@ setuptools.setup(name='mutagene',
                      'License :: Public Domain',
                      'Development Status :: 4 - Beta',
                      'Intended Audience :: Science/Research',
-                     'Informatics',
                      'Topic :: Scientific/Engineering :: Medical Science Apps.',
                      'Environment :: Console'
                  ])
