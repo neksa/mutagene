@@ -83,3 +83,10 @@ def fetch_examples():
     files = ["sample1.maf", "sample2.vcf"]
     for fname in files:
         download_from_url(url + fname, fname)
+
+
+def fetch_MSKCC(dataset):
+    """ Download dataset from cBioPortal https://www.cbioportal.org/datasets """
+    url = "http://download.cbioportal.org/{}.tar.gz".format(dataset)
+    dst = "{}.tar.gz".format(dataset)
+    download_from_url(url, dst)

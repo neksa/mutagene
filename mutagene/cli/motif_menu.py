@@ -35,7 +35,7 @@ class MotifMenu(object):
         parser.add_argument("--motif", "-m", help="Motif to search for, use the 'R[C>T]GY' syntax for the motif. Use quotes", type=str)
         parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout, help="Name of output file, will be generated in TSV format")
         parser.add_argument('--window-size', "-w", help="Context window size for motif search, default setting is 50", type=int, default=50)
-        parser.add_argument('--strand', "-s", help="Transcribed strand (+), non-transcribed (-), any (=), or all (-+= default) ", type=str, default='-+*', choices=['+', '-', '='])
+        parser.add_argument('--strand', "-s", help="Transcribed strand (+), non-transcribed (-), any (=), or all (+-= default) ", type=str, default='+-=', choices=['+', '-', '=', '+-='])
 
     @classmethod
     def search(cls, args):
