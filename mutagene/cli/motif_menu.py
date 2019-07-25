@@ -7,6 +7,7 @@ from mutagene.motifs import identify_motifs
 from mutagene.io.motifs import write_motif_matches
 from mutagene.motifs import motifs as list_of_motifs
 
+
 logger = logging.getLogger(__name__)
 genome_error_message = """requires genome name argument -g hg19, hg38, mm10, see http://hgdownload.cse.ucsc.edu/downloads.html for more
                         Use mutagene fetch to download genome assemblies"""

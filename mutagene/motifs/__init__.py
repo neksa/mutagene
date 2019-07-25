@@ -250,10 +250,10 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size, stran
         # elif strand == '-':
         if strand == '=' or transcript_strand != strand:
             # rev compl: not mutated:
-            for ref_match in find_matching_bases(rev_seq, ref, motif, len(motif) - motif_position - 1):
+            for ref_match in find_matching_bases(rev_seq, ref, motif, motif_position):
                 matching_bases.add(ref_match[0:2])
 
-            for motif_match in find_matching_motifs(rev_seq, motif, len(motif) - motif_position - 1):
+            for motif_match in find_matching_motifs(rev_seq, motif, motif_position):
                 matching_motifs.add(motif_match[0:2])
 
             # rev compl: mutated:
@@ -263,7 +263,7 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size, stran
 
                 # rev comp:
                 context_of_mutation = rev_seq[range_size - motif_position: range_size - motif_position + len(motif)]
-                for motif_match in find_matching_motifs(context_of_mutation, motif, len(motif) - motif_position - 1):
+                for motif_match in find_matching_motifs(context_of_mutation, motif, motif_position):
                     matching_mutated_motifs.add(motif_match[0:2])
 
         # if seq[0][0] == '19':
