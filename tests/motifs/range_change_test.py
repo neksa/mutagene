@@ -33,10 +33,10 @@ class MyTestCase(unittest.TestCase):
 
 
         observed_long = get_enrichment(mutations_with_long_range, mymotifs['motif'], mymotifs['position'],
-                                       mymotifs['ref'], mymotifs['alt'], 4, "*")
+                                       mymotifs['ref'], mymotifs['alt'], 4, "=")
 
         observed_short = get_enrichment(mutations_with_short_range, mymotifs['motif'], mymotifs['position'],
-                                       mymotifs['ref'], mymotifs['alt'], 1, "*")
+                                       mymotifs['ref'], mymotifs['alt'], 1, "=")
 
         print(observed_long)
         print(observed_short)

@@ -21,7 +21,7 @@ class MyTestCase(unittest.TestCase):
                                                                ('20', 12, "G", '-')])
                                   ]
 
-        observed = get_enrichment(mutations_with_context, mymotifs['motif'], mymotifs['position'], mymotifs['ref'], mymotifs['alt'], 1, "*")
+        observed = get_enrichment(mutations_with_context, mymotifs['motif'], mymotifs['position'], mymotifs['ref'], mymotifs['alt'], 1, "=")
         assert int(observed['bases_mutated_in_motif']) == 2
 
 

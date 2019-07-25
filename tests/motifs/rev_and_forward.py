@@ -49,14 +49,14 @@ class MyTestCase(unittest.TestCase):
                                   ]
 
         observed_for = get_enrichment(mutations_with_context, mymotifs_for['motif'], mymotifs_for['position'],
-                                      mymotifs_for['ref'], mymotifs_for['alt'], 4, "*")
+                                      mymotifs_for['ref'], mymotifs_for['alt'], 4, "=")
 
         observed_rev = get_enrichment(mutations_with_context, mymotifs_rev['motif'], mymotifs_rev['position'],
-                                      mymotifs_rev['ref'], mymotifs_rev['alt'], 4, "*")
+                                      mymotifs_rev['ref'], mymotifs_rev['alt'], 4, "=")
         assert int(observed_for['bases_mutated_in_motif']) == int(observed_rev['bases_mutated_in_motif']) \
             and int(observed_for['bases_not_mutated_in_motif']) == int(observed_rev['bases_not_mutated_in_motif']) \
             and int(observed_for['bases_mutated_not_in_motif']) == int(observed_rev['bases_mutated_not_in_motif']) \
-            and int(observed_for['bases_not_mutated_not_in_motif'])==int(observed_rev['bases_not_mutated_not_in_motif'])
+            and int(observed_for['bases_not_mutated_not_in_motif']) == int(observed_rev['bases_not_mutated_not_in_motif'])
 
 
 if __name__ == '__main__':

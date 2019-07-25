@@ -155,9 +155,18 @@ def scanf_motif(custom_motif):
 
 
 def get_stats(motif_mutation_count, mutation_count, motif_count, ref_count):
+    """
+    Calculate Fisher and Chi2 test pvalues,
+    apply Haldane correction (+ 0.5) if any of the values in the contingency table is zero
+    """
     contingency_table = np.array(
-        [[mutation_count, motif_mutation_count],
-         [ref_count, motif_count]])
+        [
+            [mutation_count, motif_mutation_count],
+            [ref_count, motif_count]
+        ])
+
+    if np.any(np.isclose(contingency_table, 0.0)):
+        contingency_table = contingency_table + 0.5
 
     p_val_fisher = stats.fisher_exact(contingency_table, alternative="less")[1]
     try:
@@ -287,12 +296,6 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size, stran
     # except ZeroDivisionError:
     #     enrichment = 0.0
 
-    # haldane correction:
-    motif_mutation_count += 0.5
-    mutation_count += 0.5
-    stat_motif_count += 0.5
-    stat_ref_count += 0.5
-
     try:
         enrichment = (motif_mutation_count / mutation_count) / (stat_motif_count / stat_ref_count)
     except ZeroDivisionError:
@@ -301,10 +304,6 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size, stran
     p_val_fisher, p_val_chi2 = get_stats(motif_mutation_count, mutation_count, stat_motif_count, stat_ref_count)
 
     if enrichment > 1 and p_val_fisher < 0.05 and p_val_chi2 < 0.05:
-        motif_mutation_count -= 0.5
-        mutation_count -= 0.5
-        stat_motif_count -= 0.5
-        stat_ref_count -= 0.5
         mut_load = (motif_mutation_count * (enrichment - 1)) / enrichment
     else:
         mut_load = 0.0
