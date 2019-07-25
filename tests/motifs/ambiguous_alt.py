@@ -26,15 +26,15 @@ class MyTestCase(unittest.TestCase):
         mutations_with_context = [('20', 29628279, '+', "C", "A", [('20', 29628277, "C", '+'), ('20', 29628278, "A", '+'), ('20', 29628279, "C", '+'), ('20', 29628280, "G", '+')]),
                                  ('20', 29628286, '+', "C", "T", [('20', 29628284, "G", '+'), ('20', 29628285, "A", '+'), ('20', 29628286, "C", '+'), ('20', 29628287, "G", '+')])]
 
-        matches = get_enrichment(mutations_with_context, "AC", 1, "C", "W", 2, "*")
+        matches = get_enrichment(mutations_with_context, "AC", 1, "C", "W", 2, "=")
 
         input_values_1 = get_enrichment(mutations_with_context, mymotifs[0]['motif'], mymotifs[0]['position'],
                                         mymotifs[0]['ref'],
-                                        mymotifs[0]['alt'], 2,  "*")
+                                        mymotifs[0]['alt'], 2,  "=")
 
         input_values_2 = get_enrichment(mutations_with_context, mymotifs[1]['motif'], mymotifs[1]['position'],
                                         mymotifs[1]['ref'],
-                                        mymotifs[1]['alt'], 2,  "*")
+                                        mymotifs[1]['alt'], 2,  "=")
 
         expected = [int(input_values_1['bases_mutated_in_motif']) + int(input_values_2['bases_mutated_in_motif']),
                     int(input_values_1['bases_mutated_not_in_motif'])]
