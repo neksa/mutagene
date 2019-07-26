@@ -27,5 +27,5 @@ from mutagene.motifs import *
 )
 def test_something(motif, position, alt, window_size, strand, mutations_with_context):
     # purpose: make sure motifs that only differ by "N' process the same way
-    observed = get_enrichment(mutations_with_context, motif, position, motif[position], alt, window_size, strand)
-    assert int(observed['bases_mutated_in_motif']) == 2
+    observed = process_mutations(mutations_with_context, motif, position, motif[position], alt, window_size, strand)
+    assert observed['bases_mutated_in_motif'] == 2
