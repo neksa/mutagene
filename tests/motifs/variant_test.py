@@ -46,16 +46,16 @@ class MyTestCase(unittest.TestCase):
 
                                                              ]
 
-        observed_1 = get_enrichment(mutations_with_context, mymotifs['motif'], mymotifs['position'],
+        observed_1 = process_mutations(mutations_with_context, mymotifs['motif'], mymotifs['position'],
                                       mymotifs['ref'], mymotifs['alt'], 4, "*")
 
-        observed_2 = get_enrichment(mutations_with_context_2, mymotifs['motif'], mymotifs['position'],
+        observed_2 = process_mutations(mutations_with_context_2, mymotifs['motif'], mymotifs['position'],
                                       mymotifs['ref'], mymotifs['alt'], 4, "*")
 
-        assert int(observed_1['bases_mutated_in_motif']) == int(observed_2['bases_mutated_in_motif']) \
-            and int(observed_1['bases_not_mutated_in_motif']) == int(observed_2['bases_not_mutated_in_motif']) \
-            and int(observed_1['bases_mutated_not_in_motif']) == int(observed_2['bases_mutated_not_in_motif']) \
-            and int(observed_1['bases_not_mutated_not_in_motif'])==int(observed_2['bases_not_mutated_not_in_motif'])
+        assert observed_1['bases_mutated_in_motif'] == observed_2['bases_mutated_in_motif'] \
+            and observed_1['bases_not_mutated_in_motif'] == observed_2['bases_not_mutated_in_motif'] \
+            and observed_1['bases_mutated_not_in_motif'] == observed_2['bases_mutated_not_in_motif'] \
+            and observed_1['bases_not_mutated_not_in_motif'] == observed_2['bases_not_mutated_not_in_motif']
 
 
 if __name__ == '__main__':

@@ -105,7 +105,7 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None):
             for m in search_motifs:
                 for s in strand:
                     # print("IDENTIFYING MOTIF: ", m['name'])
-                    result = get_enrichment(mutations, m['motif'], m['position'], m['ref'], m['alt'], window_size, s)
+                    result = process_mutations(mutations, m['motif'], m['position'], m['ref'], m['alt'], window_size, s)
 
                     debug_data = {'sample': sample, 'motif': m['logo'], 'strand': s}
                     debug_data.update(result)
@@ -124,10 +124,7 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None):
                         'pvalue': result['pvalue_fisher'],
                         'mutations_low_est': result['mutation_load'],
                         'mutations_high_est': result['bases_mutated_in_motif'],
-                        # 'mut_motif': result['bases_mutated_in_motif'],
-                        #'mut_not_in_motif': result['bases_mutated_not_in_motif'],
-                        #'stat_count': result['bases_not_mutated_in_motif'],
-                        #'ref_count': result['bases_not_mutated_not_in_motif']
+                        'odds ratio': result['odds_ratio']
                     })
     return motif_matches
 
@@ -154,15 +151,28 @@ def scanf_motif(custom_motif):
     return []
 
 
-def get_stats(motif_mutation_count, mutation_count, motif_count, ref_count):
+def get_enrichment(motif_mutation_count, mutation_count, motif_count, ref_count):
+    try:
+        enrichment = (motif_mutation_count / mutation_count) / (motif_count / ref_count)
+    except ZeroDivisionError:
+        enrichment = 0.0
+    return enrichment
+
+
+def get_stats(motif_mutation_count, stat_mutation_count, stat_motif_count, stat_ref_count):
     """
     Calculate Fisher and Chi2 test pvalues,
     apply Haldane correction (+ 0.5) if any of the values in the contingency table is zero
     """
+    try:
+        odds_ratio = (motif_mutation_count / stat_mutation_count) / (stat_motif_count / stat_ref_count)
+    except ZeroDivisionError:
+        odds_ratio = 0.0
+
     contingency_table = np.array(
         [
-            [mutation_count, motif_mutation_count],
-            [ref_count, motif_count]
+            [stat_mutation_count, motif_mutation_count],
+            [stat_ref_count, stat_motif_count]
         ])
 
     if np.any(np.isclose(contingency_table, 0.0)):
@@ -173,13 +183,14 @@ def get_stats(motif_mutation_count, mutation_count, motif_count, ref_count):
         p_val_chi2 = stats.chi2_contingency(contingency_table)[1]
     except ValueError:
         p_val_chi2 = 1.0
+
     # if p_value <= 0.05:
     #  qvalues = multipletests(pvals=p_value, method='fdr_bh')
     #  print(qvalues)
     #  if qvalues[3] <= 0.05:
     #     print("significant")
     # print("odds_ratio: ", "p-value")
-    return p_val_fisher, p_val_chi2
+    return p_val_fisher, p_val_chi2, odds_ratio
 
 
 def get_rev_comp_seq(sequence):
@@ -216,12 +227,13 @@ def find_matching_motifs(seq, motif, motif_position):
 
 def find_matching_bases(seq, ref, motif, motif_position):
     for i in range(motif_position, len(seq) - (len(motif) - motif_position) + 1):
+        # range excludes border of sequence that may be motifs that don't fit window size
         s = seq[i][2]
         if s in bases_dict[ref]:
             yield seq[i]
 
 
-def get_enrichment(mutations, motif, motif_position, ref, alt, range_size, strand):
+def process_mutations(mutations, motif, motif_position, ref, alt, range_size, strand):
     assert range_size >= 0
     assert len(ref) == 1
     assert len(alt) == 1
@@ -233,6 +245,8 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size, stran
     matching_mutated_bases = set()
 
     # extra loop for sample in sample list
+    base_count = 0
+    ex_motif_count = 0
     for chrom, pos, transcript_strand, x, y, seq in mutations:
         # extract the longest sequence we would ever need (motif + range_size); range size = # bases outside mutation
         mutation = chrom, pos, x, y
@@ -284,24 +298,16 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size, stran
         #     print()
 
     motif_mutation_count = len(matching_mutated_motifs)  # bases mutated in motif
-    mutation_count = len(matching_mutated_bases - matching_mutated_motifs)  # bases mutated not in motif
-    motif_count = len(matching_motifs)  # bases in motif
-    ref_count = len(matching_bases - matching_motifs)  # bases not in motif
+    mutation_count = len(matching_mutated_bases)
+    motif_count = len(matching_motifs)
+    ref_count = len(matching_bases)
 
+    stat_mutation_count = len(matching_mutated_bases - matching_mutated_motifs)  # bases mutated not in motif
     stat_motif_count = len(matching_motifs - matching_mutated_motifs)  # bases not mutated in motif
     stat_ref_count = len(matching_bases - matching_motifs - matching_mutated_bases)  # bases not mutated not in motif
 
-    # try:
-    #     enrichment = (motif_mutation_count / mutation_count) / (motif_count / ref_count)
-    # except ZeroDivisionError:
-    #     enrichment = 0.0
-
-    try:
-        enrichment = (motif_mutation_count / mutation_count) / (stat_motif_count / stat_ref_count)
-    except ZeroDivisionError:
-        enrichment = 0.0
-
-    p_val_fisher, p_val_chi2 = get_stats(motif_mutation_count, mutation_count, stat_motif_count, stat_ref_count)
+    enrichment = get_enrichment(motif_mutation_count, mutation_count, motif_count, ref_count)
+    p_val_fisher, p_val_chi2, odds_ratio = get_stats(motif_mutation_count, stat_mutation_count, stat_motif_count, stat_ref_count)
 
     if enrichment > 1 and p_val_fisher < 0.05 and p_val_chi2 < 0.05:
         mut_load = (motif_mutation_count * (enrichment - 1)) / enrichment
@@ -316,16 +322,17 @@ def get_enrichment(mutations, motif, motif_position, ref, alt, range_size, stran
 
     result = {
         'enrichment': enrichment,
+        'odds_ratio': odds_ratio,
         'mutation_load': math.ceil(mut_load),
         'pvalue_fisher': p_val_fisher,
         'pvalue_chi2': p_val_chi2,
         'bases_mutated_in_motif': motif_mutation_count,
-        'bases_mutated_not_in_motif': mutation_count,
+        'bases_mutated_not_in_motif': stat_mutation_count,
         'bases_in_motif': motif_count,
-        'bases_not_in_motif': ref_count,
+        'bases': ref_count,
         'bases_not_mutated_in_motif': stat_motif_count,
         'bases_not_mutated_not_in_motif': stat_ref_count,
         'total_mutations': len(mutations)
     }
-
     return result
+
