@@ -1,5 +1,5 @@
 
-# from motifs_in_mutagene import identify_motifs, get_enrichment
+# from motifs_in_mutagene import identify_motifs, process_mutations
 # from mutations_io import read_mutations
 
 
@@ -32,7 +32,7 @@
 #     with open("/panfs/pan1.be-md.ncbi.nlm.nih.gov/mutagene/data/skin/mutations/FI_D1_D2_combined_WGS.maf.txt") as f:
 #         _, mutations, _ = read_mutations(f.read(), 'MAF', 19)
 
-#         observed2 = get_enrichment(mutations, "A", 0, "A", "T", 50)
+#         observed2 = process_mutations(mutations, "A", 0, "A", "T", 50)
 #         print(observed2)
 
 

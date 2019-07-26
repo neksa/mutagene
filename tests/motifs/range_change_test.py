@@ -32,18 +32,15 @@ class MyTestCase(unittest.TestCase):
                                                               ])]
 
 
-        observed_long = get_enrichment(mutations_with_long_range, mymotifs['motif'], mymotifs['position'],
+        observed_long = process_mutations(mutations_with_long_range, mymotifs['motif'], mymotifs['position'],
                                        mymotifs['ref'], mymotifs['alt'], 4, "=")
 
-        observed_short = get_enrichment(mutations_with_short_range, mymotifs['motif'], mymotifs['position'],
+        observed_short = process_mutations(mutations_with_short_range, mymotifs['motif'], mymotifs['position'],
                                        mymotifs['ref'], mymotifs['alt'], 1, "=")
 
-        print(observed_long)
-        print(observed_short)
-
-        assert int(observed_long['bases_mutated_in_motif']) == int(observed_short['bases_mutated_in_motif']) \
-            and int(observed_long['bases_mutated_not_in_motif']) == int(observed_short['bases_mutated_not_in_motif']) \
-            and int(observed_long['bases_not_mutated_in_motif']) == int(observed_short['bases_not_mutated_in_motif'] + 2)
+        assert observed_long['bases_mutated_in_motif'] == observed_short['bases_mutated_in_motif'] \
+            and observed_long['bases_mutated_not_in_motif'] == observed_short['bases_mutated_not_in_motif'] \
+            and observed_long['bases_not_mutated_in_motif'] == observed_short['bases_not_mutated_in_motif'] + 2
 
 
 if __name__ == '__main__':
