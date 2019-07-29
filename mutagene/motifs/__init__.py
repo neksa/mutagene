@@ -85,6 +85,12 @@ motifs = [
 
 
 def identify_motifs(samples_mutations, custom_motif=None, strand=None):
+    """
+    :param samples_mutations: list of mutations from input file
+    :param custom_motif: specified motif to search for
+    :param strand: strand(s) to search on
+    :return: command-line output
+    """
     motif_matches = []
 
     if strand is None:
@@ -153,7 +159,7 @@ def scanf_motif(custom_motif):
 
 def get_probabilities(prob_table):
     """
-    :param prob_table: numpy contigency table
+    :param prob_table: counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
     :return: enrichment or odds-ratio, depending on prob_table input
     """
     try:
@@ -164,6 +170,11 @@ def get_probabilities(prob_table):
 
 
 def get_stats(contingency_table, stat_type):
+    """
+    :param contingency_table: counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
+    :param stat_type: Type of pvalue (Fisher's or Chi-Square)
+    :return: Specified pvalue
+    """
     """
     Calculate Fisher and Chi2 test pvalues,
     apply Haldane correction (+ 0.5) if any of the values in the contingency table is zero
@@ -189,6 +200,10 @@ def get_stats(contingency_table, stat_type):
 
 
 def get_rev_comp_seq(sequence):
+    """
+    :param sequence: forward DNA sequence
+    :return: reverse complimentary DNA sequence
+    """
     # rev_comp_seq = "".join([complementary_nucleotide[i] for i in reversed(sequence)])
     rev_comp_seq = [(i[0], i[1], complementary_nucleotide[i[2]], "-") for i in reversed(sequence)]
     return rev_comp_seq
@@ -210,6 +225,12 @@ def mutated_base(mutation, ref, alt):
 
 
 def find_matching_motifs(seq, motif, motif_position):
+    """
+    :param seq: DNA sequence
+    :param motif: specified motif
+    :param motif_position: position of mutated base in motif, 0-base numbering
+    :return: True if motif is present in sequence
+    """
     # print("Looking for motif {} in {}, {}".format(motif, sequence, len(sequence) - len(motif)))
     for i in range(len(seq) - len(motif) + 1):
         s = seq[i: i + len(motif)]
@@ -221,6 +242,13 @@ def find_matching_motifs(seq, motif, motif_position):
 
 
 def find_matching_bases(seq, ref, motif, motif_position):
+    """
+    :param seq:
+    :param ref:
+    :param motif:
+    :param motif_position:
+    :return:
+    """
     for i in range(motif_position, len(seq) - (len(motif) - motif_position) + 1):
         # range excludes border of sequence that may be motifs that don't fit window size
         s = seq[i][2]
@@ -229,6 +257,17 @@ def find_matching_bases(seq, ref, motif, motif_position):
 
 
 def process_mutations(mutations, motif, motif_position, ref, alt, range_size, strand, stat_type=None):
+    """
+    :param mutations: mutations to be analyzed
+    :param motif: specified motif to search for
+    :param motif_position: location of mutation in motif, 0-base numbering from left of motif
+    :param ref: base pre-mutation
+    :param alt: base post-mutation
+    :param range_size: how far in the motif to search for
+    :param strand: strand motif should be searched on
+    :param stat_type: type of pvalue: Fisher's (default) or Chi-Square
+    :return:
+    """
     assert range_size >= 0
     assert len(ref) == 1
     assert len(alt) == 1
@@ -293,27 +332,25 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
         #     print()
 
     motif_mutation_count = len(matching_mutated_motifs)  # bases mutated in motif
-    mutation_count = len(matching_mutated_bases)
-    motif_count = len(matching_motifs)
-    ref_count = len(matching_bases)
-
-    enrichment_table = np.array(
-        [
-            [mutation_count, motif_mutation_count],
-            [ref_count, motif_count]
-        ])
-
-    enrichment = get_probabilities(enrichment_table)
-
     stat_mutation_count = len(matching_mutated_bases - matching_mutated_motifs)  # bases mutated not in motif
     stat_motif_count = len(matching_motifs - matching_mutated_motifs)  # bases not mutated in motif
     stat_ref_count = len(matching_bases - matching_motifs - matching_mutated_bases)  # bases not mutated not in motif
+
+    enrichment_table = np.array(
+        [
+            [stat_mutation_count + motif_mutation_count, motif_mutation_count],
+            [stat_ref_count + stat_motif_count, stat_motif_count]
+        ])
+
+    enrichment = get_probabilities(enrichment_table)   # enrichment = risk ratio
 
     stat_contingency_table = np.array(
         [
             [stat_mutation_count, motif_mutation_count],
             [stat_ref_count, stat_motif_count]
         ])
+
+    odds_ratio = get_probabilities(stat_contingency_table)
 
     if stat_type is None:
         p_val = get_stats(stat_contingency_table, "Fisher's")
@@ -325,10 +362,8 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
     else:
         mut_load = 0.0
 
-    odds_ratio = get_probabilities(stat_contingency_table)
-
     table = pd.DataFrame(data={
-        "'{}>{}' mutation".format(ref, alt): [motif_mutation_count, mutation_count],
+        "'{}>{}' mutation".format(ref, alt): [motif_mutation_count, stat_mutation_count],
         "no '{}>{}' mutation".format(ref, alt): [stat_motif_count, stat_ref_count]},
         index=("'{}' motif".format(motif), "no '{}' motif".format(motif)))
     logger.debug("\n" + table.to_string() + "\n")
@@ -340,8 +375,6 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
         'pvalue': p_val,
         'bases_mutated_in_motif': motif_mutation_count,
         'bases_mutated_not_in_motif': stat_mutation_count,
-        'bases_in_motif': motif_count,
-        'bases': ref_count,
         'bases_not_mutated_in_motif': stat_motif_count,
         'bases_not_mutated_not_in_motif': stat_ref_count,
         'total_mutations': len(mutations)
