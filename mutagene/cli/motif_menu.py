@@ -51,6 +51,7 @@ class MotifMenu(object):
             return
         if not args.motif:
             logger.info("Searching for predefined motifs")
+            logger.info("Will reduce statistical power because of multiple comparisons")
             custom_motif = None
         else:
             custom_motif = args.motif

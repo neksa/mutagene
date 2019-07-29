@@ -121,7 +121,7 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None):
                         'motif': m['logo'],
                         'strand': s,
                         'enrichment': result['enrichment'],
-                        'pvalue': result['pvalue_fisher'],
+                        'pvalue': result['pvalue'],
                         'mutations_low_est': result['mutation_load'],
                         'mutations_high_est': result['bases_mutated_in_motif'],
                         'odds ratio': result['odds_ratio']
@@ -151,38 +151,33 @@ def scanf_motif(custom_motif):
     return []
 
 
-def get_enrichment(motif_mutation_count, mutation_count, motif_count, ref_count):
+def get_probabilities(prob_table):
+    """
+    :param prob_table: numpy contigency table
+    :return: enrichment or odds-ratio, depending on prob_table input
+    """
     try:
-        enrichment = (motif_mutation_count / mutation_count) / (motif_count / ref_count)
+        prob = (prob_table[0, 1]/prob_table[0, 0])/(prob_table[1, 1]/prob_table[1, 0])
     except ZeroDivisionError:
-        enrichment = 0.0
-    return enrichment
+        prob = 0.0
+    return prob
 
 
-def get_stats(motif_mutation_count, stat_mutation_count, stat_motif_count, stat_ref_count):
+def get_stats(contingency_table, stat_type):
     """
     Calculate Fisher and Chi2 test pvalues,
     apply Haldane correction (+ 0.5) if any of the values in the contingency table is zero
     """
-    try:
-        odds_ratio = (motif_mutation_count / stat_mutation_count) / (stat_motif_count / stat_ref_count)
-    except ZeroDivisionError:
-        odds_ratio = 0.0
-
-    contingency_table = np.array(
-        [
-            [stat_mutation_count, motif_mutation_count],
-            [stat_ref_count, stat_motif_count]
-        ])
-
     if np.any(np.isclose(contingency_table, 0.0)):
         contingency_table = contingency_table + 0.5
 
-    p_val_fisher = stats.fisher_exact(contingency_table, alternative="less")[1]
-    try:
-        p_val_chi2 = stats.chi2_contingency(contingency_table)[1]
-    except ValueError:
-        p_val_chi2 = 1.0
+    if stat_type == "Fisher's":
+        p_val = stats.fisher_exact(contingency_table, alternative="less")[1]
+    elif stat_type == "Chi-Square":
+        try:
+            p_val = stats.chi2_contingency(contingency_table)[1]
+        except ValueError:
+            p_val = 1.0
 
     # if p_value <= 0.05:
     #  qvalues = multipletests(pvals=p_value, method='fdr_bh')
@@ -190,7 +185,7 @@ def get_stats(motif_mutation_count, stat_mutation_count, stat_motif_count, stat_
     #  if qvalues[3] <= 0.05:
     #     print("significant")
     # print("odds_ratio: ", "p-value")
-    return p_val_fisher, p_val_chi2, odds_ratio
+    return p_val
 
 
 def get_rev_comp_seq(sequence):
@@ -233,7 +228,7 @@ def find_matching_bases(seq, ref, motif, motif_position):
             yield seq[i]
 
 
-def process_mutations(mutations, motif, motif_position, ref, alt, range_size, strand):
+def process_mutations(mutations, motif, motif_position, ref, alt, range_size, strand, stat_type=None):
     assert range_size >= 0
     assert len(ref) == 1
     assert len(alt) == 1
@@ -302,17 +297,35 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
     motif_count = len(matching_motifs)
     ref_count = len(matching_bases)
 
+    enrichment_table = np.array(
+        [
+            [mutation_count, motif_mutation_count],
+            [ref_count, motif_count]
+        ])
+
+    enrichment = get_probabilities(enrichment_table)
+
     stat_mutation_count = len(matching_mutated_bases - matching_mutated_motifs)  # bases mutated not in motif
     stat_motif_count = len(matching_motifs - matching_mutated_motifs)  # bases not mutated in motif
     stat_ref_count = len(matching_bases - matching_motifs - matching_mutated_bases)  # bases not mutated not in motif
 
-    enrichment = get_enrichment(motif_mutation_count, mutation_count, motif_count, ref_count)
-    p_val_fisher, p_val_chi2, odds_ratio = get_stats(motif_mutation_count, stat_mutation_count, stat_motif_count, stat_ref_count)
+    stat_contingency_table = np.array(
+        [
+            [stat_mutation_count, motif_mutation_count],
+            [stat_ref_count, stat_motif_count]
+        ])
 
-    if enrichment > 1 and p_val_fisher < 0.05 and p_val_chi2 < 0.05:
+    if stat_type is None:
+        p_val = get_stats(stat_contingency_table, "Fisher's")
+    else:
+        p_val = get_stats(stat_contingency_table, stat_type)
+
+    if enrichment > 1 and p_val < 0.05:
         mut_load = (motif_mutation_count * (enrichment - 1)) / enrichment
     else:
         mut_load = 0.0
+
+    odds_ratio = get_probabilities(stat_contingency_table)
 
     table = pd.DataFrame(data={
         "'{}>{}' mutation".format(ref, alt): [motif_mutation_count, mutation_count],
@@ -324,8 +337,7 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
         'enrichment': enrichment,
         'odds_ratio': odds_ratio,
         'mutation_load': math.ceil(mut_load),
-        'pvalue_fisher': p_val_fisher,
-        'pvalue_chi2': p_val_chi2,
+        'pvalue': p_val,
         'bases_mutated_in_motif': motif_mutation_count,
         'bases_mutated_not_in_motif': stat_mutation_count,
         'bases_in_motif': motif_count,
