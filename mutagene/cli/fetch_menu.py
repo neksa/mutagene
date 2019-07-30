@@ -1,6 +1,6 @@
 import sys
 import logging
-from mutagene.io.fetch import fetch_genome, fetch_cohorts, fetch_examples
+from mutagene.io.fetch import fetch_genome, fetch_cohorts, fetch_examples, fetch_MSKCC
 
 
 logger = logging.getLogger(__name__)
@@ -10,7 +10,6 @@ genome_error_message = 'requires genome name argument -g hg19, hg38, mm10, see h
 class FetchMenu(object):
     def __init__(self, parser):
         parser.description = 'Download data from remote repositories and API'
-        # parser.add_argument('resource', choices=['cohorts', 'genome', 'GDC', 'MSKC', 'ICGC'])
         subparsers = parser.add_subparsers(
             dest='resource',
             title='subcommands',
@@ -28,17 +27,17 @@ The files are downloaded in one bundle cohorts.tar.gz that will be saved in the 
 Currently, only cohorts representing cancer types in COSMIC are provided.
 Cohorts are required for ranking of mutations, because ranking relies upon counts of observed mutations and cancer type-specific profiles.
 """)
-        cohorts_parser_action = cohorts_parser.add_mutually_exclusive_group(required=True)
-        cohorts_parser_action.add_argument('--list', '-l', action='store_true', help='List available cohorts')
-        cohorts_parser_action.add_argument('--cohort', '-c', type=str, help='Specify cohort')
-        cohorts_parser.add_argument('source', choices=('COSMIC', 'GDC', 'MSKC', 'ICGC'), default='COSMIC', help='Choose source data repository')
+        cohorts_parser.add_argument('source', nargs='?', choices=('COSMIC', 'GDC', 'MSKCC', 'ICGC'), default='COSMIC', help='Choose source data repository source (COSMIC by default)')
+        cohorts_parser_action = cohorts_parser.add_mutually_exclusive_group(required=False)
+        cohorts_parser_action.add_argument('--list', '-l', action='store_true', help='List available MSKCC cohorts')
+        cohorts_parser_action.add_argument('--cohort', '-c', type=str, help='Specify MSKCC cohort')
 
         genome_parser = subparsers.add_parser('genome', description="""
 This command will download reference genome assembly sequence in 2bit format from the UCSC genome browser website.
 
 You need to specify the name of genome assembly in --genome (-g) argument.
 
-Partial download is supported: if the process is interupted run the same command again to continue downloading.
+Partial download is supported: if the process is interrupted run the same command again to continue downloading.
 """)
         genome_parser.add_argument('--genome', '-g', type=str, help='hg38, hg19, mm10 according to UCSC genome browser nomenclature', required=True)
 
@@ -65,13 +64,14 @@ Partial download is supported: if the process is interupted run the same command
         logger.warning("GDC currently not supported")
 
     @classmethod
-    def cohorts_MSKC(cls, args):
+    def cohorts_MSKCC(cls, args):
         if args.list:
             import pandas as pd
             with pd.option_context('display.max_rows', None):  # , 'display.max_columns', None
                 print(pd.read_csv("https://www.cbioportal.org/webservice.do?cmd=getCancerStudies", sep="\t"))
         elif args.cohort:
             logger.info("Will download cohort " + args.cohort)
+            fetch_MSKCC(args.cohort)
         else:
             logger.warning("Cohort not specified, use --list to display all available data sets")
 
