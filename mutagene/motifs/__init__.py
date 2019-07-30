@@ -157,10 +157,22 @@ def scanf_motif(custom_motif):
     return []
 
 
-def get_probabilities(prob_table):
+def calculate_RR(prob_table):
     """
     :param prob_table: counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
-    :return: enrichment or odds-ratio, depending on prob_table input
+    :return: enrichment/risk ratio
+    """
+    try:
+        prob = (prob_table[0, 1]/(prob_table[0, 0] + prob_table[0, 1]))/(prob_table[1, 1]/(prob_table[1, 0] + prob_table[1, 1]))
+    except ZeroDivisionError:
+        prob = 0.0
+    return prob
+
+
+def calculate_OR(prob_table):
+    """
+    :param prob_table: counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
+    :return: odds ratio
     """
     try:
         prob = (prob_table[0, 1]/prob_table[0, 0])/(prob_table[1, 1]/prob_table[1, 0])
@@ -336,26 +348,20 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
     stat_motif_count = len(matching_motifs - matching_mutated_motifs)  # bases not mutated in motif
     stat_ref_count = len(matching_bases - matching_motifs - matching_mutated_bases)  # bases not mutated not in motif
 
-    enrichment_table = np.array(
-        [
-            [stat_mutation_count + motif_mutation_count, motif_mutation_count],
-            [stat_ref_count + stat_motif_count, stat_motif_count]
-        ])
-
-    enrichment = get_probabilities(enrichment_table)   # enrichment = risk ratio
-
-    stat_contingency_table = np.array(
+    contingency_table = np.array(
         [
             [stat_mutation_count, motif_mutation_count],
             [stat_ref_count, stat_motif_count]
         ])
 
-    odds_ratio = get_probabilities(stat_contingency_table)
+    enrichment = risk_ratio = calculate_RR(contingency_table)   # enrichment = risk ratio
+
+    odds_ratio = calculate_OR(contingency_table)
 
     if stat_type is None:
-        p_val = get_stats(stat_contingency_table, "Fisher's")
+        p_val = get_stats(contingency_table, "Fisher's")
     else:
-        p_val = get_stats(stat_contingency_table, stat_type)
+        p_val = get_stats(contingency_table, stat_type)
 
     if enrichment > 1 and p_val < 0.05:
         mut_load = (motif_mutation_count * (enrichment - 1)) / enrichment
