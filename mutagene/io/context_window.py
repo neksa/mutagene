@@ -41,7 +41,7 @@ def get_context_twobit_window(mutations, twobit_file, window_size):
             except Exception as e:
                 logger.warning("TwoBit exception: ", str(e), (chrom, pos, x, y))
         else:
-            logger.debug("NO CHROM", chromosome)
+            logger.debug("NO CHROM " + chromosome)
             continue
 
         strand = transcript_strand
@@ -96,6 +96,7 @@ def read_MAF_with_context_window(infile, asm, window_size):
 
         # chromosome is expected to be one or two number or one letter
         if hasattr(data, 'chromosome'):
+
             chrom = data.chromosome  # MAF CHROM
         else:
             raise ValueError('Chromosome is not defined in MAF file')

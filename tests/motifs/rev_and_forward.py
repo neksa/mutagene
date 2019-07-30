@@ -1,15 +1,24 @@
 import unittest
 # import numpy as np
 from mutagene.motifs import *
-# purpose: check that no over counting occurs when overlapping mutations present
+# purpose: check processing of reverse and forward motifs
 
 
 class MyTestCase(unittest.TestCase):
     def test_something(self):
-        mymotifs = {'motif': 'TCT',
-                    'position': 1,
-                    'ref': 'C',
-                    'alt': 'G'}
+        mymotifs_for = {
+        'motif': 'TCT',
+        'position': 1,
+        'ref': 'C',
+        'alt': 'T',
+    }
+
+        mymotifs_rev = {
+            'motif': 'AGA',
+            'position': 1,
+            'ref': 'G',
+            'alt': 'A',
+        }
 
         mutations_with_context = [
                                   ('20', 101, '+', "C", "G", [('20', 97, "T", '+'),
@@ -39,12 +48,17 @@ class MyTestCase(unittest.TestCase):
                                                               ])
                                   ]
 
-        observed = process_mutations(mutations_with_context, mymotifs['motif'], mymotifs['position'], mymotifs['ref'],
-                                  mymotifs['alt'], 4, "=")
+        observed_for = process_mutations(mutations_with_context, mymotifs_for['motif'], mymotifs_for['position'],
+                                      mymotifs_for['ref'], mymotifs_for['alt'], 4, "=")
 
-        assert observed['bases_mutated_in_motif'] == 2 \
-            and observed['bases_not_mutated_in_motif'] == 1 \
-            and observed['bases_mutated_not_in_motif'] == 0
+        observed_rev = process_mutations(mutations_with_context, mymotifs_rev['motif'], mymotifs_rev['position'],
+                                      mymotifs_rev['ref'], mymotifs_rev['alt'], 4, "=")
+
+
+        assert observed_for['bases_mutated_in_motif'] == observed_rev['bases_mutated_in_motif'] \
+            and observed_for['bases_not_mutated_in_motif'] == observed_rev['bases_not_mutated_in_motif'] \
+            and observed_for['bases_mutated_not_in_motif'] == observed_rev['bases_mutated_not_in_motif'] \
+            and observed_for['bases_not_mutated_not_in_motif'] == observed_rev['bases_not_mutated_not_in_motif']
 
 
 if __name__ == '__main__':

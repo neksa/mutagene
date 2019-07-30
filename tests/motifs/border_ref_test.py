@@ -1,29 +1,37 @@
 import unittest
-import numpy as np
-from motifs_in_mutagene import identify_motifs
-from mutations_io import read_mutations
+# import numpy as np
+from mutagene.motifs import *
+# purpose: check processing of mutation w/ bases elsewhere in motif
 
 
 class MyTestCase(unittest.TestCase):
     def test_something(self):
-        mymotifs = [{
-            'name': 'Test border Motif',
-            'logo': 'C[T>C]T',
-            'motif': 'CTT',
+        mymotifs = { 'motif': 'CTT',
             'position': 1,
             'ref': 'T',
-            'alt': 'C',
-            "references": "N/A"
-        }]
+            'alt': 'C'}
 
-        with open("test_mut_pycharm.txt") as f:
-            mut = f.read()
-            _, mutations_with_context, _ = read_mutations(mut, 'auto', 19)
-            observed = identify_motifs(mutations_with_context, mymotifs)
-            expected = (0.0, 0, 0.08547008547008556, 'chi cannot compute due to zero count', 1, 0, 9, 107)
-            print(observed)
-            expected = ""
-            assert observed == expected
+        mutations_with_context = [('20', 29628279, '+', "T", "C", [('20', 29628278, "C", '+'),
+                                                                    ('20', 29628279, "T", '+'),
+                                                                    ('20', 29628280, "T", '+')]),
+
+                                  ('20', 297, '+', "T", "A", [('20', 296, "C", '+'),
+                                                               ('20', 297, "T", '+'),
+                                                               ('20', 298, "T", '+')]),
+
+                                  ('20', 101, '+', "T", "C", [('20', 100, "T", '+'),
+                                                               ('20', 101, "T", '+'),
+                                                               ('20', 102, "T", '+')]),
+
+                                  ('20', 11, '-', "A", "G", [('20', 10, "A", '-'),
+                                                               ('20', 11, "A", '-'),
+                                                               ('20', 12, "G", '-')])
+                                  ]
+
+        observed = process_mutations(mutations_with_context, mymotifs['motif'], mymotifs['position'], mymotifs['ref'], mymotifs['alt'], 1, "=")
+        assert observed['bases_mutated_in_motif'] == 2 \
+            and observed['bases_mutated_not_in_motif'] == 1 \
+            and observed['bases_not_mutated_in_motif'] == 1
 
 
 if __name__ == '__main__':
