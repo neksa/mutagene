@@ -157,46 +157,72 @@ def scanf_motif(custom_motif):
     return []
 
 
-def calculate_RR(prob_table):
+def calculate_RR(contingency_table):
     """
-    :param prob_table: counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
+    :param contingency_table: mutually exclusive counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
     :return: enrichment/risk ratio
     """
     try:
-        prob = (prob_table[0, 1]/(prob_table[0, 0] + prob_table[0, 1]))/(prob_table[1, 1]/(prob_table[1, 0] + prob_table[1, 1]))
+        RR = (
+            (contingency_table[0, 1] / (contingency_table[0, 0] + contingency_table[0, 1])) /
+            (contingency_table[1, 1] / (contingency_table[1, 0] + contingency_table[1, 1])))
     except ZeroDivisionError:
-        prob = 0.0
-    return prob
+        RR = 0.0
+    return RR
 
 
-def calculate_OR(prob_table):
+def calculate_OR(contingency_table):
     """
-    :param prob_table: counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
+    :param contingency_table: mutually exclusive counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
     :return: odds ratio
     """
     try:
-        prob = (prob_table[0, 1]/prob_table[0, 0])/(prob_table[1, 1]/prob_table[1, 0])
+        OR = (
+            (contingency_table[0, 1] / contingency_table[0, 0]) /
+            (contingency_table[1, 1] / contingency_table[1, 0]))
     except ZeroDivisionError:
-        prob = 0.0
-    return prob
+        OR = 0.0
+    return OR
 
 
-def get_stats(contingency_table, stat_type):
-    """
-    :param contingency_table: counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
-    :param stat_type: Type of pvalue (Fisher's or Chi-Square)
-    :return: Specified pvalue
-    """
-    """
-    Calculate Fisher and Chi2 test pvalues,
-    apply Haldane correction (+ 0.5) if any of the values in the contingency table is zero
-    """
+def Haldane_correction(contingency_table):
+    """    apply Haldane correction (+ 0.5) if any of the values in the contingency table is zero """
+
     if np.any(np.isclose(contingency_table, 0.0)):
         contingency_table = contingency_table + 0.5
+    return contingency_table
 
-    if stat_type == "Fisher's":
-        p_val = stats.fisher_exact(contingency_table, alternative="less")[1]
-    elif stat_type == "Chi-Square":
+
+def calculate_mutation_load(N_mutations, enrichment, p_value, p_value_threshold=0.05):
+    """ Mutation load (minimum estimate) calculation following Gordenin et al protocol """
+    mutation_load = 0.0
+    if enrichment > 1 and p_value < p_value_threshold:
+        mutation_load = N_mutations * (enrichment - 1) / enrichment
+    return mutation_load
+
+
+def get_stats(contingency_table, stat_type='fisher'):
+    """
+    Calculate Fisher and Chi2 test pvalues,
+    :param contingency_table: counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
+    :param stat_type: Type of pvalue (Fisher's ('fisher') or Chi-Square ('chi2'))
+    :return: Specified pvalue
+    """
+    p_val = 1.0
+
+    if stat_type is None:
+        stat_type = 'fisher'
+
+    acceptable_tests = ('fisher', 'chi2')
+    if stat_type not in acceptable_tests:
+        logger.warning('get_stats() can only calculate p-values for ' + str(acceptable_tests))
+
+    if stat_type == 'fisher':
+        try:
+            p_val = stats.fisher_exact(contingency_table, alternative="less")[1]
+        except ValueError:
+            p_val = 1.0
+    elif stat_type == 'chi2':
         try:
             p_val = stats.chi2_contingency(contingency_table)[1]
         except ValueError:
@@ -354,19 +380,14 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
             [stat_ref_count, stat_motif_count]
         ])
 
-    enrichment = risk_ratio = calculate_RR(contingency_table)   # enrichment = risk ratio
+    contingency_table = Haldane_correction(contingency_table)
 
+    enrichment = risk_ratio = calculate_RR(contingency_table)  # enrichment = risk ratio
     odds_ratio = calculate_OR(contingency_table)
 
-    if stat_type is None:
-        p_val = get_stats(contingency_table, "Fisher's")
-    else:
-        p_val = get_stats(contingency_table, stat_type)
+    p_val = get_stats(contingency_table, stat_type)
 
-    if enrichment > 1 and p_val < 0.05:
-        mut_load = (motif_mutation_count * (enrichment - 1)) / enrichment
-    else:
-        mut_load = 0.0
+    mut_load = calculate_mutation_load(motif_mutation_count, enrichment, p_val)
 
     table = pd.DataFrame(data={
         "'{}>{}' mutation".format(ref, alt): [motif_mutation_count, stat_mutation_count],
@@ -386,4 +407,3 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
         'total_mutations': len(mutations)
     }
     return result
-

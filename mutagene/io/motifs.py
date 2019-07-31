@@ -1,4 +1,4 @@
-import csv
+import pandas as pd
 
 import logging
 logger = logging.getLogger(__name__)
@@ -7,7 +7,5 @@ logger = logging.getLogger(__name__)
 def write_motif_matches(outfile, motif_matches):
     if len(motif_matches) > 0:
         header = motif_matches[0].keys()
-        writer = csv.DictWriter(outfile, fieldnames=header, dialect='excel-tab')
-        writer.writeheader()
-        for data in motif_matches:
-            writer.writerow(data)
+        d = pd.DataFrame.from_records(motif_matches, columns=header)
+        d.to_csv(outfile, sep="\t", index=False, float_format='%g')
