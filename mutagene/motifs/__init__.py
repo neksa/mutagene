@@ -186,6 +186,10 @@ def calculate_OR(contingency_table):
 
 
 def Haldane_correction(contingency_table):
+    """
+    :param contingency_table: mutually exclusive counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
+    :return: contigency tavble after Haldane correction is applied
+    """
     """    apply Haldane correction (+ 0.5) if any of the values in the contingency table is zero """
 
     if np.any(np.isclose(contingency_table, 0.0)):
@@ -285,7 +289,7 @@ def find_matching_bases(seq, ref, motif, motif_position):
     :param ref:
     :param motif:
     :param motif_position:
-    :return:
+    :return: bases that match mutations
     """
     for i in range(motif_position, len(seq) - (len(motif) - motif_position) + 1):
         # range excludes border of sequence that may be motifs that don't fit window size
@@ -304,7 +308,7 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
     :param range_size: how far in the motif to search for
     :param strand: strand motif should be searched on
     :param stat_type: type of pvalue: Fisher's (default) or Chi-Square
-    :return:
+    :return: calculations
     """
     assert range_size >= 0
     assert len(ref) == 1

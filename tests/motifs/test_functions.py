@@ -26,7 +26,11 @@ def test_scanf():
     assert len(s) == 1
     assert s[0]['ref'] == 'C'
     assert s[0]['alt'] == 'T'
-
+    new_motif = "A[C>C]G"
+    scan_new = scanf_motif(new_motif)
+    assert scan_new == []
+    scan_empty = scanf_motif("A")
+    assert scan_empty == []
 
 @pytest.mark.parametrize(
     "sequence,rev_comp_seq",
@@ -118,3 +122,8 @@ def test_find_matching_motifs(sequence, motif, motif_position, expected_matches)
 def test_find_matching_bases(sequence, ref, motif, motif_position, expected_matches):
     matches = list(find_matching_bases(sequence, ref, motif, motif_position))
     assert matches == expected_matches
+
+
+@pytest.mark.parametrize("N_mutations, enrichment, pvalue", [(200, 1.5, 0.03)])
+def test_mutation_load(N_mutations, enrichment, pvalue):
+    assert calculate_mutation_load(N_mutations, enrichment, pvalue) == 200/3

@@ -96,13 +96,13 @@ class MotifMenu(object):
         if args.motif:
             logger.warning("Motif argument not accepted for motif list")
 
-        if args.window_size != 50:
+        if args.window_size != 50:  # default window size parameter
             logger.warning("Window size argument not accepted for motif list")
 
-        if args.strand != '*':
+        if args.strand != '+-=':  # default strand parameter
             logger.warning("Strand argument not accepted for motif list")
 
-        if args.outfile != sys.stdout:
+        if args.outfile != sys.stdout:  # default outfile parameter
             logger.warning("Outfile: argument not accepted for motif list")
 
         for m in list_of_motifs:
