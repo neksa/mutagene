@@ -43,6 +43,7 @@ class MotifMenu(object):
 
     @classmethod
     def search(cls, args):
+        assert args.action == 'search'
         if not args.infile:
             logger.warning("Provide input file in VCF or MAF format (-i) and a corresponding genome assembly (-g)")
             return
@@ -86,7 +87,7 @@ class MotifMenu(object):
 
     @classmethod
     def list(cls, args):
-
+        assert args.action == 'list'
         if args.genome:
             logger.warning("Genome argument not accepted for motif list")
 
