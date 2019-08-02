@@ -82,7 +82,17 @@ it may be advantageous to use a window size shorter than the default 50 bases, a
 ------------------------------------
 Strand Parameter Explanation
 ------------------------------------
-MutaGene can search for the presence of a motif on the transcribed or non-transcribed DNA strands.
+MutaGene can search for the presence of a motif on the transcribed or non-transcribed DNA strands or both strands.
+This information is gathered from the input file provided by the user.
+
+Analyzing for the presence on a transcribed or non-transcribed strand is advantageous when a mutational process is
+known to have mutations with a transcriptional strand bias. For instance, the APOBEC1/3A/B family is known to be
+associated with mutational processes that have a transcriptional strand bias of mutations in exons.
+
+The transcription strand refers to the coding DNA strand, and the non-transcription strand refers to the template DNA strand.
+
+- add tests for this - TODO
+- change output: TR, NON-TR
 
 =============================
 How to Interpret Motif Output
