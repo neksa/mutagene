@@ -81,6 +81,15 @@ motifs = [
         'alt': 'S',
         'references': 'Nature  2003;424:103–7'
     },
+{
+        'name': 'Tobacco       ',
+        'logo': 'T[G>T]C',
+        'motif': 'TGC',
+        'position': 1,
+        'ref': 'G',
+        'alt': 'T',
+        'references': 'Nature  2013;500:415-21'
+    },
 ]
 
 
@@ -202,6 +211,10 @@ def calculate_mutation_load(N_mutations, enrichment, p_value, p_value_threshold=
     mutation_load = 0.0
     if enrichment > 1 and p_value < p_value_threshold:
         mutation_load = N_mutations * (enrichment - 1) / enrichment
+    elif p_value < p_value_threshold:
+        print("depletion present")
+        print(enrichment)
+        print(p_value)
     return mutation_load
 
 
@@ -224,6 +237,8 @@ def get_stats(contingency_table, stat_type='fisher'):
     if stat_type == 'fisher':
         try:
             p_val = stats.fisher_exact(contingency_table, alternative="less")[1]
+            if p_val > 0.05:
+                p_val = stats.fisher_exact(contingency_table, alternative="greater")[1] #calculates if motif is underrepresented
         except ValueError:
             p_val = 1.0
     elif stat_type == 'chi2':
@@ -321,15 +336,13 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
     matching_mutated_bases = set()
 
     # extra loop for sample in sample list
-    base_count = 0
-    ex_motif_count = 0
     for chrom, pos, transcript_strand, x, y, seq in mutations:
         # extract the longest sequence we would ever need (motif + range_size); range size = # bases outside mutation
         mutation = chrom, pos, x, y
         rev_seq = get_rev_comp_seq(seq)
 
         # if strand == '+':
-
+        # constants - ADD
         if strand == '=' or transcript_strand == strand:
             # not mutated:
             for ref_match in find_matching_bases(seq, ref, motif, motif_position):
