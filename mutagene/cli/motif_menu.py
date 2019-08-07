@@ -43,6 +43,7 @@ class MotifMenu(object):
 
     @classmethod
     def search(cls, args):
+        assert args.action == 'search'
         if not args.infile:
             logger.warning("Provide input file in VCF or MAF format (-i) and a corresponding genome assembly (-g)")
             return
@@ -86,7 +87,7 @@ class MotifMenu(object):
 
     @classmethod
     def list(cls, args):
-
+        assert args.action == 'list'
         if args.genome:
             logger.warning("Genome argument not accepted for motif list")
 
@@ -96,13 +97,13 @@ class MotifMenu(object):
         if args.motif:
             logger.warning("Motif argument not accepted for motif list")
 
-        if args.window_size != 50:
+        if args.window_size != 50:  # default window size parameter
             logger.warning("Window size argument not accepted for motif list")
 
-        if args.strand != '*':
+        if args.strand != '+-=':  # default strand parameter
             logger.warning("Strand argument not accepted for motif list")
 
-        if args.outfile != sys.stdout:
+        if args.outfile != sys.stdout:  # default outfile parameter
             logger.warning("Outfile: argument not accepted for motif list")
 
         for m in list_of_motifs:
