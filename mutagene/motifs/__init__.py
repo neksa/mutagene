@@ -253,8 +253,8 @@ def get_stats(contingency_table, stat_type='fisher'):
     if stat_type == 'fisher':
         try:
             p_val = stats.fisher_exact(contingency_table, alternative="less")[1]
-            if p_val > 0.05:
-                p_val = stats.fisher_exact(contingency_table, alternative="greater")[1] #calculates if motif is underrepresented
+            # if p_val > 0.05:
+            #     p_val = stats.fisher_exact(contingency_table, alternative="greater")[1] #calculates if motif is underrepresented
         except ValueError:
             p_val = 1.0
     elif stat_type == 'chi2':
