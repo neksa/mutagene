@@ -1,6 +1,7 @@
 import re
 import math
 import scipy.stats as stats
+from statsmodels.stats.multitest import multipletests
 import numpy as np
 import pandas as pd
 
@@ -101,6 +102,8 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None):
     :return: command-line output
     """
     motif_matches = []
+    sig_motif_matches = []
+    pvals = []
 
     if strand is None:
         strand = '='
@@ -127,8 +130,8 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None):
                     debug_string = pprint.pformat(debug_data, indent=4)
                     logger.debug(debug_string)
 
-                    if result['mutation_load'] == 0:
-                        continue
+                    # if result['mutation_load'] == 0:
+                    #     continue
 
                     motif_matches.append({
                         'sample': sample,
@@ -136,12 +139,25 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None):
                         'motif': m['logo'],
                         'strand': s,
                         'enrichment': result['enrichment'],
-                        'pvalue': result['pvalue'],
                         'mutations_low_est': result['mutation_load'],
                         'mutations_high_est': result['bases_mutated_in_motif'],
-                        'odds ratio': result['odds_ratio']
+                        'odds ratio': result['odds_ratio'],
+                        'pvalue': result['pvalue']
                     })
-    return motif_matches
+                    pvals.append(result['pvalue'])
+
+    q_vals = []
+    qvalues = get_corrected_pvalues(pvals)[1]
+    for i, qvalue in enumerate(qvalues):
+        q_vals.append(qvalue)
+    assert len(motif_matches) == len(q_vals)
+    for i, motif_dict in enumerate(motif_matches):
+        motif_matches[i].update({'qvalue': qvalues[i]})
+
+    for report in motif_matches:
+        if report['mutations_low_est'] != 0:
+            sig_motif_matches.append(report)
+    return sig_motif_matches
 
 
 def scanf_motif(custom_motif):
@@ -211,10 +227,10 @@ def calculate_mutation_load(N_mutations, enrichment, p_value, p_value_threshold=
     mutation_load = 0.0
     if enrichment > 1 and p_value < p_value_threshold:
         mutation_load = N_mutations * (enrichment - 1) / enrichment
-    elif p_value < p_value_threshold:
-        print("depletion present")
-        print(enrichment)
-        print(p_value)
+    # elif p_value < p_value_threshold:   tests for enrichment depletion
+    #     print("depletion present")
+    #     print(enrichment)
+    #     print(p_value)
     return mutation_load
 
 
@@ -246,14 +262,14 @@ def get_stats(contingency_table, stat_type='fisher'):
             p_val = stats.chi2_contingency(contingency_table)[1]
         except ValueError:
             p_val = 1.0
-
-    # if p_value <= 0.05:
-    #  qvalues = multipletests(pvals=p_value, method='fdr_bh')
-    #  print(qvalues)
-    #  if qvalues[3] <= 0.05:
-    #     print("significant")
-    # print("odds_ratio: ", "p-value")
     return p_val
+
+
+def get_corrected_pvalues(p_values):
+    qvalues = []
+    if len(p_values):
+        qvalues = multipletests(pvals=p_values, method='fdr_bh')
+    return qvalues
 
 
 def get_rev_comp_seq(sequence):
