@@ -16,7 +16,8 @@ genome_error_message = """requires genome name argument -g hg19, hg38, mm10, see
 class MotifMenu(object):
     def __init__(self, parser):
 
-        parser.description = "Motif function requires: mutagene motif <action (search or list)>, if search is specified, infile & genome are also required"
+        parser.description = "Motif function requires: mutagene motif <action (search or list)>, " \
+                             "if search is specified, infile & genome are also required"
         parser.epilog = """
                         Examples:
                         # search for the presence of the C[A>T] motif in sample1.maf using hg19
@@ -30,7 +31,6 @@ class MotifMenu(object):
         parser.add_argument("--infile", "-i", help="Input file in MAF or VCF format with one or multiple samples",
                             type=argparse.FileType('r'))
         parser.add_argument('--genome', "-g", help="Location of genome assembly file in 2bit format", type=str)
-
         parser.add_argument("--motif", "-m",
                             help="Motif to search for, use the 'R[C>T]GY' syntax for the motif. Use quotes", type=str)
         parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout,
@@ -40,6 +40,8 @@ class MotifMenu(object):
         parser.add_argument('--strand', "-s",
                             help="Transcribed strand (+), non-transcribed (-), any (=), or all (+-= default) ",
                             type=str, default='+-=', choices=['+', '-', '=', '+-='])
+        parser.add_argument('--threshold', "-t", help="Significance threshold for qvalues, default value=0.05",
+                            type=float, default=0.05)
 
     @classmethod
     def search(cls, args):
@@ -49,6 +51,9 @@ class MotifMenu(object):
             return
         if not args.genome:
             logger.warning(genome_error_message)
+            return
+        if args.threshold > 1.0 or args.threshold < 0.0:
+            logger.warning("The threshold value should be between 0.0 and 1.0, inclusive")
             return
         if not args.motif:
             logger.info("Searching for predefined motifs")
@@ -63,7 +68,8 @@ class MotifMenu(object):
 
             if ">" not in custom_motif or "]" not in custom_motif:
                 logger.warning(
-                    "Mutagene motif search failed because motif cannot be processed. Check to make sure motif input is in quotes")
+                    "Mutagene motif search failed because motif cannot be processed."
+                    "Check to make sure motif input is in quotes")
                 return
 
             logger.info("Searching for motif {}".format(custom_motif))
@@ -78,7 +84,7 @@ class MotifMenu(object):
             logger.warning("No mutations loaded")
 
         matching_motifs = identify_motifs(mutations_with_context, custom_motif,
-                                          args.strand) if mutations_with_context is not None else []
+                                          args.strand, args.threshold) if mutations_with_context is not None else []
 
         if len(matching_motifs) == 0:
             logger.warning("No significant motif matches found")
@@ -102,6 +108,9 @@ class MotifMenu(object):
 
         if args.strand != '+-=':  # default strand parameter
             logger.warning("Strand argument not accepted for motif list")
+
+        if args.threshold != "0.05":  # default threshold parameter
+            logger.warning("Threshold argument not accepted for motif list")
 
         if args.outfile != sys.stdout:  # default outfile parameter
             logger.warning("Outfile: argument not accepted for motif list")

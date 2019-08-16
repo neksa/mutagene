@@ -94,7 +94,7 @@ motifs = [
 ]
 
 
-def identify_motifs(samples_mutations, custom_motif=None, strand=None):
+def identify_motifs(samples_mutations, custom_motif=None, strand=None, threshold=None):
     """
     :param samples_mutations: list of mutations from input file
     :param custom_motif: specified motif to search for
@@ -107,6 +107,9 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None):
 
     if strand is None:
         strand = '='
+
+    if threshold is None:
+        threshold = 0.05
 
     if custom_motif:
         search_motifs = scanf_motif(custom_motif)
@@ -146,17 +149,15 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None):
                     })
                     pvals.append(result['pvalue'])
 
-    q_vals = []
-    qvalues = get_corrected_pvalues(pvals)[1]
-    for i, qvalue in enumerate(qvalues):
-        q_vals.append(qvalue)
-    assert len(motif_matches) == len(q_vals)
+    qvalues = get_corrected_pvalues(pvals)
     for i, motif_dict in enumerate(motif_matches):
-        motif_matches[i].update({'qvalue': qvalues[i]})
+        motif_matches[i]['qvalue'] = qvalues[i]
+        if motif_dict['mutations_low_est'] == 0:
+            continue
+        if motif_dict['qvalue'] >= threshold:
+            continue
+        sig_motif_matches.append(motif_dict)
 
-    for report in motif_matches:
-        if report['mutations_low_est'] != 0:
-            sig_motif_matches.append(report)
     return sig_motif_matches
 
 
@@ -268,7 +269,7 @@ def get_stats(contingency_table, stat_type='fisher'):
 def get_corrected_pvalues(p_values):
     qvalues = []
     if len(p_values):
-        qvalues = multipletests(pvals=p_values, method='fdr_bh')
+        qvalues = multipletests(pvals=p_values, method='fdr_bh')[1]
     return qvalues
 
 
