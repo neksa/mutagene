@@ -91,9 +91,6 @@ associated with mutational processes that have a transcriptional strand bias of 
 
 The transcription strand refers to the coding DNA strand, and the non-transcription strand refers to the template DNA strand.
 
-- add tests for this - TODO
-- change output: TR, NON-TR
-
 =============================
 How to Interpret Motif Output
 =============================
@@ -113,7 +110,6 @@ Sample   Name     Motif       Strand       Enrichment        pvalue      mutatio
 - Motif: Motif searched for in data
 
 - Strand: DNA Strand that motif was searched for on. '+': transcribed strand, '-': non-transcribed strand, "=": any strand, "+-=": all strands.
-  #add explanation for transcription strand bias
 
 - Enrichment: Quantitative measure of motif's prevalence, significant if greater than one.
 
