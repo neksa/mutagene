@@ -45,7 +45,7 @@ Command: mutagene motif search [--infile][--genome][--motif][--outfile][--window
 Required arguments (must be specified):
 
 --infile, -i
-     Input file in MAF or VCF format with one or multiple samples
+     Input file in MAF format with one or multiple samples
 
 --genome, -g
     Location of genome assembly file in 2bit format
@@ -64,6 +64,9 @@ Optional arguments (can be specified):
 
 --strand, -s
     Search for the presence of a motif on Transcribed strand (+), non-transcribed (-), any strand (=) - default option, or all strands (-+=)
+
+--threshold, -t
+    Significance threshold for qvalue (corrected p-value) reporting, default value=0.05
 
 --help, -h
     show this help message and exit
@@ -91,9 +94,6 @@ associated with mutational processes that have a transcriptional strand bias of 
 
 The transcription strand refers to the coding DNA strand, and the non-transcription strand refers to the template DNA strand.
 
-- add tests for this - TODO
-- change output: TR, NON-TR
-
 =============================
 How to Interpret Motif Output
 =============================
@@ -102,9 +102,9 @@ If no motifs are significantly present in the data, the output will say: "WARNIN
 
 If the presence of a motif is significant in the data, the output will show a table with the following headers:
 
-======  ======  =========   ===========  ================  ===========  ===================  ===================
-Sample   Name     Motif       Strand       Enrichment        pvalue      mutations_low_est    mutations_high_est
-======  ======  =========   ===========  ================  ===========  ===================  ===================
+======  ======  =========   ===========  ================  ===================  ===================  ===========  ===========
+Sample   Name     Motif       Strand       Enrichment       mutations_low_est    mutations_high_est   pvalue       qvalue
+======  ======  =========   ===========  ================  ===================  ===================  ===========  ===========
 
 - Sample: Name of Sample. If input file contains multiple samples, output will be stratified per sample.
 
@@ -113,15 +113,16 @@ Sample   Name     Motif       Strand       Enrichment        pvalue      mutatio
 - Motif: Motif searched for in data
 
 - Strand: DNA Strand that motif was searched for on. '+': transcribed strand, '-': non-transcribed strand, "=": any strand, "+-=": all strands.
-  #add explanation for transcription strand bias
 
 - Enrichment: Quantitative measure of motif's prevalence, significant if greater than one.
-
-- pvalue: Fisher's p-value for motif significance
 
 - mutations_low_est: Conservative estimate for number of mutations (of total number in input file) that match motif
 
 - mutations_high_est: Maximum number of mutations (of total number in input file) that match the motif
+
+- pvalue: Fisher's p-value for motif significance
+
+- qvalue: Fisher's p-value with Benjamini-Hochberg correction for motif significance
 
 ----------------------------------
 How to Interpret Enrichment Output

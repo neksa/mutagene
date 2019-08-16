@@ -1,6 +1,7 @@
 import re
 import math
 import scipy.stats as stats
+from statsmodels.stats.multitest import multipletests
 import numpy as np
 import pandas as pd
 
@@ -81,10 +82,19 @@ motifs = [
         'alt': 'S',
         'references': 'Nature  2003;424:103–7'
     },
+{
+        'name': 'Tobacco       ',
+        'logo': 'T[G>T]C',
+        'motif': 'TGC',
+        'position': 1,
+        'ref': 'G',
+        'alt': 'T',
+        'references': 'Nature  2013;500:415-21'
+    },
 ]
 
 
-def identify_motifs(samples_mutations, custom_motif=None, strand=None):
+def identify_motifs(samples_mutations, custom_motif=None, strand=None, threshold=None):
     """
     :param samples_mutations: list of mutations from input file
     :param custom_motif: specified motif to search for
@@ -92,9 +102,14 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None):
     :return: command-line output
     """
     motif_matches = []
+    sig_motif_matches = []
+    pvals = []
 
     if strand is None:
         strand = '='
+
+    if threshold is None:
+        threshold = 0.05
 
     if custom_motif:
         search_motifs = scanf_motif(custom_motif)
@@ -118,8 +133,8 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None):
                     debug_string = pprint.pformat(debug_data, indent=4)
                     logger.debug(debug_string)
 
-                    if result['mutation_load'] == 0:
-                        continue
+                    # if result['mutation_load'] == 0:
+                    #     continue
 
                     motif_matches.append({
                         'sample': sample,
@@ -127,12 +142,23 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None):
                         'motif': m['logo'],
                         'strand': s,
                         'enrichment': result['enrichment'],
-                        'pvalue': result['pvalue'],
                         'mutations_low_est': result['mutation_load'],
                         'mutations_high_est': result['bases_mutated_in_motif'],
-                        'odds ratio': result['odds_ratio']
+                        'odds ratio': result['odds_ratio'],
+                        'pvalue': result['pvalue']
                     })
-    return motif_matches
+                    pvals.append(result['pvalue'])
+
+    qvalues = get_corrected_pvalues(pvals)
+    for i, motif_dict in enumerate(motif_matches):
+        motif_matches[i]['qvalue'] = qvalues[i]
+        if motif_dict['mutations_low_est'] == 0:
+            continue
+        if motif_dict['qvalue'] >= threshold:
+            continue
+        sig_motif_matches.append(motif_dict)
+
+    return sig_motif_matches
 
 
 def scanf_motif(custom_motif):
@@ -202,6 +228,10 @@ def calculate_mutation_load(N_mutations, enrichment, p_value, p_value_threshold=
     mutation_load = 0.0
     if enrichment > 1 and p_value < p_value_threshold:
         mutation_load = N_mutations * (enrichment - 1) / enrichment
+    # elif p_value < p_value_threshold:   tests for enrichment depletion
+    #     print("depletion present")
+    #     print(enrichment)
+    #     print(p_value)
     return mutation_load
 
 
@@ -224,6 +254,8 @@ def get_stats(contingency_table, stat_type='fisher'):
     if stat_type == 'fisher':
         try:
             p_val = stats.fisher_exact(contingency_table, alternative="less")[1]
+            # if p_val > 0.05:
+            #     p_val = stats.fisher_exact(contingency_table, alternative="greater")[1] #calculates if motif is underrepresented
         except ValueError:
             p_val = 1.0
     elif stat_type == 'chi2':
@@ -231,14 +263,14 @@ def get_stats(contingency_table, stat_type='fisher'):
             p_val = stats.chi2_contingency(contingency_table)[1]
         except ValueError:
             p_val = 1.0
-
-    # if p_value <= 0.05:
-    #  qvalues = multipletests(pvals=p_value, method='fdr_bh')
-    #  print(qvalues)
-    #  if qvalues[3] <= 0.05:
-    #     print("significant")
-    # print("odds_ratio: ", "p-value")
     return p_val
+
+
+def get_corrected_pvalues(p_values):
+    qvalues = []
+    if len(p_values):
+        qvalues = multipletests(pvals=p_values, method='fdr_bh')[1]
+    return qvalues
 
 
 def get_rev_comp_seq(sequence):
@@ -321,15 +353,13 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
     matching_mutated_bases = set()
 
     # extra loop for sample in sample list
-    base_count = 0
-    ex_motif_count = 0
     for chrom, pos, transcript_strand, x, y, seq in mutations:
         # extract the longest sequence we would ever need (motif + range_size); range size = # bases outside mutation
         mutation = chrom, pos, x, y
         rev_seq = get_rev_comp_seq(seq)
 
         # if strand == '+':
-
+        # constants - ADD
         if strand == '=' or transcript_strand == strand:
             # not mutated:
             for ref_match in find_matching_bases(seq, ref, motif, motif_position):
