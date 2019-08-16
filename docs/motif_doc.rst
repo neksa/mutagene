@@ -45,7 +45,7 @@ Command: mutagene motif search [--infile][--genome][--motif][--outfile][--window
 Required arguments (must be specified):
 
 --infile, -i
-     Input file in MAF or VCF format with one or multiple samples
+     Input file in MAF format with one or multiple samples
 
 --genome, -g
     Location of genome assembly file in 2bit format
@@ -64,6 +64,9 @@ Optional arguments (can be specified):
 
 --strand, -s
     Search for the presence of a motif on Transcribed strand (+), non-transcribed (-), any strand (=) - default option, or all strands (-+=)
+
+-- threshold, -t
+    Significance threshold for qvalue (corrected p-value) reporting, default value=0.05
 
 --help, -h
     show this help message and exit
@@ -91,9 +94,6 @@ associated with mutational processes that have a transcriptional strand bias of 
 
 The transcription strand refers to the coding DNA strand, and the non-transcription strand refers to the template DNA strand.
 
-- add tests for this - TODO
-- change output: TR, NON-TR
-
 =============================
 How to Interpret Motif Output
 =============================
@@ -113,7 +113,6 @@ Sample   Name     Motif       Strand       Enrichment        pvalue      mutatio
 - Motif: Motif searched for in data
 
 - Strand: DNA Strand that motif was searched for on. '+': transcribed strand, '-': non-transcribed strand, "=": any strand, "+-=": all strands.
-  #add explanation for transcription strand bias
 
 - Enrichment: Quantitative measure of motif's prevalence, significant if greater than one.
 
