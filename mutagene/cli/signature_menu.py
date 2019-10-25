@@ -18,7 +18,7 @@ genome_error_message = """requires genome name argument -g hg19, hg38, mm10, see
 class SignatureMenu(object):
     def __init__(self, parser):
         parser.add_argument('action', choices=['identify', ])  # 'new'])
-        parser.add_argument("--signatures", "-s", choices=[5, 10, 30], help="Collection of signatures to use", type=int)
+        parser.add_argument("--signatures", "-s", choices=[5, 10, 30, 49], help="Collection of signatures to use", type=int)
         parser.add_argument("--infile", "-i", help="Input file in VCF or MAF format", type=argparse.FileType('r'))
         parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout,
                             help="Name of output file, will be generated in TSV format")

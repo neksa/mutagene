@@ -72,9 +72,58 @@ def read_profile_str(profile_str):
     return values
 
 
+"""
+Type,SubType,SBS1,SBS2,SBS3,SBS4,SBS5,SBS6,SBS7a,SBS7b,SBS7c,SBS7d,SBS8,SBS9,SBS10a,SBS10b,SBS11,SBS12,SBS13,SBS14,SBS15,SBS16,SBS17a,SBS17b,SBS18,SBS19,SBS20,SBS21,SBS22,SBS23,SBS24,SBS25,SBS26,SBS27,SBS28,SBS29,SBS30,SBS31,SBS32,SBS33,SBS34,SBS35,SBS36,SBS37,SBS38,SBS39,SBS40,SBS41,SBS42,SBS43,SBS44,SBS45,SBS46,SBS47,SBS48,SBS49,SBS50,SBS51,SBS52,SBS53,SBS54,SBS55,SBS56,SBS57,SBS58,SBS59,SBS60,SBS84,SBS85
+C>A,ACA,8.86E-04,5.80E-07,2.08E-02,4.22E-02,1.20E-02,4.25E-04,6.70E-05,2.33E-03,4.83E-03,4.04E-05,4.41E-02,5.58E-04,2.19E-03,1.82E-04,1.46E-04,4.52E-03,1.82E-03,1.12E-03,9.44E-04,1.60E-02,2.07E-03,6.08E-04,5.15E-02,1.27E-03,6.19E-04,1.57E-04,6.01E-03,8.35E-04,3.64E-02,9.90E-03,8.73E-04,5.21E-03,7.84E-04,6.32E-02,1.80E-03,9.54E-03,2.23E-02,3.11E-03,4.87E-03,8.83E-03,2.52E-02,3.95E-03,1.28E-02,1.17E-02,2.82E-02,2.11E-03,1.16E-03,2.95E-02,7.68E-18,9.11E-03,4.40E-03,6.78E-02,8.55E-04,2.51E-02,1.19E-01,1.41E-01,1.52E-02,5.38E-03,2.16E-03,5.88E-03,1.26E-02,1.23E-02,5.89E-02,3.59E-03,6.15E-03,0.003471994832,0.006080257390
+"""
+"""
+Sequencing artifacts:
+
+Possible sequencing artefacts
+"""
+def read_COSMIC3_signatures():
+    sequencing_artifacts = [
+        "SBS27", "SBS43", "SBS45", "SBS46", "SBS47", "SBS48", "SBS49", "SBS50", "SBS51",
+        "SBS52", "SBS53", "SBS54", "SBS55", "SBS56", "SBS57", "SBS58", "SBS59", "SBS60"]
+
+    mutations = defaultdict(dict)
+    dirname = os.path.dirname(os.path.realpath(__file__))
+    fname = dirname + "/../data/signatures/sigProfiler_SBS_signatures_2019_05_22.csv"
+    signature_names = []
+    with open(fname, 'r') as f:
+        for i, line in enumerate(f):
+            fields = line.strip().split(',')   
+            if i == 0:
+                signature_names = fields[2:]
+                continue
+
+            x, y = fields[0].split(">")
+            p5, _, p3 = tuple(fields[1])
+
+            for j, val in enumerate(fields[2:]):
+                val = float(val)
+                mutations[j][p5 + p3 + x + y] = val
+
+    W = []
+    for j in range(len(signature_names)):
+        profile = []
+        for p5 in nucleotides:
+            for p3 in nucleotides:
+                for x in "CT":
+                    for y in nucleotides:
+                        if x != y:
+                            profile.append(mutations[j].get(p5 + p3 + x + y, 0.0))
+        W.append(profile)
+    W = np.array(W).T
+    return W, signature_names
+
+
 def read_signatures(n_signatures):
-    signatures_dict = {5: 'A', 10: 'B', 30: 'C'}
+    signatures_dict = {5: 'A', 10: 'B', 30: 'C', 49: 'C3'}
     assert n_signatures in signatures_dict
+
+    if n_signatures == 49:
+        return read_COSMIC3_signatures()
 
     dirname = os.path.dirname(os.path.realpath(__file__))
 
