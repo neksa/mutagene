@@ -1,9 +1,12 @@
+# from collections import defaultdict
+# from mutagene.dna import complementary_nucleotide
+
+import numpy as np
+from numpy.random import multinomial
+from sklearn.utils import resample
 
 from mutagene.io.profile import write_profile_file, get_profile_attributes_dict
 from mutagene.io.mutations_profile import read_auto_profile
-
-# from collections import defaultdict
-# from mutagene.dna import complementary_nucleotide
 
 import logging
 logger = logging.getLogger(__name__)
@@ -54,3 +57,13 @@ def get_multisample_mutational_profile(samples_mutations, counts=False):
         samples_profiles[sample] = get_mutational_profile(mutations, counts)
 
     return samples_profiles
+
+
+def generate_resampled_profiles(profile, k):
+    profile = np.array(profile)
+    # print(profile)
+    N = np.sum(profile)
+    new_profiles = multinomial(N, profile / N, size=k)
+    # print(new_profiles)
+    for i in range(k):
+        yield new_profiles[i]

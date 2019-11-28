@@ -1,5 +1,7 @@
 # import csv
 import numpy as np
+from scipy import stats
+from collections import defaultdict
 
 # def write_motif_matches(outfile, motif_matches):
 #     if len(motif_matches) > 0:
@@ -66,6 +68,45 @@ def write_decomposition(fname, results, signature_ids, sample_name, write_zeros=
             if np.isclose(m[i], 0.0) and not write_zeros:
                 continue
             fname.write("{}\t{}\t{:.4f}\t{}\n".format(sample_name, signature_ids[i], h[i], m[i]))
+
+
+def write_bootstrap_decomposition(fname, results, signature_ids, sample_name, write_zeros=False):
+    exposures_lists = defaultdict(list)
+    mutations_lists = defaultdict(list)
+    for result in results:
+        for x in result:
+            exposures_lists[x['name']].append(x['score'])
+            mutations_lists[x['name']].append(x['mutations'])
+
+    # print(exposures_lists)
+    # print(mutations_lists)
+
+    h = np.array([np.nanmean(exposures_lists[name]) for name in signature_ids])
+    m = np.array([np.nanmean(mutations_lists[name]) for name in signature_ids])  # , np.int)
+
+    h_sem = np.array([stats.sem(exposures_lists[name]) for name in signature_ids])
+    m_sem = np.array([stats.sem(mutations_lists[name]) for name in signature_ids])
+
+    # FIXME: code duplication
+    if isinstance(fname, (str, bytes)):
+        o = open(fname, 'w')
+    else:
+        o = fname
+    o.write("sample\tsignature\texposure\tmutations\texposure_CI_low\texposure_CI_high\tmutations_CI_low\tmutations_CI_high\n")
+    for i in range(h.shape[0]):
+        h_ci_low = h[i] - 1.96 * h_sem[i]
+        h_ci_hi = h[i] + 1.96 * h_sem[i]
+        m_ci_low = m[i] - 1.96 * m_sem[i]
+        m_ci_hi = m[i] + 1.96 * m_sem[i]
+
+        # if np.isclose(m[i], 0.0) and not write_zeros:
+        #     continue
+        if m_ci_low < 1.0:
+            continue
+
+        o.write("{}\t{}\t{:.4f}\t{:.0f}\t{:.4f}\t{:.4f}\t{:.0f}\t{:.0f}\n".format(sample_name, signature_ids[i], h[i], m[i], h_ci_low, h_ci_hi, m_ci_low, m_ci_hi))
+    if isinstance(fname, (str, bytes)):
+        o.close()
 
 
 def read_decomposition(fname):

@@ -90,6 +90,30 @@ def NegLogLik(x, A, b):
     return -LL
 
 
+def NegLogLikOld(x, A, b):
+    """
+    Log Likelihood of a mixture of multinomials
+    x = parameters of the mixture
+    A = signature x 96 channels
+    b = the observed profile (includes counts for 96 channels)
+    """
+
+    # if x.sum() - 0.00011 > 1.0:
+    #     return 1e6
+
+    # if x.sum() > 1.0:
+    #     x /= x.sum()
+
+    # Compatibility mode with the website:
+    if np.sum(x) > 1.0:
+        return 1000
+
+    LL = np.sum(b * np.ma.log(A.dot(x)).filled(0))
+
+    # print("LOG\t{}\t{}\t{}".format(len(x), "\t".join(map(lambda a: "{:.2f}".format(a), x)), LL))
+    return -LL
+
+
 def AIC(x, A, b):
     """
     AIC https://en.wikipedia.org/wiki/Akaike_information_criterion
@@ -120,20 +144,45 @@ def BIC(x, A, b):
     return 2 * NegLogLik(x, A, b) + k * np.log(n)
 
 
+IDENTIFY_MIN_FUNCTIONS = {
+    'frobenius': Frobenius,
+    'frobeniuszero': FrobeniusZero,
+    'kl': DivergenceKL,
+    'divergencekl': DivergenceKL,
+    'js': DivergenceJS,
+    'divergencejs': DivergenceJS,
+    'mle': NegLogLik,  # MLE maximizes LogLik or minimizes NegLogLik
+    'mlez': NegLogLik,  # MLE with added context-independent signatures
+    'compat': NegLogLikOld,  # MLE with added context-independent signatures (old compatibility mode)
+    'aicc': AICc,  # AIC corrected for small samples
+    'bic': BIC,  # BIC
+    'aiccz': AICc,  # AIC corrected for small samples with added context-independent signatures
+    'bicz': BIC,  # BIC with added context-independent signatures
+}
+
+
 def get_fingerprint_url(a):
     data = {"s{}".format(i): v for i, v in enumerate(a)}
     return urllib.parse.urlencode(data)
 
 
-def decompose_mutational_profile_counts(profile, signatures, func="Frobenius", debug=True, others_threshold=0.05, global_optimization=None):
+def decompose_mutational_profile_counts(profile, signatures, func="Frobenius", debug=True, others_threshold=0.05, global_optimization=None, enable_dummy=None):
 
     config = {
-        'enable_dummy': False,
+        'enable_dummy': True,
+        'show_dummy': False,
+        'show_dummy_aggregate': True,
         'global_optimization': False,
     }
 
     if global_optimization is not None:
         config['global_optimization'] = global_optimization
+
+    if enable_dummy is not None:
+        config['enable_dummy'] = enable_dummy
+    else:
+        if func.lower().endswith('z'):
+            config['enable_dummy'] = True
 
     W = []
     results = []
@@ -152,7 +201,7 @@ def decompose_mutational_profile_counts(profile, signatures, func="Frobenius", d
         })
 
     # add dummy signatures
-    if func.lower().endswith('z'):
+    if config['enable_dummy']:
         for i, (name, values) in enumerate(get_dummy_signatures_lists()):
             dummy = "d" + str(i)
             signature_names.append(dummy)
@@ -186,21 +235,7 @@ def decompose_mutational_profile_counts(profile, signatures, func="Frobenius", d
     if debug:
         print("h0", h0)
 
-    min_funcs = {
-        'frobenius': Frobenius,
-        'frobeniuszero': FrobeniusZero,
-        'kl': DivergenceKL,
-        'divergencekl': DivergenceKL,
-        'js': DivergenceJS,
-        'divergencejs': DivergenceJS,
-        'mle': NegLogLik,  # MLE maximizes LogLik or minimizes NegLogLik
-        'mlez': NegLogLik,  # MLE with added context-independent signatures
-        'aicc': AICc,  # AIC corrected for small samples 
-        'bic': BIC,  # BIC 
-        'aiccz': AICc,  # AIC corrected for small samples with added context-independent signatures
-        'bicz': BIC,  # BIC with added context-independent signatures
-    }
-    min_func = min_funcs.get(func.lower(), Frobenius)
+    min_func = IDENTIFY_MIN_FUNCTIONS.get(func.lower(), Frobenius)
 
     if debug:
         np.set_printoptions(precision=4)
@@ -358,8 +393,8 @@ def decompose_mutational_profile_counts(profile, signatures, func="Frobenius", d
         results[i]['score'] = h[i]
         results[i]['mutations'] = round(N_mutations * h[i])
 
-    # remove dummy signatures
-    if func.lower().endswith('z'):
+    # remove dummy signatures if enabled
+    if config['enable_dummy']:
         results = results[:-6]
         signature_names = signature_names[:-6]
 
