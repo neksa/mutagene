@@ -31,13 +31,25 @@ class MutaGeneApp(object):
         parser = argparse.ArgumentParser(
             prog="mutagene",
             description='MutaGene version {} - Analysis of mutational processes and driver mutations'.format(mutagene.__version__),
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+            add_help=False,
             # usage="%(prog)s [options]",
             # formatter_class=argparse.RawTextHelpFormatter
         )
-        parser.add_argument('-v', '--verbose', action='count', default=0)
-        parser.add_argument('-V', '--version', action='version', version="%(prog)s " + __version__)
+        # parser._positionals.title = 'Positional arguments'
+        parser._optionals.title = 'Global optional arguments'
+        parser.add_argument('-v', '--verbose', action='count', default=0, help='Print additional messages (-v, -vv)')
+        parser.add_argument('-V', '--version', action='version', version="%(prog)s " + __version__, help='Show version and exit')
+        parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS,
+                            help='Show this help message and exit')
 
-        subparsers = parser.add_subparsers(help='sub-command help', dest='command')
+        subparsers = parser.add_subparsers(help="", description="""\
+        fetch - Load data such as genomes and cancer datasets from demote sources
+        profile - Create a mutational profile given a sample with mutations
+        rank - Predict driver mutations by ranking observed mutations with respect to their expected mutability
+        motif - Test samples for presence of mutational motifs
+        signature - Identify activity of existing mutational signatures in samples or derive new signatures\
+            """, dest='command', title='Choose MutaGene subpackage')
 
         parser_mapping = {
             'fetch': FetchMenu,
