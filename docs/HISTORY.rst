@@ -17,6 +17,12 @@ New features should have test code sent with them.
 Changes
 =======
 
+0.8.6.3dev2 Testing release
+-----------------------
+
+* added handling of VCF files to motif analysis
+
+
 0.8.5.1 Bug-Fix Release
 -----------------------
 
