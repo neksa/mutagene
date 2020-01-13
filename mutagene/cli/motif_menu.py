@@ -2,7 +2,7 @@ import argparse
 import sys
 import logging
 
-from mutagene.io.context_window import read_MAF_with_context_window
+from mutagene.io.context_window import read_MAF_with_context_window, read_VCF_with_context_window
 from mutagene.motifs import identify_motifs
 from mutagene.io.motifs import write_motif_matches
 from mutagene.motifs import motifs as list_of_motifs
@@ -28,20 +28,34 @@ class MotifMenu(object):
 
         parser.add_argument('action', choices=['search', 'list'], help="search for a motif, list all predefined motifs")
 
-        parser.add_argument("--infile", "-i", help="Input file in MAF or VCF format with one or multiple samples",
-                            type=argparse.FileType('r'))
-        parser.add_argument('--genome', "-g", help="Location of genome assembly file in 2bit format", type=str)
-        parser.add_argument("--motif", "-m",
-                            help="Motif to search for, use the 'R[C>T]GY' syntax for the motif. Use quotes", type=str)
-        parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout,
-                            help="Name of output file, will be generated in TSV format")
-        parser.add_argument('--window-size', "-w", help="Context window size for motif search, default setting is 50",
-                            type=int, default=50)
-        parser.add_argument('--strand', "-s",
-                            help="Transcribed strand (+), non-transcribed (-), any (=), or all (+-= default) ",
-                            type=str, default='+-=', choices=['+', '-', '=', '+-='])
-        parser.add_argument('--threshold', "-t", help="Significance threshold for qvalues, default value=0.05",
-                            type=float, default=0.05)
+        required_group = parser.add_argument_group('Required arguments')
+        required_group.add_argument(
+            "--infile", "-i", help="Input file in MAF or VCF format with one or multiple samples",
+            type=argparse.FileType('r'))
+        required_group.add_argument(
+            '--genome', "-g", help="Location of genome assembly file in 2bit format", type=str)
+
+        optional_group = parser.add_argument_group('Optional arguments')
+        optional_group.add_argument('--input-format', "-f", help="Input format: MAF, VCF", type=str, choices=['MAF', 'VCF'], default='MAF')
+        optional_group.add_argument(
+            "--motif", "-m",
+            help="Motif to search for, use the 'R[C>T]GY' syntax for the motif. Use quotes", type=str)
+        optional_group.add_argument(
+            '--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout,
+            help="Name of output file, will be generated in TSV format")
+
+        advanced_group = parser.add_argument_group('Advanced arguments')
+        advanced_group.add_argument(
+            '--window-size', "-w", help="Context window size for motif search, default setting is 50",
+            type=int, default=50)
+        advanced_group.add_argument(
+            '--strand', "-s",
+            help="Transcribed strand (+), non-transcribed (-), any (=), or all (+-= default) ",
+            type=str, default='+-=', choices=['+', '-', '=', '+-='])
+        advanced_group.add_argument(
+            '--threshold', "-t",
+            help="Significance threshold for qvalues, default value=0.05",
+            type=float, default=0.05)
 
     @classmethod
     def search(cls, args):
@@ -78,8 +92,13 @@ class MotifMenu(object):
             logger.warning('window-size should be between 1 and 250 nucleotides')
             return
 
-        mutations, mutations_with_context, processing_stats = read_MAF_with_context_window(args.infile, args.genome,
-                                                                                           args.window_size)
+        if args.input_format == 'VCF':
+            mutations, mutations_with_context, processing_stats = read_VCF_with_context_window(
+                args.infile, args.genome, args.window_size)
+        elif args.input_format == 'MAF':
+            mutations, mutations_with_context, processing_stats = read_MAF_with_context_window(
+                args.infile, args.genome, args.window_size)
+
         if len(mutations_with_context) == 0:
             logger.warning("No mutations loaded")
 
