@@ -17,10 +17,16 @@ New features should have test code sent with them.
 Changes
 =======
 
+0.8.6.4 Release
+-----------------------
+* testing and development releases are not available in pip mirrors, bumping version
+
+
 0.8.6.4dev1 Testing release
 -----------------------
 
 * added handling of VCF files to motif analysis
+* Signatures from COSMIC v3 available as signature set "49"
 
 
 0.8.5.1 Bug-Fix Release
