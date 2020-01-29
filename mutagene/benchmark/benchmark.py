@@ -92,7 +92,7 @@ def benchmark_simulated(results_fname, signature_names, W):
                     THRESHOLD = 0.0
                     # print(h0_counts)
                     # print(v0_counts)
-                    _, _, exposure = decompose_mutational_profile_counts(v0_counts, W, 'MLE', debug=False, others_threshold=THRESHOLD)
+                    _, _, exposure = decompose_mutational_profile_counts(v0_counts, W, 'MLE', others_threshold=THRESHOLD)
 
                     h1 = np.array(convert_to_list(name_to_idx, exposure))
                     # h1 += min(1.0 - h1.sum(), 0)
@@ -146,7 +146,8 @@ def benchmark_2combinations(results_fname, signature_names, W):
 
         for i in range(N):
 
-            for N_mutations in [10, 50, 100, 500, 1000, 10000]:
+            # for N_mutations in [10, 50, 100, 500, 1000, 10000]:
+            for N_mutations in [50, 500]:
 
                 for iteration in range(10):
                     h0 = np.zeros(N)
@@ -168,7 +169,7 @@ def benchmark_2combinations(results_fname, signature_names, W):
                     THRESHOLD = 0.0
                     # print(h0_counts)
                     # print(v0_counts)
-                    _, _, exposure = decompose_mutational_profile_counts(v0_counts, W, 'MLE', debug=False, others_threshold=THRESHOLD)
+                    _, _, exposure = decompose_mutational_profile_counts(v0_counts, W, 'MLE', others_threshold=THRESHOLD)
 
                     h1 = np.array(convert_to_list(name_to_idx, exposure))
                     # h1 += min(1.0 - h1.sum(), 0)
