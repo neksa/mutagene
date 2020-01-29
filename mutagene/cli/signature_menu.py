@@ -71,7 +71,6 @@ class SignatureMenu(object):
                     profile,
                     (W, signature_names),
                     method,
-                    debug=False,
                     others_threshold=0.0)
                 samples_results[sample] = results
             write_multisample_decomposition(args.outfile, samples_results, signature_names)
@@ -83,7 +82,6 @@ class SignatureMenu(object):
                     profile,
                     (W, signature_names),
                     method,
-                    debug=False,
                     others_threshold=0.0,
                     enable_dummy=args.no_unexplained_variance)
                 write_decomposition(args.outfile, results, signature_names, 'VCF')
@@ -95,7 +93,6 @@ class SignatureMenu(object):
                         resampled_profile,
                         (W, signature_names),
                         method,
-                        debug=False,
                         others_threshold=0.0,
                         enable_dummy=args.no_unexplained_variance)
                     bootstrap_results.append(results)
