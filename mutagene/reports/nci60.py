@@ -599,9 +599,9 @@ def analyze_nci60_samples(prefix):
             #     _, contributing_signatures_B = decompose_mutational_profile(mutational_profile, "CLB")
             #     _, contributing_signatures_cosmic = decompose_mutational_profile(mutational_profile, "IS")
             if method == 'L':
-                _, _, contributing_signatures_A = decompose_mutational_profile_counts(mutational_profile_counts, "CLA", 'MLE', debug=False, others_threshold=THRESHOLD)
-                _, _, contributing_signatures_B = decompose_mutational_profile_counts(mutational_profile_counts, "CLB", 'MLE', debug=False, others_threshold=THRESHOLD)
-                _, _, contributing_signatures_cosmic = decompose_mutational_profile_counts(mutational_profile_counts, "IS", 'MLE', debug=False, others_threshold=THRESHOLD)
+                _, _, contributing_signatures_A = decompose_mutational_profile_counts(mutational_profile_counts, "CLA", 'MLE', others_threshold=THRESHOLD)
+                _, _, contributing_signatures_B = decompose_mutational_profile_counts(mutational_profile_counts, "CLB", 'MLE', others_threshold=THRESHOLD)
+                _, _, contributing_signatures_cosmic = decompose_mutational_profile_counts(mutational_profile_counts, "IS", 'MLE', others_threshold=THRESHOLD)
             if method == 'J':
                 _, _, contributing_signatures_A = decompose_mutational_profile_counts(mutational_profile_counts, "CLA", 'js')
                 _, _, contributing_signatures_B = decompose_mutational_profile_counts(mutational_profile_counts, "CLB", 'js')

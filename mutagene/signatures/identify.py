@@ -5,6 +5,7 @@ import numpy as np
 
 from scipy.optimize import minimize
 from scipy.optimize import nnls
+from scipy.spatial.distance import cosine
 # from scipy.optimize import basinhopping  # , differential_evolution
 # from scipy.optimize import fmin_cobyla
 from scipy.stats import entropy
@@ -49,6 +50,27 @@ def DivergenceJS(x, A, b):
     return 0.5 * (entropy(v, m) + entropy(b, m))
 
 
+def Cos(x, A, b):
+    """ cosine distance """
+    return cosine(A.dot(x), b)
+
+
+def Elastic(x, A, b):
+    """ elastic net """
+    alpha = 1.0
+    l1_ratio = 0.5
+
+    k = np.count_nonzero(x)  # signatures
+    n = b.sum()  # samples
+
+    objective = np.linalg.norm(A.dot(x) - b) / (0.5 * n)
+    # l1 reg
+    objective += alpha * l1_ratio * k**2
+    # l2 reg
+    # objective += alpha * (1.0 - l1_ratio) * ||w||^2_2
+    return objective
+
+
 # Define minimization function
 def Frobenius(x, A, b):
     return np.linalg.norm(A.dot(x) - b)
@@ -84,9 +106,9 @@ def NegLogLik(x, A, b):
     if x.sum() > 1.0:
         x /= x.sum()
 
-    LL = np.sum(b * np.ma.log(A.dot(x)).filled(0))
+    LL = np.sum(b * np.ma.log(A.dot(x)).filled(0.0))
 
-    # print("LOG\t{}\t{}\t{}".format(len(x), "\t".join(map(lambda a: "{:.2f}".format(a), x)), LL))
+    # print("NegLL\t{}\t{}\t{}".format(len(x), "\t".join(map(lambda a: "{:.2f}".format(a), x)), -LL))
     return -LL
 
 
@@ -114,12 +136,17 @@ def NegLogLikOld(x, A, b):
     return -LL
 
 
+def count_threshold(x, threshold=10e-6):
+    """ count the number of above-threshold elements in an array """
+    return np.sum(x > threshold)
+
+
 def AIC(x, A, b):
     """
     AIC https://en.wikipedia.org/wiki/Akaike_information_criterion
     """
-    k = np.count_nonzero(x)
-    n = b.sum()
+    k = count_threshold(x)
+    # n = b.sum()
     return 2 * NegLogLik(x, A, b) + 2 * k
 
 
@@ -127,7 +154,7 @@ def AICc(x, A, b):
     """
     AIC with small sample correction
     """
-    k = np.count_nonzero(x)
+    k = count_threshold(x)
     n = b.sum()
     if n - k - 1 <= 0:
         return AIC(x, A, b)
@@ -139,14 +166,17 @@ def BIC(x, A, b):
     """
     BIC https://en.wikipedia.org/wiki/Bayesian_information_criterion
     """
-    k = np.count_nonzero(x)
+    k = count_threshold(x)
     n = b.sum()
+    # print(2 * NegLogLik(x, A, b) + k * np.log(n))
     return 2 * NegLogLik(x, A, b) + k * np.log(n)
 
 
 IDENTIFY_MIN_FUNCTIONS = {
     'frobenius': Frobenius,
     'frobeniuszero': FrobeniusZero,
+    'cos': Cos,
+    'elastic': Elastic,
     'kl': DivergenceKL,
     'divergencekl': DivergenceKL,
     'js': DivergenceJS,
@@ -166,7 +196,7 @@ def get_fingerprint_url(a):
     return urllib.parse.urlencode(data)
 
 
-def decompose_mutational_profile_counts(profile, signatures, func="Frobenius", debug=True, others_threshold=0.05, global_optimization=None, enable_dummy=None):
+def decompose_mutational_profile_counts(profile, signatures, func="Frobenius", others_threshold=0.05, global_optimization=None, enable_dummy=None):
 
     config = {
         'enable_dummy': True,
@@ -232,29 +262,31 @@ def decompose_mutational_profile_counts(profile, signatures, func="Frobenius", d
     # if np.isnan(h0.sum()):
     #     h0 = np.ones(h0.shape[0]) / h0.shape[0]
 
-    if debug:
-        print("h0", h0)
+    logger.debug("h0 {}".format(h0))
 
     min_func = IDENTIFY_MIN_FUNCTIONS.get(func.lower(), Frobenius)
 
-    if debug:
-        np.set_printoptions(precision=4)
-        print("--------------------------------------\n")
-        print("Signature", signatures)
-        print("NNLS", h0)
-        print("FRO", round(Frobenius(h0, W, v), 4), "DIV", round(DivergenceKL(h0, W, v), 4))
+    # if debug:
+    #     np.set_printoptions(precision=4)
+    #     print("--------------------------------------\n")
+    #     print("Signature", signatures)
+    #     print("NNLS", h0)
+    #     print("FRO", round(Frobenius(h0, W, v), 4), "DIV", round(DivergenceKL(h0, W, v), 4))
 
     # Define constraints and bounds
     # constraints = {'type': 'eq', 'fun': lambda x: np.sum(x) - 1}
     constraints = {'type': 'ineq', 'fun': lambda x: 1.0 - np.sum(x)}
     # bounds = [[0., None],[0., None],[0., None]]
-    bounds = [[0., 1.0] for _ in range(h0.shape[0])]
+
+    # bounds = [[0., 1.0] for _ in range(h0.shape[0])]
+    bounds = [[0.0, 1.0] for _ in range(h0.shape[0])]
 
     # Call minimization subject to these values
-    if min_func == NegLogLik:
-        v_target = v_freq
-    else:
-        v_target = v
+    v_target = v_freq
+    # if min_func == NegLogLik:
+    #     v_target = v_freq
+    # else:
+    #     v_target = v
 
     def print_fun(x, f, accepted):
         print("{} at minimum {} accepted {}".format(x, f, accepted))
@@ -364,24 +396,28 @@ def decompose_mutational_profile_counts(profile, signatures, func="Frobenius", d
 
         optimizer = BayesianOptimization(
             f=partial(min_func, A=W, b=v_target),
-            pbounds=pbounds,
+            # pbounds=pbounds,
             verbose=2,  # verbose = 1 prints only when a maximum is observed, verbose = 0 is silent
             random_state=1,
         )
 
     ##############################################################################
+    # debug = True
     if not config['global_optimization']:
-        minout = minimize(min_func, h0, args=(W, v_target), method='SLSQP', bounds=bounds, constraints=constraints)
+        minout = minimize(
+            min_func, h0, args=(W, v_target),
+            method='SLSQP',
+            bounds=bounds, constraints=constraints,
+            options={'maxiter': 500}
+        )
+
         if minout.success:
-            if debug:
-                print("MINIMIZATION:", minout.message, minout.nit)
+            logger.debug("MINIMIZATION: {} {}".format(minout.message, minout.nit))
             h = minout.x
-            if debug:
-                print("MAX LIK", h, round(-NegLogLik(h, W, v_target), 4))
-                # print("LIK", round(-NegLogLik(h, W, v), 4), "DIV", round(DivergenceKL(h, W, v), 4))
+            logger.debug("MAX LIK {} {}".format(h, round(-NegLogLik(h, W, v_target), 4)))
+            # print("LIK", round(-NegLogLik(h, W, v), 4), "DIV", round(DivergenceKL(h, W, v), 4))
         else:
-            if debug:
-                print("MINIMIZATION FAILED:", minout.message, minout.nit)
+            logger.debug("MINIMIZATION FAILED:{} {}".format(minout.message, minout.nit))
             # Minimization did not converge
             # Use our initial guess, but normalize it:
             h = h0.ravel() / h0.sum()
