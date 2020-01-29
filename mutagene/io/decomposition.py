@@ -42,9 +42,40 @@ def write_multisample_decomposition(fname, samples_results, signature_ids, write
         o.close()
 
 
-def write_decomposition(fname, results, signature_ids, sample_name, write_zeros=False):
+def write_bootstrap_multisample_decomposition(fname, samples_results, signature_ids, write_zeros=False):
+    if isinstance(fname, (str, bytes)):
+        o = open(fname, 'w')
+    else:
+        # fname is assumed to be a file descriptor
+        o = fname
+
+    fname.write("sample\tsignature\texposure\tmutations\n")
+
+    for sample, results in samples_results.items():
+        if type(results) is np.ndarray:
+            h = results
+        else:
+            exposure_dict = {x['name']: x['score'] for x in results}
+            exposure = [exposure_dict[name] for name in signature_ids]
+            h = np.array(exposure)
+
+            mutations_dict = {x['name']: x['mutations'] for x in results}
+            mutations = [mutations_dict[name] for name in signature_ids]
+            m = np.array(mutations, np.int)
+        for i in range(h.shape[0]):
+            if np.isclose(m[i], 0.0) and not write_zeros:
+                continue
+            fname.write("{}\t{}\t{:.4f}\t{}\n".format(sample, signature_ids[i], h[i], m[i]))
+
+    # if filename then close descriptor
+    if isinstance(fname, (str, bytes)):
+        o.close()
+
+
+def write_decomposition(fname, results, signature_ids, sample_name="sample", write_zeros=False):
     if type(results) is np.ndarray:
         h = results
+        m = np.round(h * 100)  # artificial number of mutations in case we only have a vector
     else:
         exposure_dict = {x['name']: x['score'] for x in results}
         exposure = [exposure_dict[name] for name in signature_ids]
@@ -54,20 +85,17 @@ def write_decomposition(fname, results, signature_ids, sample_name, write_zeros=
         mutations = [mutations_dict[name] for name in signature_ids]
         m = np.array(mutations, np.int)
 
-    # FIXME: code duplication
+    outf = open(fname, 'w') if isinstance(fname, (str, bytes)) else fname
+
+    outf.write("sample\tsignature\texposure\tmutations\n")
+    header = "{}\t{}\t{:.4f}\t{}\n"
+    for i in range(h.shape[0]):
+        if np.isclose(m[i], 0.0) and not write_zeros:
+            continue
+        outf.write(header.format(sample_name, signature_ids[i], h[i], m[i]))
+
     if isinstance(fname, (str, bytes)):
-        with open(fname, 'w') as o:
-            fname.write("sample\tsignature\texposure\tmutations\n")
-            for i in range(h.shape[0]):
-                if np.isclose(m[i], 0.0) and not write_zeros:
-                    continue
-                o.write("{}\t{}\t{:.4f}\t{}\n".format(sample_name, signature_ids[i], h[i], m[i]))
-    else:
-        fname.write("sample\tsignature\texposure\tmutations\n")
-        for i in range(h.shape[0]):
-            if np.isclose(m[i], 0.0) and not write_zeros:
-                continue
-            fname.write("{}\t{}\t{:.4f}\t{}\n".format(sample_name, signature_ids[i], h[i], m[i]))
+        outf.close()
 
 
 def write_bootstrap_decomposition(fname, results, signature_ids, sample_name, write_zeros=False):
