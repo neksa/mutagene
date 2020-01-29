@@ -1,5 +1,6 @@
 import pathlib
 import glob
+import os
 # import pprint
 import numpy as np
 
@@ -7,12 +8,13 @@ from math import ceil
 from os.path import isfile
 from multiprocessing import Pool
 
-from .io import write_profile, read_profile_file, write_decomposition, read_decomposition
-from .identify import decompose_mutational_profile_counts
-from .deconstructsigs import deconstruct_sigs, deconstruct_sigs_custom
+from mutagene.io.profile import write_profile, read_profile_file
+from mutagene.io.decomposition import write_decomposition, read_decomposition
+from mutagene.signatures.identify import decompose_mutational_profile_counts
+from mutagene.benchmark.deconstructsigs import deconstruct_sigs, deconstruct_sigs_custom
 
 
-def gen_benchmark_2combinations(signature_names, W):
+def gen_benchmark_2combinations(data_root, signature_names, W):
     name_to_idx = {}
     for i, s in enumerate(signature_names):
         name_to_idx[s] = i
@@ -26,10 +28,10 @@ def gen_benchmark_2combinations(signature_names, W):
         for l in [0.1, 0.2]:
             # for n in [10, 50, 100, 500, 1000, 10000]:
             for n in [50, 500]:
-                gen_sample_2combinations(signature_names, W, ratio=r, noise_level=l, n_mutations=n)
+                gen_sample_2combinations(data_root, signature_names, W, ratio=r, noise_level=l, n_mutations=n)
 
 
-def gen_sample_2combinations(signature_ids, W, ratio=0.7, noise_level=0.05, n_mutations=10):
+def gen_sample_2combinations(data_root, signature_ids, W, ratio=0.7, noise_level=0.05, n_mutations=10):
     assert 0.0 < ratio < 1.0
     assert 0.0 <= noise_level < ratio
     assert n_mutations > 0
@@ -44,7 +46,7 @@ def gen_sample_2combinations(signature_ids, W, ratio=0.7, noise_level=0.05, n_mu
             # if i == j:
             #     continue
 
-            dirname = "data/benchmark/2comb/{}_{}_{}".format(N, signature_ids[i], signature_ids[j])
+            dirname = "{}/2comb/{}_{}_{}".format(data_root, N, signature_ids[i], signature_ids[j])
             pathlib.Path(dirname).mkdir(parents=True, exist_ok=True)
             print(dirname)
 
@@ -67,13 +69,14 @@ def gen_sample_2combinations(signature_ids, W, ratio=0.7, noise_level=0.05, n_mu
                 # print(v0_counts)
 
                 write_profile(profile_fname, v0_counts)
-                write_decomposition(info_fname, h0, signature_ids)
+                # write_decomposition(info_fname, h0, signature_ids)
+                write_decomposition(info_fname, h0, signature_ids, "synthetic", write_zeros=True)
 
 
-def run_benchmark_2combinations(N, signature_ids, W, force=False):
+def run_benchmark_2combinations(data_root, N, signature_ids, W, force=False):
     methods = ['MLE', 'MLEZ', 'AICc', 'BIC', 'AICcZ', 'BICZ']
 
-    for fname in glob.glob("data/benchmark/2comb/{}_**/*.profile".format(N), recursive=True):
+    for fname in glob.glob("{}/2comb/{}_**/*.profile".format(data_root, N), recursive=True):
         print(fname)
         profile = read_profile_file(fname)
 
@@ -103,9 +106,9 @@ def run_benchmark_2combinations_deconstruct_sigs_helper(data):
     write_decomposition(ds_info, np.array(exposure), signature_ids)
 
 
-def run_benchmark_2combinations_deconstruct_sigs(N, signature_ids, W, force=False):
+def run_benchmark_2combinations_deconstruct_sigs(data_root, N, signature_ids, W, force=False):
     def get_iterator():
-        for fname in glob.glob("data/benchmark/2comb/{}_**/*.profile".format(N), recursive=True):
+        for fname in glob.glob("{}/2comb/{}_**/*.profile".format(data_root, N), recursive=True):
             sigtype = fname.split("/")[-2].split("_")[0]
             ds_info = fname.split(".")[0] + ".ds.info"
             if isfile(ds_info) and not force:
@@ -116,7 +119,7 @@ def run_benchmark_2combinations_deconstruct_sigs(N, signature_ids, W, force=Fals
         p.map(run_benchmark_2combinations_deconstruct_sigs_helper, get_iterator(), 100)
 
 
-def aggregate_benchmarks():
+def aggregate_benchmarks(data_root):
     methods = {
         "original": ".info",
         "mle": ".MLE.info",
@@ -129,7 +132,7 @@ def aggregate_benchmarks():
     }
 
     # generate full panel for all signatures in 30 x 30 signatures analysis
-    with open("data/benchmark/2comb/res1-1.txt", 'w') as o:
+    with open("{}/2comb/res1-1.txt".format(data_root), 'w') as o:
         o.write("sigtype\tsig1\tsig2\tratio\tnoise\tnmut\treplica\tmethod\tsignature\tvalue\n")
         for fname in glob.glob("data/benchmark/2comb/**/*.profile", recursive=True):
             sigtype, sig1, sig2 = fname.split("/")[-2].split("_")
@@ -146,9 +149,9 @@ def aggregate_benchmarks():
                     o.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(sigtype, sig1, sig2, ratio, noise, nmut, replica, method, signature, value))
 
     # only report the signature 2 value (as in DeconstructSigs benchmark)
-    with open("data/benchmark/2comb/res2-2.txt", 'w') as o:
+    with open("{}/2comb/res2-2.txt".format(data_root), 'w') as o:
         o.write("sigtype\tsig1\tsig2\tratio\tnoise\tnmut\treplica\tmethod\tvalue\n")
-        for fname in glob.glob("data/benchmark/2comb/**/*.profile", recursive=True):
+        for fname in glob.glob("{}/2comb/**/*.profile".format(data_root), recursive=True):
             sigtype, sig1, sig2 = fname.split("/")[-2].split("_")
             ratio, noise, nmut, replica = fname.split("/")[-1].split(".")[0].split("_")
 

@@ -7,11 +7,10 @@ from multiprocessing import Pool
 from sklearn.metrics import (
     recall_score, precision_score, accuracy_score, f1_score, mean_squared_error)
 
-from mutagene.io import read_profile_file, read_signatures
-from mutagene.io import write_profile
-from mutagene.identify import NegLogLik
-from mutagene.deconstructsigs import deconstruct_sigs_custom
-from mutagene.generate_benchmark import *
+from mutagene.io.profile import read_profile_file, write_profile, read_signatures
+from mutagene.signatures.identify import NegLogLik
+from mutagene.benchmark.deconstructsigs import deconstruct_sigs_custom
+from mutagene.benchmark.generate_benchmark import *
 # from mutagene.identify import decompose_mutational_profile_counts
 
 
