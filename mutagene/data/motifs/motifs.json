@@ -1,0 +1,65 @@
+[
+    {
+        "alt": "K",
+        "logo": "T[C>K]W",
+        "motif": "TCW",
+        "name": "APOBEC1/3A/B",
+        "position": 1,
+        "ref": "C",
+        "references": " Biochemistry  2011;76:131\u201346. Nat Immunol  2001;2:530\u20136. Biochim Biophys Acta  1992;1171:11\u201318"
+    },
+    {
+        "alt": "K",
+        "logo": "C[C>K]R",
+        "motif": "CCR",
+        "name": "APOBEC3G",
+        "position": 1,
+        "ref": "C",
+        "references": " Biochemistry  2011;76:131\u201346"
+    },
+    {
+        "alt": "T",
+        "logo": "[C>T]G",
+        "motif": "CG",
+        "name": "C>T in CpG",
+        "position": 0,
+        "ref": "C",
+        "references": "Hum Genet  1988;78:151\u20135"
+    },
+    {
+        "alt": "T",
+        "logo": "Y[C>T]",
+        "motif": "YC",
+        "name": "UV Light",
+        "position": 1,
+        "ref": "C",
+        "references": "JNCL Natl Cancer Inst (2018)"
+    },
+    {
+        "alt": "T",
+        "logo": "W[A>T]",
+        "motif": "WA",
+        "name": "Pol Eta",
+        "position": 1,
+        "ref": "A",
+        "references": "Nat Genet  2013;45:970\u20136"
+    },
+    {
+        "alt": "S",
+        "logo": "W[R>S]C",
+        "motif": "WRC",
+        "name": "AID       ",
+        "position": 1,
+        "ref": "R",
+        "references": "Nature  2003;424:103\u20137"
+    },
+    {
+        "alt": "T",
+        "logo": "T[G>T]C",
+        "motif": "TGC",
+        "name": "Tobacco       ",
+        "position": 1,
+        "ref": "G",
+        "references": "Nature  2013;500:415-21"
+    }
+]
