@@ -17,6 +17,15 @@ New features should have test code sent with them.
 Changes
 =======
 
+0.9.0dev1 Testing release
+-----------------------
+* Simplified command-line interface in all subpackages, e.g. 'mutagene motif search' is now simply 'mutagene motif'
+* Added aliases for subpackages, e.g. fetch = download
+* Enabled access to benchmark functions
+* Added support for bootstrapping in signature decomposition of multiple MAF samples
+* Performance optimizations in motif search
+* Python 3.8.1 compatibility
+
 0.8.6.5 Bug-Fix Release
 -----------------------
 * MAF file loading improved for GDC and MSKCC data sources. More meaningfull error messages

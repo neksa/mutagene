@@ -14,6 +14,7 @@ from mutagene.cli.motif_menu import MotifMenu
 from mutagene.cli.profile_menu import ProfileMenu
 from mutagene.cli.signature_menu import SignatureMenu
 from mutagene.cli.rank_menu import RankMenu
+from mutagene.cli.benchmark_menu import BenchmarkMenu
 
 import logging
 logger = logging.getLogger(__name__)
@@ -43,24 +44,35 @@ class MutaGeneApp(object):
         parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS,
                             help='Show this help message and exit')
 
-        subparsers = parser.add_subparsers(help="", description="""\
-        fetch - Load data such as genomes and cancer datasets from demote sources
+        subparsers = parser.add_subparsers(
+            help="",
+            metavar='{fetch, profile, rank, motif, signature}',
+            description="""\
+        fetch - Load data such as genomes and cancer datasets from demote sources (alias: download)
         profile - Create a mutational profile given a sample with mutations
         rank - Predict driver mutations by ranking observed mutations with respect to their expected mutability
         motif - Test samples for presence of mutational motifs
-        signature - Identify activity of existing mutational signatures in samples or derive new signatures\
+        signature - Identify activity of existing mutational signatures in samples or derive new signatures (aliases: identify, decompose)\
             """, dest='command', title='Choose MutaGene subpackage')
 
         parser_mapping = {
-            'fetch': FetchMenu,
-            'profile': ProfileMenu,
-            'rank': RankMenu,
-            'motif': MotifMenu,
-            'signature': SignatureMenu,
+            'fetch': {'class': FetchMenu, 'aliases': ['download']},
+            'profile': {'class': ProfileMenu, 'aliases': []},
+            'rank': {'class': RankMenu, 'aliases': ['driver']},
+            'motif': {'class': MotifMenu, 'aliases': []},
+            'signature': {'class': SignatureMenu, 'aliases': ['identify', 'decompose']},
+            'benchmark': {'class': BenchmarkMenu, 'aliases': []},
         }
 
         for command, menu in parser_mapping.items():
-            menu(subparsers.add_parser(command))
+            # initialize parser object for each subparser
+            parser_mapping[command]['parser'] = menu['class'](
+                subparsers.add_parser(
+                    command,
+                    add_help=True,
+                    aliases=menu['aliases'],
+                    formatter_class=argparse.RawDescriptionHelpFormatter,
+                ))
 
         args = parser.parse_args()
 
@@ -74,7 +86,22 @@ class MutaGeneApp(object):
         logging.basicConfig(level=level,
                             format="%(levelname)s %(message)s")
 
-        parser_mapping[args.command].callback(args)
+        # Calling callback method for parser object by command name or alias
+        parser_class = None
+        if args.command in parser_mapping:
+            parser_class = parser_mapping[args.command]['parser']
+        else:
+            for command, mapping in parser_mapping.items():
+                if args.command in mapping['aliases']:
+                    parser_class = mapping['parser']
+                    break
+
+        # should not happen if we have a correct name or an alias for a command
+        if not parser_class:
+            parser.print_help()
+            sys.exit(1)
+
+        parser_class.callback(args)
 
     @classmethod
     def signal_handler(cls, signal, frame):

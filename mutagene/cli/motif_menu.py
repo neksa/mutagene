@@ -4,8 +4,7 @@ import logging
 
 from mutagene.io.context_window import read_MAF_with_context_window, read_VCF_with_context_window
 from mutagene.motifs import identify_motifs
-from mutagene.io.motifs import write_motif_matches
-from mutagene.motifs import motifs as list_of_motifs
+from mutagene.io.motifs import write_motif_matches, get_known_motifs
 
 
 logger = logging.getLogger(__name__)
@@ -15,19 +14,17 @@ genome_error_message = """requires genome name argument -g hg19, hg38, mm10, see
 
 class MotifMenu(object):
     def __init__(self, parser):
-
-        parser.description = "Motif function requires: mutagene motif <action (search or list)>, " \
-                             "if search is specified, infile & genome are also required"
+        parser.description = ""
         parser.epilog = """
-                        Examples:
-                        # search for the presence of the C[A>T] motif in sample1.maf using hg19
-                        mutagene motif search -i sample1.maf -g hg19 -m 'C[A>T]'
-                        # search in sample2.vcf for all preidentified motifs in mutagene using hg18
-                        mutagene motif search -i sample2.vcf -g hg18
-                        """
+Examples:
+# search in sample2.vcf for all preidentified motifs in mutagene using hg18
+mutagene motif -i sample2.vcf -f VCF -g hg18
 
-        parser.add_argument('action', choices=['search', 'list'], help="search for a motif, list all predefined motifs")
+# search for the presence of the C[A>T] motif in sample1.maf using hg19
+mutagene motif -i sample1.maf -f MAF -g hg19 -m 'C[A>T]'
+        """
 
+        ###################################################################
         required_group = parser.add_argument_group('Required arguments')
         required_group.add_argument(
             "--infile", "-i", help="Input file in MAF or VCF format with one or multiple samples",
@@ -35,6 +32,7 @@ class MotifMenu(object):
         required_group.add_argument(
             '--genome', "-g", help="Location of genome assembly file in 2bit format", type=str)
 
+        ###################################################################
         optional_group = parser.add_argument_group('Optional arguments')
         optional_group.add_argument('--input-format', "-f", help="Input format: MAF, VCF", type=str, choices=['MAF', 'VCF'], default='MAF')
         optional_group.add_argument(
@@ -44,6 +42,7 @@ class MotifMenu(object):
             '--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout,
             help="Name of output file, will be generated in TSV format")
 
+        ###################################################################
         advanced_group = parser.add_argument_group('Advanced arguments')
         advanced_group.add_argument(
             '--window-size', "-w", help="Context window size for motif search, default setting is 50",
@@ -57,9 +56,10 @@ class MotifMenu(object):
             help="Significance threshold for qvalues, default value=0.05",
             type=float, default=0.05)
 
+        self.parser = parser
+
     @classmethod
     def search(cls, args):
-        assert args.action == 'search'
         if not args.infile:
             logger.warning("Provide input file in VCF or MAF format (-i) and a corresponding genome assembly (-g)")
             return
@@ -92,52 +92,51 @@ class MotifMenu(object):
             logger.warning('window-size should be between 1 and 250 nucleotides')
             return
 
-        if args.input_format == 'VCF':
-            mutations, mutations_with_context, processing_stats = read_VCF_with_context_window(
-                args.infile, args.genome, args.window_size)
-        elif args.input_format == 'MAF':
-            mutations, mutations_with_context, processing_stats = read_MAF_with_context_window(
-                args.infile, args.genome, args.window_size)
+        try:
+            if args.input_format == 'VCF':
+                mutations, mutations_with_context, processing_stats = read_VCF_with_context_window(
+                    args.infile, args.genome, args.window_size)
+            elif args.input_format == 'MAF':
+                mutations, mutations_with_context, processing_stats = read_MAF_with_context_window(
+                    args.infile, args.genome, args.window_size)
+        except ValueError as e:
+            logger.warning('Not able to parse input file in {} format: {}. You can specify a different format with --input-format (-f)'.format(args.input_format, e))
+            sys.exit(1)
 
         if len(mutations_with_context) == 0:
             logger.warning("No mutations loaded")
 
+        #### Performance PROFILING
+        # import cProfile
+        # import pstats
+        # pr = cProfile.Profile()
+        # pr.enable()
+
         matching_motifs = identify_motifs(mutations_with_context, custom_motif,
                                           args.strand, args.threshold) if mutations_with_context is not None else []
+
+        #### Performance PROFILING
+        # pr.disable()
+        # p = pstats.Stats(pr)
+        # p.sort_stats('ncalls').print_stats(20)  # strip_dirs()
 
         if len(matching_motifs) == 0:
             logger.warning("No significant motif matches found")
         else:
             write_motif_matches(args.outfile, matching_motifs)
 
-    @classmethod
-    def list(cls, args):
-        assert args.action == 'list'
-        if args.genome:
-            logger.warning("Genome argument not accepted for motif list")
-
-        if args.infile:
-            logger.warning("Infile argument not accepted for motif list")
-
-        if args.motif:
-            logger.warning("Motif argument not accepted for motif list")
-
-        if args.window_size != 50:  # default window size parameter
-            logger.warning("Window size argument not accepted for motif list")
-
-        if args.strand != '+-=':  # default strand parameter
-            logger.warning("Strand argument not accepted for motif list")
-
-        if args.threshold != "0.05":  # default threshold parameter
-            logger.warning("Threshold argument not accepted for motif list")
-
-        if args.outfile != sys.stdout:  # default outfile parameter
-            logger.warning("Outfile: argument not accepted for motif list")
-
-        for m in list_of_motifs:
+    def list(self, args):
+        """ Prints the list of known motifs bundled with the package"""
+        print("\nThe list of mutational motifs that will be tested by default:")
+        for m in get_known_motifs():
             print("{:20}\t{}".format(m['name'], m['logo']))
+        print("any custom motif can be specified with --motif (-m)")
 
-    @classmethod
-    def callback(cls, args):
-        # print('MotifMenu', args.action)
-        getattr(cls, args.action)(args)
+    def callback(self, args):
+        # getattr(cls, args.action)(args)
+        if args.infile:
+            MotifMenu.search(args)
+        else:
+            self.parser.print_usage()
+            self.list(args)
+            sys.exit(1)
