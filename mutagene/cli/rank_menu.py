@@ -31,19 +31,7 @@ class RankMenu(object):
         parser.add_argument('--threshold-driver', "-td", help="BScore threshold between Driver and Pontential Driver mutations", type=float, default=THRESHOLD_DRIVER)
         parser.add_argument('--threshold-passenger', "-tp", help="BScore threshold between Pontential Driver and Passenger mutations", type=float, default=THRESHOLD_PASSENGER)
 
-    @classmethod
-    def callback(cls, args):
-        # print('RankMenu', args.infile)
-        # if not args.resource:
-        #     logger.warning('No resource specified')
-        #     sys.exit(1)
-
-        # getattr(cls, args.resource)(args)
-
-        # if args.mode == 'na':
-        #     logger.warning('DNA mutations ranking not supported')
-        #     return
-
+    def callback(self, args):
         if not args.genome:
             logger.warning(genome_error_message)
             return

@@ -21,7 +21,6 @@ genome_error_message = """requires genome name argument -g hg19, hg38, mm10, see
 
 class SignatureMenu(object):
     def __init__(self, parser):
-        parser.add_argument('action', choices=['identify', 'new'])
         required_group = parser.add_argument_group('Required arguments')
         required_group.add_argument("--infile", "-i", help="Input file in VCF or MAF format", type=argparse.FileType('r'))
         required_group.add_argument('--genome', "-g", help="Location of genome assembly file in 2bit format", type=str)
@@ -37,9 +36,9 @@ class SignatureMenu(object):
         advanced_group.add_argument('--method', "-m", help="Method defines the function minimized in the optimization procedure", type=str, default='MLEZ', nargs='?')
         advanced_group.add_argument('--no-unexplained-variance', "-U", help="Do not account for unexplained variance (non-context dependent mutational processes and unknown signatures)", action='store_false')
         advanced_group.add_argument('--bootstrap', "-b", help="Use the bootstrap to calculate confidence intervals", action='store_true')
+        self.parser = parser
 
-    @classmethod
-    def identify(cls, args):
+    def identify(self, args):
         if not args.infile:
             logger.warning("Provide input file in VCF or MAF format (-i) and a corresponding genome assembly (-g)")
             return
@@ -102,13 +101,5 @@ class SignatureMenu(object):
                     bootstrap_results.append(results)
                 write_bootstrap_decomposition(args.outfile, bootstrap_results, signature_names, 'VCF')
 
-
-    @classmethod
-    def new(cls, args):
-        logger.warning("Method to find new signatures will be added to the package in the next release")
-        return
-
-    @classmethod
-    def callback(cls, args):
-        # print('SignatureMenu', args.action)
-        getattr(cls, args.action)(args)
+    def callback(self, args):
+        self.identify(args)
