@@ -6,12 +6,25 @@ amino_acids = "ACDEFGHIKLMNPQRSTVWY"
 amino_acids_with_stop = amino_acids + "*"
 # complementary_nucleotides = reversed(nucleotides)
 complementary_nucleotide = dict(zip(nucleotides, reversed(nucleotides)))
+complementary_nucleotide['N'] = 'N'
+
 complementary_context = {x: complementary_nucleotide[x[1]] + complementary_nucleotide[x[0]] for x in mutation_contexts}
 complementary_trinucleotide = dict(zip(
     ["".join(x) for x in product(nucleotides, repeat=3)],
     ["".join(reversed(x)) for x in product(reversed(nucleotides), repeat=3)]))
 
-# print(complementary_trinucleotide)
+bases_dict = {
+    "A": "A", "G": "G", "T": "T", "C": "C",
+    "W": "AT", "S": "CG", "M": "AC", "K": "GT", "R": "AG", "Y": "CT",
+    "B": "TCG", "D": "AGT", "H": "ACT", "V": "ACG", "N": "ATGC"}
+
+extended_nucleotides = "ACTGWSMKRYBDHVN"
+complementary_extended_nucleotide = dict(zip(extended_nucleotides, "TGACWSKMYRVHDBN"))
+
+comp_dict = {
+    "A": "T", "T": "A", "C": "G", "G": "C",
+    "W": "AT", "S": "CG", "K": "AC", "M": "GT", "Y": "AG", "R": "CT",
+    "V": "TCG", "H": "AGT", "D": "ACT", "B": "ACG", "N": "ATGC"}
 
 codon_table = {
     "GCT": "A", "GCC": "A", "GCA": "A", "GCG": "A",

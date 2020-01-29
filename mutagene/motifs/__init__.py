@@ -5,93 +5,20 @@ from statsmodels.stats.multitest import multipletests
 import numpy as np
 import pandas as pd
 
+from tqdm import tqdm
+# import functools
 import pprint
+
+from mutagene.dna import (
+    nucleotides, complementary_nucleotide,
+    bases_dict,
+    # comp_dict,
+    extended_nucleotides, complementary_extended_nucleotide)
+
+from mutagene.io.motifs import get_known_motifs
+
 import logging
-
 logger = logging.getLogger(__name__)
-
-nucleotides = "ACGT"  # this order of nucleotides is important for reversing
-complementary_nucleotide = dict(zip(nucleotides, reversed(nucleotides)))
-complementary_nucleotide['N'] = 'N'
-
-bases_dict = {
-    "A": "A", "G": "G", "T": "T", "C": "C",
-    "W": "AT", "S": "CG", "M": "AC", "K": "GT", "R": "AG", "Y": "CT",
-    "B": "TCG", "D": "AGT", "H": "ACT", "V": "ACG", "N": "ATGC"}
-
-extended_nucleotides = "ACTGWSMKRYBDHVN"
-complementary_extended_nucleotide = dict(zip(extended_nucleotides, "TGACWSKMYRVHDBN"))
-
-comp_dict = {
-    "A": "T", "T": "A", "C": "G", "G": "C",
-    "W": "AT", "S": "CG", "K": "AC", "M": "GT", "Y": "AG", "R": "CT",
-    "V": "TCG", "H": "AGT", "D": "ACT", "B": "ACG", "N": "ATGC"}
-
-motifs = [
-    {
-        'name': 'APOBEC1/3A/B',
-        'logo': 'T[C>K]W',
-        'motif': 'TCW',
-        'position': 1,
-        'ref': 'C',
-        'alt': 'K',
-        'references': ' Biochemistry  2011;76:131–46. Nat Immunol  2001;2:530–6. Biochim Biophys Acta  1992;1171:11–18'
-    },
-    {
-        'name': 'APOBEC3G',
-        'logo': 'C[C>K]R',
-        'motif': 'CCR',
-        'position': 1,
-        'ref': 'C',
-        'alt': 'K',
-        'references': ' Biochemistry  2011;76:131–46'
-    },
-    {
-        'name': 'C>T in CpG',
-        'logo': '[C>T]G',
-        'motif': 'CG',
-        'position': 0,
-        'ref': 'C',
-        'alt': 'T',
-        'references': 'Hum Genet  1988;78:151–5'
-    },
-    {
-        'name': 'UV Light',
-        'logo': 'Y[C>T]',
-        'motif': 'YC',
-        'position': 1,
-        'ref': 'C',
-        'alt': 'T',
-        'references': 'JNCL Natl Cancer Inst (2018)'
-    },
-    {
-        'name': 'Pol Eta',
-        'logo': 'W[A>T]',
-        'motif': 'WA',
-        'position': 1,
-        'ref': 'A',
-        'alt': 'T',
-        'references': 'Nat Genet  2013;45:970–6'
-    },
-    {
-        'name': 'AID       ',
-        'logo': 'W[R>S]C',
-        'motif': 'WRC',
-        'position': 1,
-        'ref': 'R',
-        'alt': 'S',
-        'references': 'Nature  2003;424:103–7'
-    },
-{
-        'name': 'Tobacco       ',
-        'logo': 'T[G>T]C',
-        'motif': 'TGC',
-        'position': 1,
-        'ref': 'G',
-        'alt': 'T',
-        'references': 'Nature  2013;500:415-21'
-    },
-]
 
 
 def identify_motifs(samples_mutations, custom_motif=None, strand=None, threshold=None):
@@ -114,16 +41,17 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None, threshold
     if custom_motif:
         search_motifs = scanf_motif(custom_motif)
     else:
+        motifs = get_known_motifs()
         search_motifs = motifs.copy()
     # search_motifs.extend(scanf_motif(custom_motif))
 
-    for sample, mutations in samples_mutations.items():
+    for sample, mutations in tqdm(samples_mutations.items(), leave=False):
         # print(sample, len(mutations))
         if mutations is not None and len(mutations) > 0:
             first_mut_seq_with_coords = mutations[0][-1]
             window_size = (len(first_mut_seq_with_coords) - 1) // 2
 
-            for m in search_motifs:
+            for m in tqdm(search_motifs, leave=False):
                 for s in strand:
                     # print("IDENTIFYING MOTIF: ", m['name'])
                     result = process_mutations(mutations, m['motif'], m['position'], m['ref'], m['alt'], window_size, s)
@@ -138,13 +66,13 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None, threshold
 
                     motif_matches.append({
                         'sample': sample,
-                        'name': m['name'],
+                        'mutagen': m['name'],
                         'motif': m['logo'],
                         'strand': s,
                         'enrichment': result['enrichment'],
-                        'mutations_low_est': result['mutation_load'],
-                        'mutations_high_est': result['bases_mutated_in_motif'],
-                        'odds ratio': result['odds_ratio'],
+                        'mut_min': result['mutation_load'],
+                        'mut_max': result['bases_mutated_in_motif'],
+                        'odds_ratio': result['odds_ratio'],
                         'pvalue': result['pvalue']
                     })
                     pvals.append(result['pvalue'])
@@ -152,7 +80,7 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None, threshold
     qvalues = get_corrected_pvalues(pvals)
     for i, motif_dict in enumerate(motif_matches):
         motif_matches[i]['qvalue'] = qvalues[i]
-        if motif_dict['mutations_low_est'] == 0:
+        if motif_dict['mut_min'] == 0:
             continue
         if motif_dict['qvalue'] >= threshold:
             continue
@@ -273,14 +201,15 @@ def get_corrected_pvalues(p_values):
     return qvalues
 
 
+# @functools.lru_cache(maxsize=None)
 def get_rev_comp_seq(sequence):
     """
     :param sequence: forward DNA sequence
     :return: reverse complimentary DNA sequence
     """
     # rev_comp_seq = "".join([complementary_nucleotide[i] for i in reversed(sequence)])
-    rev_comp_seq = [(i[0], i[1], complementary_nucleotide[i[2]], "-") for i in reversed(sequence)]
-    return rev_comp_seq
+    cn = complementary_nucleotide
+    return [(i[0], i[1], cn[i[2]], '-') for i in reversed(sequence)]
 
 
 def mutated_base(mutation, ref, alt):
@@ -303,13 +232,15 @@ def find_matching_motifs(seq, motif, motif_position):
     :param seq: DNA sequence
     :param motif: specified motif
     :param motif_position: position of mutated base in motif, 0-base numbering
-    :return: True if motif is present in sequence
+    :return: generator of matching positions
+
+    TODO: SLOW algorithm O(n * m). Need to create a suffix tree with regexp
     """
     # print("Looking for motif {} in {}, {}".format(motif, sequence, len(sequence) - len(motif)))
     for i in range(len(seq) - len(motif) + 1):
-        s = seq[i: i + len(motif)]
-        for j, char in enumerate(motif):
-            if s[j][2] not in bases_dict[char]:
+        # s = seq[i: i + len(motif)]
+        for j, c in enumerate(motif):
+            if seq[i + j][2] not in bases_dict[c]:
                 break
         else:
             yield seq[i + motif_position]
@@ -325,8 +256,7 @@ def find_matching_bases(seq, ref, motif, motif_position):
     """
     for i in range(motif_position, len(seq) - (len(motif) - motif_position) + 1):
         # range excludes border of sequence that may be motifs that don't fit window size
-        s = seq[i][2]
-        if s in bases_dict[ref]:
+        if seq[i][2] in bases_dict[ref]:
             yield seq[i]
 
 
@@ -430,7 +360,7 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
     logger.debug("\n" + table.to_string() + "\n")
 
     result = {
-        'enrichment': enrichment,
+        'enrichment': enrichment,  # AKA risk ratio
         'odds_ratio': odds_ratio,
         'mutation_load': math.ceil(mut_load),
         'pvalue': p_val,
