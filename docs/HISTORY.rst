@@ -17,10 +17,13 @@ New features should have test code sent with them.
 Changes
 =======
 
+0.8.6.5 Bug-Fix Release
+-----------------------
+* MAF file loading improved for GDC and MSKCC data sources. More meaningfull error messages
+
 0.8.6.4 Release
 -----------------------
 * testing and development releases are not available in pip mirrors, bumping version
-
 
 0.8.6.4dev1 Testing release
 -----------------------

@@ -26,7 +26,7 @@ def get_context_twobit_window(mutations, twobit_file, window_size):
 
     cn = complementary_nucleotide
     for (chrom, pos, transcript_strand, x, y) in mutations:
-        start = int(pos) - 1  # zero-based numbering
+        start = int(pos) - 1  # 2bit uses zero-based numbering
         chrom = str(chrom)
 
         chromosome = chrom if chrom.startswith('chr') else 'chr' + chrom
@@ -39,9 +39,10 @@ def get_context_twobit_window(mutations, twobit_file, window_size):
                 assert len(seq) == window_size * 2 + 1
                 seq = seq.upper()
             except Exception as e:
-                logger.warning("TwoBit exception: ", str(e), (chrom, pos, x, y))
+                logger.warning("TwoBit exception while reading the genome in {}:{}: {}".format(chrom, pos, e))
+                continue
         else:
-            logger.debug("NO CHROM " + chromosome)
+            logger.warning("Chromosome {} not found in 2bit file. Consider renaming it or using a different genome assembly".format(chromosome))
             continue
 
         strand = transcript_strand
@@ -49,7 +50,9 @@ def get_context_twobit_window(mutations, twobit_file, window_size):
             cycle([chrom]),
             range(pos - window_size, pos + window_size + 1),
             seq,
-            cycle(strand)))
+            cycle([strand])))
+
+        assert len(seq_with_coords) == len(seq)
 
         nuc3 = seq_with_coords[window_size - 1][2]
         nuc = seq_with_coords[window_size][2]
@@ -59,10 +62,13 @@ def get_context_twobit_window(mutations, twobit_file, window_size):
             if cn[nuc] == x:
                 nuc3 = cn[nuc5]
                 nuc5 = cn[nuc3]
-                print('debug: complementary REF sequence detected')
+                # print('debug: complementary REF sequence detected')
             else:
-                print("{}:{}  {}>{}   {}[{}]{}".format(chromosome, pos, x, y, nuc5, nuc, nuc3))
+                # print("{}:{}  {}>{}   {}[{}]{}".format(chromosome, pos, x, y, nuc5, nuc, nuc3))
                 nuc3 = nuc5 = 'N'
+            logger.warning(
+                "REF allele does not match the genomic sequence in {}:{} {}!={}. It could be the sign of an incorrect genome assembly".format(
+                    chromosome, pos, x, nuc))
         contexts[(chrom, pos)] = (nuc5, nuc3), seq_with_coords
     return contexts
 
@@ -85,8 +91,8 @@ def read_MAF_with_context_window(infile, asm, window_size):
         # print(header)
         MAF = namedtuple("MAF", header, rename=True)
     except ValueError:
-        raise
         logger.warning("MAF format not recognized")
+        raise
         return mutations, {}, processing_stats
 
     raw_mutations = defaultdict(list)
@@ -96,7 +102,6 @@ def read_MAF_with_context_window(infile, asm, window_size):
 
         # chromosome is expected to be one or two number or one letter
         if hasattr(data, 'chromosome'):
-
             chrom = data.chromosome  # MAF CHROM
         else:
             raise ValueError('Chromosome is not defined in MAF file')
@@ -139,6 +144,19 @@ def read_MAF_with_context_window(infile, asm, window_size):
 
         if hasattr(data, 'transcript_strand'):
             transcript_strand = data.transcript_strand
+            # GDC uses 1 and -1
+            if transcript_strand == '+':
+                pass
+            if transcript_strand == '-':
+                pass
+            elif transcript_strand == '1':
+                transcript_strand = '+'
+            elif transcript_strand == '-1':
+                transcript_strand = '-'
+            elif transcript_strand == '':
+                transcript_strand = '+'  # default value
+            else:
+                raise ValueError('Unexpected value of transcription_strand in MAF file')
         else:
             # this is an incorrect assumption about transcription strand
             transcript_strand = '+'
@@ -258,5 +276,10 @@ def read_VCF_with_context_window(infile, asm, window_size):
         N_loaded += int(sum(sample_mutations.values()))
 
     nsamples = len(mutations.keys())
-    processing_stats = {'loaded': N_loaded, 'skipped': N_skipped, 'format': 'VCF', 'nsamples': nsamples}
+    processing_stats = {
+        'loaded': N_loaded,
+        'skipped': N_skipped,
+        'format': 'VCF',
+        'nsamples': nsamples
+    }
     return mutations, mutations_with_context, processing_stats
