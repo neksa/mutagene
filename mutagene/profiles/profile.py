@@ -25,9 +25,7 @@ def calc_profile(infile, outfile, genome, fmt='auto'):
         logger.warn('Can not create profile')
         return
     profile = get_mutational_profile(all_mutations, counts=True)
-    # print(profile)
     write_profile_file(outfile, profile)
-    # print(profile)
 
 
 def get_mutational_profile(mutational_profile_dict, counts=False):
@@ -45,7 +43,6 @@ def get_mutational_profile(mutational_profile_dict, counts=False):
         # trinucleotide_freq = exome_trinucleotide_freq[trinucleotide]
         # values.append(3.0 * freq / trinucleotide_freq)
         values.append(freq)
-    # print(values)
     return values
 
 
@@ -53,7 +50,6 @@ def get_multisample_mutational_profile(samples_mutations, counts=False):
     samples_profiles = {}
 
     for sample, mutations in samples_mutations.items():
-        # print(mutations)
         samples_profiles[sample] = get_mutational_profile(mutations, counts)
 
     return samples_profiles
@@ -61,9 +57,7 @@ def get_multisample_mutational_profile(samples_mutations, counts=False):
 
 def generate_resampled_profiles(profile, k):
     profile = np.array(profile)
-    # print(profile)
     N = np.sum(profile)
     new_profiles = multinomial(N, profile / N, size=k)
-    # print(new_profiles)
     for i in range(k):
         yield new_profiles[i]

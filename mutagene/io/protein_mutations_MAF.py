@@ -1,6 +1,7 @@
 # import os
 import csv
 # import numpy as np
+
 import twobitreader as tbr
 
 # from collections import defaultdict

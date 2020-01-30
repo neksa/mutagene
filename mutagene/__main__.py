@@ -10,15 +10,15 @@ from mutagene.version import __version__
 # from mutagene.io.decomposition import write_decomposition
 
 from mutagene.cli.fetch_menu import FetchMenu
-from mutagene.cli.motif_menu import MotifMenu
 from mutagene.cli.profile_menu import ProfileMenu
+from mutagene.cli.motif_menu import MotifMenu
 from mutagene.cli.signature_menu import SignatureMenu
 from mutagene.cli.rank_menu import RankMenu
 from mutagene.cli.benchmark_menu import BenchmarkMenu
 
 import logging
-logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
 
 genome_error_message = 'requires genome name argument -g hg19, hg38, mm10, see http://hgdownload.cse.ucsc.edu/downloads.html for more'
 

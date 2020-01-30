@@ -15,6 +15,7 @@ from mutagene.io.decomposition import write_bootstrap_decomposition
 
 
 logger = logging.getLogger(__name__)
+
 genome_error_message = """requires genome name argument -g hg19, hg38, mm10, see http://hgdownload.cse.ucsc.edu/downloads.html for more
                           Use mutagene fetch to download genome assemblies"""
 
@@ -61,12 +62,10 @@ class SignatureMenu(object):
 
         if args.input_format == 'MAF':
             mutations, mutations_with_context, processing_stats = read_MAF_with_context_window(args.infile, args.genome, window_size=1)
-            # print(W, signature_names)
             samples_profiles = get_multisample_mutational_profile(mutations, counts=True)
 
             samples_results = {}
             for sample, profile in samples_profiles.items():
-                # print(profile)
                 _, _, results = decompose_mutational_profile_counts(
                     profile,
                     (W, signature_names),
@@ -88,7 +87,6 @@ class SignatureMenu(object):
             else:
                 bootstrap_results = []
                 for resampled_profile in generate_resampled_profiles(profile, 100):
-                    # print(resampled_profile)
                     _, _, results = decompose_mutational_profile_counts(
                         resampled_profile,
                         (W, signature_names),
