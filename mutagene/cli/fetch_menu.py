@@ -82,7 +82,6 @@ Partial download is supported: if the process is interrupted run the same comman
 
     @classmethod
     def genome(cls, args):
-        # print('Genome', args)
         if args.resource == 'genome':
             if not args.genome:
                 logger.warning(genome_error_message)
@@ -90,11 +89,9 @@ Partial download is supported: if the process is interrupted run the same comman
             fetch_genome(args.genome)
             logger.info("Twobit file saved to current directory")
 
-    @classmethod
-    def callback(cls, args):
+    def callback(self, args):
         if not args.resource:
             logger.warning('No resource specified')
             sys.exit(1)
 
-        # print('FetchMenu', args.resource)
-        getattr(cls, args.resource)(args)
+        getattr(self, args.resource)(args)
