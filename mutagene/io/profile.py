@@ -92,7 +92,7 @@ def read_COSMIC3_signatures():
     signature_names = []
     with open(fname, 'r') as f:
         for i, line in enumerate(f):
-            fields = line.strip().split(',')   
+            fields = line.strip().split(',')
             if i == 0:
                 signature_names = fields[2:]
                 continue
@@ -118,12 +118,63 @@ def read_COSMIC3_signatures():
     return W, signature_names
 
 
+def read_Kucab_signatures():
+    """
+    A compendium of mutational signatures of environmental agents Kucab et al.  Serena Nik-Zainal
+    DOI: 10.17632/m7r4msjb4c.2
+    https://data.mendeley.com/datasets/m7r4msjb4c/2#folder-9f2942fa-935b-4ac3-aa26-35784fb68a85
+
+    MutationType    Potassium bromate (875 uM)  DBADE (0.109 uM)    Formaldehyde (120 uM)   Semustine (150 uM)  Temozolomide (200 uM)   DMH (11.6 mM) + S9  Benzidine (200 uM)  DBP (0.0039 uM) MX (7 uM) + S9  Methyleugenol (1.25 mM) 4-ABP (300 uM) + S9 DBPDE (0.000156 uM) DBP (0.0313 uM) + S9    DBADE (0.0313 uM)   1,8-DNP (0.125 uM)  BPDE (0.125 uM) MNU (350 uM)    ENU (400 uM)    Cyclophosphamide (18.75 uM) + S9    BaP (0.39 uM) + S9  6-Nitrochrysene (12.5 uM) + S9  AAI (1.25 uM)   Potassium bromate (260 uM)  6-Nitrochrysene (0.78 uM)   Ellipticine (0.375 uM) + S9 DBA (75 uM) + S9    PhIP (3 uM) + S9    AFB1 (0.25 uM) + S9 3-NBA (0.025 uM)    1,6-DNP (0.09 uM)   5-Methylchrysene (1.6 uM) + S9  Furan (100 mM) + S9 SSR (1.25 J)    AAII (37.5 uM)  Propylene oxide (10 mM) N-Nitrosopyrrolidine (50 mM)    Mechlorethamine (0.3 uM)    DES (0.938 mM)  DMS (0.078 mM)  Cisplatin (3.125 uM)    OTA (0.08 uM) + S9  Carboplatin (5 uM)  DBAC (5 uM) + S9    Temozolomide (200 uM).1 Cisplatin (12.5 uM) AZD7762 (1.625 uM)  3-NBA (0.1 uM)  PhIP (4 uM) + S9    BaP (2 uM) + S9 6-Nitrochrysene (50 uM) + S9    6-Nitrochrysene (50 uM) 1,8-DNP (8 uM)  DBPDE (0.000625 uM) Control
+    A[C>A]A 0.109398510425891   0.0240330588511261  0.0181865586268237  0.000122421190463747    0   0.00665025743214769 0.0564462237667514  0   0.0494977586860332  0.111458492403729   0.00483165426221388 0.0002218019424568  0.00869925685873544 0.0264652966450285  0.0195599544767651  0.0237017339519746  0.00262256704780487 0.0130480902574389  0.00555898815479868 0.0406568174086766  0.0100871864208784  0.00428520931740606 0.114738757387778   0.00515014598157648 0.0482801050571615  0.0323606741641645  0.0279971115871403  0.0379396506608179  0.000340069771278152    0.000751844456779883    0.0286278352872072  0.0503953181060661  2.22941465639634e-05    0.000162365803469566    0.0104143358776828  0.00685630323850839 0.000133921576621699    0.014166642071802   0.000461507809128427    0.00279492689318811 0.11584205195812    0.00194170922837543 0.00673772703708239 0.000256609057933161    1.12145020078519e-05    0.000395123818576932    0.0258298926507019  0.032667880519281   0.0283815533748292  0.00855231498108648 0.00555769823738427 0.0180349250334742  0.0186419336589614  0.0605073306958345
+    """
+    mutations = defaultdict(dict)
+    dirname = os.path.dirname(os.path.realpath(__file__))
+    fname = os.path.normpath(dirname + "/../data/signatures/Kucab.txt")
+    signature_names = []
+    with open(fname, 'r') as f:
+        for i, line in enumerate(f):
+            fields = line.strip().split("\t")
+            if i == 0:
+                signature_names = fields[1:]
+                continue
+
+            # parse A[C>A]A
+            m = fields[0]
+            p5 = m[0]
+            assert m[1] == '['
+            x = m[2]
+            assert m[3] == '>'
+            y = m[4]
+            assert m[5] == ']'
+            p3 = m[6]
+
+            for j, val in enumerate(fields[1:]):
+                val = float(val)
+                mutations[j][p5 + p3 + x + y] = val
+
+    W = []
+    for j in range(len(signature_names)):
+        profile = []
+        for p5 in nucleotides:
+            for p3 in nucleotides:
+                for x in "CT":
+                    for y in nucleotides:
+                        if x != y:
+                            profile.append(mutations[j].get(p5 + p3 + x + y, 0.0))
+        W.append(profile)
+    W = np.array(W).T
+    return W, signature_names
+
+
 def read_signatures(n_signatures):
-    signatures_dict = {5: 'A', 10: 'B', 30: 'C', 49: 'C3'}
+    signatures_dict = {5: 'A', 10: 'B', 30: 'C', 49: 'C3', 53: 'Kucab'}
     assert n_signatures in signatures_dict
 
     if n_signatures == 49:
         return read_COSMIC3_signatures()
+
+    if n_signatures == 53:
+        return read_Kucab_signatures()
 
     dirname = os.path.dirname(os.path.realpath(__file__))
 

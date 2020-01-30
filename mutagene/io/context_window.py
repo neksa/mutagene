@@ -75,6 +75,118 @@ def get_context_twobit_window(mutations, twobit_file, window_size):
     return contexts
 
 
+def read_TCGI_with_context_window(infile, asm, window_size):
+    """
+    Tabular file; no particular column order required but must contain header line with four mandatory column names (CHR, POS, REF, ALT) corresponding to the chromosome, position, reference and alternate allele columns, respectively
+    • Optionally, if column name SAMPLE exists, the column is used as sample names, otherwise it is assumed that all variants are in the same sample
+    • Optionally, if column name STRAND exists, the column is used as strandedness of variants (possible values: 1 or + for forward strand, -1 or - for reverse strand), otherwise it is assumed that all variants are described on the forward strand
+    • The file can contain comment lines starting with #
+    • In addition to the CHR, POS, REF and ALT columns, can have extra columns that will also appear in the final TCGI
+    output table
+    • Coordinates must follow the GRCh37 genome build, chromosome names are accepted either with or without the ‘chr’ prefix
+    • Alleles can follow both the Ensembl or VCF convention (e.g. for a deletion, both ‘ATCA to A’ or ‘TCA to –’ forms are accepted)
+
+    https://www.cancergenomeinterpreter.org/images/inputformats.pdf
+    """
+    cn = complementary_nucleotide
+    mutations = defaultdict(lambda: defaultdict(float))
+    N_skipped = 0
+
+    processing_stats = {'loaded': 0, 'skipped': 0, 'nsamples': 0, 'format': 'unknown'}
+    if not infile:
+        logger.warning("No input file")
+        return mutations, {}, processing_stats
+
+    try:
+        reader = csv.reader((row for row in infile if not row.startswith('#')), delimiter='\t')
+        # get names from column headers
+        header = next(reader)
+        header = tuple(map(lambda s: s.lower().replace('.', '_'), header))
+        # print(header)
+        TCGI = namedtuple("TCGI", header, rename=True)
+    except ValueError:
+        logger.warning("TCGI format not recognized")
+        raise
+        return mutations, {}, processing_stats
+
+    raw_mutations = defaultdict(list)
+    # for line in tqdm(infile):
+    for data in tqdm(map(TCGI._make, reader), leave=False):
+        # chromosome is expected to be one or two number or one letter
+        if hasattr(data, 'chrom'):
+            chrom = data.chrom
+        else:
+            raise ValueError('Chromosome is not defined in TCGI file')
+
+        if hasattr(data, 'sample'):
+            sample = data.sample
+        else:
+            sample = "TCGI"
+
+        if hasattr(data, 'ref'):
+            x = data.ref
+        else:
+            raise ValueError('Reference allele (REF) is not defined in TCGI file')
+
+        if hasattr(data, 'alt'):
+            y = data.alt
+        else:
+            raise ValueError('Variant allele is not defined in TCGI file')
+
+        if y is None:
+            continue
+        # skip if found unexpected nucleotide characters
+        if len(set([x, y]) - set(nucleotides)) > 0:
+            continue
+
+        if hasattr(data, 'pos'):
+            try:
+                pos = int(data.pos)
+            except ValueError:
+                raise ValueError('Start position is not a number in TCGI file')
+        else:
+            raise ValueError('Start position is not defined in TCGI file')
+
+        transcript_strand = '+'
+        raw_mutations[sample].append((chrom, pos, transcript_strand, x, y))
+
+    mutations_with_context = defaultdict(list)
+
+    for sample, sample_mutations in raw_mutations.items():
+        if len(sample_mutations) > 0:
+            contexts = get_context_twobit_window(sample_mutations, asm, window_size)
+
+            if contexts is None or len(contexts) == 0:
+                return None, None
+
+            for (chrom, pos, transcript_strand, x, y) in sample_mutations:
+                (p5, p3), seq_with_coords = contexts.get((chrom, pos), (("N", "N"), []))
+
+                if len(set([p5, x, y, p3]) - set(nucleotides)) > 0:
+                    # print("Skipping invalid nucleotides")
+                    N_skipped += 1
+                    continue
+
+                if x in "CT":
+                    mutations[sample][p5 + p3 + x + y] += 1.0
+                else:
+                    # complementary mutation
+                    mutations[sample][cn[p3] + cn[p5] + cn[x] + cn[y]] += 1.0
+                mutations_with_context[sample].append((chrom, pos, transcript_strand, x, y, seq_with_coords))
+
+    N_loaded = 0
+    for sample, sample_mutations in mutations.items():
+        N_loaded += int(sum(sample_mutations.values()))
+
+    processing_stats = {
+        'loaded': N_loaded,
+        'skipped': N_skipped,
+        'nsamples': len(mutations.keys()),
+        'format': 'TCGI'
+    }
+    return mutations, mutations_with_context, processing_stats
+
+
 def read_MAF_with_context_window(infile, asm, window_size):
     cn = complementary_nucleotide
     mutations = defaultdict(lambda: defaultdict(float))
