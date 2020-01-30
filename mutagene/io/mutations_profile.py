@@ -1,6 +1,8 @@
 import csv
 from collections import namedtuple
+
 import twobitreader as tbr
+
 from tqdm import tqdm
 from collections import defaultdict
 
