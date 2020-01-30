@@ -17,6 +17,10 @@ New features should have test code sent with them.
 Changes
 =======
 
+0.8.6.6 Bug-Fix Release
+-----------------------
+* BUGFIX: Mutational profile was not incorrectly calculated for MAF files with multiple samples which affected decomposition for COMIC 30 and 49 signature sets
+
 0.8.6.5 Bug-Fix Release
 -----------------------
 * MAF file loading improved for GDC and MSKCC data sources. More meaningfull error messages

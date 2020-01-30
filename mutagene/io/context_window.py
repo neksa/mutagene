@@ -54,9 +54,9 @@ def get_context_twobit_window(mutations, twobit_file, window_size):
 
         assert len(seq_with_coords) == len(seq)
 
-        nuc3 = seq_with_coords[window_size - 1][2]
+        nuc5 = seq_with_coords[window_size - 1][2]
         nuc = seq_with_coords[window_size][2]
-        nuc5 = seq_with_coords[window_size + 1][2]
+        nuc3 = seq_with_coords[window_size + 1][2]
 
         if nuc != 'N' and nuc != x:
             if cn[nuc] == x:
@@ -67,7 +67,7 @@ def get_context_twobit_window(mutations, twobit_file, window_size):
                 # print("{}:{}  {}>{}   {}[{}]{}".format(chromosome, pos, x, y, nuc5, nuc, nuc3))
                 nuc3 = nuc5 = 'N'
             logger.warning(
-                "REF allele does not match the genomic sequence in {}:{} {}!={}. It could be the sign of an incorrect genome assembly".format(
+                "REF allele does not match the genomic sequence in {}:{} {}!={}. Multiple errors could mean wrong genome assembly choice".format(
                     chromosome, pos, x, nuc))
         contexts[(chrom, pos)] = (nuc5, nuc3), seq_with_coords
     return contexts
