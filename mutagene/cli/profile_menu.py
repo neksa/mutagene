@@ -11,12 +11,14 @@ genome_error_message = """requires genome name argument -g hg19, hg38, mm10, see
 
 class ProfileMenu(object):
     def __init__(self, parser):
-        # parser.add_argument('action', choices=['calculate'])  # , 'plot', 'fingerprint', 'compare'])
         parser.add_argument("--infile", "-i", nargs='*', help="Input file format", type=argparse.FileType('r'))
         parser.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout,
                             help="Name of output file, will be generated in TSV format")
         parser.add_argument('--genome', "-g", help="Location of genome assembly file", type=str)
         parser.add_argument('--input-format', "-f", help="Input format: auto, MAF, VCF", type=str, default='auto')
+
+        # for backwards compatibility with 0.8.X add a hidden action that would just take anything as a valid input
+        parser.add_argument('action', nargs="?", metavar="")
 
     def callback(self, args):
         # print('ProfileMenu', args.action)

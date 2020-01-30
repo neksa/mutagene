@@ -42,6 +42,9 @@ mutagene motif -i sample1.maf -f MAF -g hg19 -m 'C[A>T]'
             '--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout,
             help="Name of output file, will be generated in TSV format")
 
+        # for backwards compatibility with 0.8.X add a hidden action that would just take anything as a valid input
+        optional_group.add_argument('action', nargs="?", metavar="")
+
         ###################################################################
         advanced_group = parser.add_argument_group('Advanced arguments')
         advanced_group.add_argument(
