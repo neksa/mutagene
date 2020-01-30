@@ -20,11 +20,18 @@ Changes
 0.9.0dev1 Testing release
 -----------------------
 * Simplified command-line interface in all subpackages, e.g. 'mutagene motif search' is now simply 'mutagene motif'
+* Retained backward compatibility of command-line interface with 0.8.6
 * Added aliases for subpackages, e.g. fetch = download
-* Enabled access to benchmark functions
-* Added support for bootstrapping in signature decomposition of multiple MAF samples
+* (in progress) Enabled access to benchmark functions
+* (in progress) support for bootstrapping in signature decomposition of multiple MAF samples
 * Performance optimizations in motif search
 * Python 3.8.1 compatibility
+* Added new signature set 53 from Kucab et al for environmental mutagens and chemotherapy etc
+* Added new data format TCGI (a simplified VCF with optional sample column), required CHROM POS REF ALT, optional SAMPLE
+
+0.8.6.6 Bug-Fix Release
+-----------------------
+* BUGFIX: Mutational profile was not incorrectly calculated for MAF files with multiple samples which affected decomposition for COMIC 30 and 49 signature sets
 
 0.8.6.5 Bug-Fix Release
 -----------------------
