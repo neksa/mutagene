@@ -17,7 +17,7 @@ A motif is defined as a characteristic pattern of DNA mutation and its local DNA
 Motif Representation
 ----------------------------------------
 
-MutaGene represents motifs as a string of characters, where characters in brackets represent the single-base substitutions and characters outside brackets represent the unmutated DNA context. The motif must be in quotes to be recognized by MutaGene.
+MutaGene represents motifs as a string of DNA characters, where characters in brackets represent the single-base substitutions and characters outside brackets represent the unmutated DNA context. The motif must be in quotes to be recognized by MutaGene.
 
 Motif Examples
 --------------
