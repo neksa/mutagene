@@ -10,7 +10,7 @@ Welcome to MutaGene's documentation!
 What is MutaGene?
 ------------------
 
-MutaGene is software for the analysis of mutations and mutational processes in cancer. The MutaGene Python package
+MutaGene is a set of methods for the analysis of mutations and mutational processes in cancer. The MutaGene Python package
 consists of command-line tools that provide direct access to some of the functions available on MutaGene's website.
 
 The MutaGene software package includes 5 subpackages: fetch, profile, rank, motif, and signature. Each subpackage has a
@@ -23,11 +23,11 @@ What are MutaGene's five subpackages?
 | 1. MutaGene Fetch allows you to download sample data, cohorts, and human genome reference sequences.
 
 | 2. MutaGene Profile allows you to analyze any set of mutations from one or several cancer samples to identify cancers of
-   unknown primary tumor site, to detect the most likely mutagenic process and to distinguish tumorigenic from benign mutation sets
+   unknown primary tumor site, to detect the most likely mutational process and to distinguish tumorigenic from normal or benign mutation sets
 
-| 3. MutaGene Rank allows you to rank mutations by mutability in a given sample or cohort in a batch mode using pre-calculated or user-provided mutational profiles
+| 3. MutaGene Rank allows you to rank mutations with respect to their driver status in a given sample or cohort in a batch mode using pre-calculated or user-provided mutational profiles
 
-| 4. MutaGene Motif allows you to analyze the presence of mutable motifs in genomic data.
+| 4. MutaGene Motif allows you to analyze the presence of mutational motifs in genomic data.
 
 | 5. MutaGene Signature allows you to analyze the presence of mutational signatures in genomic data.
 
@@ -45,7 +45,7 @@ Here are `detailed instructions <https://www.ncbi.nlm.nih.gov/research/mutagene/
 ------------------------
 How can I cite MutaGene?
 ------------------------
-If you use MutaGene, you must cite:
+If you use MutaGene, you should cite:
 
 Goncearenco A, Rager SL, Li M, Sang Q, Rogozin IB, Panchenko AR
 Exploring background mutational processes to decipher cancer genetic heterogeneity. Nucleic Acids Res. 2017; 45(W1):W514–W522.
