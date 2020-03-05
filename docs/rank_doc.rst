@@ -53,14 +53,14 @@ Argument                                   Description                          
 --profile PROFILE                          Override profile to calculate mutability
                                            (may also describe cohort size)
 -p PROFILE                                 Short form of --profile PROFILE
---nsamples NSAMPLES                        Override cohort size    
--n NSAMPLES                                Short form of --nsamples
---threshold-driver THRESHOLD_DRIVER        BScore threshold between Driver and Pontential 
+--nsamples NSAMPLES                        Override cohort size                               --nsamples 20
+-n NSAMPLES                                Short form of --nsamples                           -n 20
+--threshold-driver THRESHOLD_DRIVER        BScore threshold between Driver and Pontential     --threshold-driver 0.000009
                                            Driver mutations
--td THRESHOLD_DRIVER                       Short form of --threshold-driver
---threshold-passenger THRESHOLD_PASSENGER  BScore threshold between Potential Driver and 
+-td THRESHOLD_DRIVER                       Short form of --threshold-driver                   -td 0.000009
+--threshold-passenger THRESHOLD_PASSENGER  BScore threshold between Potential Driver and      --threshold-passenger 0.0003
                                            Passenger mutations
--tp THRESHOLD_PASSENGER                    Short form of --threshold-passenger
+-tp THRESHOLD_PASSENGER                    Short form of --threshold-passenger                -tp 0.0003
 --cohorts-file COHORTS_FILE                Location of tar.gz container or directory 
                                            for cohorts
 =========================================  =================================================  ==================================  
