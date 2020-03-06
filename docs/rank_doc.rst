@@ -1,25 +1,30 @@
 =====================================================
-Rank: Identifying potential drivers in samples
+Rank: identifying potential driver mutations
 =====================================================
 -----------
 Description
 -----------
-Use mutagene rank to analyze genes and compare observed mutational frequencies to expected background mutability to identify potential drivers. To read more about the MutaGene's ranking method, read the publication
-`Finding driver mutations in cancer: Elucidating the role of background mutational processes <https://doi.org/10.1371/journal.pcbi.1006981>`_
+"mutagene rank" estimates the expected background mutability for each nucleotide or codon, calculates a score and p-value in order to rank mutations with respect to their driver status. The method requires a number of samples where a given mutation was observed 
+
+Please cite the MutaGene ranking method as 
+Anna-Leigh Brown, Minghui Li, Alexander Goncearenco, Anna R Panchenko
+"Finding Driver Mutations in Cancer: Elucidating the Role of Background Mutational Processes" Plos Comp Biol 15 (4), e1006981
+https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1006981
 
 *Note: if you installed MutaGene in a virtual environment, make sure you activate the virtual environment first.*
 
+
 -------------------
-1. Rank command
+1. Rank 
 -------------------
 
-To use the rank command, type 
+To rank mutations, type 
 
-``$ mutagene rank``
+$ mutagene rank
 
-followed by the required arguments from the command line. You can always find help on the required arguments using the following command:
+followed by the required arguments, you can always find help on the required arguments using the following command:
 
-``$ mutagene rank -h``
+$ mutagene rank -h
 
 ------------
 2. Arguments
@@ -76,8 +81,8 @@ Output Table Header  Description
 ===================  =======================================================================================================
 gene                 Name of gene with mutation
 mutation             Expressed as, eg. Y99F, ie. amino acid tyrosine (Y) replaced by phenylalanine (F) at position 99  
-mutability           Expected mutation rate in a particular DNA context
-observed             Observed mutational frequencies
+mutability           Expected mutation rate in a given DNA context
+observed             Number of cancer samples where this mutation was observed
 bscore               A binomial p-value for the observed number of occurences of mutation in comparison to the expected
                      mutability that is defined by the local DNA context of the mutated nucleotide
 qvalue               Bscore corrected for multiple testing with Benjamini-Hochberg FDR method
