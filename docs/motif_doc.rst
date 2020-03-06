@@ -48,31 +48,24 @@ The publication `Mutational signatures and mutable motifs in cancer genomes <htt
 
 To use the motif command, type 
 
-``$mutagene motif <action (search or list)>``
-
-If search is specified, infile and genome are also required:
-
-``$ mutagene motif search [arguments]``
+``$ mutagene motif [arguments]``
 
 You can always find help on the required arguments using the following command:
 
-``$ mutagene motif search -h``
-or
-``$mutagene motif list -h``
+``$ mutagene motif -h``
 
 ------------
 3. Arguments
 ------------
 
-**3.1.Command:** ``$mutagene motif <action (search or list)>``
+**3.1.Command:** ``$mutagene motif [arguments]``
 
 followed by the required arguments from the command line. 
 
 **3.2.Required Arguments (must be specified):**
 
 Motif function requires:
-``$mutagene motif <action (search or list)>``
-If search is specified, infile and genome are also required
+``$mutagene motif ``
 
 =========================   ============================================================  ====================
 Argument                    Description                                                   Example
@@ -145,7 +138,7 @@ overrepresentation of the mutated motif (as compared to what is likely by chance
 5.1.1. Command
 ---------------
 
-``$ mutagene motif search -i sample1.maf -g hg19 -s "="``
+``$ mutagene motif -i sample1.maf -g hg19 -s "="``
 
 -------------------
 5.1.2. Motif Output
@@ -170,7 +163,7 @@ File "sample1.maf" contains one sample "TCGA-50-6593-01A-11D-1753-08"; from this
 5.2.1. Command
 -------------
 
-``$ mutagene motif search -i sample1.maf -g hg19 -m 'C[A>T]'``
+``$ mutagene motif -i sample1.maf -g hg19 -m 'C[A>T]'``
 
 -------------------
 5.2.2. Motif Output
@@ -186,7 +179,7 @@ No significant motif matches are found in the data, so nothing is reported.
 5.3.1. Command
 -------------
 
-``$ mutagene motif search -i sample1.maf -g hg19 -w 20 -s "+"``
+``$ mutagene motif -i sample1.maf -g hg19 -w 20 -s "+"``
 
 -------------------
 5.3.2. Motif Output
@@ -216,7 +209,7 @@ bases from each mutation*
 5.4.1. Command
 -------------
 
-``$ mutagene motif search -i sample2.vcf -g hg19 -w 30 -s "+-="``
+``$ mutagene motif -i sample2.vcf -g hg19 -w 30 -s "+-="``
 
 -------------------
 5.4.2. Motif Output
@@ -240,34 +233,3 @@ VCF     Poly Eta     W[A>T]   '='     1.141805328027515   0.020545858842258347  
 --------------------------------
 
 File sample2.vcf was searched for all pre-identified motifs in MutaGene. Of these motifs, APOBEC3G and C>T in CpG were significantly present on the transcribed strand, non-transcribed strand, and both strands together. The presence of the Poly Eta motif was not significant on the non-transcribed strand but was significant on the transcribed stand and both the transcribed and non-transcribed strands together.
-
------------------------------------------------------------------------------------------
-*5.5. List all pre-identified motifs in MutaGene*
------------------------------------------------------------------------------------------
-
--------------
-5.5.1. Command
--------------
-
-``$ mutagene motif list``
-
--------------------
-5.5.2. Motif Output
--------------------
-
-============  =======
-name          symbol
-============  =======
-APOBEC1/3A/B  T[C>K]W
-APOBEC3G      C[C>K]R
-C>T in CpG    [C>T]G
-UV Light      Y[C>T]
-Pol Eta       W[A>T]
-AID           W[R>S]C
-============  =======
-
---------------------------------
-5.5.3. Interpretation of output
---------------------------------
-
-The names and symbols for all pre-identified motifs in MutaGene are listed.
