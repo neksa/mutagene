@@ -5,10 +5,13 @@
 version: 2
 jobs:
   build:
+    branches:
+      ignore:
+        - docs
     docker:
       # specify the version you desire here
       # use `-browsers` prefix for selenium tests, e.g. `3.6.1-browsers`
-      - image: circleci/python:3.6.1
+      - image: circleci/python:3.6.9
       
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -23,22 +26,30 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "requirements.txt" }}
+          - v1-dependencies-cli-{{ .Branch }}-{{ checksum "requirements.txt" }}
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
       - run:
-          name: install dependencies
+          name: Install Python environment dependencies
           command: |
             python3 -m venv venv
             . venv/bin/activate
             pip install -r requirements.txt
 
+      - run:
+          name: Download files required for CLI tests (if not restored from cache)
+          command: |
+            [ -f ./hg19.2bit ] || wget -O ./hg19.2bit https://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit
+            [ -f ./cohorts.tar.gz ] || wget -O ./cohorts.tar.gz https://www.ncbi.nlm.nih.gov/research/mutagene/static/data/cohorts.tar.gz
+            [ -f ./sample1.maf ] || wget -O ./sample1.maf https://www.ncbi.nlm.nih.gov/research/mutagene/static/data/sample1.maf
+
       - save_cache:
+          key: v1-dependencies-cli-{{ .Branch }}-{{ checksum "requirements.txt" }}
           paths:
             - ./venv
-          key: v1-dependencies-{{ checksum "requirements.txt" }}
-        
+            - ./
+
       # run tests!
       # this example uses Django's built-in test-runner
       # other common Python testing frameworks include pytest and nose
@@ -48,7 +59,7 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            pytest
+            pytest > test-reports/pytest.out
 
       - run:
           name: verify package
@@ -61,9 +72,17 @@ jobs:
           command: |
             . venv/bin/activate
             python setup.py install
-            mutagene --help
+            mutagene --help > test-reports/mutagene-help.out
+
+      - run:
+          name: Execute mutagene rank
+          command: |
+            . venv/bin/activate
+            mutagene -v rank -g hg19 -i sample1.maf -c pancancer -o test-reports/rank-sample1-pancancer.txt
 
       - store_artifacts:
-          path: test-reports
-          destination: test-reports
-          
+          path: test-reports/
+          destination: tr1
+
+      - store_test_results:
+          path: test-reports/
