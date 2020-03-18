@@ -21,11 +21,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def identify_motifs(samples_mutations, custom_motif=None, strand=None, threshold=None):
+def identify_motifs(samples_mutations, custom_motif=None, strand=None, threshold=None, dump_matches=None):
     """
     :param samples_mutations: list of mutations from input file
     :param custom_motif: specified motif to search for
-    :param strand: strand(s) to search on
+    :param strand: strand(s) to search on (T: transcribed, N: non-transcribed, A: any, or a combination theirof: 'TNA')
     :return: command-line output
     """
     motif_matches = []
@@ -33,7 +33,9 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None, threshold
     pvals = []
 
     if strand is None:
-        strand = '='
+        strand = 'A'
+    else:
+        strand = set(strand)  # in case TNA codes repeat
 
     if threshold is None:
         threshold = 0.05
@@ -45,30 +47,41 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None, threshold
         search_motifs = motifs.copy()
     # search_motifs.extend(scanf_motif(custom_motif))
 
-    for sample, mutations in tqdm(samples_mutations.items(), leave=False):
-        # print(sample, len(mutations))
+    _strand_map = {
+        'T': 'transcribed',
+        'N': 'non-transcribed',
+        'A': 'any strand'
+    }
+
+    disable_progress_bar = logger.getEffectiveLevel() == logging.DEBUG
+
+    for sample, mutations in tqdm(samples_mutations.items(), leave=False, disable=disable_progress_bar):
         if mutations is not None and len(mutations) > 0:
             first_mut_seq_with_coords = mutations[0][-1]
             window_size = (len(first_mut_seq_with_coords) - 1) // 2
 
-            for m in tqdm(search_motifs, leave=False):
+            for m in tqdm(search_motifs, leave=False, disable=disable_progress_bar):
                 for s in strand:
-                    # print("IDENTIFYING MOTIF: ", m['name'])
-                    result = process_mutations(mutations, m['motif'], m['position'], m['ref'], m['alt'], window_size, s)
+                    result = process_mutations(
+                        mutations,
+                        m['motif'],
+                        m['position'],
+                        m['ref'],
+                        m['alt'],
+                        window_size,
+                        s,
+                        dump_matches=dump_matches)
 
                     debug_data = {'sample': sample, 'motif': m['logo'], 'strand': s}
                     debug_data.update(result)
                     debug_string = pprint.pformat(debug_data, indent=4)
                     logger.debug(debug_string)
 
-                    # if result['mutation_load'] == 0:
-                    #     continue
-
                     motif_matches.append({
                         'sample': sample,
                         'mutagen': m['name'],
                         'motif': m['logo'],
-                        'strand': s,
+                        'strand': _strand_map[s],
                         'enrichment': result['enrichment'],
                         'mut_min': result['mutation_load'],
                         'mut_max': result['bases_mutated_in_motif'],
@@ -288,9 +301,8 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
         mutation = chrom, pos, x, y
         rev_seq = get_rev_comp_seq(seq)
 
-        # if strand == '+':
-        # constants - ADD
-        if strand == '=' or transcript_strand == strand:
+        # assuming that all mutations are reported in '+' reference strand
+        if strand == 'A' or (strand == 'T' and transcript_strand == '+') or (strand == 'N' and transcript_strand == '-'):
             # not mutated:
             for ref_match in find_matching_bases(seq, ref, motif, motif_position):
                 matching_bases.add(ref_match[0:2])
@@ -306,8 +318,7 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
                 for motif_match in find_matching_motifs(context_of_mutation, motif, motif_position):
                     matching_mutated_motifs.add(motif_match[0:2])
 
-        # elif strand == '-':
-        if strand == '=' or transcript_strand != strand:
+        if strand == 'A' or (strand == 'T' and transcript_strand == '-') or (strand == 'N' and transcript_strand == '+'):
             # rev compl: not mutated:
             for ref_match in find_matching_bases(rev_seq, ref, motif, motif_position):
                 matching_bases.add(ref_match[0:2])
