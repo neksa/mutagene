@@ -256,12 +256,20 @@ def read_MAF_with_context_window(infile, asm, window_size):
         else:
             raise ValueError('Start position is not defined in MAF file')
 
+        # assuming that reference strand for reported mutations is always '+'!
+        if hasattr(data, 'strand'):
+            if data.strand != '+' and data.strand != '1':
+                raise ValueError('Mutations should be reported on the "+" reference strand')
+        else:
+            raise ValueError('Reference strand is not specified')
+
+        # transcript strand could be anything
         if hasattr(data, 'transcript_strand'):
             transcript_strand = data.transcript_strand
             # GDC uses 1 and -1
             if transcript_strand == '+':
                 pass
-            if transcript_strand == '-':
+            elif transcript_strand == '-':
                 pass
             elif transcript_strand == '1':
                 transcript_strand = '+'
@@ -270,9 +278,9 @@ def read_MAF_with_context_window(infile, asm, window_size):
             elif transcript_strand == '':
                 transcript_strand = '+'  # default value
             else:
-                raise ValueError('Unexpected value of transcription_strand in MAF file')
+                raise ValueError('Unexpected value of transcript_strand in MAF file')
         else:
-            # this is an incorrect assumption about transcription strand
+            # this is an incorrect assumption about transcript strand
             transcript_strand = '+'
 
         raw_mutations[sample].append((chrom, pos, transcript_strand, x, y))
