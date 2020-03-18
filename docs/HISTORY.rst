@@ -17,6 +17,14 @@ New features should have test code sent with them.
 Changes
 =======
 
+0.9.0dev2 Testing release
+-----------------------
+* Fixed incorrect parsing of mutations on '-' transcribed strand
+* Avoiding double-thresholding on motif significance. Now only qvalue threshold matters
+* Added an option --save-motif-matches to save all mutations that match motif in a separate file 
+* Not showing progress bar in motif search in debug mode
+* Now using T for transcribed, N for non-transcribed and A for any strand to avoid confusion with the reference strand + - and =
+
 0.9.0dev1 Testing release
 -----------------------
 * Simplified command-line interface in all subpackages, e.g. 'mutagene motif search' is now simply 'mutagene motif'
