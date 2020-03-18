@@ -164,15 +164,16 @@ def Haldane_correction(contingency_table):
     return contingency_table
 
 
-def calculate_mutation_load(N_mutations, enrichment, p_value, p_value_threshold=0.05):
-    """ Mutation load (minimum estimate) calculation following Gordenin et al protocol """
+def calculate_mutation_load(N_mutations, enrichment):
+    """ 
+        Mutation load (minimum estimate) calculation following Gordenin et al protocol 
+        However, at this point motif matches are not filtered for p-value significance
+        That's done in the end after multiple testing correction
+    """
     mutation_load = 0.0
-    if enrichment > 1 and p_value < p_value_threshold:
+    if enrichment > 1.0:
         mutation_load = N_mutations * (enrichment - 1) / enrichment
     # elif p_value < p_value_threshold:   tests for enrichment depletion
-    #     print("depletion present")
-    #     print(enrichment)
-    #     print(p_value)
     return mutation_load
 
 
@@ -273,7 +274,7 @@ def find_matching_bases(seq, ref, motif, motif_position):
             yield seq[i]
 
 
-def process_mutations(mutations, motif, motif_position, ref, alt, range_size, strand, stat_type=None):
+def process_mutations(mutations, motif, motif_position, ref, alt, range_size, strand, stat_type=None, dump_matches=None):
     """
     :param mutations: mutations to be analyzed
     :param motif: specified motif to search for
@@ -283,6 +284,7 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
     :param range_size: how far in the motif to search for
     :param strand: strand motif should be searched on
     :param stat_type: type of pvalue: Fisher's (default) or Chi-Square
+    :param dump_matches: an optional file handle to save all mutations matching the motif regardless of their significance
     :return: calculations
     """
     assert range_size >= 0
@@ -336,13 +338,10 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
                 for motif_match in find_matching_motifs(context_of_mutation, motif, motif_position):
                     matching_mutated_motifs.add(motif_match[0:2])
 
-        # if seq[0][0] == '19':
-        #     print(seq)
-
-        # if seq[0][0] == '19' and seq[0][1] == 51022172:
-        #     for s in seq:
-        #         print(s[2], end='')
-        #     print()
+    if dump_matches:
+        for m in matching_mutated_motifs:
+            chrom, pos = m
+            dump_matches.write("{}\t{}>{}\tchr{}\t{}\n".format(motif, ref, alt, chrom, pos))
 
     motif_mutation_count = len(matching_mutated_motifs)  # bases mutated in motif
     stat_mutation_count = len(matching_mutated_bases - matching_mutated_motifs)  # bases mutated not in motif
@@ -362,7 +361,7 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
 
     p_val = get_stats(contingency_table, stat_type)
 
-    mut_load = calculate_mutation_load(motif_mutation_count, enrichment, p_val)
+    mut_load = calculate_mutation_load(motif_mutation_count, enrichment)
 
     table = pd.DataFrame(data={
         "'{}>{}' mutation".format(ref, alt): [motif_mutation_count, stat_mutation_count],
