@@ -17,6 +17,9 @@ logger = logging.getLogger(__name__)
 def get_context_twobit_window(mutations, twobit_file, window_size):
     """
     User twobitreader to get context of mutations
+    It's a special data structure.
+    contexts[(chrom, pos)] = (nuc5, nuc3), seq_with_coords
+    where seq_with_coords = [(chrom, pos, nucleotide, strand)]
     """
     if window_size is None:
         window_size = 50
@@ -77,9 +80,11 @@ def get_context_twobit_window(mutations, twobit_file, window_size):
 
 def read_TCGI_with_context_window(infile, asm, window_size):
     """
-    Tabular file; no particular column order required but must contain header line with four mandatory column names (CHR, POS, REF, ALT) corresponding to the chromosome, position, reference and alternate allele columns, respectively
+    Tabular file; no particular column order required but must contain header line with four mandatory column names:
+    (CHR, POS, REF, ALT) corresponding to the chromosome, position, reference and alternate allele columns, respectively
     • Optionally, if column name SAMPLE exists, the column is used as sample names, otherwise it is assumed that all variants are in the same sample
-    • Optionally, if column name STRAND exists, the column is used as strandedness of variants (possible values: 1 or + for forward strand, -1 or - for reverse strand), otherwise it is assumed that all variants are described on the forward strand
+    • Optionally, if column name STRAND exists, the column is used as strandedness of variants
+    (possible values: 1 or + for forward strand, -1 or - for reverse strand), otherwise it is assumed that all variants are described on the forward strand
     • The file can contain comment lines starting with #
     • In addition to the CHR, POS, REF and ALT columns, can have extra columns that will also appear in the final TCGI
     output table
@@ -87,6 +92,8 @@ def read_TCGI_with_context_window(infile, asm, window_size):
     • Alleles can follow both the Ensembl or VCF convention (e.g. for a deletion, both ‘ATCA to A’ or ‘TCA to –’ forms are accepted)
 
     https://www.cancergenomeinterpreter.org/images/inputformats.pdf
+
+    returns mutations, mutations_with_context, processing_stats
     """
     cn = complementary_nucleotide
     mutations = defaultdict(lambda: defaultdict(float))
@@ -188,6 +195,12 @@ def read_TCGI_with_context_window(infile, asm, window_size):
 
 
 def read_MAF_with_context_window(infile, asm, window_size):
+    """
+        Read MAF file and extract context of mutations for assembly asm and window +/- window_size around each mutation
+        MAF format description: https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/
+
+        returns mutations, mutations_with_context, processing_stats
+    """
     cn = complementary_nucleotide
     mutations = defaultdict(lambda: defaultdict(float))
     N_skipped = 0
@@ -323,6 +336,10 @@ def read_MAF_with_context_window(infile, asm, window_size):
 
 
 def read_VCF_with_context_window(infile, asm, window_size):
+    """
+    Read VCF file and extract context of mutations for assembly asm and window +/- window_size around each mutation
+    returns mutations, mutations_with_context, processing_stats
+    """
     cn = complementary_nucleotide
     mutations = defaultdict(lambda: defaultdict(float))
     mutations_with_context = defaultdict(list)
