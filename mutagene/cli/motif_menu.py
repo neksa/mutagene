@@ -95,8 +95,8 @@ mutagene motif --infile --input-format sample1.maf -f MAF --genome hg19 --motif 
 
             logger.info("Searching for motif {}".format(custom_motif))
 
-        if args.window_size > 250 or args.window_size < 1:
-            logger.warning('window-size should be between 1 and 250 nucleotides')
+        if args.window_size > 5000 or args.window_size < 1:
+            logger.warning('window-size should be between 1 and 5000 nucleotides')
             return
 
         try:
