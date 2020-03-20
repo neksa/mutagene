@@ -62,17 +62,25 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None, threshold
 
             for m in tqdm(search_motifs, leave=False, disable=disable_progress_bar):
                 for s in strand:
-                    result = process_mutations(
+                    result, saved_data = process_mutations(
                         mutations,
                         m['motif'],
                         m['position'],
                         m['ref'],
                         m['alt'],
                         window_size,
-                        s,
-                        dump_matches=dump_matches)
+                        s)
 
-                    debug_data = {'sample': sample, 'motif': m['logo'], 'strand': s}
+                    if dump_matches:
+                        for chrom, pos in saved_data['mutation_motif']:
+                            dump_matches.write(
+                                "chr{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                                    chrom, pos, int(pos) + 1, sample, m['logo'], _strand_map[s]))
+
+                    debug_data = {
+                        'sample': sample,
+                        'motif': m['logo'],
+                        'strand': s}
                     debug_data.update(result)
                     debug_string = pprint.pformat(debug_data, indent=4)
                     logger.debug(debug_string)
@@ -124,44 +132,41 @@ def scanf_motif(custom_motif):
     return []
 
 
-def calculate_RR(contingency_table):
+def calculate_RR(ct):
     """
-    :param contingency_table: mutually exclusive counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
-    :return: enrichment/risk ratio
+    :param ct: mutually exclusive counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
+    :return: enrichment or risk ratio
     """
     try:
-        RR = (
-            (contingency_table[0, 1] / (contingency_table[0, 0] + contingency_table[0, 1])) /
-            (contingency_table[1, 1] / (contingency_table[1, 0] + contingency_table[1, 1])))
+        RR = ((ct.loc['mutation', 'motif'] / (ct.loc['mutation', 'motif'] + ct.loc['mutation', 'no motif'])) /
+              (ct.loc['no mutation', 'motif'] / (ct.loc['no mutation', 'motif'] + ct.loc['no mutation', 'no motif'])))
     except ZeroDivisionError:
         RR = 0.0
     return RR
 
 
-def calculate_OR(contingency_table):
+def calculate_OR(ct):
     """
-    :param contingency_table: mutually exclusive counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
+    :param ct: mutually exclusive counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
     :return: odds ratio
     """
     try:
         OR = (
-            (contingency_table[0, 1] / contingency_table[0, 0]) /
-            (contingency_table[1, 1] / contingency_table[1, 0]))
+            (ct.loc['mutation', 'motif'] / ct.loc['mutation', 'no motif']) /
+            (ct.loc['no mutation', 'motif'] / ct.loc['no mutation', 'no motif']))
     except ZeroDivisionError:
         OR = 0.0
     return OR
 
 
-def Haldane_correction(contingency_table):
+def Haldane_correction(ct):
     """
-    :param contingency_table: mutually exclusive counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
-    :return: contigency tavble after Haldane correction is applied
+    :param ct: mutually exclusive counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
+    :return: contigency table after Haldane correction is applied
     """
     """    apply Haldane correction (+ 0.5) if any of the values in the contingency table is zero """
 
-    if np.any(np.isclose(contingency_table, 0.0)):
-        contingency_table = contingency_table + 0.5
-    return contingency_table
+    return ct + 0.5 if np.any(np.isclose(ct.to_numpy(), 0.0)) else ct
 
 
 def calculate_mutation_load(N_mutations, enrichment):
@@ -177,12 +182,12 @@ def calculate_mutation_load(N_mutations, enrichment):
     return mutation_load
 
 
-def get_stats(contingency_table, stat_type='fisher'):
+def get_stats(ct, stat_type='fisher'):
     """
     Calculate Fisher and Chi2 test pvalues,
-    :param contingency_table: counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
+    :param ct: counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
     :param stat_type: Type of pvalue (Fisher's ('fisher') or Chi-Square ('chi2'))
-    :return: Specified pvalue
+    :return: pvalue of the corresponding statistical test
     """
     p_val = 1.0
 
@@ -195,14 +200,14 @@ def get_stats(contingency_table, stat_type='fisher'):
 
     if stat_type == 'fisher':
         try:
-            p_val = stats.fisher_exact(contingency_table, alternative="less")[1]
+            p_val = stats.fisher_exact(ct, alternative="less")[1]
             # if p_val > 0.05:
-            #     p_val = stats.fisher_exact(contingency_table, alternative="greater")[1] #calculates if motif is underrepresented
+            #     p_val = stats.fisher_exact(ct, alternative="greater")[1] #calculates if motif is underrepresented
         except ValueError:
             p_val = 1.0
     elif stat_type == 'chi2':
         try:
-            p_val = stats.chi2_contingency(contingency_table)[1]
+            p_val = stats.chi2_contingency(ct)[1]
         except ValueError:
             p_val = 1.0
     return p_val
@@ -274,7 +279,7 @@ def find_matching_bases(seq, ref, motif, motif_position):
             yield seq[i]
 
 
-def process_mutations(mutations, motif, motif_position, ref, alt, range_size, strand, stat_type=None, dump_matches=None):
+def process_mutations(mutations, motif, motif_position, ref, alt, range_size, strand, stat_type=None):
     """
     :param mutations: mutations to be analyzed
     :param motif: specified motif to search for
@@ -285,7 +290,7 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
     :param strand: strand motif should be searched on
     :param stat_type: type of pvalue: Fisher's (default) or Chi-Square
     :param dump_matches: an optional file handle to save all mutations matching the motif regardless of their significance
-    :return: calculations
+    :return: (results summary disctionary, data_dump with stored_data or None if dump_matches is None)
     """
     assert range_size >= 0
     assert len(ref) == 1
@@ -338,21 +343,39 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
                 for motif_match in find_matching_motifs(context_of_mutation, motif, motif_position):
                     matching_mutated_motifs.add(motif_match[0:2])
 
-    if dump_matches:
-        for m in matching_mutated_motifs:
-            chrom, pos = m
-            dump_matches.write("{}\t{}>{}\tchr{}\t{}\n".format(motif, ref, alt, chrom, pos))
-
     motif_mutation_count = len(matching_mutated_motifs)  # bases mutated in motif
     stat_mutation_count = len(matching_mutated_bases - matching_mutated_motifs)  # bases mutated not in motif
     stat_motif_count = len(matching_motifs - matching_mutated_motifs)  # bases not mutated in motif
-    stat_ref_count = len(matching_bases - matching_motifs - matching_mutated_bases)  # bases not mutated not in motif
+    stat_ref_count = len(matching_bases - (matching_motifs | matching_mutated_bases))  # bases not mutated not in motif
 
-    contingency_table = np.array(
-        [
-            [stat_mutation_count, motif_mutation_count],
-            [stat_ref_count, stat_motif_count]
-        ])
+    # number of A[T>G]T occurrences               motif_mutation_count
+    # / number of [T>G] occurrences               stat_mutation_count + motif_mutation_count
+    # ----------
+    # number of ATT occurrences in DNA context    stat_motif_count
+    # / number of T occurrences in DNA context    stat_ref_count + stat_motif_count
+
+    contingency_table = pd.DataFrame(
+        np.array(
+            [
+                [motif_mutation_count, stat_mutation_count],
+                [stat_motif_count, stat_ref_count]
+            ]))
+    contingency_table.columns = ["motif", "no motif"]
+    contingency_table.index = ["mutation", "no mutation"]
+
+    # data={
+    # "'{}>{}' mutation".format(ref, alt): [stat_mutation_count, motif_mutation_count],
+    # "no '{}>{}' mutation".format(ref, alt): [stat_ref_count, stat_motif_count]},
+    # index=("no '{}' motif".format(motif), "'{}' motif".format(motif)))
+    logger.debug("\n" + contingency_table.to_string() + "\n")
+
+    logger.debug("({} / ({} + {})  ) /  ({} / ({} + {}))".format(
+        contingency_table.loc['mutation', 'motif'],
+        contingency_table.loc['mutation', 'motif'],
+        contingency_table.loc['mutation', 'no motif'],
+        contingency_table.loc['no mutation', 'motif'],
+        contingency_table.loc['no mutation', 'motif'],
+        contingency_table.loc['no mutation', 'no motif']))
 
     contingency_table = Haldane_correction(contingency_table)
 
@@ -362,12 +385,6 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
     p_val = get_stats(contingency_table, stat_type)
 
     mut_load = calculate_mutation_load(motif_mutation_count, enrichment)
-
-    table = pd.DataFrame(data={
-        "'{}>{}' mutation".format(ref, alt): [motif_mutation_count, stat_mutation_count],
-        "no '{}>{}' mutation".format(ref, alt): [stat_motif_count, stat_ref_count]},
-        index=("'{}' motif".format(motif), "no '{}' motif".format(motif)))
-    logger.debug("\n" + table.to_string() + "\n")
 
     result = {
         'enrichment': enrichment,  # AKA risk ratio
@@ -380,4 +397,8 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
         'bases_not_mutated_not_in_motif': stat_ref_count,
         'total_mutations': len(mutations)
     }
-    return result
+
+    saved_matches = {
+        'mutation_motif': matching_mutated_motifs
+    }
+    return result, saved_matches
