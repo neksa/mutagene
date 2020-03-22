@@ -3,7 +3,7 @@ import numpy as np
 
 # from .io import read_profile
 # from .io import format_profile
-from .identify import decompose_mutational_profile_counts
+from mutagene.signatures.identify import decompose_mutational_profile_counts
 
 
 def convert_to_list(name_to_idx, d):
