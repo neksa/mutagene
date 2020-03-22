@@ -279,6 +279,28 @@ def find_matching_bases(seq, ref, motif, motif_position):
             yield seq[i]
 
 
+def make_contingency_table(
+        array=None,
+        motif_mutation=None,
+        no_motif_mutation=None,
+        motif_no_mutation=None,
+        no_motif_no_mutation=None):
+    """ Make a 2x2 contingency table out of a numpy array or four integers"""
+
+    if array is not None:
+        assert isinstance(array, np.ndarray)
+        assert array.shape == (2, 2)
+    else:
+        array = np.array([
+            [motif_mutation, no_motif_mutation],
+            [motif_no_mutation, no_motif_no_mutation]
+        ])
+    contingency_table = pd.DataFrame(array)
+    contingency_table.columns = ["motif", "no motif"]
+    contingency_table.index = ["mutation", "no mutation"]
+    return contingency_table
+
+
 def process_mutations(mutations, motif, motif_position, ref, alt, range_size, strand, stat_type=None):
     """
     :param mutations: mutations to be analyzed
@@ -354,14 +376,11 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
     # number of ATT occurrences in DNA context    stat_motif_count
     # / number of T occurrences in DNA context    stat_ref_count + stat_motif_count
 
-    contingency_table = pd.DataFrame(
-        np.array(
-            [
-                [motif_mutation_count, stat_mutation_count],
-                [stat_motif_count, stat_ref_count]
-            ]))
-    contingency_table.columns = ["motif", "no motif"]
-    contingency_table.index = ["mutation", "no mutation"]
+    contingency_table = make_contingency_table(
+        motif_mutation=motif_mutation_count,
+        no_motif_mutation=stat_mutation_count,
+        motif_no_mutation=stat_motif_count,
+        no_motif_no_mutation=stat_ref_count)
 
     # data={
     # "'{}>{}' mutation".format(ref, alt): [stat_mutation_count, motif_mutation_count],

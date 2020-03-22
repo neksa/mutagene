@@ -3,9 +3,10 @@ import json
 import csv
 import glob
 
+
 MUTAGENE_URL = "https://www.ncbi.nlm.nih.gov/research/mutagene"
 
-path = '/Users/cunninghamck/PycharmProjects/motifs/1st_analysis_tcga/*.maf.txt'
+
 def get_profile(fname, assembly=37):
     """
     Calling MutaGene REST API to convert a VCF file into a mutational profile (96 context-dependent mutational probabilities)
@@ -39,7 +40,7 @@ def print_profile_counts(profile_counts):
     """
     Printing context-dependent mutational profile
     """
-    for mutation, value in profile.items():
+    for mutation, value in profile_counts.items():
         print("{}\t{:.0f}".format(mutation, value))
     print()
 
@@ -54,17 +55,20 @@ def print_decomposition(decomposition):
 
 
 if __name__ == '__main__':
-    for filename in glob.glob(path):
-            vcf_files = [filename, ]
-            with open("sig1.csv", "a") as csvfile:  # create csv file
-                for file_name in vcf_files:
-                    filewriter = csv.writer(csvfile, delimiter=",", quotechar="|", quoting=csv.QUOTE_MINIMAL)
-                    profile = get_profile(file_name, assembly=37)
-                    print_profile_counts(profile)
-                    if profile is not None:
-                        for signature_type in ('COSMIC30', 'MUTAGENE5', 'MUTAGENE10'):
-                            decomposition = get_decomposition(profile, signature_type)
-                            print_decomposition(decomposition)
-                    filewriter.writerow([file_name])
-                    filewriter.writerow([decomposition])
-                    filewriter.writerow([])
+    pass
+    # path = '/Users/cunninghamck/PycharmProjects/motifs/1st_analysis_tcga/*.maf.txt'
+
+    # for filename in glob.glob(path):
+    #         vcf_files = [filename, ]
+    #         with open("sig1.csv", "a") as csvfile:  # create csv file
+    #             for file_name in vcf_files:
+    #                 filewriter = csv.writer(csvfile, delimiter=",", quotechar="|", quoting=csv.QUOTE_MINIMAL)
+    #                 profile = get_profile(file_name, assembly=37)
+    #                 print_profile_counts(profile)
+    #                 if profile is not None:
+    #                     for signature_type in ('COSMIC30', 'MUTAGENE5', 'MUTAGENE10'):
+    #                         decomposition = get_decomposition(profile, signature_type)
+    #                         print_decomposition(decomposition)
+    #                 filewriter.writerow([file_name])
+    #                 filewriter.writerow([decomposition])
+    #                 filewriter.writerow([])

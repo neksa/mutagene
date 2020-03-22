@@ -12,16 +12,23 @@ class MyTestCase(unittest.TestCase):
             'alt': 'C',
         }
 
-        mutations_with_context = [('20', 29628279, '+', "T", "C", [('20', 29628278, "C", '+'),
-                                                                    ('20', 29628279, "T", '+'),
-                                                                    ('20', 29628280, "T", '+')]),
+        mutations_with_context = [
+            ('20', 29628279, '+', "T", "C", [
+                ('20', 29628278, "C", '+'),
+                ('20', 29628279, "T", '+'),
+                ('20', 29628280, "T", '+')]),
 
-                                  ('20', 11, '-', "A", "G", [('20', 10, "A", '-'),
-                                                               ('20', 11, "A", '-'),
-                                                               ('20', 12, "G", '-')])
-                                  ]
+            ('20', 11, '-', "A", "G", [
+                ('20', 10, "A", '-'),
+                ('20', 11, "A", '-'),
+                ('20', 12, "G", '-')])]
 
-        observed = process_mutations(mutations_with_context, mymotifs['motif'], mymotifs['position'], mymotifs['ref'], mymotifs['alt'], 1, "=")
+        observed, saved_matches = process_mutations(
+            mutations_with_context,
+            mymotifs['motif'],
+            mymotifs['position'],
+            mymotifs['ref'],
+            mymotifs['alt'], 1, "A")
         assert observed['bases_mutated_in_motif'] == 2
 
 

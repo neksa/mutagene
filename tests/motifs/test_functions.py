@@ -32,6 +32,7 @@ def test_scanf():
     scan_empty = scanf_motif("A")
     assert scan_empty == []
 
+
 @pytest.mark.parametrize(
     "sequence,rev_comp_seq",
     [
@@ -124,6 +125,6 @@ def test_find_matching_bases(sequence, ref, motif, motif_position, expected_matc
     assert matches == expected_matches
 
 
-@pytest.mark.parametrize("N_mutations, enrichment, pvalue", [(200, 1.5, 0.03)])
-def test_mutation_load(N_mutations, enrichment, pvalue):
-    assert calculate_mutation_load(N_mutations, enrichment, pvalue) == 200/3
+@pytest.mark.parametrize("N_mutations, enrichment", [(200, 1.5)])
+def test_mutation_load(N_mutations, enrichment):
+    assert calculate_mutation_load(N_mutations, enrichment) == 200 / 3
