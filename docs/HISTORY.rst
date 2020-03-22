@@ -17,6 +17,12 @@ New features should have test code sent with them.
 Changes
 =======
 
+0.9.0 Release
+-----------------------
+* Changed --save-motif-matches output to BED format, now includes sample and motif
+* Fixed tests according to new motif API
+
+
 0.9.0dev2 Testing release
 -----------------------
 * Fixed incorrect parsing of mutations on '-' transcribed strand
