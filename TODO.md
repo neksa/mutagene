@@ -1,56 +1,70 @@
 
-* pytest 
- - parametrizing tests
- - fixtures
 
-* meaningful readme.md with
- - main section
- - Installation
- - Changes
- - Documentation
- - Usage (printout of argparse usage)
- 
-* readthedocs documentation
+# Identify:
+    - bootstrap for MAF samples
+    - How to make bootstrap results compatible with non-bootstrap results
+    - Limit identify to a subset of signatures
+    - Create subsets of signatures based on correlation clustering for de-correlation and avoiding collinearity
+    - Create named signature sets and named subsets
+    - clustergrammer for reporting and visualization of results of identify/decomposition
+    - How to output reports?
+    - rpy2 or reticulate for integration with R reports
+    - BayesianOptimization for global optimization
 
-* clustergrammer
-* rpy2
+    - restore functionality of benchmark module
 
-* cell lines examples
+# Motifs
+    + output motif matches in a separate file
+    - Motif calibration depending on window size, motif length and the number of mutations
+    - Comparison of motifs with signatures
 
-- AL LUAD data analysis
-- Nitin LUAD analysis
-- benchmark clean up
-- threshold?
-- packaging & CI & PIP
-- BayesianOptimization
+# Ranking
+    - Implement ranking of nucleotide mutations from VCF
+    - Precalculate cohorts
+    - rank should accept either MAF (or VCF) or precalculated data as input
+    - Profile, Cohort size and observed mutations is required input. By default they are all coming from the same source
+    - Define command line use cases
+    - Rename cohort to data bundle: samples, 
 
+# Fetch 
+    - test MSKCC
+    - test GDC
+    - test ICGC
+    - consider other sources?
+    - convert genomes to 2bit
+    - Autodownloading genome assembly
+    - Re-enable genome-less version (via ENSEMBL) for testing a limited number of mutations or even a single mutation
 
+# General
+    - Autodection of genome assembly from VCF and MAF
+    - Upgrade website to use mutagene library
+    - Accept YAML config file as input for reproducibility
+    - Create CWL wrappers and dockerized container versions for pipline deployment
+    - Write a parseable human readable log file containing provisioning information for reproducibility. Should include all parameters, versions / config file that can be used as an input
 
-mutagene rank -g hg38.2bit -i sample1.maf -o ranking.txt
+# Tests
+    + currently package test suite is failing
+    - need to make sure we have a CLI test for every function (not every option combination though)
+    ? what other test files can we bundle (licensing issues), perhaps cell lines?
 
+# Documentation
+    * readthedocs documentation
+        Example: https://plastid.readthedocs.io/en/latest/quickstart.html
 
-mutagene -i TCRBOA1-T-WEX_TCRBOA1-N-WEX.vcf -o out --signatures 5 --genome /Users/agoncear/data/hg38.2bit identify
-mutagene identify -i TCRBOA1-T-WEX_TCRBOA1-N-WEX.vcf -o out --signatures 5 --genome /Users/agoncear/data/hg38.2bit
+    * Improve README
+     - main section
+     - Installation
+     - Changes
+     - Documentation
+     - Usage (printout of argparse usage)
 
-mutagene calc_profile --infile TCGA-50-6593-01.maf.txt --outfile TCGA-50-6593-01.profile --genome /Users/agoncear/data/hg38.2bit
+    * Examples:
+        - cell lines examples
 
-mutagene rank -m aa -g /Users/agoncear/data/hg38.2bit -i TCGA-50-6593-01.maf.txt
+# Links:
 
+    - https://github.com/mskcc/vcf2maf
+    - https://github.com/PoisonAlien/maftools
+    - https://riptutorial.com/bioinformatics/example/14312/mutation-annotation-format--maf-
 
-
-twobitreader.download.save_genome(name, destdir=None, mode='ftp')[source]
-tries to download a genome from UCSC by name
-
-for example, ‘hg19’ is at ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit
-
-
-
-https://plastid.readthedocs.io/en/latest/quickstart.html
-
-https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/
-
-https://github.com/mskcc/vcf2maf
-https://github.com/PoisonAlien/maftools
-https://riptutorial.com/bioinformatics/example/14312/mutation-annotation-format--maf-
-
-http://docs.h5py.org/en/latest/high/dataset.html#dataset
+    - http://docs.h5py.org/en/latest/high/dataset.html#dataset
