@@ -170,10 +170,10 @@ def Haldane_correction(ct):
 
 
 def calculate_mutation_load(N_mutations, enrichment):
-    """ 
-        Mutation load (minimum estimate) calculation following Gordenin et al protocol 
-        However, at this point motif matches are not filtered for p-value significance
-        That's done in the end after multiple testing correction
+    """
+    Mutation load (minimum estimate) calculation following Gordenin et al protocol
+    However, at this point motif matches are not filtered for p-value significance
+    That's done in the end after multiple testing correction
     """
     mutation_load = 0.0
     if enrichment > 1.0:
@@ -258,6 +258,7 @@ def find_matching_motifs(seq, motif, motif_position):
     # print("Looking for motif {} in {}, {}".format(motif, sequence, len(sequence) - len(motif)))
     for i in range(len(seq) - len(motif) + 1):
         # s = seq[i: i + len(motif)]
+        # print(s)
         for j, c in enumerate(motif):
             if seq[i + j][2] not in bases_dict[c]:
                 break
@@ -318,6 +319,7 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
     assert len(ref) == 1
     assert len(alt) == 1
     assert 0 <= motif_position < len(motif)
+    assert len(set(strand) - set("ATN")) == 0, "[process_mutations] only A, T, N allowed in strand parameter"
 
     matching_bases = set()
     matching_motifs = set()
