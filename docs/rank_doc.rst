@@ -1,10 +1,12 @@
 =====================================================
-Rank: Identifying potential drivers in samples
+Rank: Identifying potential driver mutations
 =====================================================
+
 -----------
 Description
 -----------
-Use mutagene rank to analyze genes and compare observed mutational frequencies to expected background mutability to identify potential drivers. To read more about the MutaGene's ranking method, read the publication
+Use mutagene rank to analyze genes and compare observed mutational frequencies to expected background mutability to identify potential drivers.
+The publication provides more details about the MutaGene's ranking method 
 `Finding driver mutations in cancer: Elucidating the role of background mutational processes <https://doi.org/10.1371/journal.pcbi.1006981>`_
 
 *Note: if you installed MutaGene in a virtual environment, make sure you activate the virtual environment first.*
@@ -53,14 +55,15 @@ Argument                                   Description                          
 --profile PROFILE                          Override profile to calculate mutability
                                            (may also describe cohort size)
 -p PROFILE                                 Short form of --profile PROFILE
---nsamples NSAMPLES                        Override cohort size    
--n NSAMPLES                                Short form of --nsamples
---threshold-driver THRESHOLD_DRIVER        BScore threshold between Driver and Pontential 
+--nsamples NSAMPLES                        Override cohort size                               --nsamples 20
+-n NSAMPLES                                Short form of --nsamples                           -n 20
+--threshold-driver THRESHOLD_DRIVER        BScore threshold between Driver and Pontential     --threshold-driver 0.000009
                                            Driver mutations
--td THRESHOLD_DRIVER                       Short form of --threshold-driver
---threshold-passenger THRESHOLD_PASSENGER  BScore threshold between Potential Driver and 
+-td THRESHOLD_DRIVER                       Short form of --threshold-driver                   -td 0.000009
+--threshold-passenger THRESHOLD_PASSENGER  BScore threshold between Potential Driver and      --threshold-passenger 0.0003
                                            Passenger mutations
--tp THRESHOLD_PASSENGER                    Short form of --threshold-passenger
+-tp THRESHOLD_PASSENGER                    Short form of --threshold-passenger                -tp 0.0003
+
 --cohorts-file COHORTS_FILE                Location of tar.gz container or directory 
                                            for cohorts
 =========================================  =================================================  ==================================  
@@ -180,5 +183,5 @@ BOD1L     T2810S     1.7803044916053778e-07   1         3.7386327764622237e-06  
 TEX15     V2686E     1.8788798872293455e-07   1         3.945640349792222e-06    5.725863260405688e-05  Driver
 GRINA     Y99F       1.8788798872293455e-07   1         3.945640349792222e-06    5.725863260405688e-05  Driver
 N4BP2L2   K143I      2.2773687058386116e-07   1         4.782463390819526e-06    5.725863260405688e-05  Driver
-ZC3H3     R59G       2.4760344619068064e-07   1         5.199659495456503e-06    5.725863260405688e-05   Driver
+ZC3H3     R59G       2.4760344619068064e-07   1         5.199659495456503e-06    5.725863260405688e-05  Driver
 ========  =========  =======================  ========  =======================  =====================  ======   
