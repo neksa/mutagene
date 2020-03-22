@@ -37,7 +37,6 @@ MutaGene represents motifs as a string of characters, where characters in bracke
 ------------------------------
 1.5. Further Reading on Motifs
 ------------------------------
-
 The publication `Mutational signatures and mutable motifs in cancer genomes <https://doi.org/10.1093/bib/bbx049>` describes motifs and their uses.
 
 *Note: if you installed MutaGene in a virtual environment, make sure you activate the virtual environment first.*
@@ -110,6 +109,73 @@ as this motif is likely to appear less frequently in the DNA context. Similarly,
 it may be advantageous to use a window size shorter than the default 50 bases, as the motif is likely to appear in DNA more frequently.
 2. Strand Parameter Explanation: MutaGene can search for the presence of a motif on the transcribed or non-transcribed DNA strands or both strands. This information is gathered from the input file provided by the user. Analyzing for the presence on a transcribed or non-transcribed strand is advantageous when a mutational process is known to have mutations with a transcriptional strand bias. For instance, the APOBEC1/3A/B family is known to be associated with mutational processes that have a transcriptional strand bias of mutations in exons. The transcription strand refers to the coding DNA strand, and the non-transcription strand refers to the template DNA strand.
 
+=======
+
+The publication `Mutational signatures and mutable motifs in cancer genomes <https://doi.org/10.1093/bib/bbx049>` describes motifs and their uses.
+
+*Note: if you installed MutaGene in a virtual environment, make sure you activate the virtual environment first.*
+
+-------------------
+2. Motif command
+-------------------
+
+To use the motif command, type 
+
+``$ mutagene motif [arguments]``
+
+You can always find help on the required arguments using the following command:
+
+``$ mutagene motif -h``
+
+------------
+3. Arguments
+------------
+
+**3.1.Command:** ``$mutagene motif [arguments]``
+
+followed by the required arguments from the command line. 
+
+**3.2.Required Arguments (must be specified):**
+
+Motif function requires:
+``$mutagene motif ``
+
+=========================   ============================================================  ====================
+Argument                    Description                                                   Example
+=========================   ============================================================  ====================
+--infile INFILE             Input file in MAF or VCF format with 1 or multiple samples     --infile sample1.maf
+                            (where INFILE is the sample filename with extension)
+-i INFILE                   Short form of --infile INFILE argument                         -i sample1.maf 
+--genome GENOME             Location of genome assembly file in 2bit format                --genome hg38.2bit   
+                            (where GENOME is the filename)                    
+-g GENOME                   Short form of --genome GENOME argument                         -g hg38.2bit                      
+=========================   ============================================================  ====================                                                                                                                                          
+
+
+**3.3.Optional Arguments (can be specified):**
+
+==========================  =============================================================  ============================
+Argument                    Description                                                    Example
+==========================  =============================================================  ============================
+--outfile [OUTFILE]         Name of output file, will be generated in TSV format            --outfile ../../out/out.tsv
+                            (if this argument is not included output is to screen)
+-o [OUTFILE]                Short form of --outfile [OUTFILE] argument                      -o ../../out/out.tsv
+--motif MOTIF               Motif to search for, use the 'R[C>T]GY syntax for the           --motif 'C[A>T]'
+                            motif. Use quotes
+-m MOTIF                    Short form of --motif MOTIF                                     -m 'C[A>T]'
+window-size WINDOW_SIZE     Context window size for motif search                            --window-size 30
+                            (default setting is 50)\ :sup:`1`
+-w WINDOW_SIZE              Short form of window-size WINDOW_SIZE                           -w 30
+--strand {+,-,=,+-=}        Transcribed strand (+), non-transcribed (-), any (=),           --strand "+-="
+                            or all (+-= default)\ :sup:`2`
+-s {+,-,=,+-=}              Short form of --strand {+,-,=,+-=}                              -s "+-="
+==========================  =============================================================  ============================
+
+1. Window Size Parameter Explanation: MutaGene counts window size as the number of DNA bases searched for from the first base of the DNA sequence gathered up to but not including the mutated base. Therefore, the effective length of the DNA sequence searched is 2 * window-size + 1. It may be advantageous to use a window size longer than the default 50 bases if the motif is longer than three nucleotides,
+as this motif is likely to appear less frequently in the DNA context. Similarly, if the motif is shorter than three nucleotides,
+it may be advantageous to use a window size shorter than the default 50 bases, as the motif is likely to appear in DNA more frequently.
+2. Strand Parameter Explanation: MutaGene can search for the presence of a motif on the transcribed or non-transcribed DNA strands or both strands. This information is gathered from the input file provided by the user. Analyzing for the presence on a transcribed or non-transcribed strand is advantageous when a mutational process is known to have mutations with a transcriptional strand bias. For instance, the APOBEC1/3A/B family is known to be associated with mutational processes that have a transcriptional strand bias of mutations in exons. The transcription strand refers to the coding DNA strand, and the non-transcription strand refers to the template DNA strand.
+
 ---------------------------------
 4. Interpretation of Motif Output
 ---------------------------------
@@ -145,7 +211,7 @@ overrepresentation of the mutated motif (as compared to what is likely by chance
 5.1.1. Command
 ---------------
 
-``$ mutagene motif search -i sample1.maf -g hg19 -s "="``
+``$ mutagene motif -i sample1.maf -g hg19 -s "="``
 
 -------------------
 5.1.2. Motif Output
@@ -170,7 +236,7 @@ File "sample1.maf" contains one sample "TCGA-50-6593-01A-11D-1753-08"; from this
 5.2.1. Command
 -------------
 
-``$ mutagene motif search -i sample1.maf -g hg19 -m 'C[A>T]'``
+``$ mutagene motif -i sample1.maf -g hg19 -m 'C[A>T]'``
 
 -------------------
 5.2.2. Motif Output
@@ -186,7 +252,7 @@ No significant motif matches are found in the data, so nothing is reported.
 5.3.1. Command
 -------------
 
-``$ mutagene motif search -i sample1.maf -g hg19 -w 20 -s "+"``
+``$ mutagene motif -i sample1.maf -g hg19 -w 20 -s "+"``
 
 -------------------
 5.3.2. Motif Output
@@ -216,7 +282,7 @@ bases from each mutation*
 5.4.1. Command
 -------------
 
-``$ mutagene motif search -i sample2.vcf -g hg19 -w 30 -s "+-="``
+``$ mutagene motif -i sample2.vcf -g hg19 -w 30 -s "+-="``
 
 -------------------
 5.4.2. Motif Output
@@ -273,3 +339,10 @@ AID           W[R>S]C
 The names and symbols for all pre-identified motifs in MutaGene are listed.
 
 
+=======
+
+--------------------------------
+5.4.3. Interpretation of output
+--------------------------------
+
+File sample2.vcf was searched for all pre-identified motifs in MutaGene. Of these motifs, APOBEC3G and C>T in CpG were significantly present on the transcribed strand, non-transcribed strand, and both strands together. The presence of the Poly Eta motif was not significant on the non-transcribed strand but was significant on the transcribed stand and both the transcribed and non-transcribed strands together.
