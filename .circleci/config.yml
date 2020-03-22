@@ -54,26 +54,23 @@ jobs:
       - run:
           name: run tests
           command: |
-            pipenv run pytest
+            pipenv run pytest tests
 
       - run:
           name: verify package
           command: |
-            . venv/bin/activate
-            python setup.py check
+            pipenv run python setup.py check
 
       - run:
           name: install package
           command: |
-            . venv/bin/activate
-            python setup.py install
-            mutagene --help > test-reports/mutagene-help.out
+            pipenv run python setup.py install
+            pipenv run mutagene --help > test-reports/mutagene-help.out
 
       - run:
           name: Execute mutagene rank
           command: |
-            . venv/bin/activate
-            mutagene -v rank -g hg19 -i sample1.maf -c pancancer -o test-reports/rank-sample1-pancancer.txt
+            pipenv run mutagene -v rank -g hg19 -i sample1.maf -c pancancer -o test-reports/rank-sample1-pancancer.txt
 
       - store_artifacts:
           path: test-reports/
