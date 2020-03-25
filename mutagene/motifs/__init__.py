@@ -21,11 +21,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def identify_motifs(samples_mutations, custom_motif=None, strand=None, threshold=None, dump_matches=None):
+def identify_motifs(samples_mutations, custom_motif=None, strand=None, threshold=None, dump_matches=None, stat_type=None):
     """
     :param samples_mutations: list of mutations from input file
     :param custom_motif: specified motif to search for
     :param strand: strand(s) to search on (T: transcribed, N: non-transcribed, A: any, or a combination theirof: 'TNA')
+    :param dump_matches: pass through to process_mutations, stores all motif matches
+    :param stat_type: pass through to process_mutations, choose statistical test
     :return: command-line output
     """
     motif_matches = []
@@ -69,7 +71,8 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None, threshold
                         m['ref'],
                         m['alt'],
                         window_size,
-                        s)
+                        s,
+                        stat_type=stat_type)
 
                     if dump_matches:
                         for chrom, pos in saved_data['mutation_motif']:
@@ -194,15 +197,17 @@ def get_stats(ct, stat_type='fisher'):
     if stat_type is None:
         stat_type = 'fisher'
 
+    stat_type = stat_type.lower()
+
     acceptable_tests = ('fisher', 'chi2')
     if stat_type not in acceptable_tests:
         logger.warning('get_stats() can only calculate p-values for ' + str(acceptable_tests))
 
     if stat_type == 'fisher':
         try:
-            p_val = stats.fisher_exact(ct, alternative="less")[1]
+            p_val = stats.fisher_exact(ct, alternative="greater")[1]
             # if p_val > 0.05:
-            #     p_val = stats.fisher_exact(ct, alternative="greater")[1] #calculates if motif is underrepresented
+            #     p_val = stats.fisher_exact(ct, alternative="less")[1] #calculates if motif is underrepresented
         except ValueError:
             p_val = 1.0
     elif stat_type == 'chi2':
