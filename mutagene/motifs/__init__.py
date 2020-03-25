@@ -197,15 +197,17 @@ def get_stats(ct, stat_type='fisher'):
     if stat_type is None:
         stat_type = 'fisher'
 
+    stat_type = stat_type.lower()
+
     acceptable_tests = ('fisher', 'chi2')
     if stat_type not in acceptable_tests:
         logger.warning('get_stats() can only calculate p-values for ' + str(acceptable_tests))
 
     if stat_type == 'fisher':
         try:
-            p_val = stats.fisher_exact(ct, alternative="less")[1]
+            p_val = stats.fisher_exact(ct, alternative="greater")[1]
             # if p_val > 0.05:
-            #     p_val = stats.fisher_exact(ct, alternative="greater")[1] #calculates if motif is underrepresented
+            #     p_val = stats.fisher_exact(ct, alternative="less")[1] #calculates if motif is underrepresented
         except ValueError:
             p_val = 1.0
     elif stat_type == 'chi2':
