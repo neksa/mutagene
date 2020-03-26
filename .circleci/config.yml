@@ -68,9 +68,25 @@ jobs:
             pipenv run mutagene --help > test-reports/mutagene-help.out
 
       - run:
+          name: Execute mutagene fetch
+          command: |
+            pipenv run mutagene -v fetch cohorts MSKCC --cohort paac_jhu_2014
+            FETCH_MD5SUM=$(md5sum paac_jhu_2014.tar.gz | awk '{print $1}')
+            [ $FETCH_MD5SUM = 'b7709f55eaeade1b1c6102d134b16c18' ]
+
+      - run:
+          name: Execute mutagene motif
+          command: |
+            pipenv run mutagene -v motif -i sample1.maf -g hg19 --motif "C[A>T]" --strand A -o test-reports/motif-sample1.txt
+            MOTIF_SAMPLE=$(tail -n +2 test-reports/motif-sample1.txt | awk '{print $1}')
+            [ $MOTIF_SAMPLE = 'TCGA-50-6593-01A-11D-1753-08' ]
+
+      - run:
           name: Execute mutagene rank
           command: |
             pipenv run mutagene -v rank -g hg19 -i sample1.maf -c pancancer -o test-reports/rank-sample1-pancancer.txt
+            RANK_GENE_MUT=$(awk '{if(NR==2) print $1 $2}' test-reports/rank-sample1-pancancer.txt)
+            [ $RANK_GENE_MUT = 'CPXM2T536M' ]
 
       - store_artifacts:
           path: test-reports/
