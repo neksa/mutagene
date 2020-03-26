@@ -23,7 +23,7 @@ jobs:
       # Download and cache dependencies
       - restore_cache:
           keys:
-          - v1-dependencies-cli-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          - v0_9_0_1-dependencies-cli-{{ .Branch }}-{{ checksum "requirements.txt" }}
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
@@ -41,7 +41,7 @@ jobs:
             [ -f ./sample1.maf ] || wget -O ./sample1.maf https://www.ncbi.nlm.nih.gov/research/mutagene/static/data/sample1.maf
 
       - save_cache:
-          key: v1-dependencies-cli-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          key: v0_9_0_1-dependencies-cli-{{ .Branch }}-{{ checksum "requirements.txt" }}
           paths:
             - ./venv
             - ./
