@@ -82,16 +82,30 @@ jobs:
       - run:
           name: Execute mutagene motif
           command: |
-            pipenv run mutagene -v motif -i sample1.maf -g hg19 --motif "C[A>T]" --strand A -o test-reports/motif-sample1.txt
-            MOTIF_SAMPLE=$(tail -n +2 test-reports/motif-sample1.txt | awk '{print $1}')
+            pipenv run mutagene -v motif -i sample1.maf -g hg19 --motif "C[A>T]" --strand A -o test-reports/cli-motif-sample1.txt
+            MOTIF_SAMPLE=$(awk '{if(NR==2) print $1}' test-reports/cli-motif-sample1.txt)
             [ $MOTIF_SAMPLE = 'TCGA-50-6593-01A-11D-1753-08' ]
+
+      - run:
+          name: Execute mutagene profile
+          command: |
+            pipenv run mutagene -v profile -i sample1.maf -g hg19 -o test-reports/cli-profile-sample1.txt
+            PROFILE_SAMPLE=$(awk '{if(NR==1) print $1 $2}' test-reports/cli-profile-sample1.txt)
+            [ $PROFILE_SAMPLE = 'A[C>A]A6' ]
 
       - run:
           name: Execute mutagene rank
           command: |
-            pipenv run mutagene -v rank -g hg19 -i sample1.maf -c pancancer -o test-reports/rank-sample1-pancancer.txt
-            RANK_GENE_MUT=$(awk '{if(NR==2) print $1 $2}' test-reports/rank-sample1-pancancer.txt)
+            pipenv run mutagene -v rank -g hg19 -i sample1.maf -c pancancer -o test-reports/cli-rank-sample1-pancancer.txt
+            RANK_GENE_MUT=$(awk '{if(NR==2) print $1 $2}' test-reports/cli-rank-sample1-pancancer.txt)
             [ $RANK_GENE_MUT = 'CPXM2T536M' ]
+
+      - run:
+          name: Execute mutagene signature
+          command: |
+            pipenv run mutagene -v signature identify -i sample1.maf -g hg19 -s5 -o test-reports/cli-signature-sample1.txt
+            SIGNATURE_SAMPLE=$(awk '{if(NR==2) print $1 $2 $3 $4}' test-reports/cli-signature-sample1.txt)
+            [ $SIGNATURE_SAMPLE = 'TCGA-50-6593-01A-11D-1753-0810.5361182' ]
 
       - store_artifacts:
           path: test-reports/
