@@ -21,11 +21,14 @@ jobs:
       - checkout
 
       # Download and cache dependencies
+      # https://circleci.com/docs/2.0/caching/#pip-python, https://support.circleci.com/hc/en-us/articles/115015426888-Clear-project-cache
       - restore_cache:
           keys:
-          - v0_9_01-dependencies-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          # when lock file changes, use increasingly general patterns to restore cache
+          - v0_9-dependencies-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
           # fallback to using the latest cache if no exact match is found
-          - v0_9_00-dependencies-
+          - v0_9-dependencies-{{ .Branch }}-
+          - v0_9-dependencies-
 
       - run:
           name: Install Python environment dependencies
@@ -41,10 +44,12 @@ jobs:
             [ -f ./sample1.maf ] || wget -O ./sample1.maf https://www.ncbi.nlm.nih.gov/research/mutagene/static/data/sample1.maf
 
       - save_cache:
-          key: v0_9_01-dependencies-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          key: v0_9-dependencies-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
           paths:
-            - ./venv
-            - ./
+            - ~/.local/share/virtualenvs  # this path depends on where pipenv creates a virtualenv (e.g., mutagene-5WcH_jEW)
+            - ./hg19.2bit
+            - ./cohorts.tar.gz
+            - ./sample1.maf
 
       # run tests!
       # this example uses Django's built-in test-runner
