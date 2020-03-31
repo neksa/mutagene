@@ -34,7 +34,7 @@ jobs:
           name: Install Python environment dependencies
           command: |
             sudo pip install pipenv
-            pipenv install -r requirements.txt
+            pipenv install
 
       - run:
           name: Download files required for CLI tests (if not restored from cache)
@@ -46,7 +46,8 @@ jobs:
       - save_cache:
           key: v0_9-dependencies-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
           paths:
-            - ~/.local/share/virtualenvs  # this path depends on where pipenv creates a virtualenv (e.g., mutagene-5WcH_jEW)
+            # this path is used due to presence of PIPENV_VENV_IN_PROJECT env var, would normally be in, e.g., ~/.local/share/virtualenvs/mutagene-5WcH_jEW
+            - ./.venv
             - ./hg19.2bit
             - ./cohorts.tar.gz
             - ./sample1.maf
