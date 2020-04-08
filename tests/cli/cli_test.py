@@ -25,7 +25,7 @@ def setup_module(module):
 
 
 def teardown_module(module):
-    if 'CIRCLECI' in os.environ and os.environ['CIRCLECI'] == True:
+    if 'CIRCLECI' in os.environ and os.environ['CIRCLECI'] == 'true':
         for f in TEST_FILE_LIST:
             if os.path.isfile(f'{TEST_DIR}/{f}'):
                 os.remove(f'{TEST_DIR}/{f}')
