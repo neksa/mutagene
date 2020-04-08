@@ -5,6 +5,7 @@ from mutagene.__main__ import MutaGeneApp
 
 TEST_DIR = 'test-reports'
 COHORTS_FILE = 'cohorts.tar.gz'
+TEST_FILE_LIST = [COHORTS_FILE, 'sample1.maf', 'hg19.2bit']
 
 
 def setup_module(module):
@@ -12,9 +13,7 @@ def setup_module(module):
     ARTIFACTORY_USER = 'mutagene'
     ARTIFACTORY_PASSWD = 'w8$X2:Eb[Ug7Di6@'
 
-    test_file_list = [COHORTS_FILE, 'sample1.maf', 'hg19.2bit']
-
-    for f in test_file_list:
+    for f in TEST_FILE_LIST:
         if not os.path.isfile(f'{TEST_DIR}/{f}'):
             if os.path.isfile(f'./{f}'):
                 shutil.copyfile(f'./{f}', f'{TEST_DIR}/{f}')
@@ -23,6 +22,13 @@ def setup_module(module):
                 outfile = open(f'{TEST_DIR}/{f}', 'wb')
                 outfile.write(r.content)
                 outfile.close()
+
+
+def teardown_module(module):
+    if 'CIRCLECI' in os.environ and os.environ['CIRCLECI'] == True:
+        for f in TEST_FILE_LIST:
+            if os.path.isfile(f'{TEST_DIR}/{f}'):
+                os.remove(f'{TEST_DIR}/{f}')
 
 
 def set_argv(cmd, cmd_args):
