@@ -3,20 +3,24 @@ import hashlib, os, requests, shutil, sys
 from mutagene.__main__ import MutaGeneApp
 
 
+TEST_DIR = 'test-reports'
+COHORTS_FILE = 'cohorts.tar.gz'
+
+
 def setup_module(module):
     ARTIFACTORY_ROOT_URL = 'http://169.53.172.72:8081/artifactory/generic-local/mutagene'
     ARTIFACTORY_USER = 'mutagene'
     ARTIFACTORY_PASSWD = 'w8$X2:Eb[Ug7Di6@'
 
-    test_file_list = ['cohorts.tar.gz', 'sample1.maf', 'hg19.2bit']
+    test_file_list = [COHORTS_FILE, 'sample1.maf', 'hg19.2bit']
 
     for f in test_file_list:
-        if not os.path.isfile(f'test-reports/{f}'):
+        if not os.path.isfile(f'{TEST_DIR}/{f}'):
             if os.path.isfile(f'./{f}'):
-                shutil.copyfile(f'./{f}', f'test-reports/{f}')
+                shutil.copyfile(f'./{f}', f'{TEST_DIR}/{f}')
             else:
                 r = requests.get(f'{ARTIFACTORY_ROOT_URL}/{f}', auth=(ARTIFACTORY_USER, ARTIFACTORY_PASSWD))
-                outfile = open(f'test-reports/{f}', 'wb')
+                outfile = open(f'{TEST_DIR}/{f}', 'wb')
                 outfile.write(r.content)
                 outfile.close()
 
@@ -52,17 +56,17 @@ class CliTestCases(unittest.TestCase):
         sys.argv = argv_orig
 
         file_name = 'paac_jhu_2014.tar.gz'
-        os.rename(f'./{file_name}', f'test-reports/{file_name}')
+        os.rename(f'./{file_name}', f'{TEST_DIR}/{file_name}')
 
-        file_md5sum = md5sum(f'test-reports/{file_name}')
+        file_md5sum = md5sum(f'{TEST_DIR}/{file_name}')
 
         assert file_md5sum == 'b7709f55eaeade1b1c6102d134b16c18'
 
 
     def test_motif(self):
-        infile = 'test-reports/sample1.maf'
-        outfile = 'test-reports/cli-motif-sample1.txt'
-        genome = 'test-reports/hg19.2bit'
+        infile = f'{TEST_DIR}/sample1.maf'
+        outfile = f'{TEST_DIR}/cli-motif-sample1.txt'
+        genome = f'{TEST_DIR}/hg19.2bit'
 
         # mutagene -v motif -i sample1.maf -g hg19 --motif "C[A>T]" --strand A -o test-reports/cli-motif-sample1.txt
         argv_orig = set_argv('motif', ['-i', infile, '-o', outfile, '-g', genome, '--motif', 'C[A>T]', '--strand', 'A'])
@@ -83,8 +87,8 @@ class CliTestCases(unittest.TestCase):
 
     def test_profile(self):
         infile = 'tests/motifs/data/vcf/data.vcf'
-        outfile = 'test-reports/cli-profile-test.txt'
-        genome = 'test-reports/hg19.2bit'  # 'tests/motifs/data/test_genome.2bit'
+        outfile = f'{TEST_DIR}/cli-profile-test.txt'
+        genome = f'{TEST_DIR}/hg19.2bit'  # 'tests/motifs/data/test_genome.2bit'
 
         # mutagene -v profile -i sample1.maf -g hg19 -o test-reports/cli-profile-sample1.txt
         argv_orig = set_argv('profile', ['-i', infile, '-o', outfile, '-g', genome])
@@ -106,18 +110,22 @@ class CliTestCases(unittest.TestCase):
 
 
     def test_rank(self):
-        infile = 'test-reports/sample1.maf'
-        outfile = 'test-reports/cli-rank-sample1-pancancer.txt'
-        genome = 'test-reports/hg19.2bit'
+        infile = f'{TEST_DIR}/sample1.maf'
+        outfile = f'{TEST_DIR}/cli-rank-sample1-pancancer.txt'
+        genome = f'{TEST_DIR}/hg19.2bit'
 
-        os.rename('test-reports/cohorts.tar.gz', './cohorts.tar.gz')
+        cp_cohorts = False
+        if not os.path.isfile(f'./{COHORTS_FILE}'):
+            cp_cohorts = True
+            shutil.copyfile(f'{TEST_DIR}/{COHORTS_FILE}', f'./{COHORTS_FILE}')
 
         # mutagene -v rank -g hg19 -i sample1.maf -c pancancer -o test-reports/cli-rank-sample1-pancancer.txt
         argv_orig = set_argv('rank', ['-i', infile, '-o', outfile, '-g', genome, '-c', 'pancancer'])
         MutaGeneApp()
         sys.argv = argv_orig
 
-        os.rename('./cohorts.tar.gz', 'test-reports/cohorts.tar.gz')
+        if cp_cohorts == True:
+            os.remove(f'./{COHORTS_FILE}')
 
         out_lines = []
         in_fh = open(outfile, 'r')
@@ -132,9 +140,9 @@ class CliTestCases(unittest.TestCase):
 
 
     def test_signature(self):
-        infile = 'test-reports/sample1.maf'
-        outfile = 'test-reports/cli-signature-sample1.txt'
-        genome = 'test-reports/hg19.2bit'
+        infile = f'{TEST_DIR}/sample1.maf'
+        outfile = f'{TEST_DIR}/cli-signature-sample1.txt'
+        genome = f'{TEST_DIR}/hg19.2bit'
 
         # mutagene -v signature identify -i sample1.maf -g hg19 -s5 -o test-reports/cli-signature-sample1.txt
         argv_orig = set_argv('signature', ['identify', '-i', infile, '-o', outfile, '-g', genome, '-s5'])
@@ -154,6 +162,6 @@ class CliTestCases(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    print(os.getcwd() + '\n' + sys.argv)
+#    print(os.getcwd() + '\n' + sys.argv)
     unittest.main()
-    print(sys.argv)
+#    print(sys.argv)
