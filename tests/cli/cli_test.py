@@ -8,6 +8,7 @@ COHORTS_FILE = 'cohorts.tar.gz'
 TEST_FILE_LIST = [COHORTS_FILE, 'sample1.maf', 'hg19.2bit']
 
 
+# Download large test articles from Artifactory if not present in current environment
 def setup_module(module):
     ARTIFACTORY_ROOT_URL = 'http://169.53.172.72:8081/artifactory/generic-local/mutagene'
     ARTIFACTORY_USER = 'mutagene'
@@ -15,8 +16,11 @@ def setup_module(module):
 
     for f in TEST_FILE_LIST:
         if not os.path.isfile(f'{TEST_DIR}/{f}'):
+            # File may already exist at execution root, e.g., when run by CircleCI
+            # If so, copy file to test-reports for this set of tests
             if os.path.isfile(f'./{f}'):
                 shutil.copyfile(f'./{f}', f'{TEST_DIR}/{f}')
+            # Otherwise, download from Artifactory
             else:
                 r = requests.get(f'{ARTIFACTORY_ROOT_URL}/{f}', auth=(ARTIFACTORY_USER, ARTIFACTORY_PASSWD))
                 outfile = open(f'{TEST_DIR}/{f}', 'wb')
@@ -24,6 +28,7 @@ def setup_module(module):
                 outfile.close()
 
 
+# If these tests are being executed by CircleCI, remove them from the test-reports directory prior to artifact storage
 def teardown_module(module):
     if 'CIRCLECI' in os.environ and os.environ['CIRCLECI'] == 'true':
         for f in TEST_FILE_LIST:
@@ -31,7 +36,9 @@ def teardown_module(module):
                 os.remove(f'{TEST_DIR}/{f}')
 
 
+# Method to run MutaGene CLI commands in a manner similar to actual CLI execution
 def run_with_args(cmd, cmd_args):
+    # Copy original sys.argv from pytest execution
     argv_orig = sys.argv.copy()
 
     del sys.argv[1:]
@@ -42,7 +49,10 @@ def run_with_args(cmd, cmd_args):
     for a in cmd_args:
         sys.argv.append(a)
 
+    # Execute MutaGene with current arguments
     MutaGeneApp()
+
+    # Restore pytest sys.argv
     sys.argv = argv_orig
 
 
