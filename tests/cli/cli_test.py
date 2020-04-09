@@ -31,8 +31,8 @@ def teardown_module(module):
                 os.remove(f'{TEST_DIR}/{f}')
 
 
-def set_argv(cmd, cmd_args):
-    argv_orig = sys.argv
+def run_with_args(cmd, cmd_args):
+    argv_orig = sys.argv.copy()
 
     del sys.argv[1:]
 
@@ -42,7 +42,8 @@ def set_argv(cmd, cmd_args):
     for a in cmd_args:
         sys.argv.append(a)
 
-    return argv_orig
+    MutaGeneApp()
+    sys.argv = argv_orig
 
 
 # https://stackoverflow.com/a/3431838
@@ -57,9 +58,7 @@ def md5sum(filename, blocksize=65536):
 class CliTestCases(unittest.TestCase):
     def test_fetch(self):
         # mutagene -v fetch cohorts MSKCC --cohort paac_jhu_2014
-        argv_orig = set_argv('fetch', ['cohorts', 'MSKCC', '--cohort', 'paac_jhu_2014'])
-        MutaGeneApp()
-        sys.argv = argv_orig
+        run_with_args('fetch', ['cohorts', 'MSKCC', '--cohort', 'paac_jhu_2014'])
 
         file_name = 'paac_jhu_2014.tar.gz'
         os.rename(f'./{file_name}', f'{TEST_DIR}/{file_name}')
@@ -75,9 +74,7 @@ class CliTestCases(unittest.TestCase):
         genome = f'{TEST_DIR}/hg19.2bit'
 
         # mutagene -v motif -i sample1.maf -g hg19 --motif "C[A>T]" --strand A -o test-reports/cli-motif-sample1.txt
-        argv_orig = set_argv('motif', ['-i', infile, '-o', outfile, '-g', genome, '--motif', 'C[A>T]', '--strand', 'A'])
-        MutaGeneApp()
-        sys.argv = argv_orig
+        run_with_args('motif', ['-i', infile, '-o', outfile, '-g', genome, '--motif', 'C[A>T]', '--strand', 'A'])
 
         out_lines = []
         in_fh = open(outfile, 'r')
@@ -97,9 +94,7 @@ class CliTestCases(unittest.TestCase):
         genome = f'{TEST_DIR}/hg19.2bit'  # 'tests/motifs/data/test_genome.2bit'
 
         # mutagene -v profile -i sample1.maf -g hg19 -o test-reports/cli-profile-sample1.txt
-        argv_orig = set_argv('profile', ['-i', infile, '-o', outfile, '-g', genome])
-        MutaGeneApp()
-        sys.argv = argv_orig
+        run_with_args('profile', ['-i', infile, '-o', outfile, '-g', genome])
 
         out_lines = []
         in_fh = open(outfile, 'r')
@@ -126,9 +121,7 @@ class CliTestCases(unittest.TestCase):
             shutil.copyfile(f'{TEST_DIR}/{COHORTS_FILE}', f'./{COHORTS_FILE}')
 
         # mutagene -v rank -g hg19 -i sample1.maf -c pancancer -o test-reports/cli-rank-sample1-pancancer.txt
-        argv_orig = set_argv('rank', ['-i', infile, '-o', outfile, '-g', genome, '-c', 'pancancer'])
-        MutaGeneApp()
-        sys.argv = argv_orig
+        run_with_args('rank', ['-i', infile, '-o', outfile, '-g', genome, '-c', 'pancancer'])
 
         if cp_cohorts == True:
             os.remove(f'./{COHORTS_FILE}')
@@ -151,9 +144,7 @@ class CliTestCases(unittest.TestCase):
         genome = f'{TEST_DIR}/hg19.2bit'
 
         # mutagene -v signature identify -i sample1.maf -g hg19 -s5 -o test-reports/cli-signature-sample1.txt
-        argv_orig = set_argv('signature', ['identify', '-i', infile, '-o', outfile, '-g', genome, '-s5'])
-        MutaGeneApp()
-        sys.argv = argv_orig
+        run_with_args('signature', ['identify', '-i', infile, '-o', outfile, '-g', genome, '-s5'])
 
         out_lines = []
         in_fh = open(outfile, 'r')
