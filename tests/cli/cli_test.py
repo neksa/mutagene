@@ -1,4 +1,4 @@
-import unittest
+import pytest
 import hashlib, os, requests, shutil, sys
 from mutagene.__main__ import MutaGeneApp
 
@@ -9,10 +9,10 @@ TEST_FILE_LIST = [COHORTS_FILE, 'sample1.maf', 'hg19.2bit']
 
 
 # Download large test articles from Artifactory if not present in current environment
-def setup_module(module):
-    ARTIFACTORY_ROOT_URL = 'http://169.53.172.72:8081/artifactory/generic-local/mutagene'
-    ARTIFACTORY_USER = 'mutagene'
-    ARTIFACTORY_PASSWD = 'w8$X2:Eb[Ug7Di6@'
+def artifactory_retrieval(store):
+    ARTIFACTORY_ROOT_URL = store['artifactory']['url']
+    ARTIFACTORY_USER = store['artifactory']['username']
+    ARTIFACTORY_PASSWD = store['artifactory']['password']
 
     for f in TEST_FILE_LIST:
         if not os.path.isfile(f'{TEST_DIR}/{f}'):
@@ -28,8 +28,10 @@ def setup_module(module):
                 outfile.close()
 
 
-# If these tests are being executed by CircleCI, remove them from the test-reports directory prior to artifact storage
-def teardown_module(module):
+@pytest.fixture
+def artifactory_cleanup():
+    yield None
+
     if 'CIRCLECI' in os.environ and os.environ['CIRCLECI'] == 'true':
         for f in TEST_FILE_LIST:
             if os.path.isfile(f'{TEST_DIR}/{f}'):
@@ -65,110 +67,111 @@ def md5sum(filename, blocksize=65536):
     return hash.hexdigest()
 
 
-class CliTestCases(unittest.TestCase):
-    def test_fetch(self):
-        # mutagene -v fetch cohorts MSKCC --cohort paac_jhu_2014
-        run_with_args('fetch', ['cohorts', 'MSKCC', '--cohort', 'paac_jhu_2014'])
+def test_fetch():
+    # mutagene -v fetch cohorts MSKCC --cohort paac_jhu_2014
+    run_with_args('fetch', ['cohorts', 'MSKCC', '--cohort', 'paac_jhu_2014'])
 
-        file_name = 'paac_jhu_2014.tar.gz'
-        os.rename(f'./{file_name}', f'{TEST_DIR}/{file_name}')
+    file_name = 'paac_jhu_2014.tar.gz'
+    os.rename(f'./{file_name}', f'{TEST_DIR}/{file_name}')
 
-        file_md5sum = md5sum(f'{TEST_DIR}/{file_name}')
+    file_md5sum = md5sum(f'{TEST_DIR}/{file_name}')
 
-        assert file_md5sum == 'b7709f55eaeade1b1c6102d134b16c18'
-
-
-    def test_motif(self):
-        infile = f'{TEST_DIR}/sample1.maf'
-        outfile = f'{TEST_DIR}/cli-motif-sample1.txt'
-        genome = f'{TEST_DIR}/hg19.2bit'
-
-        # mutagene -v motif -i sample1.maf -g hg19 --motif "C[A>T]" --strand A -o test-reports/cli-motif-sample1.txt
-        run_with_args('motif', ['-i', infile, '-o', outfile, '-g', genome, '--motif', 'C[A>T]', '--strand', 'A'])
-
-        out_lines = []
-        in_fh = open(outfile, 'r')
-
-        for i in range(2):
-            out_lines.append(in_fh.readline())
-            if i >= 2: break
-
-        in_fh.close()
-
-        assert out_lines[1].startswith('TCGA-50-6593-01A-11D-1753-08\tCustom motif\tC[A>T]\tany strand')
+    assert file_md5sum == 'b7709f55eaeade1b1c6102d134b16c18'
 
 
-    def test_profile(self):
-        infile = 'tests/motifs/data/vcf/data.vcf'
-        outfile = f'{TEST_DIR}/cli-profile-test.txt'
-        genome = f'{TEST_DIR}/hg19.2bit'  # 'tests/motifs/data/test_genome.2bit'
+def test_motif(store):
+    artifactory_retrieval(store)
 
-        # mutagene -v profile -i sample1.maf -g hg19 -o test-reports/cli-profile-sample1.txt
-        run_with_args('profile', ['-i', infile, '-o', outfile, '-g', genome])
+    infile = f'{TEST_DIR}/sample1.maf'
+    outfile = f'{TEST_DIR}/cli-motif-sample1.txt'
+    genome = f'{TEST_DIR}/hg19.2bit'
 
-        out_lines = []
-        in_fh = open(outfile, 'r')
+    # mutagene -v motif -i sample1.maf -g hg19 --motif "C[A>T]" --strand A -o test-reports/cli-motif-sample1.txt
+    run_with_args('motif', ['-i', infile, '-o', outfile, '-g', genome, '--motif', 'C[A>T]', '--strand', 'A'])
 
-        for i in range(3):
-            out_lines.append(in_fh.readline())
-            if i >= 3: break
+    out_lines = []
+    in_fh = open(outfile, 'r')
 
-        in_fh.close()
+    for i in range(2):
+        out_lines.append(in_fh.readline())
+        if i >= 2: break
 
-        assert out_lines[0] == 'A[C>A]A\t0\n'
-        assert out_lines[1] == 'A[C>G]A\t2\n'
-        assert out_lines[2] == 'A[C>T]A\t4\n'
+    in_fh.close()
 
-
-    def test_rank(self):
-        infile = f'{TEST_DIR}/sample1.maf'
-        outfile = f'{TEST_DIR}/cli-rank-sample1-pancancer.txt'
-        genome = f'{TEST_DIR}/hg19.2bit'
-
-        cp_cohorts = False
-        if not os.path.isfile(f'./{COHORTS_FILE}'):
-            cp_cohorts = True
-            shutil.copyfile(f'{TEST_DIR}/{COHORTS_FILE}', f'./{COHORTS_FILE}')
-
-        # mutagene -v rank -g hg19 -i sample1.maf -c pancancer -o test-reports/cli-rank-sample1-pancancer.txt
-        run_with_args('rank', ['-i', infile, '-o', outfile, '-g', genome, '-c', 'pancancer'])
-
-        if cp_cohorts == True:
-            os.remove(f'./{COHORTS_FILE}')
-
-        out_lines = []
-        in_fh = open(outfile, 'r')
-
-        for i in range(2):
-            out_lines.append(in_fh.readline())
-            if i >= 2: break
-
-        in_fh.close()
-
-        assert out_lines[1].startswith('CPXM2\tT536M\t')
+    assert out_lines[1].startswith('TCGA-50-6593-01A-11D-1753-08\tCustom motif\tC[A>T]\tany strand')
 
 
-    def test_signature(self):
-        infile = f'{TEST_DIR}/sample1.maf'
-        outfile = f'{TEST_DIR}/cli-signature-sample1.txt'
-        genome = f'{TEST_DIR}/hg19.2bit'
+def test_profile(store):
+    artifactory_retrieval(store)
 
-        # mutagene -v signature identify -i sample1.maf -g hg19 -s5 -o test-reports/cli-signature-sample1.txt
-        run_with_args('signature', ['identify', '-i', infile, '-o', outfile, '-g', genome, '-s5'])
+    infile = 'tests/motifs/data/vcf/data.vcf'
+    outfile = f'{TEST_DIR}/cli-profile-test.txt'
+    genome = f'{TEST_DIR}/hg19.2bit'  # 'tests/motifs/data/test_genome.2bit'
 
-        out_lines = []
-        in_fh = open(outfile, 'r')
+    # mutagene -v profile -i sample1.maf -g hg19 -o test-reports/cli-profile-sample1.txt
+    run_with_args('profile', ['-i', infile, '-o', outfile, '-g', genome])
 
-        for i in range(2):
-            out_lines.append(in_fh.readline())
-            if i >= 2: break
+    out_lines = []
+    in_fh = open(outfile, 'r')
 
-        in_fh.close()
+    for i in range(3):
+        out_lines.append(in_fh.readline())
+        if i >= 3: break
 
-        assert out_lines[1].startswith('TCGA-50-6593-01A-11D-1753-08\t1\t0.5361\t182')
+    in_fh.close()
+
+    assert out_lines[0] == 'A[C>A]A\t0\n'
+    assert out_lines[1] == 'A[C>G]A\t2\n'
+    assert out_lines[2] == 'A[C>T]A\t4\n'
 
 
-if __name__ == '__main__':
-#    print(os.getcwd() + '\n' + sys.argv)
-    unittest.main()
-#    print(sys.argv)
+def test_rank(store):
+    artifactory_retrieval(store)
+
+    infile = f'{TEST_DIR}/sample1.maf'
+    outfile = f'{TEST_DIR}/cli-rank-sample1-pancancer.txt'
+    genome = f'{TEST_DIR}/hg19.2bit'
+
+    cp_cohorts = False
+    if not os.path.isfile(f'./{COHORTS_FILE}'):
+        cp_cohorts = True
+        shutil.copyfile(f'{TEST_DIR}/{COHORTS_FILE}', f'./{COHORTS_FILE}')
+
+    # mutagene -v rank -g hg19 -i sample1.maf -c pancancer -o test-reports/cli-rank-sample1-pancancer.txt
+    run_with_args('rank', ['-i', infile, '-o', outfile, '-g', genome, '-c', 'pancancer'])
+
+    if cp_cohorts == True:
+        os.remove(f'./{COHORTS_FILE}')
+
+    out_lines = []
+    in_fh = open(outfile, 'r')
+
+    for i in range(2):
+        out_lines.append(in_fh.readline())
+        if i >= 2: break
+
+    in_fh.close()
+
+    assert out_lines[1].startswith('CPXM2\tT536M\t')
+
+
+def test_signature(store):
+    artifactory_retrieval(store)
+
+    infile = f'{TEST_DIR}/sample1.maf'
+    outfile = f'{TEST_DIR}/cli-signature-sample1.txt'
+    genome = f'{TEST_DIR}/hg19.2bit'
+
+    # mutagene -v signature identify -i sample1.maf -g hg19 -s5 -o test-reports/cli-signature-sample1.txt
+    run_with_args('signature', ['identify', '-i', infile, '-o', outfile, '-g', genome, '-s5'])
+
+    out_lines = []
+    in_fh = open(outfile, 'r')
+
+    for i in range(2):
+        out_lines.append(in_fh.readline())
+        if i >= 2: break
+
+    in_fh.close()
+
+    assert out_lines[1].startswith('TCGA-50-6593-01A-11D-1753-08\t1\t0.5361\t182')

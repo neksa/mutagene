@@ -1,5 +1,6 @@
 pytest
 pytest-cov
+pytest-securestore
 bayesian-optimization
 clustergrammer
 coverage
