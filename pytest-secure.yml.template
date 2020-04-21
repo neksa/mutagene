@@ -1,0 +1,10 @@
+---
+# File for use with pytest-securestore (https://pypi.org/project/pytest-securestore/)
+# Update and encrypt using pyAesCrypt (https://pypi.org/project/pyAesCrypt/)
+#
+# Connection details for JFrog Artifactory instance that stores test articles
+artifactory:
+    username: 
+    password_raw: 
+    password: 
+    url: 

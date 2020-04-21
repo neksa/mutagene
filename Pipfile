@@ -21,6 +21,7 @@ statsmodels = "*"
 twobitreader = "*"
 tqdm = "*"
 PyVCF = "*"
+pytest-securestore = "*"
 
 [requires]
 python_version = "3.7"

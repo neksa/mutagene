@@ -14,6 +14,8 @@ jobs:
       - image: circleci/python:3.7.7
         environment:
           PIPENV_VENV_IN_PROJECT: true
+          SECURE_STORE_FILE: ./pytest-secure.yml.aes
+          # SECURE_STORE_PASSWORD: must be set in CircleCI environment
     
     working_directory: ~/repo
 
@@ -60,7 +62,7 @@ jobs:
       - run:
           name: run tests
           command: |
-            pipenv run pytest tests
+            pipenv run pytest --secure-store-filename=$SECURE_STORE_FILE --secure-store-password=$SECURE_STORE_PASSWORD tests
 
       - run:
           name: verify package
