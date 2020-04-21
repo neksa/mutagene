@@ -5,7 +5,9 @@ from mutagene.__main__ import MutaGeneApp
 
 TEST_DIR = 'test-reports'
 COHORTS_FILE = 'cohorts.tar.gz'
-TEST_FILE_LIST = [COHORTS_FILE, 'sample1.maf', 'hg19.2bit']
+TEST_FILE_MAP = { COHORTS_FILE: 'https://www.ncbi.nlm.nih.gov/research/mutagene/static/data/cohorts.tar.gz',
+                    'sample1.maf': 'https://www.ncbi.nlm.nih.gov/research/mutagene/static/data/sample1.maf',
+                    'hg19.2bit': 'https://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit' }
 
 
 # Download large test articles from Artifactory if not present in current environment
@@ -14,26 +16,31 @@ def artifactory_retrieval(store):
     ARTIFACTORY_USER = store['artifactory']['username']
     ARTIFACTORY_PASSWD = store['artifactory']['password']
 
-    for f in TEST_FILE_LIST:
+    for f in TEST_FILE_MAP.keys():
         if not os.path.isfile(f'{TEST_DIR}/{f}'):
             # File may already exist at execution root, e.g., when run by CircleCI
             # If so, copy file to test-reports for this set of tests
             if os.path.isfile(f'./{f}'):
                 shutil.copyfile(f'./{f}', f'{TEST_DIR}/{f}')
-            # Otherwise, download from Artifactory
+            # Otherwise, first attempt to download from Artifactory
             else:
                 r = requests.get(f'{ARTIFACTORY_ROOT_URL}/{f}', auth=(ARTIFACTORY_USER, ARTIFACTORY_PASSWD))
-                outfile = open(f'{TEST_DIR}/{f}', 'wb')
-                outfile.write(r.content)
-                outfile.close()
+                # If request failed, download from original source specified in map
+                try:
+                    r.raise_for_status()
+                    outfile = open(f'{TEST_DIR}/{f}', 'wb')
+                    outfile.write(r.content)
+                    outfile.close()
+                except:
+                    r = requests.get(TEST_FILE_MAP[f])
+                    outfile = open(f'{TEST_DIR}/{f}', 'wb')
+                    outfile.write(r.content)
+                    outfile.close()
 
 
-@pytest.fixture
-def artifactory_cleanup():
-    yield None
-
+def teardown_module(module):
     if 'CIRCLECI' in os.environ and os.environ['CIRCLECI'] == 'true':
-        for f in TEST_FILE_LIST:
+        for f in TEST_FILE_MAP.keys():
             if os.path.isfile(f'{TEST_DIR}/{f}'):
                 os.remove(f'{TEST_DIR}/{f}')
 
