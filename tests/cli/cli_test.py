@@ -8,6 +8,7 @@ COHORTS_FILE = 'cohorts.tar.gz'
 TEST_FILE_MAP = { COHORTS_FILE: 'https://www.ncbi.nlm.nih.gov/research/mutagene/static/data/cohorts.tar.gz',
                     'sample1.maf': 'https://www.ncbi.nlm.nih.gov/research/mutagene/static/data/sample1.maf',
                     'hg19.2bit': 'https://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit' }
+                    # 'chrY.fa.gz': 'https://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/chrY.fa.gz'
 
 
 # Download large test articles from Artifactory if not present in current environment
@@ -37,6 +38,11 @@ def artifactory_retrieval(store):
                     outfile.write(r.content)
                     outfile.close()
 
+                    # Attempt to upload this file to Artifactory
+                    # https://github.com/jfrog/project-examples/blob/master/bash-example/deploy-file.sh
+                    # file_md5sum = md5sum(f'{TEST_DIR}/{f}')
+                    r = requests.put(f'{ARTIFACTORY_ROOT_URL}/{f}', auth=(ARTIFACTORY_USER, ARTIFACTORY_PASSWD),
+                            files = {'file': open(f'{TEST_DIR}/{f}', 'rb')})  # headers = { 'X-Checksum-Md5': file_md5sum }
 
 def teardown_module(module):
     if 'CIRCLECI' in os.environ and os.environ['CIRCLECI'] == 'true':
