@@ -1,106 +1,28 @@
-import pytest
-import hashlib, os, requests, shutil, sys
+import os, shutil
+
 from mutagene.__main__ import MutaGeneApp
-
-
-TEST_DIR = 'test-reports'
-COHORTS_FILE = 'cohorts.tar.gz'
-TEST_FILE_MAP = { COHORTS_FILE: 'https://www.ncbi.nlm.nih.gov/research/mutagene/static/data/cohorts.tar.gz',
-                    'sample1.maf': 'https://www.ncbi.nlm.nih.gov/research/mutagene/static/data/sample1.maf',
-                    'hg19.2bit': 'https://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit' }
-                    # 'chrY.fa.gz': 'https://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/chrY.fa.gz'
-
-
-# Download large test articles from Artifactory if not present in current environment
-def artifactory_retrieval(store):
-    ARTIFACTORY_ROOT_URL = store['artifactory']['url']
-    ARTIFACTORY_USER = store['artifactory']['username']
-    ARTIFACTORY_PASSWD = store['artifactory']['password']
-
-    for f in TEST_FILE_MAP.keys():
-        if not os.path.isfile(f'{TEST_DIR}/{f}'):
-            # File may already exist at execution root, e.g., when run by CircleCI
-            # If so, copy file to test-reports for this set of tests
-            if os.path.isfile(f'./{f}'):
-                shutil.copyfile(f'./{f}', f'{TEST_DIR}/{f}')
-            # Otherwise, first attempt to download from Artifactory
-            else:
-                r = requests.get(f'{ARTIFACTORY_ROOT_URL}/{f}', auth=(ARTIFACTORY_USER, ARTIFACTORY_PASSWD))
-                # If request failed, download from original source specified in map
-                try:
-                    r.raise_for_status()
-                    outfile = open(f'{TEST_DIR}/{f}', 'wb')
-                    outfile.write(r.content)
-                    outfile.close()
-                except:
-                    r = requests.get(TEST_FILE_MAP[f])
-                    outfile = open(f'{TEST_DIR}/{f}', 'wb')
-                    outfile.write(r.content)
-                    outfile.close()
-
-                    # Attempt to upload this file to Artifactory
-                    # https://github.com/jfrog/project-examples/blob/master/bash-example/deploy-file.sh
-                    # file_md5sum = md5sum(f'{TEST_DIR}/{f}')
-                    r = requests.put(f'{ARTIFACTORY_ROOT_URL}/{f}', auth=(ARTIFACTORY_USER, ARTIFACTORY_PASSWD),
-                            files = {'file': open(f'{TEST_DIR}/{f}', 'rb')})  # headers = { 'X-Checksum-Md5': file_md5sum }
-
-def teardown_module(module):
-    if 'CIRCLECI' in os.environ and os.environ['CIRCLECI'] == 'true':
-        for f in TEST_FILE_MAP.keys():
-            if os.path.isfile(f'{TEST_DIR}/{f}'):
-                os.remove(f'{TEST_DIR}/{f}')
-
-
-# Method to run MutaGene CLI commands in a manner similar to actual CLI execution
-def run_with_args(cmd, cmd_args):
-    # Copy original sys.argv from pytest execution
-    argv_orig = sys.argv.copy()
-
-    del sys.argv[1:]
-
-    sys.argv.append('-v')
-    sys.argv.append(cmd)
-
-    for a in cmd_args:
-        sys.argv.append(a)
-
-    # Execute MutaGene with current arguments
-    MutaGeneApp()
-
-    # Restore pytest sys.argv
-    sys.argv = argv_orig
-
-
-# https://stackoverflow.com/a/3431838
-def md5sum(filename, blocksize=65536):
-    hash = hashlib.md5()
-    with open(filename, "rb") as f:
-        for block in iter(lambda: f.read(blocksize), b""):
-            hash.update(block)
-    return hash.hexdigest()
+from tests.cli import cli_test_utils
 
 
 def test_fetch():
     # mutagene -v fetch cohorts MSKCC --cohort paac_jhu_2014
-    run_with_args('fetch', ['cohorts', 'MSKCC', '--cohort', 'paac_jhu_2014'])
+    cli_test_utils.run_with_args('fetch', ['cohorts', 'MSKCC', '--cohort', 'paac_jhu_2014'])
 
     file_name = 'paac_jhu_2014.tar.gz'
-    os.rename(f'./{file_name}', f'{TEST_DIR}/{file_name}')
+    os.rename(f'./{file_name}', f'{cli_test_utils.TEST_DIR}/{file_name}')
 
-    file_md5sum = md5sum(f'{TEST_DIR}/{file_name}')
+    file_md5sum = cli_test_utils.md5sum(f'{cli_test_utils.TEST_DIR}/{file_name}')
 
     assert file_md5sum == 'b7709f55eaeade1b1c6102d134b16c18'
 
 
-def test_motif(store):
-    artifactory_retrieval(store)
-
-    infile = f'{TEST_DIR}/sample1.maf'
-    outfile = f'{TEST_DIR}/cli-motif-sample1.txt'
-    genome = f'{TEST_DIR}/hg19.2bit'
+def test_motif(artifactory_circleci):
+    infile = f'{cli_test_utils.TEST_DIR}/sample1.maf'
+    outfile = f'{cli_test_utils.TEST_DIR}/cli-motif-sample1.txt'
+    genome = f'{cli_test_utils.TEST_DIR}/hg19.2bit'
 
     # mutagene -v motif -i sample1.maf -g hg19 --motif "C[A>T]" --strand A -o test-reports/cli-motif-sample1.txt
-    run_with_args('motif', ['-i', infile, '-o', outfile, '-g', genome, '--motif', 'C[A>T]', '--strand', 'A'])
+    cli_test_utils.run_with_args('motif', ['-i', infile, '-o', outfile, '-g', genome, '--motif', 'C[A>T]', '--strand', 'A'])
 
     out_lines = []
     in_fh = open(outfile, 'r')
@@ -114,15 +36,13 @@ def test_motif(store):
     assert out_lines[1].startswith('TCGA-50-6593-01A-11D-1753-08\tCustom motif\tC[A>T]\tany strand')
 
 
-def test_profile(store):
-    artifactory_retrieval(store)
-
+def test_profile(artifactory_circleci):
     infile = 'tests/motifs/data/vcf/data.vcf'
-    outfile = f'{TEST_DIR}/cli-profile-test.txt'
-    genome = f'{TEST_DIR}/hg19.2bit'  # 'tests/motifs/data/test_genome.2bit'
+    outfile = f'{cli_test_utils.TEST_DIR}/cli-profile-test.txt'
+    genome = f'{cli_test_utils.TEST_DIR}/hg19.2bit'  # 'tests/motifs/data/test_genome.2bit'
 
     # mutagene -v profile -i sample1.maf -g hg19 -o test-reports/cli-profile-sample1.txt
-    run_with_args('profile', ['-i', infile, '-o', outfile, '-g', genome])
+    cli_test_utils.run_with_args('profile', ['-i', infile, '-o', outfile, '-g', genome])
 
     out_lines = []
     in_fh = open(outfile, 'r')
@@ -138,23 +58,21 @@ def test_profile(store):
     assert out_lines[2] == 'A[C>T]A\t4\n'
 
 
-def test_rank(store):
-    artifactory_retrieval(store)
-
-    infile = f'{TEST_DIR}/sample1.maf'
-    outfile = f'{TEST_DIR}/cli-rank-sample1-pancancer.txt'
-    genome = f'{TEST_DIR}/hg19.2bit'
+def test_rank(artifactory_circleci):
+    infile = f'{cli_test_utils.TEST_DIR}/sample1.maf'
+    outfile = f'{cli_test_utils.TEST_DIR}/cli-rank-sample1-pancancer.txt'
+    genome = f'{cli_test_utils.TEST_DIR}/hg19.2bit'
 
     cp_cohorts = False
-    if not os.path.isfile(f'./{COHORTS_FILE}'):
+    if not os.path.isfile(f'./{cli_test_utils.COHORTS_FILE}'):
         cp_cohorts = True
-        shutil.copyfile(f'{TEST_DIR}/{COHORTS_FILE}', f'./{COHORTS_FILE}')
+        shutil.copyfile(f'{cli_test_utils.TEST_DIR}/{cli_test_utils.COHORTS_FILE}', f'./{cli_test_utils.COHORTS_FILE}')
 
     # mutagene -v rank -g hg19 -i sample1.maf -c pancancer -o test-reports/cli-rank-sample1-pancancer.txt
-    run_with_args('rank', ['-i', infile, '-o', outfile, '-g', genome, '-c', 'pancancer'])
+    cli_test_utils.run_with_args('rank', ['-i', infile, '-o', outfile, '-g', genome, '-c', 'pancancer'])
 
     if cp_cohorts == True:
-        os.remove(f'./{COHORTS_FILE}')
+        os.remove(f'./{cli_test_utils.COHORTS_FILE}')
 
     out_lines = []
     in_fh = open(outfile, 'r')
@@ -168,15 +86,13 @@ def test_rank(store):
     assert out_lines[1].startswith('CPXM2\tT536M\t')
 
 
-def test_signature(store):
-    artifactory_retrieval(store)
-
-    infile = f'{TEST_DIR}/sample1.maf'
-    outfile = f'{TEST_DIR}/cli-signature-sample1.txt'
-    genome = f'{TEST_DIR}/hg19.2bit'
+def test_signature(artifactory_circleci):
+    infile = f'{cli_test_utils.TEST_DIR}/sample1.maf'
+    outfile = f'{cli_test_utils.TEST_DIR}/cli-signature-sample1.txt'
+    genome = f'{cli_test_utils.TEST_DIR}/hg19.2bit'
 
     # mutagene -v signature identify -i sample1.maf -g hg19 -s5 -o test-reports/cli-signature-sample1.txt
-    run_with_args('signature', ['identify', '-i', infile, '-o', outfile, '-g', genome, '-s5'])
+    cli_test_utils.run_with_args('signature', ['identify', '-i', infile, '-o', outfile, '-g', genome, '-s5'])
 
     out_lines = []
     in_fh = open(outfile, 'r')
