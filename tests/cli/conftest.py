@@ -39,8 +39,19 @@ def artifactory_circleci(store):
                     r = requests.put(f'{ARTIFACTORY_ROOT_URL}/{f}', auth=(ARTIFACTORY_USER, ARTIFACTORY_PASSWD),
                             files = {'file': open(f'{cli_test_utils.TEST_DIR}/{f}', 'rb')})  # headers = { 'X-Checksum-Md5': file_md5sum }
 
+    # Copy COHORTS_FILE to ./ for use in mutagene rank tests
+    cp_cohorts = False
+    if not os.path.isfile(f'./{cli_test_utils.COHORTS_FILE}'):
+        cp_cohorts = True
+        shutil.copyfile(f'{cli_test_utils.TEST_DIR}/{cli_test_utils.COHORTS_FILE}', f'./{cli_test_utils.COHORTS_FILE}')
+
     # End of module setup code
     yield
+    # Start of teardown code
+
+    # If COHORTS_FILE was copied to ./, remove it
+    if cp_cohorts == True:
+        os.remove(f'./{cli_test_utils.COHORTS_FILE}')
 
     # Teardown code cleans up test articles from TEST_DIR if running in CircleCI to prevent saving as artifacts
     if 'CIRCLECI' in os.environ and os.environ['CIRCLECI'] == 'true':
