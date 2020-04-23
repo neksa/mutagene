@@ -30,6 +30,20 @@ def run_with_args(cmd, cmd_args):
     sys.argv = argv_orig
 
 
+# Method to return a number of lines of a file
+def get_file_lines(outfile, num_lines):
+    out_lines = []
+    out_fh = open(outfile, 'r')
+
+    for i in range(num_lines):
+        out_lines.append(out_fh.readline())
+        if i >= num_lines: break
+
+    out_fh.close()
+
+    return out_lines
+
+
 # https://stackoverflow.com/a/3431838
 def md5sum(filename, blocksize=65536):
     hash = hashlib.md5()
