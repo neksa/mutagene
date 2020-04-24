@@ -31,20 +31,21 @@ followed by the required arguments from the command line. You can always find he
 =========================   ============================================================  ====================
 Argument                    Description                                                   Example
 =========================   ============================================================  ====================
---infile INFILE             Input file (with one or multiple samples) in VCF or MAF format  --infile PD3851a.vcf
-                            (where INFILE is a sample filename)
+--infile INFILE             Input file (with 1 or multiple samples) in VCF or MAF format  --infile PD3851a.vcf
+                            (where INFILE is the sample filename with extension)
 -i INFILE                   Short form of --infile INFILE argument                         -i PD3851a.vcf 
---genome GENOME             Location of a genome assembly file in 2bit format                --genome hg38.2bit   
+--genome GENOME             Location of genome assembly file in 2bit format                --genome hg38.2bit   
                             (where GENOME is the filename)                    
 -g GENOME                   Short form of --genome GENOME argument                         -g hg38.2bit                      
---signatures {5,10,30,49}   Collection of mutational signatures (include MutaGene5 (5),       --signatures10 
-                            MutaGene10(10), Cosmic30(30) and Cosmic49(49))\ :sup:`1`
+--signatures {5,10,30,49}   Collection of signatures to use (include MutaGene-5 (5),       --signatures10 
+                            MutaGene-10(10), Cosmic-30(30) and Cosmic-49(49))\ :sup:`1`
 -s {5,10,30,49}             Short form of --signatures {5,10,30,49}                        -s10  
 =========================   ============================================================  ====================                                                                                                                                          
 
-1. The MutaGene signature package allows for the analysis of mutational processes operating in a given sample or a cohort using four different sets of mutational signatures: MutaGene5, MutaGene10, Cosmic30 and Cosmic49 signature sets.
-Read more about the MutaGene signature packag at https://www.ncbi.nlm.nih.gov/research/mutagene/signatures#mutational_signatures.
-Read more about Cosmic signatures at https://cancer.sanger.ac.uk/cosmic/signatures/.
+1. The MutaGene signature package allows for the analysis of 3 different "bundles" of mutational signatures: MutaGene-5 Signatures, MutaGene-10 Signatures, and Cosmic-30 Signatures.
+MutaGene-5 contains 5 signatures, MutaGene-10 contains 10 signatures, and Cosmic-30 contains 30 signatures.
+[Read more about the MutaGene signature package](https://www.ncbi.nlm.nih.gov/research/mutagene/signatures#mutational_signatures).
+[Read more about known signature Cosmic-49](https://cancer.sanger.ac.uk/cosmic/signatures/SBS/)
 
 
 **2.3.Optional Arguments (can be specified):**
@@ -53,10 +54,10 @@ Read more about Cosmic signatures at https://cancer.sanger.ac.uk/cosmic/signatur
 Argument                    Description                                                    Example
 ==========================  =============================================================  ============================
 --input-format {MAF,VCF}    Input file format: MAF, VCF                                     --input-format VCF
-                            (MAF is a default format)
+                            (for MAF files -f argument can be omitted as default format)
 -f {MAF,VCF}                Short form of --input-format {MAF,VCF} argument                 -f VCF 
 --outfile [OUTFILE]         Name of output file, will be generated in TSV format            --outfile ../../out/out.tsv
-                            
+                            (if this argument is not included output is to screen)
 -o [OUTFILE]                Short form of --outfile [OUTFILE] argument                      -o ../../out/out.tsv
 ==========================  =============================================================  ============================
 
@@ -66,19 +67,15 @@ Argument                    Description                                         
 ==========================  ===================================================================  =========================
 Argument                    Description                                                          Example
 ==========================  ===================================================================  =========================
---method [METHOD]           Method defines a target function minimized in the optimization 
-                            procedure                                                            -method frobenius
+--method [METHOD]           Method defines the function minimized in the optimization procedure  -method frobenius
                             (default method is mlez)\ :sup:`1`
 -m [METHOD]                 Short form of --method [METHOD] argument                             -m frobenius
---no-unexplained-variance   not to account for unexplained variance from context-independent     --no-unexplained-variance
-                            mutational processes and unknown signatures                                                       
+--no-unexplained-variance   Do not account for unexplained variance                              --no-unexplained-variance
+                            (non-context dependent mutational processes and unknown signatures)
 -U                          Short form of --no-unexplained-variance argument                     -U
---bootstrap                 Use the bootstrap to calculate 95% confidence intervals              --bootstrap
-                            for VCF files                                                        
+--bootstrap                 Use the bootstrap to calculate confidence intervals                  --bootstrap
 -b                          Short form of --bootstrap argument                                   -b
 ==========================  ===================================================================  =========================
-
-The bootstraping is done by random sampling with replacement of mutations from each sample repeated 100 times. The bootstrap estimates of the mean and 95% confidence intervals are reported.
 
 1. Available methods
 
@@ -89,7 +86,7 @@ frobenius          Frobenius
 frobeniuszero      FrobeniusZero 
 js                 js
 divergencejs       divergencejs
-mle                NegLogLik (Maxiumum Likelihood Estimation maximizes LogLik or minimizes NegLogLik) 
+mle                NegLogLik (MLE maximizes LogLik or minimizes NegLogLik) 
 mlez               NegLogLik (MLE with added context-independent signatures)
 compat             MegLogLikOld (MLE with added context-independent signatures (old compatability mode))
 aicc               AICc (AIC corrected for small samples) 
