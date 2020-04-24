@@ -14,6 +14,8 @@ jobs:
       - image: circleci/python:3.7.7
         environment:
           PIPENV_VENV_IN_PROJECT: true
+          SECURE_STORE_FILE: ./pytest-secure.yml.aes
+          # SECURE_STORE_PASSWORD: must be set in CircleCI environment
     
     working_directory: ~/repo
 
@@ -21,17 +23,20 @@ jobs:
       - checkout
 
       # Download and cache dependencies
+      # https://circleci.com/docs/2.0/caching/#pip-python, https://support.circleci.com/hc/en-us/articles/115015426888-Clear-project-cache
       - restore_cache:
           keys:
-          - v1-dependencies-cli-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          # when lock file changes, use increasingly general patterns to restore cache
+          - v0_9-dependencies-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
           # fallback to using the latest cache if no exact match is found
-          - v1-dependencies-
+          - v0_9-dependencies-{{ .Branch }}-
+          - v0_9-dependencies-
 
       - run:
           name: Install Python environment dependencies
           command: |
             sudo pip install pipenv
-            pipenv install -r requirements.txt
+            pipenv install
 
       - run:
           name: Download files required for CLI tests (if not restored from cache)
@@ -41,10 +46,13 @@ jobs:
             [ -f ./sample1.maf ] || wget -O ./sample1.maf https://www.ncbi.nlm.nih.gov/research/mutagene/static/data/sample1.maf
 
       - save_cache:
-          key: v1-dependencies-cli-{{ .Branch }}-{{ checksum "requirements.txt" }}
+          key: v0_9-dependencies-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
           paths:
-            - ./venv
-            - ./
+            # this path is used due to presence of PIPENV_VENV_IN_PROJECT env var, would normally be in, e.g., ~/.local/share/virtualenvs/mutagene-5WcH_jEW
+            - ./.venv
+            - ./hg19.2bit
+            - ./cohorts.tar.gz
+            - ./sample1.maf
 
       # run tests!
       # this example uses Django's built-in test-runner
@@ -54,7 +62,7 @@ jobs:
       - run:
           name: run tests
           command: |
-            pipenv run pytest tests
+            pipenv run pytest --secure-store-filename=$SECURE_STORE_FILE --secure-store-password=$SECURE_STORE_PASSWORD tests
 
       - run:
           name: verify package
@@ -68,9 +76,39 @@ jobs:
             pipenv run mutagene --help > test-reports/mutagene-help.out
 
       - run:
+          name: Execute mutagene fetch
+          command: |
+            pipenv run mutagene -v fetch cohorts MSKCC --cohort paac_jhu_2014
+            FETCH_MD5SUM=$(md5sum paac_jhu_2014.tar.gz | awk '{print $1}')
+            [ $FETCH_MD5SUM = 'b7709f55eaeade1b1c6102d134b16c18' ]
+
+      - run:
+          name: Execute mutagene motif
+          command: |
+            pipenv run mutagene -v motif -i sample1.maf -g hg19 --motif "C[A>T]" --strand A -o test-reports/cli-motif-sample1.txt
+            MOTIF_SAMPLE=$(awk '{if(NR==2) print $1}' test-reports/cli-motif-sample1.txt)
+            [ $MOTIF_SAMPLE = 'TCGA-50-6593-01A-11D-1753-08' ]
+
+      - run:
+          name: Execute mutagene profile
+          command: |
+            pipenv run mutagene -v profile -i sample1.maf -g hg19 -o test-reports/cli-profile-sample1.txt
+            PROFILE_SAMPLE=$(awk '{if(NR==1) print $1 $2}' test-reports/cli-profile-sample1.txt)
+            [ $PROFILE_SAMPLE = 'A[C>A]A6' ]
+
+      - run:
           name: Execute mutagene rank
           command: |
-            pipenv run mutagene -v rank -g hg19 -i sample1.maf -c pancancer -o test-reports/rank-sample1-pancancer.txt
+            pipenv run mutagene -v rank -g hg19 -i sample1.maf -c pancancer -o test-reports/cli-rank-sample1-pancancer.txt
+            RANK_GENE_MUT=$(awk '{if(NR==2) print $1 $2}' test-reports/cli-rank-sample1-pancancer.txt)
+            [ $RANK_GENE_MUT = 'CPXM2T536M' ]
+
+      - run:
+          name: Execute mutagene signature
+          command: |
+            pipenv run mutagene -v signature identify -i sample1.maf -g hg19 -s5 -o test-reports/cli-signature-sample1.txt
+            SIGNATURE_SAMPLE=$(awk '{if(NR==2) print $1 $2 $3 $4}' test-reports/cli-signature-sample1.txt)
+            [ $SIGNATURE_SAMPLE = 'TCGA-50-6593-01A-11D-1753-0810.5361182' ]
 
       - store_artifacts:
           path: test-reports/
@@ -78,4 +116,3 @@ jobs:
 
       - store_test_results:
           path: test-reports/
-          destination: test-reports
