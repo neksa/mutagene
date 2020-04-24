@@ -104,3 +104,7 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# Testing and pytest-securestore
+pytest-secure.yml
+cohorts.tar.gz
