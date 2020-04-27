@@ -90,8 +90,8 @@ Argument                    Description                                         
                             (default setting is 50)\ :sup:`a`
 -w WINDOW_SIZE              Short form of ``--window-size WINDOW_SIZE``                    -w 30
 --strand {}                 Transcribed strand ("T"), non-transcribed ("N"), any ("A"),    --strand "T"
-                            or all ("NT" default)\ :sup:`b`
--s {}                       Short form of ``--strand {T,N,A,NT}``                          -s "A"
+                            or all ("TNA" default)\ :sup:`b`
+-s {}                       Short form of ``--strand {T,N,A,TNA}``                          -s "A"
 --save-motif-matches        Save mutations matching motif to a BED file              
 ==========================  =============================================================  ============================
 
