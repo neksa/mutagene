@@ -65,15 +65,15 @@ You can always find help on the required arguments using the following command:
 =========================   ============================================================  ====================
 Argument                    Description                                                   Example
 =========================   ============================================================  ====================
---infile INFILE             Input file in MAF or VCF format with 1 or multiple samples     --infile sample1.maf
+--infile INFILE             Input file in MAF or VCF format with 1 or multiple samples    --infile sample1.maf
                             (where INFILE is the sample filename with extension)
--i INFILE                   Short form of --infile INFILE argument                         -i sample1.maf 
---genome GENOME             Location of genome assembly file in 2bit format                --genome hg38.2bit   
+-i INFILE                   Short form of ``--infile INFILE`` argument                    -i sample1.maf 
+--genome GENOME             Location of genome assembly file in 2bit format               --genome hg38.2bit   
                             (where GENOME is the filename)                    
--g GENOME                   Short form of --genome GENOME argument                         -g hg38.2bit 
---motif MOTIF               Motif to search for, use the 'R[C>T]GY syntax for the           --motif 'C[A>T]'
-                            motif. Use quotes
--m MOTIF                    Short form of --motif MOTIF                                     -m 'C[A>T]'
+-g GENOME                   Short form of ``--genome GENOME`` argument                    -g hg38.2bit 
+--motif MOTIF               Motif to search for, use the 'R[C>T]GY syntax for the         --motif 'C[A>T]'
+                            motif. Use quotes.
+-m MOTIF                    Short form of ``--motif MOTIF``                               -m 'C[A>T]'
 =========================   ============================================================  ====================                                                                                                                                          
 
 -----------------------------------------
@@ -83,17 +83,16 @@ Argument                    Description                                         
 ==========================  =============================================================  ============================
 Argument                    Description                                                    Example
 ==========================  =============================================================  ============================
---outfile [OUTFILE]         Name of output file, will be generated in TSV format            --outfile ../../out/out.tsv
+--outfile OUTFILE           Name of output file, will be generated in TSV format           --outfile ../../out/out.tsv
                             (if this argument is not included output is to screen)
--o [OUTFILE]                Short form of --outfile [OUTFILE] argument                      -o ../../out/out.tsv
-window-size WINDOW_SIZE     DNA local context window size for motif search                  --window-size 30
+-o OUTFILE                  Short form of ``--outfile OUTFILE`` argument                   -o ../../out/out.tsv
+--window-size WINDOW_SIZE   DNA local context window size for motif search                 --window-size 30
                             (default setting is 50)\ :sup:`a`
--w WINDOW_SIZE              Short form of window-size WINDOW_SIZE                           -w 30
---strand {}                 Transcribed strand ("T"), non-transcribed ("N"), any ("A"),     --strand ""
+-w WINDOW_SIZE              Short form of ``--window-size WINDOW_SIZE``                    -w 30
+--strand {}                 Transcribed strand ("T"), non-transcribed ("N"), any ("A"),    --strand "T"
                             or all ("NT" default)\ :sup:`b`
--s {}                       Short form of --strand {+,-,=,+-=}                              -s ""
---save-motif-matches        Save mutations matching motif to a BED file
-SAVE_MOTIF_MATCHES               
+-s {}                       Short form of ``--strand {T,N,A,NT}``                          -s "A"
+--save-motif-matches        Save mutations matching motif to a BED file              
 ==========================  =============================================================  ============================
 
 a. Window Size Parameter Explanation: window size is defined as the number of DNA bases upstream and downstream from the mutated site not including the mutated site. Therefore, the effective length of the DNA sequence searched is 2 * window-size + 1. It may be advantageous to use a window size longer than the default, 50 bases, if the motif is longer than three nucleotides. Similarly, if the motif is shorter than three nucleotides, it may be advantageous to use a window size shorter than the default 50 bases. 
@@ -108,19 +107,21 @@ If there no motifs significantly overrepresented in a predefined window, the out
 
 If the presence of a motif is significant in the data, the output will show a table with the following headers:
 
-=======================================================================================================================
+=============  ========================================================================================================
 Header         Description
-=======================================================================================================================
+=============  ========================================================================================================
 Sample         Name of Sample. If input file contains multiple samples, output will be stratified per sample.
 Name           Name of motif. If -m/--motif argument is given, name will be "Custom motif".
 Motif          Motif searched for in data
-Strand         DNA Strand that motif was searched for on. 'T': transcribed strand, 'N': non-transcribed strand, "A": any                      strand, "TN": all strands.
-Enrichment     Measure of motif's prevalence \ :sup:`c`
-mut_low_est    Conservative estimate for a number of mutations (of total number in input file, mutational burden) that match a                given motif
+Strand         DNA Strand that motif was searched for on. "T": transcribed strand, "N": non-transcribed strand, "A":
+               any strand, "TN": all strands.
+Enrichment     Measure of motif's prevalence\ :sup:`c`
+mut_low_est    Conservative estimate for a number of mutations (of total number in input file, mutational burden) that
+               match a given motif
 mut_high_est   Maximum number of mutations (of total number in input file) that match the motif
 pvalue         Fisher's p-value for motif significance
 qvalue         Fisher's p-value with Benjamini-Hochberg correction for multiple testing
-=============  =======================================================================================================================
+=============  ========================================================================================================
 
 c. How to Interpret Enrichment Output: Enrichment is modeled off of a risk ratio, meaning that a motif’s enrichment is essentially a ratio between the probability of a motif appearing in a sample’s DNA mutations and the probability of a motif appearing in a sample’s DNA context. Enrichment minus one is equal to percent overrepresentation of a motif. For example, if enrichment is 1.5, it means that there is a 50% overrepresentation of the mutated motif. Motifs with enrichment values <= 1 are not reported by MutaGene.
 
@@ -184,12 +185,12 @@ No significant motif matches are found in the data, so nothing is reported.
 5.3.2. Motif Output
 -------------------
 
-============================  ===========  =======  ======  =================  ======================  ===========  ============
-sample                        name         motif    strand  enrichment         pvalue                  mut_low_est  mut_high_est   
-============================  ===========  =======  ======  =================  ======================  ===========  ============
-TCGA-50-6593-01A-11D-1753-08  APOBEC3G     C[C>K]R  '+'    2.0770855332629354  0.022262032545564452    8            14.0
-TCGA-50-6593-01A-11D-1753-08  C>T in CpG   [C>T]G   '+'    2.8697340043134436  0.008360472489313148    7            10.0
-============================  ===========  =======  ======  =================  ======================  ===========  ============
+============================  ===========  =======  ======  ==================  ======================  ===========  ============
+sample                        name         motif    strand  enrichment          pvalue                  mut_low_est  mut_high_est   
+============================  ===========  =======  ======  ==================  ======================  ===========  ============
+TCGA-50-6593-01A-11D-1753-08  APOBEC3G     C[C>K]R  '+'     2.0770855332629354  0.022262032545564452    8            14.0
+TCGA-50-6593-01A-11D-1753-08  C>T in CpG   [C>T]G   '+'     2.8697340043134436  0.008360472489313148    7            10.0
+============================  ===========  =======  ======  ==================  ======================  ===========  ============
 
 --------------------------------
 5.3.3. Interpretation of output
