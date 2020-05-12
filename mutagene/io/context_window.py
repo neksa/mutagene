@@ -276,11 +276,6 @@ def read_MAF_with_context_window(infile, asm, window_size):
             raise ValueError('Start position is not defined in MAF file')
 
         # assuming that reference strand for reported mutations is always '+'!
-        if hasattr(data, 'strand'):
-            if data.strand != '+' and data.strand != '1':
-                raise ValueError('Mutations should be reported on the "+" reference strand')
-        else:
-            raise ValueError('Reference strand is not specified')
 
         # transcript strand could be anything
         if hasattr(data, 'transcript_strand'):
