@@ -10,6 +10,7 @@
 * Error messages improved, not showing exceptions [#34] [#38]
 * API for multisample signature decomposition, io, and bootstrap have been simplified
 * The number of methods available for decomposition reduced to avoid confusion with -U [#36]
+* Guessing input format from from file name: .vcf, .maf
 
 0.9.0.1 Bug-Fix Release
 -----------------------
