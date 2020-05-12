@@ -182,12 +182,12 @@ IDENTIFY_MIN_FUNCTIONS = {
     'js': DivergenceJS,
     'divergencejs': DivergenceJS,
     'mle': NegLogLik,  # MLE maximizes LogLik or minimizes NegLogLik
-    'mlez': NegLogLik,  # MLE with added context-independent signatures
     'compat': NegLogLikOld,  # MLE with added context-independent signatures (old compatibility mode)
     'aicc': AICc,  # AIC corrected for small samples
     'bic': BIC,  # BIC
-    'aiccz': AICc,  # AIC corrected for small samples with added context-independent signatures
-    'bicz': BIC,  # BIC with added context-independent signatures
+    'mlez': NegLogLik,  # MLE with added context-independent signatures (different name Z given for benchmarking)
+    'aiccz': AICc,  # AIC corrected for small samples with added context-independent signatures (different name Z given for benchmarking)
+    'bicz': BIC,  # BIC with added context-independent signatures (different name Z given for benchmarking)
 }
 
 
@@ -281,18 +281,19 @@ def decompose_mutational_profile_counts(profile, signatures, func="Frobenius", o
     # bounds = [[0., 1.0] for _ in range(h0.shape[0])]
     bounds = [[0.0, 1.0] for _ in range(h0.shape[0])]
 
-    # Call minimization subject to these values
-    v_target = v_freq
-    # if min_func == NegLogLik:
-    #     v_target = v_freq
-    # else:
-    #     v_target = v
+    # v == counts
+    # v_freq == frequency (normalized counts)
+    if min_func in (NegLogLik, AIC, AICc, BIC):
+        v_target = v
+    else:
+        v_target = v_freq
 
     def print_fun(x, f, accepted):
         print("{} at minimum {} accepted {}".format(x, f, accepted))
 
     class RandomDisplacementBounds(object):
         """random displacement with bounds"""
+
         def __init__(self, xmin=0.0, xmax=1.0, stepsize=0.3):
             self.xmin = xmin
             self.xmax = xmax
