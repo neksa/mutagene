@@ -81,7 +81,7 @@ Sequencing artifacts:
 
 Possible sequencing artefacts
 """
-def read_COSMIC3_signatures():
+def read_COSMICv3_signatures():
     sequencing_artifacts = [
         "SBS27", "SBS43", "SBS45", "SBS46", "SBS47", "SBS48", "SBS49", "SBS50", "SBS51",
         "SBS52", "SBS53", "SBS54", "SBS55", "SBS56", "SBS57", "SBS58", "SBS59", "SBS60"]
@@ -118,7 +118,7 @@ def read_COSMIC3_signatures():
     return W, signature_names
 
 
-def read_Kucab_signatures():
+def read_KUCAB_signatures():
     """
     A compendium of mutational signatures of environmental agents Kucab et al.  Serena Nik-Zainal
     DOI: 10.17632/m7r4msjb4c.2
@@ -166,22 +166,13 @@ def read_Kucab_signatures():
     return W, signature_names
 
 
-def read_signatures(n_signatures):
-    signatures_dict = {5: 'A', 10: 'B', 30: 'C', 49: 'C3', 53: 'Kucab'}
-    assert n_signatures in signatures_dict
-
-    if n_signatures == 49:
-        return read_COSMIC3_signatures()
-
-    if n_signatures == 53:
-        return read_Kucab_signatures()
-
+def _read_mutagene_signatures(name, n_signatures):
+    """ Read signatures preprocessed for mutagene website / package """
     dirname = os.path.dirname(os.path.realpath(__file__))
-
     W = []
     signature_names = []
     for i in range(n_signatures):
-        fname = dirname + "/../data/signatures/{}_{}.profile".format(signatures_dict[n_signatures], i + 1)
+        fname = dirname + "/../data/signatures/{}_{}.profile".format(name, i + 1)
         profile = read_profile_file(fname)
         W.append(profile)
         signature_names.append("{}".format(i + 1))
@@ -190,19 +181,62 @@ def read_signatures(n_signatures):
     return W, signature_names
 
 
+def read_MGA_signatures():
+    return _read_mutagene_signatures('A', 5)
+
+
+def read_MGB_signatures():
+    return _read_mutagene_signatures('B', 10)
+
+
+def read_COSMICv2_signatures():
+    return _read_mutagene_signatures('C', 30)
+
+
+def read_signatures(name, only=None):
+    """
+    Retrieve a set of signatures by its name or number of signatures specified as 'str'.
+    Returns tuple: numpy matrix and list of names
+    """
+
+    # number of sigatures matching to names
+    signatures_dict = {
+        '5': 'MGA',
+        '10': 'MGB',
+        '30': 'COSMICv2',
+        '49': 'COSMICv3',
+        '53': 'KUKAB'
+    }
+    inv_signatures_dict = dict(zip(signatures_dict.values(), signatures_dict.keys()))
+
+    if name in signatures_dict:
+        name = signatures_dict[name]
+
+    assert name in inv_signatures_dict, "Unknown name for a signature set: {}".format(name)
+
+    function_name = "read_{}_signatures".format(name)
+    W, signature_names = globals()[function_name]()
+
+    # filter by list of 'only' signatures,
+    # append signature set prefix to signature names
+    delete_signatures = []
+    filtered_signature_names = []
+    for i, x in enumerate(signature_names):
+        if only is not None:
+            if x not in only:
+                delete_signatures.append(i)
+                continue
+        filtered_signature_names.append("{}-{}".format(name, x))
+
+    if only is not None:
+        W = np.delete(W, np.array(delete_signatures), axis=1)
+
+    return W, filtered_signature_names
+
+
 def write_profile(profile_file, p, counts=True):
     with open(profile_file, 'w') as o:
         write_profile_file(o, p, counts)
-
-
-# def format_profile_dict(values):
-#     attrib = get_signature_attributes_dict()
-#     result = {}
-#     for i, v in enumerate(values):
-#         x, y = attrib[i]['mutation']
-#         p5, p3 = attrib[i]['context']
-#         result["{}[{}>{}]{}".format(p5, x, y, p3)] = v
-#     return result
 
 
 def format_profile(values, counts=False):
