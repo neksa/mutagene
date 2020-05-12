@@ -194,6 +194,12 @@ def read_TCGI_with_context_window(infile, asm, window_size):
     return mutations, mutations_with_context, processing_stats
 
 
+def read_mutations(file_format, *args, **kwargs):
+    """ Wrapper for read_X_with_context_window """
+    function_name = "read_{}_with_context_window".format(file_format)
+    return globals()[function_name](*args, **kwargs)
+
+
 def read_MAF_with_context_window(infile, asm, window_size):
     """
         Read MAF file and extract context of mutations for assembly asm and window +/- window_size around each mutation
@@ -332,6 +338,7 @@ def read_MAF_with_context_window(infile, asm, window_size):
         'nsamples': len(mutations.keys()),
         'format': 'MAF'
     }
+
     return mutations, mutations_with_context, processing_stats
 
 
