@@ -1,5 +1,16 @@
 ## Changelog
 
+0.9.0.2 Release
+-----------------------
+* Genome is set to hg19 by default [#2]
+* Two bootstrap strategies for confidence intervals: t-distribution-based and percentile-based
+* Bootstrap options can be fine-tuned in a separate menu section
+* Percentile-based confidence intervals give robust results and wide intervals [#35]
+* Signature sets now have names, like COSMICv2, MGA and signature names are reported in the output [#15] [#27]
+* Error messages improved, not showing exceptions [#34] [#38]
+* API for multisample signature decomposition, io, and bootstrap have been simplified
+* The number of methods available for decomposition reduced to avoid confusion with -U [#36]
+
 0.9.0.1 Bug-Fix Release
 -----------------------
 * Previous release swapped contingency table in motif search, so alternative hypothesis had to be changed accordingly
