@@ -11,6 +11,7 @@
 * API for multisample signature decomposition, io, and bootstrap have been simplified
 * The number of methods available for decomposition reduced to avoid confusion with -U [#36]
 * Guessing input format from from file name: .vcf, .maf
+* Added threshold option for the minimal number of mutations reported by 'identify signature'
 
 0.9.0.1 Bug-Fix Release
 -----------------------
