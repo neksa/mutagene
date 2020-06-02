@@ -137,23 +137,23 @@ c. How to Interpret Enrichment Output: Enrichment is modeled off of a risk ratio
 5.1.1. Command
 ---------------
 
-``$ mutagene motif -i sample1.maf -g hg19 -s "="``
+``$ mutagene motif -i sample1.maf -g hg19 -s "A"``
 
 -------------------
 5.1.2. Motif Output
 -------------------
 
-============================  ===========  ======  ======  =================  ======================  ===========  ============
-sample                        name         motif   strand  enrichment         pvalue                  mut_low_est  mut_high_est   
-============================  ===========  ======  ======  =================  ======================  ===========  ============
-TCGA-50-6593-01A-11D-1753-08  C>T in CpG   [C>T]G  '='     4.586718025481874  1.0181609110804669e-06  15           18.0
-============================  ===========  ======  ======  =================  ======================  ===========  ============ 
+============================  ==========   ======  ==========  ==========  =======  =======  ==========  ==========  =========
+sample                        mutagen      motif   strand      enrichment  mut_min  mut_max  odds_ratio  pvalue      qvalue   
+============================  ==========   ======  ==========  ==========  =======  =======  ==========  ==========  =========
+TCGA-50-6593-01A-11D-1753-08  C>T in CpG   [C>T]G  any strand  2.11727     10       18       2.42666     0.00169896  0.0118927
+============================  ==========   ======  ==========  ==========  =======  =======  ==========  ==========  =========
 
 --------------------------------
 5.1.3. Interpretation of output
 --------------------------------
 
-File "sample1.maf" contains one sample "TCGA-50-6593-01A-11D-1753-08"; from this sample 15-18 mutations are estimated to be significantly contributed by the mutagenic process(es) involving C>T mutations in CpG motif ([C>T]G). The measures of significance are the enrichment and Fisher's Exact test pvalue calculations, where 0.05 is the threshold for statistical significance.
+File "sample1.maf" contains one sample "TCGA-50-6593-01A-11D-1753-08"; from this sample 10-18 mutations are estimated to be significantly contributed by the mutagenic process(es) involving C>T mutations in CpG motif ([C>T]G). The measures of significance are the enrichment and Fisher's Exact test pvalue calculations, where 0.05 is the threshold for statistical significance.
 
 -----------------------------------------------------------------------------
 *5.2. Search for the presence of the C[A>T] motif in sample1.maf using hg19*
@@ -171,60 +171,31 @@ File "sample1.maf" contains one sample "TCGA-50-6593-01A-11D-1753-08"; from this
 
 No significant motif matches are found in the data, so nothing is reported.
 
---------------------------------------------------------------------------------------------------------------------------
-*5.3. Search sample1.maf for all preidentified motifs in mutagene on the transcription using hg19 and a window size of 20*
---------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+*5.3. Search sample2.vcf for all preidentified motifs in mutagene using hg19, searching for each of the motifs on the transcribed strand, non-transcribed strand, plus both strands, and using a window size of plus/minus 30 bases from each mutation*
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 --------------
 5.3.1. Command
 --------------
 
-``$ mutagene motif -i sample1.maf -g hg19 -w 20 -s "+"``
+``$ mutagene motif -i sample2.vcf -g hg19 -w 30 -s "TNA" -v 'VCF'``
 
 -------------------
 5.3.2. Motif Output
 -------------------
 
-============================  ===========  =======  ======  ==================  ======================  ===========  ============
-sample                        name         motif    strand  enrichment          pvalue                  mut_low_est  mut_high_est   
-============================  ===========  =======  ======  ==================  ======================  ===========  ============
-TCGA-50-6593-01A-11D-1753-08  APOBEC3G     C[C>K]R  '+'     2.0770855332629354  0.022262032545564452    8            14.0
-TCGA-50-6593-01A-11D-1753-08  C>T in CpG   [C>T]G   '+'     2.8697340043134436  0.008360472489313148    7            10.0
-============================  ===========  =======  ======  ==================  ======================  ===========  ============
-
---------------------------------
-5.3.3. Interpretation of output
---------------------------------
-
-File "sample1.maf" contains one sample "TCGA-50-6593-01A-11D-1753-08"; from this sample 8-14 mutations are estimated to be significantly contributed by the mutagenic process(es) involving APOBEC3G, where K represents the DNA bases G/T, and R represents the DNA bases A/G. 7-10 mutations are estimated to be significantly contributed by the mutagenic process(es) involving C>T mutations in CpG motif ([C>T]G).
-The measures of significance are the enrichment and Fisher's Exact test pvalue calculations, where 0.05 is the threshold for statistical significance.
-
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-*5.4. Search sample2.vcf for all preidentified motifs in mutagene using hg19, searching for each of the motifs on the transcribed strand, non-transcribed strand, plus both strands, and using a window size of plus/minus 30 bases from each mutation*
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
---------------
-5.4.1. Command
---------------
-
-``$ mutagene motif -i sample2.vcf -g hg19 -w 30 -s "+-="``
-
--------------------
-5.4.2. Motif Output
--------------------
-
-======  ===========  =======  ======  ==================  ======================  ===========  ============
-sample  name         motif    strand  enrichment          pvalue                  mut_low_est  mut_high_est   
-======  ===========  =======  ======  ==================  ======================  ===========  ============
-VCF     APOBEC3G     C[C>K]R  '+'     1.5208626215334309  9.767297094310342e-33   377          1099.0
-VCF     APOBEC3G     C[C>K]R  '-'     1.6115330339196352  3.0535714666534214e-44  453          1193.0
-VCF     APOBEC3G     C[C>K]R  '='     1.5665360537218949  1.1734904382884064e-74  829          2292.0
-VCF     C>T in CpG   [C>T]G   '+'     7.274092147503702   0.0                     2029         2352.0
-VCF     C>T in CpG   [C>T]G   '-'     4.248138083459255   0.0                     1881         2460.0
-VCF     C>T in CpG   [C>T]G   '='     11.074711617658798  0.0                     4371         4804.0
-VCF     Poly Eta     W[A>T]   '+'     1.245342448790026   0.013059702828698476    39           194.0
-VCF     Poly Eta     W[A>T]   '='     1.141805328027515   0.020545858842258347    48           383.0
-======  ===========  =======  ======  ==================  ======================  ===========  ============
+======  ==========  ======   ===============  ==========  =======  =======  ==========  ===========  ===========
+sample  mutagen     motif    strand           enrichment  mut_min  mut_max  odds_ratio  pvalue       qvalue   
+======  ==========  ======   ===============  ==========  =======  =======  ==========  ===========  ===========
+VCF     C>T in CpG  [C>T]G   non-transcribed  4.24964     1882     2460     7.50456     0            0
+VCF     C>T in CpG  [C>T]G   any strand       4.21114     3670     4812     7.38992     0            0
+VCF     C>T in CpG  [C>T]G   transcribed      4.17202     1789     2352     7.27413     0            0
+VCF     APOBEC3G    C[C>K]R  any strand       1.45802     721      2292     1.56628     1.17349e-74  6.16082e-74
+VCF     APOBEC3G    C[C>K]R  non-transcribed  1.49104     393      1193     1.61104     3.05357e-44  1.2825e-43
+VCF     APOBEC3G    C[C>K]R  transcribed      1.42365     328      1099     1.52034     9.7673e-33   3.41855e-32
+VCF     Pol Eta     W[A>T]   transcribed      1.13727     24       194      1.24465     0.0130597    0.0391791
+======  ==========  ======   ===============  ==========  =======  =======  ==========  ===========  ===========
 
 --------------------------------
 5.4.3. Interpretation of output
