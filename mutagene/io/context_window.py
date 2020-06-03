@@ -194,6 +194,12 @@ def read_TCGI_with_context_window(infile, asm, window_size):
     return mutations, mutations_with_context, processing_stats
 
 
+def read_mutations(file_format, *args, **kwargs):
+    """ Wrapper for read_X_with_context_window """
+    function_name = "read_{}_with_context_window".format(file_format)
+    return globals()[function_name](*args, **kwargs)
+
+
 def read_MAF_with_context_window(infile, asm, window_size):
     """
         Read MAF file and extract context of mutations for assembly asm and window +/- window_size around each mutation
@@ -270,11 +276,6 @@ def read_MAF_with_context_window(infile, asm, window_size):
             raise ValueError('Start position is not defined in MAF file')
 
         # assuming that reference strand for reported mutations is always '+'!
-        if hasattr(data, 'strand'):
-            if data.strand != '+' and data.strand != '1':
-                raise ValueError('Mutations should be reported on the "+" reference strand')
-        else:
-            raise ValueError('Reference strand is not specified')
 
         # transcript strand could be anything
         if hasattr(data, 'transcript_strand'):
@@ -332,6 +333,7 @@ def read_MAF_with_context_window(infile, asm, window_size):
         'nsamples': len(mutations.keys()),
         'format': 'MAF'
     }
+
     return mutations, mutations_with_context, processing_stats
 
 
