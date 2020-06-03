@@ -184,7 +184,7 @@ No significant motif matches are found in the data, so nothing is reported.
 5.3.1. Command
 --------------
 
-``$ mutagene motif -i sample2.vcf -g hg19 -w 30 -s "TNA" -v 'VCF'``
+``$ mutagene motif -i sample2.vcf -g hg19 -w 30 -s "TNA" -f 'VCF'``
 
 -------------------
 5.3.2. Motif Output
