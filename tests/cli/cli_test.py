@@ -40,4 +40,4 @@ def test_signature(artifactory_circleci):
 
     out_lines = cli_test_utils.get_file_lines(outfile, 2)
 
-    assert out_lines[1].startswith('TCGA-50-6593-01A-11D-1753-08\t1\t0.5361\t182')
+    assert out_lines[1].startswith('TCGA-50-6593-01A-11D-1753-08\tMGA-1\t0.532422\t180')
