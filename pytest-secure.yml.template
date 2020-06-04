@@ -1,0 +1,13 @@
+---
+# File for use with pytest-securestore (https://pypi.org/project/pytest-securestore/)
+# Update and encrypt using pyAesCrypt (https://pypi.org/project/pyAesCrypt/)
+#
+# Connection details for JFrog Artifactory instance that stores test articles.
+#   - 'url' is the full URL to the repository in Artifactory, e.g., http://<your_instance_ip>:8081/artifactory/generic-local/mutagene
+#   - 'password' is the actual password used to connect via the REST API for Artifactory, which may either be plain
+#     text or encrypted depending on your security settings in Artifactory.  This is described at the following URL:
+#     https://www.jfrog.com/confluence/display/JFROG/Centrally+Secure+Passwords
+artifactory:
+    username: 
+    password: 
+    url: 
