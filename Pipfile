@@ -1,0 +1,27 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+pytest = "*"
+pytest-cov = "*"
+bayesian-optimization = "*"
+clustergrammer = "*"
+coverage = "*"
+nose = "*"
+numpy = "*"
+pandas = "*"
+requests = "*"
+scikit-learn = "*"
+scipy = "*"
+statsmodels = "*"
+twobitreader = "*"
+tqdm = "*"
+PyVCF = "*"
+pytest-securestore = "*"
+
+[requires]
+python_version = "3.7"
