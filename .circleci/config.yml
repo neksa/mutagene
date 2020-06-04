@@ -108,7 +108,7 @@ jobs:
           command: |
             pipenv run mutagene -v signature identify -i sample1.maf -g hg19 -s5 -o test-reports/cli-signature-sample1.txt
             SIGNATURE_SAMPLE=$(awk '{if(NR==2) print $1 $2 $3 $4}' test-reports/cli-signature-sample1.txt)
-            [ $SIGNATURE_SAMPLE = 'TCGA-50-6593-01A-11D-1753-0810.5361182' ]
+            [ $SIGNATURE_SAMPLE = 'TCGA-50-6593-01A-11D-1753-08MGA-10.532422180' ]
 
       - store_artifacts:
           path: test-reports/
