@@ -16,13 +16,13 @@ Use "mutagene motif" to search for the presence of mutational motifs in mutation
 1.2. Motif Definition
 ----------------------
 
-A motif is defined as a characteristic pattern of DNA mutation and its local DNA context. It is often associated with a specific carcinogen or a biological process.
+A motif is defined as a characteristic pattern of a DNA mutation and its local DNA context. It is often associated with a specific carcinogen or a biological process.
 
 --------------------------
 1.3. Motif Representation
 --------------------------
 
-MutaGene represents motifs as a string of characters, where characters in brackets represent the single-base substitutions and characters outside brackets represent the unmutated DNA context. The motif must be in quotes to be recognized by MutaGene.
+MutaGene represents motifs as strings of characters, where characters in brackets represent the single-base substitutions and characters outside brackets represent the unmutated DNA context. The motif must be in quotes to be recognized by MutaGene.
 
 -------------------
 1.4. Motif Examples
@@ -111,12 +111,12 @@ it may be advantageous to use a window size shorter than the default 50 bases, a
 
 =======
 
-The publication `Mutational signatures and mutable motifs in cancer genomes <https://doi.org/10.1093/bib/bbx049>` describes motifs and their uses.
+The publication `Mutational signatures and mutable motifs in cancer genomes <https://doi.org/10.1093/bib/bbx049>` describes motifs and their use.
 
 *Note: if you installed MutaGene in a virtual environment, make sure you activate the virtual environment first.*
 
 -------------------
-2. Motif command
+2. Motif search command line
 -------------------
 
 To use the motif command, type 
@@ -131,15 +131,7 @@ You can always find help on the required arguments using the following command:
 3. Arguments
 ------------
 
-**3.1.Command:** ``$mutagene motif [arguments]``
-
-followed by the required arguments from the command line. 
-
-**3.2.Required Arguments (must be specified):**
-
-Motif function requires:
-``$mutagene motif ``
-
+3.1 Required arguments
 =========================   ============================================================  ====================
 Argument                    Description                                                   Example
 =========================   ============================================================  ====================
@@ -148,11 +140,14 @@ Argument                    Description                                         
 -i INFILE                   Short form of --infile INFILE argument                         -i sample1.maf 
 --genome GENOME             Location of genome assembly file in 2bit format                --genome hg38.2bit   
                             (where GENOME is the filename)                    
--g GENOME                   Short form of --genome GENOME argument                         -g hg38.2bit                      
+-g GENOME                   Short form of --genome GENOME argument                         -g hg38.2bit 
+--motif MOTIF               Motif to search for, use the 'R[C>T]GY syntax for the           --motif 'C[A>T]'
+                            motif. Use quotes
+-m MOTIF                    Short form of --motif MOTIF                                     -m 'C[A>T]'
 =========================   ============================================================  ====================                                                                                                                                          
 
 
-**3.3.Optional Arguments (can be specified):**
+3.2 Optional Arguments (can be specified)
 
 ==========================  =============================================================  ============================
 Argument                    Description                                                    Example
@@ -160,46 +155,43 @@ Argument                    Description                                         
 --outfile [OUTFILE]         Name of output file, will be generated in TSV format            --outfile ../../out/out.tsv
                             (if this argument is not included output is to screen)
 -o [OUTFILE]                Short form of --outfile [OUTFILE] argument                      -o ../../out/out.tsv
---motif MOTIF               Motif to search for, use the 'R[C>T]GY syntax for the           --motif 'C[A>T]'
-                            motif. Use quotes
--m MOTIF                    Short form of --motif MOTIF                                     -m 'C[A>T]'
-window-size WINDOW_SIZE     Context window size for motif search                            --window-size 30
+window-size WINDOW_SIZE     DNA local context window size for motif search                  --window-size 30
                             (default setting is 50)\ :sup:`1`
 -w WINDOW_SIZE              Short form of window-size WINDOW_SIZE                           -w 30
---strand {+,-,=,+-=}        Transcribed strand (+), non-transcribed (-), any (=),           --strand "+-="
-                            or all (+-= default)\ :sup:`2`
--s {+,-,=,+-=}              Short form of --strand {+,-,=,+-=}                              -s "+-="
+--strand {}                 Transcribed strand ("T"), non-transcribed ("N"), any ("A"),     --strand ""
+                            or all ("NT" default)\ :sup:`2`
+-s {}                       Short form of --strand {+,-,=,+-=}                              -s ""
+--save-motif-matches        Save mutations matching motif to a BED file
+SAVE_MOTIF_MATCHES
+                        
 ==========================  =============================================================  ============================
 
-1. Window Size Parameter Explanation: MutaGene counts window size as the number of DNA bases searched for from the first base of the DNA sequence gathered up to but not including the mutated base. Therefore, the effective length of the DNA sequence searched is 2 * window-size + 1. It may be advantageous to use a window size longer than the default 50 bases if the motif is longer than three nucleotides,
-as this motif is likely to appear less frequently in the DNA context. Similarly, if the motif is shorter than three nucleotides,
-it may be advantageous to use a window size shorter than the default 50 bases, as the motif is likely to appear in DNA more frequently.
-2. Strand Parameter Explanation: MutaGene can search for the presence of a motif on the transcribed or non-transcribed DNA strands or both strands. This information is gathered from the input file provided by the user. Analyzing for the presence on a transcribed or non-transcribed strand is advantageous when a mutational process is known to have mutations with a transcriptional strand bias. For instance, the APOBEC1/3A/B family is known to be associated with mutational processes that have a transcriptional strand bias of mutations in exons. The transcription strand refers to the coding DNA strand, and the non-transcription strand refers to the template DNA strand.
+1. Window Size Parameter Explanation: window size is defined as the number of DNA bases upstream and downstream from the mutated site not including the mutated site. Therefore, the effective length of the DNA sequence searched is 2 * window-size + 1. It may be advantageous to use a window size longer than the default, 50 bases, if the motif is longer than three nucleotides. Similarly, if the motif is shorter than three nucleotides, it may be advantageous to use a window size shorter than the default 50 bases. 
+
+2. Strand Parameter Explanation: MutaGene can search for the presence of a motif on the transcribed or non-transcribed DNA strands or both strands. This information is gathered from the input file provided by the user. Analyzing the presence of a motif on a transcribed or non-transcribed strand is advantageous when a mutational process is known to have transcriptional strand bias. For instance, the APOBEC1/3A/B family is known to be associated with mutational processes that have a transcriptional strand bias of mutations. The transcription strand refers to the coding DNA strand, and the non-transcription strand refers to the template DNA strand.
 
 ---------------------------------
 4. Interpretation of Motif Output
 ---------------------------------
-If no motifs are significantly present in the data, the output will say: "WARNING No significant motif matches found".
+If there no motifs significantly overrepresented in a predefined window, the output will say: "WARNING No significant motif matches found".
 
 If the presence of a motif is significant in the data, the output will show a table with the following headers:
 
-=============  =======================================================================================================================
+=======================================================================================================================
 Header         Description
-=============  =======================================================================================================================
+=======================================================================================================================
 Sample         Name of Sample. If input file contains multiple samples, output will be stratified per sample.
 Name           Name of motif. If -m/--motif argument is given, name will be "Custom motif".
 Motif          Motif searched for in data
-Strand         DNA Strand that motif was searched for on. '+': transcribed strand, '-': non-transcribed strand, "=": any strand, "+-=":                all strands.
-Enrichment     Quantitative measure of motif's prevalence, significant if greater than one.\ :sup:`a`
-mut_low_est    Conservative estimate for number of mutations (of total number in input file) that match motif
+Strand         DNA Strand that motif was searched for on. 'T': transcribed strand, 'N': non-transcribed strand, "A": any                      strand, "TN": all strands.
+Enrichment     Measure of motif's prevalence \ :sup:`a`
+mut_low_est    Conservative estimate for a number of mutations (of total number in input file, mutational burden) that match a                given motif
 mut_high_est   Maximum number of mutations (of total number in input file) that match the motif
 pvalue         Fisher's p-value for motif significance
-qvalue         Fisher's p-value with Benjamini-Hochberg correction for motif significance
+qvalue         Fisher's p-value with Benjamini-Hochberg correction for multiple testing
 =============  =======================================================================================================================
 
-a. How to Interpret Enrichment Output: Enrichment is modeled off of a risk ratio, meaning that a motif’s enrichment is essentially a ratio between the probability of a motif appearing in a cancer sample’s DNA mutations and the probability of a motif appearing in a
-cancer sample’s DNA context. Because enrichment is modeled off a risk ratio, it can be interpreted the same way. The result of enrichment minus one is the percent overrepresentation of a motif. For example, if enrichment is 1.5, it means that there is a 50%
-overrepresentation of the mutated motif (as compared to what is likely by chance). For this reason, enrichment is considered significant if it is greater than one. Motifs with enrichments <= 1 are not reported by MutaGene.
+a. How to Interpret Enrichment Output: Enrichment is modeled off of a risk ratio, meaning that a motif’s enrichment is essentially a ratio between the probability of a motif appearing in a sample’s DNA mutations and the probability of a motif appearing in a sample’s DNA context. Enrichment minus one is equal to percent overrepresentation of a motif. For example, if enrichment is 1.5, it means that there is a 50% overrepresentation of the mutated motif. Motifs with enrichment values <= 1 are not reported by MutaGene.
 
 -----------
 5. Examples
