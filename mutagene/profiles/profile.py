@@ -1,6 +1,10 @@
 # from collections import defaultdict
 # from mutagene.dna import complementary_nucleotide
 
+from collections import Counter
+from operator import add
+from functools import reduce
+
 import numpy as np
 from numpy.random import multinomial
 from sklearn.utils import resample
@@ -53,6 +57,11 @@ def get_multisample_mutational_profile(samples_mutations, counts=False):
         samples_profiles[sample] = get_mutational_profile(mutations, counts)
 
     return samples_profiles
+
+
+def get_pooled_multisample_mutational_profile(samples_mutations, counts=False):
+    mutational_profile_dict = reduce(add, (Counter(dict(mutations)) for mutations in samples_mutations.values()))
+    return get_mutational_profile(mutational_profile_dict, counts)
 
 
 def generate_resampled_profiles(profile, k):
