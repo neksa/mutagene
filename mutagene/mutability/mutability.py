@@ -115,12 +115,19 @@ def calculate_base_substitution_mutability(counts_profile, cohort_size):
 def rank(mutations_to_rank, outfile, profile, cohort_aa_mutations, cohort_size, threshold_driver, threshold_passenger):
     # profile_dict = profile_to_dict(profile)
     mutation_model = calculate_base_substitution_mutability(profile, cohort_size)
-    cohort_size_corrected = cohort_size + 1  # add currently analyzed sample (many samples?) to cohort
+    # cohort_size_corrected = cohort_size + 1  # add currently analyzed sample (many samples?) to cohort
+    cohort_size_corrected = cohort_size
+    # import pprint
     # pprint.pprint(mutation_model)
     results = []
     for mutation_key, mutation_value in mutations_to_rank.items():
         gene, mut = mutation_key
-        seq5 = mutation_value['seq5']
+        for seq5, observed_k in mutation_value['seq5'].items():
+            break
+        # if gene == "BRAF" and mut == "V600E":
+        #     print("BRAF V600E", seq5)
+        #     print(mutation_model)
+
         P, Q = mut[0], mut[-1]
         all_substitutions = get_all_codon_substitutions(P, seq5, Q)
         mutability = calculate_codon_mutability(mutation_model, seq5, all_substitutions)
@@ -128,16 +135,18 @@ def rank(mutations_to_rank, outfile, profile, cohort_aa_mutations, cohort_size, 
         # print(mutation, mutability)
 
         # Observed k with pseudocount:
-        observed_k = cohort_aa_mutations[gene].get(mut, 0)  # observed in precalculated cohort
-        observed_k_pseudocount = observed_k + 1  # we also observe this mutation in analyzed sample
+        if cohort_aa_mutations is not None:
+            observed_k = cohort_aa_mutations[gene].get(mut, 0)  # observed in precalculated cohort
+            # pseudocount
+            observed_k += 1  # we also observe this mutation in analyzed sample
 
-        pval, label, *_ = predict_driver(observed_k_pseudocount, cohort_size_corrected, mutability, threshold_driver, threshold_passenger)
+        pval, label, *_ = predict_driver(observed_k, cohort_size_corrected, mutability, threshold_driver, threshold_passenger)
         # print(gene, mut, seq5, all_substitutions, " = ", mutability, observed_k, cohort_size, " = ", pval, label)
         results.append({
             'gene': gene,
             'mutation': mut,
             'mutability': mutability,
-            'observed': observed_k_pseudocount,
+            'observed': observed_k,
             'bscore': pval,
             'qvalue': pval,  # temporarily set to pval
             'label': label,
