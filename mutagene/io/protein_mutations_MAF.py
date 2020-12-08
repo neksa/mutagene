@@ -4,7 +4,7 @@ import csv
 
 import twobitreader as tbr
 
-# from collections import defaultdict
+from collections import defaultdict
 from collections import namedtuple
 # from itertools import cycle
 from tqdm import tqdm
@@ -17,14 +17,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def read_MAF_with_genomic_context_fname(fname, genome, motifs=False):
+def read_protein_mutations_MAF_file(fname, genome, motifs=False):
     with open(fname) as infile:
-        return read_MAF_with_genomic_context(infile, genome)
+        return read_protein_mutations_MAF(infile, genome)
 
 
-def read_MAF_with_genomic_context(infile, genome, motifs=False):
-    mutations = {}
-    processing_stats = {'loaded': 0, 'skipped': 0, 'format': 'Unknown'}
+def read_protein_mutations_MAF(infile, genome, motifs=False):
+    mutations = defaultdict(dict)
+    processing_stats = {'loaded': 0, 'skipped': 0, 'nsamples': 0, 'format': 'unknown'}
 
     if not infile:
         logger.warning("No input file")
@@ -48,13 +48,24 @@ def read_MAF_with_genomic_context(infile, genome, motifs=False):
 
     N_loaded = N_skipped = 0
 
-    samples = set()
-
     for data in tqdm(map(MAF._make, reader), leave=False):
         # print(data)
         try:
             if hasattr(data, 'tumor_sample_barcode'):
-                samples.add(data.tumor_sample_barcode)
+                sample = data.tumor_sample_barcode
+            elif hasattr(data, 'sample_id'):
+                sample = data.sample_id
+            else:
+                raise ValueError("Sample ID is not defined in MAF file")
+
+            if hasattr(data, 'transcript_id'):
+                transcript = data.transcript_id
+            elif hasattr(data, 'annotation_transcript'):
+                transcript = data.annotation_transcript
+            else:
+                logger.debug("Transcript undefined")
+                N_skipped += 1
+                continue
 
             HGVSc = None
             if hasattr(data, 'cdna_change'):
@@ -116,6 +127,7 @@ def read_MAF_with_genomic_context(infile, genome, motifs=False):
                 logger.debug("Skip fs HGVSp: " + HGVSp)
                 continue
 
+
             protein_mutation = HGVSp.split('.')[1].upper()
             P = protein_mutation[0]
             Q = protein_mutation[-1]
@@ -124,6 +136,7 @@ def read_MAF_with_genomic_context(infile, genome, motifs=False):
                 logger.warning("Could not find Hugo_Symbol in MAF file")
                 break
 
+            ###### Nucleotide stuff ######
             if not hasattr(data, 'variant_classification'):
                 logger.warning("Could not find Variant_Classification in MAF file")
                 break
@@ -145,24 +158,6 @@ def read_MAF_with_genomic_context(infile, genome, motifs=False):
                 logger.warning("Could not find Chromosome and Start_Position or Start_position in MAF file")
                 break
 
-            # if not hasattr(data, 'Codon_Change') and not hasattr(data, 'Codons'):
-            #     logger.warning("MutaGen requires Codon_Change or Codons fields in MAF files")
-            #     break
-
-            # if hasattr(data, 'codon_change'):
-            #     c1, c2 = data.codon_change.upper().split(")")[1].split(">")
-
-            # if hasattr(data, 'codons'):
-            #     c1, c2 = data.codons.upper().split("/")
-
-            # if c1 == c2:
-            #     N_skipped += 1
-            #     logger.debug("Codon1 == Codon2")
-            #     continue
-            # for offset in range(3):
-            #     if c1[offset] != c2[offset]:
-            #         break
-
             chromosome = chrom if chrom.startswith('chr') else 'chr' + chrom
 
             if not motifs and hasattr(data, 'ref_context'):
@@ -176,22 +171,6 @@ def read_MAF_with_genomic_context(infile, genome, motifs=False):
                 if genome.upper() == 'MAF':
                     logger.warning("ref_context not found in MAF file. Provide genome name argument -g hg19, hg38, mm10, see http://hgdownload.cse.ucsc.edu/downloads.html for more")
                     break
-
-                # try:
-                #     window_size = 50
-                #     seq_window = twobit[chromosome][start - window_size: start + window_size + 1]
-                #     assert len(seq_window) == window_size * 2 + 1
-                #     seq_window = seq_window.upper()
-
-                #     seq_with_coords = list(zip(
-                #         cycle([chrom]),
-                #         range(start - window_size - 1, start + window_size),
-                #         seq_window,
-                #         cycle("+")))
-
-                #     # print(seq_with_coords)
-                # except:
-                #     pass
 
                 try:
                     seq5_fwd = twobit[chromosome][start - offset - 2: start - offset + 3].upper()
@@ -221,16 +200,42 @@ def read_MAF_with_genomic_context(infile, genome, motifs=False):
                 logger.debug("Sequence missmatch of mutation with the genome, check if using the correct genome assembly: " + HGVSp)
                 continue
 
-            N_loaded += 1
-            mutations[(
-                data.hugo_symbol, HGVSp.split(".")[1]
-            )] = {
-                'seq5': seq5
-            }
+            mutations[sample][(data.hugo_symbol, transcript, protein_mutation)] = {'seq5': seq5}
         except Exception as e:
             N_skipped += 1
             logger.debug("General MAF parsing exception " + str(e))
             continue
 
-    processing_stats = {'loaded': N_loaded, 'skipped': N_skipped, 'format': 'MAF'}
-    return mutations, processing_stats
+    N_loaded = 0
+    for sample, sample_mutations in mutations.items():
+        N_loaded += int(len(sample_mutations.keys()))
+
+    processing_stats = {
+        'loaded': N_loaded,
+        'skipped': N_skipped,
+        'nsamples': len(mutations.keys()),
+        'format': 'MAF'
+    }
+
+    gene_transcript_mapping = {}
+    flat_mutations = {}
+    for sample, sample_mutations in mutations.items():
+        for (gene, transcript, protein_mutation), props in sample_mutations.items():
+            if gene in gene_transcript_mapping:
+                if transcript != gene_transcript_mapping[gene]:
+                    continue
+            else:
+                # use first encountered transcript as canonical for the gene
+                # ignore other mutations
+                gene_transcript_mapping[gene] = transcript
+            if (gene, protein_mutation) not in flat_mutations:
+                # note that mutability would be represented only for one nucleotide mutation
+                flat_mutations[(gene, protein_mutation)] = {
+                    'seq5': {
+                        props['seq5']: 1
+                    }
+                }
+            else:
+                flat_mutations[(gene, protein_mutation)]['seq5'][props['seq5']] += 1
+
+    return flat_mutations, processing_stats
