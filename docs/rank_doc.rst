@@ -4,7 +4,7 @@ Rank: identifying potential driver mutations
 -----------
 Description
 -----------
-"mutagene rank" estimates the expected background mutability for each nucleotide or codon, calculates a score and p-value in order to rank mutations with respect to their driver status. The method requires a number of samples where a given mutation was observed 
+"mutagene rank" module ranks mutations with respect to their driver statuses. The method requires three input parameters: the background mutability model for each nucleotide or codon, a number of samples where a given mutation was observed (mutational frequency) and the overall number of samples in a given cohort of patients. The background mutability model, mutational frequency and number of samples are specified and taken from the input file by default. Arguments below can overwrite the default.
 
 Please cite the MutaGene ranking method as 
 Anna-Leigh Brown, Minghui Li, Alexander Goncearenco, Anna R Panchenko
@@ -37,13 +37,12 @@ $ mutagene rank -h
 =========================   ============================================================  ====================
 Argument                    Description                                                   Example
 =========================   ============================================================  ====================
---infile INFILE             Input file in MAF format                                       --infile sample1.maf
-                            (where INFILE is the sample filename with extension)
+--infile INFILE             Input file of mutations to be ranked in MAF format            --infile sample1.maf
+                            (where INFILE is the sample(s) filename with extension)
 -i INFILE                   Short form of --infile INFILE argument                         -i sample1.maf 
 --genome GENOME             Location of genome assembly file in 2bit format                --genome hg19
 -g GENOME                   Short form of --genome GENOME argument                         -g hg19
---cohort COHORT             Name of cohort with observed mutations                         --cohort gcb_lymphomas
--c COHORT                   Short form of --cohort COHORT argument                         -c gcb_lymphomas
+
 =========================   ============================================================  ====================                                                                                                                                   
 
 **2.3.Optional Arguments (can be specified):**
@@ -55,10 +54,13 @@ Argument                                   Description                          
                                            TSV format  (If this argument is not included,
                                            output is to screen)   
 -o OUTFILE                                 Short form of --outfile OUTFILE                     -o out.tsv
---profile PROFILE                          Override profile to calculate mutability
-                                           (may also describe cohort size)
+--cohort COHORT                            Name of precalculated cohort which overwrites  
+                                           input sample(s). If cohort is specified, all three  --cohort gcb_lymphomas
+                                           method's input parameters will be derived from it.                                                                       
+-c COHORT                                  Short form of --cohort COHORT argument              -c gcb_lymphomas
+--profile PROFILE                          Overrides background mutability model                                          
 -p PROFILE                                 Short form of --profile PROFILE
---nsamples NSAMPLES                        Override cohort size                               --nsamples 20
+--nsamples NSAMPLES                        Overrides the number of samples in cohort          --nsamples 20
 -n NSAMPLES                                Short form of --nsamples                           -n 20
 --threshold-driver THRESHOLD_DRIVER        BScore threshold between Driver and Pontential     --threshold-driver 0.000009
                                            Driver mutations
@@ -87,7 +89,7 @@ bscore               A binomial p-value for the observed number of occurences of
                      mutability that is defined by the local DNA context of the mutated nucleotide
 qvalue               Bscore corrected for multiple testing with Benjamini-Hochberg FDR method
 label                Prediction of cancer drivers, Potential drivers, and Passengers is based on the thresholds established
-                     for the Bscore optimized using this benchmark datasets.
+                     for the Bscore optimized using this benchmark datasets. This is a rather arbitrary threshold.
 ===================  =======================================================================================================
 
 -----------
