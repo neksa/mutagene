@@ -137,12 +137,31 @@ def scanf_motif(custom_motif):
 
 def calculate_RR(ct):
     """
+    Mutation is treatment
+    No mutation is placebo
+
     :param ct: mutually exclusive counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
     :return: enrichment or risk ratio
     """
     try:
         RR = ((ct.loc['mutation', 'motif'] / (ct.loc['mutation', 'motif'] + ct.loc['mutation', 'no motif'])) /
               (ct.loc['no mutation', 'motif'] / (ct.loc['no mutation', 'motif'] + ct.loc['no mutation', 'no motif'])))
+    except ZeroDivisionError:
+        RR = 0.0
+    return RR
+
+
+def calculate_RR_for_motif(ct):
+    """
+    Motif is treatment
+    No motif is placebo
+
+    :param ct: mutually exclusive counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
+    :return: enrichment or risk ratio
+    """
+    try:
+        RR = ((ct.loc['mutation', 'motif'] / (ct.loc['mutation', 'motif'] + ct.loc['no mutation', 'motif'])) /
+              (ct.loc['mutation', 'no motif'] / (ct.loc['mutation', 'no motif'] + ct.loc['no mutation', 'no motif'])))
     except ZeroDivisionError:
         RR = 0.0
     return RR
@@ -162,14 +181,14 @@ def calculate_OR(ct):
     return OR
 
 
-def Haldane_correction(ct):
+def Haldane_correction(ct, pseudocount=0.5):
     """
     :param ct: mutually exclusive counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
     :return: contigency table after Haldane correction is applied
     """
     """    apply Haldane correction (+ 0.5) if any of the values in the contingency table is zero """
 
-    return ct + 0.5 if np.any(np.isclose(ct.to_numpy(), 0.0)) else ct
+    return ct + pseudocount if np.any(np.isclose(ct.to_numpy(), 0.0)) else ct
 
 
 def calculate_mutation_load(N_mutations, enrichment):

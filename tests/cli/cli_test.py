@@ -12,7 +12,7 @@ def test_fetch():
 
     file_md5sum = cli_test_utils.md5sum(f'{cli_test_utils.TEST_DIR}/{file_name}')
 
-    assert file_md5sum == 'b7709f55eaeade1b1c6102d134b16c18'
+    assert file_md5sum == '597d7dea428424560cb5559cd24838d6'
 
 
 def test_profile(artifactory_circleci):
