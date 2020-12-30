@@ -30,7 +30,7 @@ class SignatureMenu(object):
             help="Collection of signatures to use", type=str, default="COSMICv2")
 
         optional_group = parser.add_argument_group('Optional arguments')
-        optional_group.add_argument('--input-format', "-f", help="Input format: MAF, VCF", type=str, choices=['MAF', 'VCF', 'TCGI'], default=argparse.SUPPRESS)
+        optional_group.add_argument('--input-format', "-f", help="Input format: MAF, VCF", type=str, choices=['MAF', 'VCF', 'TCGI'], default='MAF')
         optional_group.add_argument(
             '--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout,
             help="Name of output file, will be generated in TSV format")

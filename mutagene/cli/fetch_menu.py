@@ -67,8 +67,12 @@ Partial download is supported: if the process is interrupted run the same comman
     def cohorts_MSKCC(cls, args):
         if args.list:
             import pandas as pd
-            with pd.option_context('display.max_rows', None):  # , 'display.max_columns', None
-                print(pd.read_csv("https://www.cbioportal.org/webservice.do?cmd=getCancerStudies", sep="\t"))
+            try:
+                with pd.option_context('display.max_rows', None):  # , 'display.max_columns', None
+                    print(pd.read_csv("https://www.cbioportal.org/webservice.do?cmd=getCancerStudies", sep="\t"))
+            except:
+                logger.warning("Unable to retrieve data from cBioPortal")
+                logger.warning("Make sure your SSL certificates are up to date with: pip install -U certifi")
         elif args.cohort:
             logger.info("Will download cohort " + args.cohort)
             fetch_MSKCC(args.cohort)
