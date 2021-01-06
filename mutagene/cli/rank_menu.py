@@ -26,8 +26,8 @@ class RankMenu(object):
 
         optional_group = parser.add_argument_group('Optional arguments')
         optional_group.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout)
-        # Removed with issue #51
-        #optional_group.add_argument('--input-format', "-f", help="Input format: MAF, VCF", type=str, choices=['MAF', 'VCF', 'TCGI'], default='MAF')
+        # Suppressed with issue #51
+        optional_group.add_argument('--input-format', "-f", help=argparse.SUPPRESS, type=str, choices=['MAF', 'VCF', 'TCGI'], default='MAF')  # "Input format: MAF, VCF, or TCGI"
         optional_group.add_argument('--cohorts-file', type=str, help="Location of tar.gz container or directory for cohorts", default="cohorts.tar.gz", nargs='?')
         optional_group.add_argument('--cohort', "-c", type=str, help="Name of cohort with observed mutations", nargs='?', const="")
 
@@ -50,14 +50,14 @@ class RankMenu(object):
                 return
 
         try:
-            mutations, _, processing_stats = read_mutations('MAF', args.infile, args.genome, window_size=1)  # args.input_format
+            mutations, _, processing_stats = read_mutations(args.input_format, args.infile, args.genome, window_size=1)
         except Exception as e:
             e_message = getattr(e, 'message', repr(e))
             logger.warning(
                 "Parsing {0} failed. "
                 "Check that the input file is in {0} format.\n"
                 #"or specify a different format using option -f \n"
-                "{1}".format('MAF', e_message))  # args.input_format
+                "{1}".format(args.input_format, e_message))
 
             if logger.root.level == logging.DEBUG:
                 raise
