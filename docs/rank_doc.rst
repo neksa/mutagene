@@ -56,9 +56,12 @@ Argument                                   Description                          
 -o OUTFILE                                 Short form of --outfile OUTFILE                     -o out.tsv
 --cohort COHORT                            Name of precalculated cohort which overwrites  
                                            input sample(s). If cohort is specified, all three  --cohort gcb_lymphomas
-                                           method's input parameters will be derived from it.                                                                       
+                                           method's input parameters will be derived from it.
+                                           Pan-cancer cohort is used by default if profile
+                                           is not specified, see below.
 -c COHORT                                  Short form of --cohort COHORT argument              -c gcb_lymphomas
---profile PROFILE                          Overrides background mutability model                                          
+--profile PROFILE                          Specifies background mutability model. 
+                                           See comments below.                                          
 -p PROFILE                                 Short form of --profile PROFILE
 --nsamples NSAMPLES                        Overrides the number of samples in cohort          --nsamples 20
 -n NSAMPLES                                Short form of --nsamples                           -n 20
@@ -71,6 +74,14 @@ Argument                                   Description                          
 --cohorts-file COHORTS_FILE                Location of tar.gz container or directory 
                                            for cohorts
 =========================================  =================================================  ==================================  
+
+Priorities of arguments:
+
+1. Profile and/or cohort size specified by "PROFILE".
+2. Profile, cohort size and observed mutation frequencies specified by "COHORT". 
+3. Profile, cohort size, observed mutation frequencies, and the list of mutations are taken from the Input file if PROFILE and COHORT are not specified.
+
+Priority 1 overrides 2, and 2 overrides 3
 
 --------------------------------
 3. Interpretation of Rank Output
