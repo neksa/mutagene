@@ -79,8 +79,11 @@ jobs:
           name: Execute mutagene fetch
           command: |
             pipenv run mutagene -v fetch cohorts MSKCC --cohort paac_jhu_2014
-            FETCH_MD5SUM=$(md5sum paac_jhu_2014.tar.gz | awk '{print $1}')
-            [ $FETCH_MD5SUM = 'b7709f55eaeade1b1c6102d134b16c18' ]
+            # Removed due to inconsistent md5 sums across repeated downloads, affecting both this test and pytest
+            #FETCH_MD5SUM=$(md5sum paac_jhu_2014.tar.gz | awk '{print $1}')
+            #[ $FETCH_MD5SUM = 'acbf8c569c2b8f5684ccfb1e036743f0' ]
+            FETCH_SIZE=$(stat -c %s paac_jhu_2014.tar.gz)
+            [ $FETCH_SIZE = '271744' ]
 
       - run:
           name: Execute mutagene motif
