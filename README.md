@@ -1,7 +1,6 @@
 [![](https://img.shields.io/pypi/v/mutagene.svg)](https://pypi.python.org/pypi/mutagene)
 [![](https://img.shields.io/circleci/build/gh/neksa/mutagene?token=e0e77379f7c1c1b136bf15b30494d0a18957e751)](https://circleci.com/neksa/mutagene)
 [![](https://readthedocs.org/projects/mutagene/badge/?version=latest)](https://mutagene.readthedocs.io/en/latest/?badge=latest)
-[![](https://pyup.io/repos/github/neksa/mutagene/shield.svg)](https://pyup.io/repos/github/neksa/mutagene/)
 
 ------------------
 What is MutaGene?
