@@ -228,6 +228,7 @@ def read_protein_mutations_MAF(infile, genome, motifs=False):
                 # use first encountered transcript as canonical for the gene
                 # ignore other mutations
                 gene_transcript_mapping[gene] = transcript
+
             if (gene, protein_mutation) not in flat_mutations:
                 # note that mutability would be represented only for one nucleotide mutation
                 flat_mutations[(gene, protein_mutation)] = {
@@ -236,6 +237,8 @@ def read_protein_mutations_MAF(infile, genome, motifs=False):
                     }
                 }
             else:
+                if props['seq5'] not in flat_mutations[(gene, protein_mutation)]['seq5']:
+                    flat_mutations[(gene, protein_mutation)]['seq5'][props['seq5']] = 0
                 flat_mutations[(gene, protein_mutation)]['seq5'][props['seq5']] += 1
 
     return flat_mutations, processing_stats

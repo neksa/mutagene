@@ -55,8 +55,8 @@ class RankMenu(object):
             e_message = getattr(e, 'message', repr(e))
             logger.warning(
                 "Parsing {0} failed. "
-                "Check that the input file is in {0} format.\n"
-                #"or specify a different format using option -f \n"
+                "Check that the input file is in {0} format "
+                "or specify a different format using option -f \n"
                 "{1}".format(args.input_format, e_message))
 
             if logger.root.level == logging.DEBUG:

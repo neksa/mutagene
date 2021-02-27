@@ -96,6 +96,6 @@ def fetch_examples():
 
 def fetch_MSKCC(dataset):
     """ Download dataset from cBioPortal https://www.cbioportal.org/datasets """
-    url = "http://download.cbioportal.org/{}.tar.gz".format(dataset)
-    dst = "{}.tar.gz".format(dataset)
+    url = f"https://cbioportal-datahub.s3.amazonaws.com/{dataset}.tar.gz"
+    dst = f"{dataset}.tar.gz"
     download_from_url(url, dst)
