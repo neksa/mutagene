@@ -1,27 +1,30 @@
 =====================================================
-Rank: Identifying potential driver mutations
+Rank: identifying potential driver mutations
 =====================================================
-
 -----------
 Description
 -----------
-Use mutagene rank to analyze genes and compare observed mutational frequencies to expected background mutability to identify potential drivers.
-The publication provides more details about the MutaGene's ranking method 
-`Finding driver mutations in cancer: Elucidating the role of background mutational processes <https://doi.org/10.1371/journal.pcbi.1006981>`_
+"mutagene rank" module ranks mutations with respect to their driver statuses. The method requires three input parameters: the background mutability model for each nucleotide or codon, a number of samples where a given mutation was observed (mutational frequency) and the overall number of samples in a given cohort of patients. The background mutability model, mutational frequency and number of samples are specified and taken from the input file by default. Arguments below can overwrite the default.
+
+Please cite the MutaGene ranking method as 
+Anna-Leigh Brown, Minghui Li, Alexander Goncearenco, Anna R Panchenko
+"Finding Driver Mutations in Cancer: Elucidating the Role of Background Mutational Processes" Plos Comp Biol 15 (4), e1006981
+https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1006981
 
 *Note: if you installed MutaGene in a virtual environment, make sure you activate the virtual environment first.*
 
+
 -------------------
-1. Rank command
+1. Rank 
 -------------------
 
-To use the rank command, type 
+To rank mutations, type 
 
-``$ mutagene rank``
+$ mutagene rank
 
-followed by the required arguments from the command line. You can always find help on the required arguments using the following command:
+followed by the required arguments, you can always find help on the required arguments using the following command:
 
-``$ mutagene rank -h``
+$ mutagene rank -h
 
 ------------
 2. Arguments
@@ -34,13 +37,12 @@ followed by the required arguments from the command line. You can always find he
 =========================   ============================================================  ====================
 Argument                    Description                                                   Example
 =========================   ============================================================  ====================
---infile INFILE             Input file in MAF format                                       --infile sample1.maf
-                            (where INFILE is the sample filename with extension)
+--infile INFILE             Input file of mutations to be ranked in MAF format            --infile sample1.maf
+                            (where INFILE is the sample(s) filename with extension)
 -i INFILE                   Short form of --infile INFILE argument                         -i sample1.maf 
 --genome GENOME             Location of genome assembly file in 2bit format                --genome hg19
 -g GENOME                   Short form of --genome GENOME argument                         -g hg19
---cohort COHORT             Name of cohort with observed mutations                         --cohort gcb_lymphomas
--c COHORT                   Short form of --cohort COHORT argument                         -c gcb_lymphomas
+
 =========================   ============================================================  ====================                                                                                                                                   
 
 **2.3.Optional Arguments (can be specified):**
@@ -52,10 +54,16 @@ Argument                                   Description                          
                                            TSV format  (If this argument is not included,
                                            output is to screen)   
 -o OUTFILE                                 Short form of --outfile OUTFILE                     -o out.tsv
---profile PROFILE                          Override profile to calculate mutability
-                                           (may also describe cohort size)
+--cohort COHORT                            Name of precalculated cohort which overwrites  
+                                           input sample(s). If cohort is specified, all three  --cohort gcb_lymphomas
+                                           method's input parameters will be derived from it.
+                                           Pan-cancer cohort is used by default if profile
+                                           is not specified, see below.
+-c COHORT                                  Short form of --cohort COHORT argument              -c gcb_lymphomas
+--profile PROFILE                          Specifies background mutability model. 
+                                           See comments below.                                          
 -p PROFILE                                 Short form of --profile PROFILE
---nsamples NSAMPLES                        Override cohort size                               --nsamples 20
+--nsamples NSAMPLES                        Overrides the number of samples in cohort          --nsamples 20
 -n NSAMPLES                                Short form of --nsamples                           -n 20
 --threshold-driver THRESHOLD_DRIVER        BScore threshold between Driver and Pontential     --threshold-driver 0.000009
                                            Driver mutations
@@ -63,10 +71,17 @@ Argument                                   Description                          
 --threshold-passenger THRESHOLD_PASSENGER  BScore threshold between Potential Driver and      --threshold-passenger 0.0003
                                            Passenger mutations
 -tp THRESHOLD_PASSENGER                    Short form of --threshold-passenger                -tp 0.0003
-
 --cohorts-file COHORTS_FILE                Location of tar.gz container or directory 
                                            for cohorts
 =========================================  =================================================  ==================================  
+
+Priorities of arguments:
+
+1. Profile and/or cohort size specified by "PROFILE".
+2. Profile, cohort size and observed mutation frequencies specified by "COHORT". 
+3. Profile, cohort size, observed mutation frequencies, and the list of mutations are taken from the Input file if PROFILE and COHORT are not specified.
+
+Priority 1 overrides 2, and 2 overrides 3
 
 --------------------------------
 3. Interpretation of Rank Output
@@ -79,13 +94,13 @@ Output Table Header  Description
 ===================  =======================================================================================================
 gene                 Name of gene with mutation
 mutation             Expressed as, eg. Y99F, ie. amino acid tyrosine (Y) replaced by phenylalanine (F) at position 99  
-mutability           Expected mutation rate in a particular DNA context
-observed             Observed mutational frequencies
+mutability           Expected mutation rate in a given DNA context
+observed             Number of cancer samples where this mutation was observed
 bscore               A binomial p-value for the observed number of occurences of mutation in comparison to the expected
                      mutability that is defined by the local DNA context of the mutated nucleotide
 qvalue               Bscore corrected for multiple testing with Benjamini-Hochberg FDR method
 label                Prediction of cancer drivers, Potential drivers, and Passengers is based on the thresholds established
-                     for the Bscore optimized using this benchmark datasets.
+                     for the Bscore optimized using this benchmark datasets. This is a rather arbitrary threshold.
 ===================  =======================================================================================================
 
 -----------
