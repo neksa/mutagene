@@ -1,4 +1,4 @@
-import csv
+import csv, sys
 from collections import namedtuple
 
 import twobitreader as tbr
@@ -27,7 +27,13 @@ def get_context_twobit_window(mutations, twobit_file, window_size):
     contexts = {}
 
     fname = twobit_file if twobit_file.endswith('.2bit') else twobit_file + '.2bit'
-    f = tbr.TwoBitFile(fname)
+
+    try:
+        f = tbr.TwoBitFile(fname)
+    except FileNotFoundError as fnf_error:
+        sys.exit(f'The 2bit genome assembly file, {fname}, was not found!')
+    except Exception as e:
+        sys.exit(f'An error occurred while reading the 2bit genome assembly file, {fname}!')
 
     cn = complementary_nucleotide
     for (chrom, pos, transcript_strand, x, y) in mutations:

@@ -21,12 +21,13 @@ class RankMenu(object):
     def __init__(self, parser):
         required_group = parser.add_argument_group('Required arguments')
         required_group.add_argument("--infile", "-i", help="Input file in MAF format", type=argparse.FileType('r'))
-        required_group.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout)
         required_group.add_argument('--genome', "-g", help="Location of genome assembly file in 2bit format", type=str, default='hg19')
         # parser.add_argument('--mode', "-m", help="n (nucleotide) or aa (amino acid) mode", type=str, default="aa")
 
         optional_group = parser.add_argument_group('Optional arguments')
-        optional_group.add_argument('--input-format', "-f", help="Input format: MAF, VCF", type=str, choices=['MAF', 'VCF', 'TCGI'], default='MAF')
+        optional_group.add_argument('--outfile', "-o", nargs='?', type=argparse.FileType('w'), default=sys.stdout)
+        # Suppressed with issue #51
+        optional_group.add_argument('--input-format', "-f", help=argparse.SUPPRESS, type=str, choices=['MAF', 'VCF', 'TCGI'], default='MAF')  # "Input format: MAF, VCF, or TCGI"
         optional_group.add_argument('--cohorts-file', type=str, help="Location of tar.gz container or directory for cohorts", default="cohorts.tar.gz", nargs='?')
         optional_group.add_argument('--cohort', "-c", type=str, help="Name of cohort with observed mutations", nargs='?', const="")
 
