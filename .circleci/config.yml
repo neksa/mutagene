@@ -84,7 +84,7 @@ jobs:
             #FETCH_MD5SUM=$(md5sum paac_jhu_2014.tar.gz | awk '{print $1}')
             #[ $FETCH_MD5SUM = 'acbf8c569c2b8f5684ccfb1e036743f0' ]
             FETCH_SIZE=$(stat -c %s paac_jhu_2014.tar.gz)
-            [ $FETCH_SIZE = '271744' ]
+            [ $FETCH_SIZE = '271932' ]
 
       - run:
           name: Execute mutagene motif
