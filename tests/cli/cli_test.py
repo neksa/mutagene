@@ -15,7 +15,7 @@ def test_fetch():
     #assert file_md5sum == 'acbf8c569c2b8f5684ccfb1e036743f0'
 
     file_size = os.path.getsize(f'{cli_test_utils.TEST_DIR}/{file_name}')
-    assert file_size == 271744
+    assert file_size == 271932
 
 
 def test_profile(artifactory_circleci):

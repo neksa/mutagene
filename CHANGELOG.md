@@ -1,5 +1,13 @@
 ## Changelog
 
+0.9.1.0 Release
+-----------------------
+* Rank is able to calculate cohort on the fly from MAF files, no need to rely on precalculated cohorts
+* Rank documentation overhauled
+* Fixed bugs and issues [#50] [#44] [#51] [#54] [#56] [#38] [#64]
+* Test framework updates
+* More informative error messages (with genome selection)
+
 0.9.0.2 Release
 -----------------------
 * Genome is set to hg19 by default [#2]
