@@ -1,6 +1,6 @@
-=====================================================
+====================================================
 Identify: Identifying mutational profiles in samples
-=====================================================
+====================================================
 -----------
 Description
 -----------
@@ -27,20 +27,7 @@ followed by the required arguments from the command line. You can always find he
 **2.1.Command:** mutagene signature identify [arguments]
 
 **2.2.Required Arguments (must be specified):**
-
-=========================   ============================================================  ====================
-Argument                    Description                                                   Example
-=========================   ============================================================  ====================
---infile INFILE             Input file (with one or multiple samples) in VCF or MAF format  --infile PD3851a.vcf
-                            (where INFILE is a sample filename)
--i INFILE                   Short form of --infile INFILE argument                         -i PD3851a.vcf 
---genome GENOME             Location of a genome assembly file in 2bit format                --genome hg38.2bit   
-                            (where GENOME is the filename)                    
--g GENOME                   Short form of --genome GENOME argument                         -g hg38.2bit                      
---signatures {5,10,30,49}   Collection of mutational signatures (include MutaGene5 (5),       --signatures10 
-                            MutaGene10(10), Cosmic30(30) and Cosmic49(49))\ :sup:`1`
--s {5,10,30,49}             Short form of --signatures {5,10,30,49}                        -s10  
-=========================   ============================================================  ====================                                                                                                                                          
+                                                                                                                                      
 
 1. The MutaGene signature package allows for the analysis of mutational processes operating in a given sample or a cohort using four different sets of mutational signatures: MutaGene5, MutaGene10, Cosmic30 and Cosmic49 signature sets.
 Read more about the MutaGene signature packag at https://www.ncbi.nlm.nih.gov/research/mutagene/signatures#mutational_signatures.
@@ -102,15 +89,15 @@ aiccz              BIC (BIC with added context-independent signatures)
 3. Examples
 -----------
 *3.1. Search for the presence of MutaGene-10 signatures in PD3851a.vcf using hg38 and default method mlez (method mle gives same output for this input)*
--------
+-------------
 3.1.1.Command
--------
+-------------
 
 ``$ mutagene signature identify -i PD3851a.vcf -g hg38.2bit -f VCF -s10``
 
----------------
+---------------------
 3.1.2.Identify Output
----------------
+---------------------
 
 =======  ============  ============  =========== 
 sample     signature     exposure    mutations   
