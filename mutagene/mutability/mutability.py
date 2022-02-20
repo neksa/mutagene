@@ -133,6 +133,9 @@ def rank(mutations_to_rank, outfile, profile, cohort_aa_mutations, cohort_size, 
         #     print(mutation_model)
 
         P, Q = mut[0], mut[-1]
+        # support for silent mutations
+        if Q == '=':
+            Q = P
         all_substitutions = get_all_codon_substitutions(P, seq5, Q)
         mutability = calculate_codon_mutability(mutation_model, seq5, all_substitutions)
 
