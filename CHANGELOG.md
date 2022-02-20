@@ -1,7 +1,12 @@
 ## Changelog
 
+0.9.2.0 Release
+---------------
+* Support for ranking of silent mutations given MAF file (e.g. L20=)
+* Fixed pyvcf installation by replacing with pyvcf3
+
 0.9.1.0 Release
------------------------
+---------------
 * Rank is able to calculate cohort on the fly from MAF files, no need to rely on precalculated cohorts
 * Rank documentation overhauled
 * Fixed bugs and issues [#50] [#44] [#51] [#54] [#56] [#38] [#64]
@@ -9,7 +14,7 @@
 * More informative error messages (with genome selection)
 
 0.9.0.2 Release
------------------------
+---------------
 * Genome is set to hg19 by default [#2]
 * Two bootstrap strategies for confidence intervals: t-distribution-based and percentile-based
 * Bootstrap options can be fine-tuned in a separate menu section
@@ -30,12 +35,12 @@
 * Fixed typos in documentation [#31]
 
 0.9.0 Release
------------------------
+-------------
 * Changed --save-motif-matches output to BED format, now includes sample and motif
 * Fixed tests according to new motif API
 
 0.9.0dev2 Testing release
------------------------
+-------------------------
 * Fixed incorrect parsing of mutations on '-' transcribed strand
 * Avoiding double-thresholding on motif significance. Now only qvalue threshold matters
 * Added an option --save-motif-matches to save all mutations that match motif in a separate file 
@@ -43,7 +48,7 @@
 * Now using T for transcribed, N for non-transcribed and A for any strand to avoid confusion with the reference strand + - and =
 
 0.9.0dev1 Testing release
------------------------
+-------------------------
 * Simplified command-line interface in all subpackages, e.g. 'mutagene motif search' is now simply 'mutagene motif'
 * Retained backward compatibility of command-line interface with 0.8.6
 * Added aliases for subpackages, e.g. fetch = download
@@ -63,18 +68,16 @@
 * MAF file loading improved for GDC and MSKCC data sources. More meaningfull error messages
 
 0.8.6.4 Release
------------------------
+---------------
 * testing and development releases are not available in pip mirrors, bumping version
 
 0.8.6.4dev1 Testing release
------------------------
-
+---------------------------
 * added handling of VCF files to motif analysis
 * Signatures from COSMIC v3 available as signature set "49"
 
 0.8.6.3dev1  Development release
 ------------------------
-
 * Fixed issue with counting matches in asymmetric motifs on reverse complementary strand
 * Changed calculation of enrichment, it is now calculated as Risk Ratio
 * Pvalue reports one-sided Fisher test by default with a 0.05 threshold
@@ -82,14 +85,10 @@
 
 0.8.5.1 Bug-Fix Release
 -----------------------
-
 * several error messages downgraded in log level
 * correct handling of missing parameters
 
 0.8.5 Release
 -------------
-
 * Functionality available 'fetch_genomes', 'fetch_cohorts', and 'rank'
 * Uploaded to PyPi as mutagene
-
- 
