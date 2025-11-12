@@ -39,8 +39,7 @@ def print_profile_counts(profile_counts):
     Printing context-dependent mutational profile
     """
     for mutation, value in profile_counts.items():
-        print(f"{mutation}\t{value:.0f}")
-    print()
+        pass
 
 
 def print_decomposition(decomposition):
@@ -48,8 +47,7 @@ def print_decomposition(decomposition):
     Printing the results of decomposition
     """
     for component in decomposition:
-        print("{}\t{:.2f}\t{:.0f}".format(component['name'], component['score'], component['mutations']))
-    print()
+        pass
 
 
 if __name__ == '__main__':

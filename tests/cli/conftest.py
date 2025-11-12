@@ -24,7 +24,6 @@ def artifactory_circleci():
                 shutil.copyfile(f'./{filename}', target_path)
             # Otherwise, download from public source
             else:
-                print(f"Downloading {filename} from {url}")
                 # Use stream=True to avoid automatic decompression
                 # Important for .tar.gz files that need to stay compressed
                 r = requests.get(url, stream=True)

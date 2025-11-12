@@ -26,14 +26,9 @@ def print_motifs(motifs):
     Printing the results of motif identification
     """
     if motifs is None:
-        print("Empty")
         return
     for m in motifs:
-        print("{}\t{}\t{:.2f}\t{:.2e}\t{}".format(
-            m['name'], m['motif'],
-            m['enrichment'], m['pvalue'],
-            m['mutations']))
-    print()
+        pass
 
 file_list = ["FI_D1_D2_combined_WGS.maf.txt"]
 
@@ -44,7 +39,6 @@ if __name__ == '__main__':
         with open("mut_and_sig.csv", "w") as csvfile:  # create csv file
             for file_name in vcf_files:
                 motifs = get_motifs(file_name, assembly=37)
-                print(file_name)
                 print_motifs(motifs)
             filewriter = csv.writer(csvfile, delimiter=",", quotechar="|", quoting=csv.QUOTE_MINIMAL)
             filewriter.writerow([file_name])
