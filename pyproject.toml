@@ -88,22 +88,9 @@ warn_unused_configs = true
 disallow_untyped_defs = false
 ignore_missing_imports = true
 
-[tool.commitizen]
-name = "cz_conventional_commits"
-version = "2.0.0"
-version_files = [
-    "pyproject.toml:version",
-    "mutagene/version.py:__version__"
-]
-tag_format = "v$version"
-update_changelog_on_bump = true
-major_version_zero = false
-version_scheme = "semver"
-
 [dependency-groups]
 dev = [
     "black>=24.8.0",
-    "commitizen>=3.31.0",
     "coverage>=7.6.1",
     "mypy>=1.14.1",
     "pytest>=8.3.5",
