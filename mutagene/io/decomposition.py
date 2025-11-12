@@ -20,7 +20,7 @@ def _get_stats(results):
         mutations = [mutations_dict[name] for name in signatures]
 
         h = np.array(exposure)
-        m = np.array(mutations, np.int)
+        m = np.array(mutations, dtype=int)
 
     df = pd.DataFrame(
         dict(

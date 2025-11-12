@@ -29,7 +29,7 @@ def read_cohort_size_from_profile_str(profile_str):
 def list_cohorts_in_tar(tar_fname):
     """ Returns a multiline string formatted list of cohorts contained in tar file """
     cohorts = []
-    with tarfile.open(tar_fname, 'r:gz') as tar:
+    with tarfile.open(tar_fname, 'r:*') as tar:
         for t in tar:
             haystack = t.name.lower()
             if haystack.endswith(".aa_mutations.txt"):
@@ -71,7 +71,7 @@ def read_cohort_mutations_from_tar(tar_fname, cohort):
     na_mutations = {}
     profile = []
     cohort_size = 0
-    with tarfile.open(tar_fname, 'r:gz') as tar:
+    with tarfile.open(tar_fname, 'r:*') as tar:
         for t in tar:
             haystack = t.name.lower()
             needle = "/{}.".format(cohort.lower())
