@@ -31,9 +31,11 @@ git tag v2.0.1
 git push --tags
 ```
 
-## During v2 Refactoring
+## For v2 Major Release
 
-Stay in 2.0.x territory for all refactoring work:
-- Use `patch` for most changes
-- Reserve `minor` for complete features
-- Save `major` for post-refactor release
+The v2-refactor branch PR should use the `major` label to bump from 0.9.2.0 → 2.0.0.
+
+After the v2 release, stay in 2.x territory:
+- Use `patch` for bug fixes (2.0.0 → 2.0.1)
+- Use `minor` for new features (2.0.0 → 2.1.0)
+- Reserve `major` for next breaking changes (2.x → 3.0.0)
