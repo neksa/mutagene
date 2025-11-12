@@ -729,7 +729,7 @@ wheels = [
 
 [[package]]
 name = "mutagene"
-version = "2.0.0"
+version = "0.9.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "bayesian-optimization", version = "1.4.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
