@@ -1,45 +1,5 @@
-import setuptools
-from mutagene.version import __version__
+# Minimal setup.py for backwards compatibility
+# All configuration is in pyproject.toml
+from setuptools import setup
 
-setuptools.setup(name='mutagene',
-                 version=__version__,
-                 description='Mutational analysis with Python',
-                 long_description=open('README.md').read().strip(),
-                 long_description_content_type="text/markdown",
-                 author='Alexander Goncearenco',
-                 author_email='alexandr.goncearenco@nih.gov',
-                 url='http://www.ncbi.nlm.nih.gov/projects/mutagene/',
-                 install_requires=[
-                        'bayesian-optimization',
-                        'clustergrammer',
-                        'numpy>=1.18',
-                        'pandas>=0.25',
-                        'requests',
-                        'scikit-learn>=0.22',
-                        'scipy>=1.4',
-                        'statsmodels',
-                        'pyvcf',
-                        'twobitreader',
-                        'tqdm'],
-                 test_suite='nose.collector',
-                 tests_require=[
-                     'nose',
-                     'pytest',
-                     'pytest-cov',
-                     'coverage'],
-                 scripts=['bin/mutagene'],
-                 # package_dir={'mutagene': 'src'},
-                 packages=setuptools.find_packages(exclude=["docs", "contrib", "*.tests", "*.tests.*", "tests.*", "tests"]),
-                 include_package_data=True,
-                 license='Public Domain',
-                 zip_safe=False,
-                 keywords='bioinformatics cancer mutations',
-                 classifiers=[
-                     'Programming Language :: Python :: 3 :: Only',
-                     "Operating System :: OS Independent",
-                     'License :: Public Domain',
-                     'Development Status :: 4 - Beta',
-                     'Intended Audience :: Science/Research',
-                     'Topic :: Scientific/Engineering :: Medical Science Apps.',
-                     'Environment :: Console'
-                 ])
+setup()

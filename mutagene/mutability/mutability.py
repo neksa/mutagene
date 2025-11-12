@@ -4,7 +4,7 @@ import pandas as pd
 from collections import defaultdict, OrderedDict
 from functools import lru_cache, reduce
 
-from scipy.stats import binom_test
+from scipy.stats import binomtest
 from statsmodels.stats.multitest import multipletests
 
 from mutagene.dna import *
@@ -49,7 +49,7 @@ def predict_driver(observed, N, p, threshold_driver, threshold_passenger):
     # need more tumor samples than mutations for sure
 
     if N > 0 and observed > 0 and observed <= N:
-        pvalue = binom_test(observed, N, p, alternative='greater')
+        pvalue = binomtest(observed, N, p, alternative='greater').pvalue
     else:
         pvalue = 1.0
 

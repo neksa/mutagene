@@ -109,5 +109,9 @@ class MutaGeneApp(object):
         sys.exit(0)
 
 
-if __name__ == '__main__':
+def main():
     MutaGeneApp()
+
+
+if __name__ == '__main__':
+    main()
