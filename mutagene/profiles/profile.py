@@ -1,18 +1,17 @@
 # from collections import defaultdict
 # from mutagene.dna import complementary_nucleotide
 
+import logging
 from collections import Counter
-from operator import add
 from functools import reduce
+from operator import add
 
 import numpy as np
 from numpy.random import multinomial
-from sklearn.utils import resample
 
-from mutagene.io.profile import write_profile_file, get_profile_attributes_dict
 from mutagene.io.mutations_profile import read_auto_profile
+from mutagene.io.profile import get_profile_attributes_dict, write_profile_file
 
-import logging
 logger = logging.getLogger(__name__)
 
 

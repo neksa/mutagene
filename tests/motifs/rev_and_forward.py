@@ -1,6 +1,8 @@
 import unittest
+
 # import numpy as np
 from mutagene.motifs import *
+
 # purpose: check processing of reverse and forward motifs
 
 

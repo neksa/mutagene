@@ -1,21 +1,22 @@
 
 import json
-from subprocess import Popen, PIPE
+from subprocess import PIPE, Popen
 
 try:
     from .identify_signature import *
+    from .json_structs import *
+
     # from . import *
     from .mutations import *
-    from .json_structs import *
 except:
     pass
 
+import csv
+import gzip
+import os
+from collections import defaultdict, namedtuple
 from itertools import chain, islice
 
-from collections import namedtuple, defaultdict
-import gzip
-import csv
-import os
 # from .COSMIC import iter_CLP_mutations
 
 
@@ -28,8 +29,8 @@ def make_NCI60_report(prefix, n=30, decomposition='L'):
     COSMIC_CLINICAL = prefix + "/cellline_nci60_clinical_data.tsv"
 
     stats_columns = ("N", "Processed_C", "Processed_NC", "N_C", "N_NC", "Skipped_C", "Skipped_NC", "Skipped_indels_C", "Skipped_indels_NC", "Skipped_nucleotide_C", "Skipped_nucleotide_NC", "Skipped_context_C", "Skipped_context_NC")
-    with open(COSMIC_CLINICAL) as f, open(prefix + "/report_{}{}.txt".format(decomposition, n), 'w') as o:
-        o.write("SAMPLE_ID\tCANCER_TYPE\t" + "\t".join(stats_columns) + "\t" + "\t".join(["{}{}".format(s, x) for x in range(1, n + 1)]) + "\tOther\tUnexplained\n")
+    with open(COSMIC_CLINICAL) as f, open(prefix + f"/report_{decomposition}{n}.txt", 'w') as o:
+        o.write("SAMPLE_ID\tCANCER_TYPE\t" + "\t".join(stats_columns) + "\t" + "\t".join([f"{s}{x}" for x in range(1, n + 1)]) + "\tOther\tUnexplained\n")
         for line in islice(f, 1, None):
             if line.startswith('#'):
                 continue
@@ -41,24 +42,24 @@ def make_NCI60_report(prefix, n=30, decomposition='L'):
             SAMPLE_ID = fields[0]
             CANCER = fields[3]
 
-            if not os.path.isfile(prefix + "/profiles/{}.stats".format(SAMPLE_ID)):
+            if not os.path.isfile(prefix + f"/profiles/{SAMPLE_ID}.stats"):
                 continue
 
             print(SAMPLE_ID, CANCER)
 
-            o.write("{}\t{}\t".format(SAMPLE_ID, CANCER))
+            o.write(f"{SAMPLE_ID}\t{CANCER}\t")
 
             stats_values = {}
-            with open(prefix + "/profiles/{}.stats".format(SAMPLE_ID)) as stats:
+            with open(prefix + f"/profiles/{SAMPLE_ID}.stats") as stats:
                 for line in stats:
                     stats, value = line.split("\t")
                     stats_values[stats] = value.strip()
 
             for stats in stats_columns:
-                o.write("{}\t".format(stats_values[stats]))
+                o.write(f"{stats_values[stats]}\t")
 
             exposure = defaultdict(float)
-            with open(prefix + "/decompose/{}_{}-{}.txt".format(SAMPLE_ID, decomposition, n)) as d:
+            with open(prefix + f"/decompose/{SAMPLE_ID}_{decomposition}-{n}.txt") as d:
                 for line in d:
                     signature, value = line.split("\t")
                     value = float(value)
@@ -67,7 +68,7 @@ def make_NCI60_report(prefix, n=30, decomposition='L'):
                     if signature.startswith("Other"):
                         exposure['other'] = value
             unexplained = 1.0 - sum(exposure.values())
-            o.write("\t".join(["{0:.2f}".format(exposure["{}{}".format(s, x)]) for x in range(1, n + 1)]) + "\t{:.2f}\t{:.2f}\n".format(exposure['other'], unexplained))
+            o.write("\t".join(["{0:.2f}".format(exposure[f"{s}{x}"]) for x in range(1, n + 1)]) + "\t{:.2f}\t{:.2f}\n".format(exposure['other'], unexplained))
 
 
 def read_MAF_extended(muts, asm=None):
@@ -277,7 +278,7 @@ def read_CLP_extended(f, asm=None, ids=None):
                 p5, p3 = contexts.get((chrom, pos), ("N", "N"))
 
                 if len(set([p5, x, y, p3]) - set(nucleotides)) > 0:
-                    print("Skipping invalid nucleotides {}:{} {}[{}>{}]{}".format(chrom, pos, p5, x, y, p3))
+                    print(f"Skipping invalid nucleotides {chrom}:{pos} {p5}[{x}>{y}]{p3}")
                     # N_skipped += 1
                     samples_skipped_context[sample] += 1
                     continue
@@ -384,7 +385,7 @@ def read_CLP_NCV(f, asm=None, ids=None):
 
                 if len(set([p5, x, y, p3]) - set(nucleotides)) > 0:
                     # print("Skipping invalid nucleotides")
-                    print("Skipping invalid nucleotides {}[{}>{}]{}".format(p5, x, y, p3))
+                    print(f"Skipping invalid nucleotides {p5}[{x}>{y}]{p3}")
                     # N_skipped += 1
                     samples_skipped_context[sample] += 1
                     continue
@@ -504,8 +505,7 @@ def export_maf(prefix, maf_file):
         for sample in samples_raw.keys():
             for mutation in chain(samples_raw[sample], samples_raw_NCV[sample]):
                 chrom, pos, x, y = mutation
-                o.write("\t\t\tGRCh38\t{}\t{}\t{}\t+\t\tSNP\t{}\t{}\t{}\t\t\t{}\t{}\n".format(
-                    chrom, pos, pos, x, y, y, sample, sample))
+                o.write(f"\t\t\tGRCh38\t{chrom}\t{pos}\t{pos}\t+\t\tSNP\t{x}\t{y}\t{y}\t\t\t{sample}\t{sample}\n")
 
 
 def analyze_nci60_samples(prefix):
@@ -544,7 +544,7 @@ def analyze_nci60_samples(prefix):
     #     processing_stats[k]['skipped'] += processing_stats_NCV[k]['skipped']
 
     def format_numbers(d):
-        d['score'] = "{:6.4g}".format((d['score']))
+        d['score'] = "{:6.4g}".format(d['score'])
         return d
 
     # print(samples)
@@ -560,21 +560,21 @@ def analyze_nci60_samples(prefix):
         query_signature = make_bar_struct_from_values(mutational_profile)
         query_formatted = format_profile(mutational_profile)
 
-        oname = prefix + "/profiles/{}.profile".format(SAMPLE_ID)
+        oname = prefix + f"/profiles/{SAMPLE_ID}.profile"
         print("ONAME:", oname)
         with open(oname, 'w') as o:
             query_formatted = format_profile(mutational_profile)
             o.write(query_formatted)
 
-        oname = prefix + "/profiles/{}.counts".format(SAMPLE_ID)
+        oname = prefix + f"/profiles/{SAMPLE_ID}.counts"
         with open(oname, 'w') as o:
             query_formatted = format_profile(mutational_profile_counts, counts=True)
             o.write(query_formatted)
 
-        oname = prefix + "/profiles/{}.stats".format(SAMPLE_ID)
+        oname = prefix + f"/profiles/{SAMPLE_ID}.stats"
         # print("ONAME:", oname)
         with open(oname, 'w') as o:
-            o.write("N\t{}\n".format(int(sum(mutational_profile_counts))))
+            o.write(f"N\t{int(sum(mutational_profile_counts))}\n")
             o.write("Processed_C\t{}\n".format(processing_stats[sample]['processed']))
             o.write("Processed_NC\t{}\n".format(processing_stats_NCV[sample]['processed']))
             o.write("N_C\t{}\n".format(processing_stats[sample]['loaded']))
@@ -616,22 +616,22 @@ def analyze_nci60_samples(prefix):
                 _, _, contributing_signatures_cosmic = decompose_mutational_profile_counts(mutational_profile_counts, "IS", 'frobeniuszero')
 
             if method == 'D':
-                _, _, contributing_signatures_cosmic = deconstruct_sigs(prefix + "/profiles/{}.profile".format(SAMPLE_ID), SAMPLE_ID)
+                _, _, contributing_signatures_cosmic = deconstruct_sigs(prefix + f"/profiles/{SAMPLE_ID}.profile", SAMPLE_ID)
 
             if method != 'D':
-                oname = prefix + "/decompose/{}_{}-5.txt".format(SAMPLE_ID, method)
+                oname = prefix + f"/decompose/{SAMPLE_ID}_{method}-5.txt"
                 with open(oname, 'w') as o:
                     for v in contributing_signatures_A:
                         o.write("{}\t{}\n".format(v['name'], v['score']))
                     # o.write("residuals\t{}\n".format(residuals_A))
 
-                oname = prefix + "/decompose/{}_{}-10.txt".format(SAMPLE_ID, method)
+                oname = prefix + f"/decompose/{SAMPLE_ID}_{method}-10.txt"
                 with open(oname, 'w') as o:
                     for v in contributing_signatures_B:
                         o.write("{}\t{}\n".format(v['name'], v['score']))
                     # o.write("residuals\t{}\n".format(residuals_B))
 
-            oname = prefix + "/decompose/{}_{}-30.txt".format(SAMPLE_ID, method)
+            oname = prefix + f"/decompose/{SAMPLE_ID}_{method}-30.txt"
             with open(oname, 'w') as o:
                 for v in contributing_signatures_cosmic:
                     o.write("{}\t{}\n".format(v['name'], v['score']))

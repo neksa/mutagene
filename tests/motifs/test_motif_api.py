@@ -1,7 +1,7 @@
-import requests
-import json
 import csv
 import glob
+
+import requests
 
 # MUTAGENE_URL = "https://www.ncbi.nlm.nih.gov/research/mutagene"
 #MUTAGENE_URL = "https://dev.ncbi.nlm.nih.gov/research/mutagene"

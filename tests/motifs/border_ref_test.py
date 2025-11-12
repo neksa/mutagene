@@ -1,4 +1,5 @@
 import unittest
+
 from mutagene.motifs import *
 
 

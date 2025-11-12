@@ -1,17 +1,17 @@
 import argparse
-import sys
 import logging
+import sys
 
 from tqdm import tqdm
 
-from mutagene.io.profile import read_signatures
-from mutagene.profiles.profile import get_multisample_mutational_profile
-from mutagene.profiles.profile import generate_resampled_profiles
 from mutagene.io.context_window import read_mutations
-from mutagene.signatures.identify import decompose_mutational_profile_counts
-from mutagene.signatures.identify import IDENTIFY_MIN_FUNCTIONS
 from mutagene.io.decomposition import write_decomposition
-
+from mutagene.io.profile import read_signatures
+from mutagene.profiles.profile import (
+    generate_resampled_profiles,
+    get_multisample_mutational_profile,
+)
+from mutagene.signatures.identify import IDENTIFY_MIN_FUNCTIONS, decompose_mutational_profile_counts
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ genome_error_message = """requires genome name argument -g hg19, hg38, mm10, see
                           Use mutagene fetch to download genome assemblies"""
 
 
-class SignatureMenu(object):
+class SignatureMenu:
     def __init__(self, parser):
         required_group = parser.add_argument_group('Required arguments')
         required_group.add_argument("--infile", "-i", help="Input file in VCF or MAF format", type=argparse.FileType('r'))
@@ -100,10 +100,10 @@ class SignatureMenu(object):
         except Exception as e:
             e_message = getattr(e, 'message', repr(e))
             logger.warning(
-                "Parsing {0} failed. "
-                "Check that the input file is in {0} format "
+                f"Parsing {args.input_format} failed. "
+                f"Check that the input file is in {args.input_format} format "
                 "or specify a different format using option -f \n"
-                "{1}".format(args.input_format, e_message))
+                f"{e_message}")
 
             if logger.root.level == logging.DEBUG:
                 raise

@@ -1,33 +1,30 @@
-import sys
+import logging
 import os
-# from pathlib import Path
+import sys
 
+# from pathlib import Path
 # from mutagene.mutability.mutability import rank, THRESHOLD_DRIVER, THRESHOLD_PASSENGER
 # from mutagene.io.cohorts import read_cohort_mutations_from_tar
 # from mutagene.io.cohorts import read_cohort_size_from_profile_file, list_cohorts_in_tar
 # from mutagene.io.profile import read_profile_file
 # from mutagene.io.protein_mutations_MAF import read_MAF_with_genomic_context
-
 from mutagene.benchmark.generate_benchmark import (
+    aggregate_benchmarks,
     gen_benchmark_2combinations,
     run_benchmark_2combinations,
     run_benchmark_2combinations_deconstruct_sigs,
-    aggregate_benchmarks
 )
-
 from mutagene.benchmark.multiple_benchmark import (
+    aggregate_multiple_benchmarks,
     multiple_benchmark,
     multiple_benchmark_run,
-    aggregate_multiple_benchmarks
 )
-
 from mutagene.io.profile import read_signatures
 
-import logging
 logger = logging.getLogger(__name__)
 
 
-class BenchmarkMenu(object):
+class BenchmarkMenu:
     def __init__(self, parser):
         required_group = parser.add_argument_group('Required arguments')
         required_group.add_argument("--mode", "-m", choices=[
@@ -47,7 +44,7 @@ class BenchmarkMenu(object):
 
         required_group.add_argument(
             "--root",
-            help="path to benchmark data, default {}".format(default_root),
+            help=f"path to benchmark data, default {default_root}",
             type=str,
             default=default_root)
 

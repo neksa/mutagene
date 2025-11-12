@@ -82,6 +82,12 @@ target-version = "py38"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP"]
+ignore = [
+    "E501",  # Line too long - can be fixed incrementally
+    "F403",  # Star imports - legacy code
+    "F405",  # Star imports - legacy code
+    "N802",  # Function naming - legacy test code
+]
 
 [tool.mypy]
 python_version = "3.8"

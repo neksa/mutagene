@@ -1,8 +1,9 @@
 # import csv
-import numpy as np
-from scipy import stats
 from collections import defaultdict
+
+import numpy as np
 import pandas as pd
+from scipy import stats
 
 
 def _get_stats(results):

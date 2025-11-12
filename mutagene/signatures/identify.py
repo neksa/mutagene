@@ -1,18 +1,17 @@
-import urllib
+import logging
 import math
+import urllib
 
 import numpy as np
-
-from scipy.optimize import minimize
-from scipy.optimize import nnls
+from scipy.optimize import minimize, nnls
 from scipy.spatial.distance import cosine
+
 # from scipy.optimize import basinhopping  # , differential_evolution
 # from scipy.optimize import fmin_cobyla
 from scipy.stats import entropy
 
 from mutagene.signatures import get_dummy_signatures_lists
 
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -85,7 +84,7 @@ def FrobeniusZero(x, A, b):
     return np.linalg.norm(error)
 
 
-# def DerNegLogLik(x, A, b):    
+# def DerNegLogLik(x, A, b):
 #     print(b / A.dot(x))
 #     DLL = - np.ma.divide(b, A.dot(x)).filled(0)
 #     print(x, DLL)
@@ -192,7 +191,7 @@ IDENTIFY_MIN_FUNCTIONS = {
 
 
 def get_fingerprint_url(a):
-    data = {"s{}".format(i): v for i, v in enumerate(a)}
+    data = {f"s{i}": v for i, v in enumerate(a)}
     return urllib.parse.urlencode(data)
 
 
@@ -262,7 +261,7 @@ def decompose_mutational_profile_counts(profile, signatures, func="Frobenius", o
     # if np.isnan(h0.sum()):
     #     h0 = np.ones(h0.shape[0]) / h0.shape[0]
 
-    logger.debug("h0 {}".format(h0))
+    logger.debug(f"h0 {h0}")
 
     min_func = IDENTIFY_MIN_FUNCTIONS.get(func.lower(), Frobenius)
 
@@ -289,9 +288,9 @@ def decompose_mutational_profile_counts(profile, signatures, func="Frobenius", o
         v_target = v_freq
 
     def print_fun(x, f, accepted):
-        print("{} at minimum {} accepted {}".format(x, f, accepted))
+        print(f"{x} at minimum {f} accepted {accepted}")
 
-    class RandomDisplacementBounds(object):
+    class RandomDisplacementBounds:
         """random displacement with bounds"""
 
         def __init__(self, xmin=0.0, xmax=1.0, stepsize=0.3):
@@ -392,8 +391,9 @@ def decompose_mutational_profile_counts(profile, signatures, func="Frobenius", o
                 print("FRO", round(Frobenius(h, W, v_target), 4), "DIV", round(DivergenceKL(h, W, v), 4))
         """
         # Bayesian Optimization
-        from bayes_opt import BayesianOptimization
         from functools import partial
+
+        from bayes_opt import BayesianOptimization
 
         optimizer = BayesianOptimization(
             f=partial(min_func, A=W, b=v_target),
@@ -413,12 +413,12 @@ def decompose_mutational_profile_counts(profile, signatures, func="Frobenius", o
         )
 
         if minout.success:
-            logger.debug("MINIMIZATION: {} {}".format(minout.message, minout.nit))
+            logger.debug(f"MINIMIZATION: {minout.message} {minout.nit}")
             h = minout.x
-            logger.debug("MAX LIK {} {}".format(h, round(-NegLogLik(h, W, v_target), 4)))
+            logger.debug(f"MAX LIK {h} {round(-NegLogLik(h, W, v_target), 4)}")
             # print("LIK", round(-NegLogLik(h, W, v), 4), "DIV", round(DivergenceKL(h, W, v), 4))
         else:
-            logger.debug("MINIMIZATION FAILED:{} {}".format(minout.message, minout.nit))
+            logger.debug(f"MINIMIZATION FAILED:{minout.message} {minout.nit}")
             # Minimization did not converge
             # Use our initial guess, but normalize it:
             h = h0.ravel() / h0.sum()

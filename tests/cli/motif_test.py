@@ -2,7 +2,6 @@ import os
 
 from tests.cli import cli_test_utils
 
-
 DEFAULT_INFILE = f'{cli_test_utils.TEST_DIR}/sample1.maf'
 DEFAULT_GENOME = f'{cli_test_utils.TEST_DIR}/hg19.2bit'
 

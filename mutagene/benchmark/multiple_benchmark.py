@@ -1,16 +1,22 @@
 import glob
 import random
 import uuid
-import numpy as np
-
 from multiprocessing import Pool
-from sklearn.metrics import (
-    recall_score, precision_score, accuracy_score, f1_score, mean_squared_error)
 
-from mutagene.io.profile import read_profile_file, write_profile, read_signatures
-from mutagene.signatures.identify import NegLogLik
+import numpy as np
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    mean_squared_error,
+    precision_score,
+    recall_score,
+)
+
 from mutagene.benchmark.deconstructsigs import deconstruct_sigs_custom
 from mutagene.benchmark.generate_benchmark import *
+from mutagene.io.profile import read_profile_file, read_signatures, write_profile
+from mutagene.signatures.identify import NegLogLik
+
 # from mutagene.identify import decompose_mutational_profile_counts
 
 
@@ -39,7 +45,7 @@ def multiple_benchmark_helper(j):
         # print(v0_counts)
 
         random_name = str(uuid.uuid4())[:4]
-        fname = dirname + "/{:02d}_{}_{}_{}".format(i, r, n_mutations, random_name)
+        fname = dirname + f"/{i:02d}_{r}_{n_mutations}_{random_name}"
         print(fname)
         profile_fname = fname + ".profile"
         info_fname = fname + ".info"
@@ -101,7 +107,7 @@ def multiple_benchmark_run_helper(data):
 
 def multiple_benchmark_run(N, signature_ids, W, force=False):
     def get_iterator():
-        for fname in glob.glob("data/benchmark/multiple/{:02d}_*.profile".format(N), recursive=True):
+        for fname in glob.glob(f"data/benchmark/multiple/{N:02d}_*.profile", recursive=True):
                 yield (fname, signature_ids, W, force)
 
     random.seed(13425)
@@ -212,5 +218,4 @@ def aggregate_multiple_benchmarks():
                 accuracy = accuracy_score(h0_binary, h_binary)
                 f1 = f1_score(h0_binary, h_binary)
 
-                o.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                    file_id, sigtype, nsig, nmut, method, SRMSE, PRMSE, STRMSE, LLIK, LLIK0, TLLIK, TLLIK0, precision, recall, accuracy, f1))
+                o.write(f"{file_id}\t{sigtype}\t{nsig}\t{nmut}\t{method}\t{SRMSE}\t{PRMSE}\t{STRMSE}\t{LLIK}\t{LLIK0}\t{TLLIK}\t{TLLIK0}\t{precision}\t{recall}\t{accuracy}\t{f1}\n")

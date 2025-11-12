@@ -1,19 +1,18 @@
 # import os
 import csv
-# import numpy as np
 
+# from mutagene.dna import chromosome_name_mapping
+import logging
+from collections import defaultdict, namedtuple
+
+# import numpy as np
 import twobitreader as tbr
 
-from collections import defaultdict
-from collections import namedtuple
 # from itertools import cycle
 from tqdm import tqdm
 
-from mutagene.dna import nucleotides, complementary_nucleotide
-from mutagene.dna import codon_table
-# from mutagene.dna import chromosome_name_mapping
+from mutagene.dna import codon_table, complementary_nucleotide, nucleotides
 
-import logging
 logger = logging.getLogger(__name__)
 
 

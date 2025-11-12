@@ -1,5 +1,5 @@
 import json
-from subprocess import Popen, PIPE
+from subprocess import PIPE, Popen
 
 
 def deconstruct_sigs(profile_fname, sample='sample'):
@@ -54,9 +54,9 @@ library(deconstructSigs)
         signatures_list = list(range(signatures))
 
     for i in signatures_list:
-        script1 += """
-W <- rbind(W, t(read.table('/Users/agoncear/projects/mutagene/data/signatures/{}_{}.profile', sep="\t", header=FALSE, row.names=1)))
-""".format(sig_map[signatures], i + 1)
+        script1 += f"""
+W <- rbind(W, t(read.table('/Users/agoncear/projects/mutagene/data/signatures/{sig_map[signatures]}_{i + 1}.profile', sep="\t", header=FALSE, row.names=1)))
+"""
 
     script1 += "row.names(W) <- c(" + ",".join(["'Signature." + str(i + 1) + "'" for i in signatures_list]) + ")\n"
     script1 += "W <- as.data.frame(W)\n"

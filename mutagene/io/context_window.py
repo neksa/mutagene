@@ -1,16 +1,15 @@
-import csv, sys
-from collections import namedtuple
-
-import twobitreader as tbr
-
-from tqdm import tqdm
-from collections import defaultdict
+import csv
+import logging
+import sys
+from collections import defaultdict, namedtuple
 from itertools import cycle
 
-from mutagene.dna import chromosome_name_mapping
-from mutagene.motifs import nucleotides, complementary_nucleotide
+import twobitreader as tbr
+from tqdm import tqdm
 
-import logging
+from mutagene.dna import chromosome_name_mapping
+from mutagene.motifs import complementary_nucleotide, nucleotides
+
 logger = logging.getLogger(__name__)
 
 
@@ -30,9 +29,9 @@ def get_context_twobit_window(mutations, twobit_file, window_size):
 
     try:
         f = tbr.TwoBitFile(fname)
-    except FileNotFoundError as fnf_error:
+    except FileNotFoundError:
         sys.exit(f'The 2bit genome assembly file, {fname}, was not found!')
-    except Exception as e:
+    except Exception:
         sys.exit(f'An error occurred while reading the 2bit genome assembly file, {fname}!')
 
     cn = complementary_nucleotide
@@ -50,10 +49,10 @@ def get_context_twobit_window(mutations, twobit_file, window_size):
                 assert len(seq) == window_size * 2 + 1
                 seq = seq.upper()
             except Exception as e:
-                logger.warning("TwoBit exception while reading the genome in {}:{}: {}".format(chrom, pos, e))
+                logger.warning(f"TwoBit exception while reading the genome in {chrom}:{pos}: {e}")
                 continue
         else:
-            logger.warning("Chromosome {} not found in 2bit file. Consider renaming it or using a different genome assembly".format(chromosome))
+            logger.warning(f"Chromosome {chromosome} not found in 2bit file. Consider renaming it or using a different genome assembly")
             continue
 
         strand = transcript_strand
@@ -78,8 +77,7 @@ def get_context_twobit_window(mutations, twobit_file, window_size):
                 # print("{}:{}  {}>{}   {}[{}]{}".format(chromosome, pos, x, y, nuc5, nuc, nuc3))
                 nuc3 = nuc5 = 'N'
             logger.warning(
-                "REF allele does not match the genomic sequence in {}:{} {}!={}. Multiple errors could mean wrong genome assembly choice".format(
-                    chromosome, pos, x, nuc))
+                f"REF allele does not match the genomic sequence in {chromosome}:{pos} {x}!={nuc}. Multiple errors could mean wrong genome assembly choice")
         contexts[(chrom, pos)] = (nuc5, nuc3), seq_with_coords
     return contexts
 
@@ -202,7 +200,7 @@ def read_TCGI_with_context_window(infile, asm, window_size):
 
 def read_mutations(file_format, *args, **kwargs):
     """ Wrapper for read_X_with_context_window """
-    function_name = "read_{}_with_context_window".format(file_format)
+    function_name = f"read_{file_format}_with_context_window"
     return globals()[function_name](*args, **kwargs)
 
 

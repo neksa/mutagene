@@ -1,5 +1,8 @@
+import os
+import shutil
+
 import pytest
-import os, requests, shutil
+import requests
 
 from tests.cli import cli_test_utils
 

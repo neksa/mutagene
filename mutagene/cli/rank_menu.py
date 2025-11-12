@@ -1,23 +1,25 @@
 import argparse
-import sys
 import logging
+import sys
 from pathlib import Path
 
-from mutagene.mutability.mutability import rank, THRESHOLD_DRIVER, THRESHOLD_PASSENGER
-from mutagene.io.cohorts import read_cohort_mutations_from_tar
-from mutagene.io.cohorts import read_cohort_size_from_profile_file, list_cohorts_in_tar
-from mutagene.io.profile import read_profile_file
+from mutagene.io.cohorts import (
+    list_cohorts_in_tar,
+    read_cohort_mutations_from_tar,
+    read_cohort_size_from_profile_file,
+)
 from mutagene.io.context_window import read_mutations
-from mutagene.profiles.profile import get_pooled_multisample_mutational_profile
+from mutagene.io.profile import read_profile_file
 from mutagene.io.protein_mutations_MAF import read_protein_mutations_MAF
-
+from mutagene.mutability.mutability import THRESHOLD_DRIVER, THRESHOLD_PASSENGER, rank
+from mutagene.profiles.profile import get_pooled_multisample_mutational_profile
 
 logger = logging.getLogger(__name__)
 genome_error_message = """requires genome name argument -g hg19, hg38, mm10, see http://hgdownload.cse.ucsc.edu/downloads.html for more
                           Use mutagene fetch to download genome assemblies"""
 
 
-class RankMenu(object):
+class RankMenu:
     def __init__(self, parser):
         required_group = parser.add_argument_group('Required arguments')
         required_group.add_argument("--infile", "-i", help="Input file in MAF format", type=argparse.FileType('r'))
@@ -54,10 +56,10 @@ class RankMenu(object):
         except Exception as e:
             e_message = getattr(e, 'message', repr(e))
             logger.warning(
-                "Parsing {0} failed. "
-                "Check that the input file is in {0} format "
+                f"Parsing {args.input_format} failed. "
+                f"Check that the input file is in {args.input_format} format "
                 "or specify a different format using option -f \n"
-                "{1}".format(args.input_format, e_message))
+                f"{e_message}")
 
             if logger.root.level == logging.DEBUG:
                 raise
@@ -81,7 +83,7 @@ class RankMenu(object):
         logger.info(msg)
 
         cohort_size = len(mutations.keys())
-        logger.info("Cohort size: {}".format(cohort_size))
+        logger.info(f"Cohort size: {cohort_size}")
         profile = get_pooled_multisample_mutational_profile(mutations, counts=True)
         cohort_aa_mutations = None
 
@@ -90,7 +92,7 @@ class RankMenu(object):
         if args.cohort is not None:
             profile, cohort_size, cohort_aa_mutations, cohort_na_mutations = read_cohort_mutations_from_tar(args.cohorts_file, args.cohort)
             logger.info("Precalculated cohort and profile loaded")
-            logger.info("Cohort size: {}".format(cohort_size))
+            logger.info(f"Cohort size: {cohort_size}")
 
         # overriding profile:
         if args.profile:
@@ -110,8 +112,8 @@ class RankMenu(object):
             cohort_size = args.nsamples
             logger.info('Cohort size overridden N=' + str(cohort_size))
 
-        logger.info("THRESHOLD_DRIVER: {}".format(args.threshold_driver))
-        logger.info("THRESHOLD_PASSENGER: {}".format(args.threshold_passenger))
+        logger.info(f"THRESHOLD_DRIVER: {args.threshold_driver}")
+        logger.info(f"THRESHOLD_PASSENGER: {args.threshold_passenger}")
 
         # ranking:
         rank(protein_mutations, args.outfile, profile, cohort_aa_mutations, cohort_size, args.threshold_driver, args.threshold_passenger)

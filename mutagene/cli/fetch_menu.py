@@ -1,13 +1,13 @@
-import sys
 import logging
-from mutagene.io.fetch import fetch_genome, fetch_cohorts, fetch_examples, fetch_MSKCC
+import sys
 
+from mutagene.io.fetch import fetch_cohorts, fetch_examples, fetch_genome, fetch_MSKCC
 
 logger = logging.getLogger(__name__)
 genome_error_message = 'requires genome name argument -g hg19, hg38, mm10, see http://hgdownload.cse.ucsc.edu/downloads.html for more'
 
 
-class FetchMenu(object):
+class FetchMenu:
     def __init__(self, parser):
         parser.description = 'Download data from remote repositories and API'
         subparsers = parser.add_subparsers(

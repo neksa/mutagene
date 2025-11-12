@@ -1,6 +1,8 @@
 import unittest
+
 # import numpy as np
 from mutagene.motifs import *
+
 # purpose: check that no over counting occurs when overlapping mutations present
 
 

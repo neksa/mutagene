@@ -1,18 +1,17 @@
 import argparse
-import sys
 import logging
+import sys
 
 from mutagene.io.context_window import read_MAF_with_context_window, read_VCF_with_context_window
+from mutagene.io.motifs import get_known_motifs, write_motif_matches
 from mutagene.motifs import identify_motifs
-from mutagene.io.motifs import write_motif_matches, get_known_motifs
-
 
 logger = logging.getLogger(__name__)
 genome_error_message = """requires genome name argument -g hg19, hg38, mm10, see http://hgdownload.cse.ucsc.edu/downloads.html for more
                         Use mutagene fetch to download genome assemblies"""
 
 
-class MotifMenu(object):
+class MotifMenu:
     def __init__(self, parser):
         parser.description = ""
         parser.epilog = """
@@ -97,7 +96,7 @@ mutagene motif --infile sample1.maf --input-format MAF --genome hg19 --motif 'C[
                     "Check to make sure motif input is in quotes")
                 return
 
-            logger.info("Searching for motif {}".format(custom_motif))
+            logger.info(f"Searching for motif {custom_motif}")
 
         if args.window_size > 5000 or args.window_size < 1:
             logger.warning('window-size should be between 1 and 5000 nucleotides')
@@ -111,7 +110,7 @@ mutagene motif --infile sample1.maf --input-format MAF --genome hg19 --motif 'C[
                 mutations, mutations_with_context, processing_stats = read_MAF_with_context_window(
                     args.infile, args.genome, args.window_size)
         except ValueError as e:
-            logger.warning('Not able to parse input file in {} format: {}. You can specify a different format with --input-format (-f)'.format(args.input_format, e))
+            logger.warning(f'Not able to parse input file in {args.input_format} format: {e}. You can specify a different format with --input-format (-f)')
             sys.exit(1)
 
         if len(mutations_with_context) == 0:

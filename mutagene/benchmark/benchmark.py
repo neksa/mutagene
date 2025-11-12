@@ -114,9 +114,9 @@ def benchmark_simulated(results_fname, signature_names, W):
 
                     for j in range(N):
                         report.write("{}_{}_{}\t{}\t{}\t{}\t".format(signature_ids[i], 80, 20, N_mutations, "MLE", iteration + 1))
-                        report.write("{}\t{}\t".format(signature_names[j], int(h1_counts[j])))
+                        report.write(f"{signature_names[j]}\t{int(h1_counts[j])}\t")
                         SE_E = (h0[j] - h1[j])**2
-                        report.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(SE_E, MSE_M, MSE_E, ll, frob, frob0, js, kl))
+                        report.write(f"{SE_E}\t{MSE_M}\t{MSE_E}\t{ll}\t{frob}\t{frob0}\t{js}\t{kl}\n")
 
                     print(signature_ids[i], N_mutations, iteration, round(MSE_M, 4), round(MSE_E, 4), round(ll, 4), round(frob, 4), round(frob0, 4), round(js, 4), round(kl, 4))
 
@@ -191,8 +191,8 @@ def benchmark_2combinations(results_fname, signature_names, W):
 
                     for j in range(N):
                         report.write("{}_{}_{}\t{}\t{}\t{}\t".format(signature_ids[i], 80, 20, N_mutations, "MLE", iteration + 1))
-                        report.write("{}\t{}\t".format(signature_names[j], int(h1_counts[j])))
+                        report.write(f"{signature_names[j]}\t{int(h1_counts[j])}\t")
                         SE_E = (h0[j] - h1[j])**2
-                        report.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(SE_E, MSE_M, MSE_E, ll, frob, frob0, js, kl))
+                        report.write(f"{SE_E}\t{MSE_M}\t{MSE_E}\t{ll}\t{frob}\t{frob0}\t{js}\t{kl}\n")
 
                     print(signature_ids[i], N_mutations, iteration, round(MSE_M, 4), round(MSE_E, 4), round(ll, 4), round(frob, 4), round(frob0, 4), round(js, 4), round(kl, 4))

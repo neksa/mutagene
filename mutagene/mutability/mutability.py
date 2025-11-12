@@ -1,16 +1,15 @@
+import logging
 import sys
-import pandas as pd
-
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict, defaultdict
 from functools import lru_cache, reduce
 
+import pandas as pd
 from scipy.stats import binomtest
 from statsmodels.stats.multitest import multipletests
 
 from mutagene.dna import *
 from mutagene.io.profile import get_profile_attributes_dict
 
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -173,5 +172,5 @@ def rank(mutations_to_rank, outfile, profile, cohort_aa_mutations, cohort_size, 
     df.drop(df[df.mutability == 0].index, inplace=True)
     try:
         df.to_csv(outfile, sep="\t", index=False, doublequote=False)
-    except (BrokenPipeError, IOError):
+    except (OSError, BrokenPipeError):
         pass

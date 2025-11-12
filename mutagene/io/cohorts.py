@@ -1,8 +1,9 @@
+import logging
 import tarfile
 from collections import defaultdict
+
 from mutagene.io.profile import read_profile_str
 
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -11,7 +12,7 @@ def read_cohort_size_from_profile_file(profile_file):
         with open(profile_file) as f:
             profile_str = f.read()
             return read_cohort_size_from_profile_str(profile_str)
-    except IOError:
+    except OSError:
         logger.warning("Could not read profile file")
         return 0
 
@@ -74,7 +75,7 @@ def read_cohort_mutations_from_tar(tar_fname, cohort):
     with tarfile.open(tar_fname, 'r:*') as tar:
         for t in tar:
             haystack = t.name.lower()
-            needle = "/{}.".format(cohort.lower())
+            needle = f"/{cohort.lower()}."
             if haystack.find(needle) != -1:
                 if haystack.endswith('.profile'):
                     profile_str = tar.extractfile(t).read().decode('utf-8')

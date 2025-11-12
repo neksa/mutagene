@@ -1,8 +1,9 @@
 import json
+import logging
 import os
+
 import pandas as pd
 
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -18,6 +19,6 @@ def get_known_motifs():
     """Load a pre-bundled set of motifs from data directory"""
     dirname = os.path.dirname(os.path.realpath(__file__))
     fname = dirname + "/../data/motifs/motifs.json"
-    with open(fname, 'r') as f:
+    with open(fname) as f:
         motifs = json.load(f)
     return motifs

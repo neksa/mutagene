@@ -1,29 +1,27 @@
 import argparse
+import logging
 import signal
 import sys
 
 import mutagene
-from mutagene.version import __version__
+from mutagene.cli.benchmark_menu import BenchmarkMenu
 
 # from mutagene.io.profile import format_profile
 # from mutagene.io.mutations_profile import read_VCF_profile
 # from mutagene.io.decomposition import write_decomposition
-
 from mutagene.cli.fetch_menu import FetchMenu
-from mutagene.cli.profile_menu import ProfileMenu
 from mutagene.cli.motif_menu import MotifMenu
-from mutagene.cli.signature_menu import SignatureMenu
+from mutagene.cli.profile_menu import ProfileMenu
 from mutagene.cli.rank_menu import RankMenu
-from mutagene.cli.benchmark_menu import BenchmarkMenu
-
-import logging
+from mutagene.cli.signature_menu import SignatureMenu
+from mutagene.version import __version__
 
 logger = logging.getLogger(__name__)
 
 genome_error_message = 'requires genome name argument -g hg19, hg38, mm10, see http://hgdownload.cse.ucsc.edu/downloads.html for more'
 
 
-class MutaGeneApp(object):
+class MutaGeneApp:
     def __init__(self):
         signal.signal(signal.SIGINT, self.signal_handler)
         # ignore BrokenPipeError: [Errno 32] Broken pipe which occurs when using less or head
@@ -31,7 +29,7 @@ class MutaGeneApp(object):
 
         parser = argparse.ArgumentParser(
             prog="mutagene",
-            description='MutaGene version {} - Analysis of mutational processes and driver mutations'.format(mutagene.__version__),
+            description=f'MutaGene version {mutagene.__version__} - Analysis of mutational processes and driver mutations',
             formatter_class=argparse.RawDescriptionHelpFormatter,
             add_help=False,
             # usage="%(prog)s [options]",

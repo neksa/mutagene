@@ -1,11 +1,12 @@
+import logging
 import os
+
 # import io
 import sys
-import requests
 
+import requests
 from tqdm import tqdm
 
-import logging
 logger = logging.getLogger(__name__)
 
 

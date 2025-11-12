@@ -1,23 +1,26 @@
-import re
+import logging
 import math
-import scipy.stats as stats
-from statsmodels.stats.multitest import multipletests
-import numpy as np
-import pandas as pd
 
-from tqdm import tqdm
 # import functools
 import pprint
+import re
+
+import numpy as np
+import pandas as pd
+import scipy.stats as stats
+from statsmodels.stats.multitest import multipletests
+from tqdm import tqdm
 
 from mutagene.dna import (
-    nucleotides, complementary_nucleotide,
     bases_dict,
+    complementary_extended_nucleotide,
+    complementary_nucleotide,
     # comp_dict,
-    extended_nucleotides, complementary_extended_nucleotide)
-
+    extended_nucleotides,
+    nucleotides,
+)
 from mutagene.io.motifs import get_known_motifs
 
-import logging
 logger = logging.getLogger(__name__)
 
 

@@ -1,5 +1,6 @@
-import multiprocessing
 import json
+import multiprocessing
+
 import requests
 from tqdm import tqdm
 
@@ -17,7 +18,7 @@ def mp_ensembl_worker(raw_mutations_chunk):
     api_input = {'regions': []}
     for i, (assembly, chrom, pos, x, y) in enumerate(raw_mutations_chunk):
         # print("!!!", assembly, chrom, pos, x, y)
-        api_input['regions'].append("{}:{}..{}".format(chrom, int(pos) - 1, int(pos) + 1))
+        api_input['regions'].append(f"{chrom}:{int(pos) - 1}..{int(pos) + 1}")
         verify_reference[(chrom, int(pos))] = x
     api_input_json = json.dumps(api_input)
 

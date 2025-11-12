@@ -67,7 +67,7 @@ def export_cohorts(PATH):
         if profile.id == 34904:
             continue
         all_cancer_types.append(profile.id)
-        print("Processing {}".format(profile.name))
+        print(f"Processing {profile.name}")
         data = {}
         s = db.query(Signature).get(profile.id)
         for d in s.data:
@@ -81,11 +81,11 @@ def export_cohorts(PATH):
                 for x in "CT":
                     for y in nucleotides:
                         if x != y:
-                            result += "{}[{}>{}]{}\t{}\n".format(p5, x, y, p3, data.get(p5 + p3 + x + y, 0), 8)
+                            result += f"{p5}[{x}>{y}]{p3}\t{data.get(p5 + p3 + x + y, 0)}\n"
 
         fname = "{}/{}.profile".format(PATH, profile.name.replace(" ", "_"))
         with open(fname, 'w') as o:
-            o.write("#NSAMPLES\t{}\n".format(profile.n_samples))
+            o.write(f"#NSAMPLES\t{profile.n_samples}\n")
             o.write(result)
 
         ######################################################

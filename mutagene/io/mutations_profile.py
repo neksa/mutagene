@@ -1,14 +1,12 @@
 import csv
-from collections import namedtuple
+import logging
+from collections import defaultdict, namedtuple
 
 import twobitreader as tbr
-
 from tqdm import tqdm
-from collections import defaultdict
 
-from mutagene.dna import nucleotides, complementary_nucleotide
+from mutagene.dna import complementary_nucleotide, nucleotides
 
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -109,7 +107,7 @@ def read_auto_profile(muts, fmt, asm):
     logger.info("DATA FORMAT:" + fmt)
 
     if fmt not in ['MAF', 'VCF']:
-        logger.warning("The dataformat [{}] is not supported".format(fmt))
+        logger.warning(f"The dataformat [{fmt}] is not supported")
 
     if fmt == "VCF":
         mutations, processing_stats = read_VCF_profile(mutations_lines, asm)

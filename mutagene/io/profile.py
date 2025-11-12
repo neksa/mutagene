@@ -1,12 +1,12 @@
 # from tqdm import tqdm
-from collections import defaultdict
-from mutagene.dna import nucleotides
-from mutagene.dna import complementary_trinucleotide, complementary_nucleotide
-
+import logging
 import os
+from collections import defaultdict
+
 import numpy as np
 
-import logging
+from mutagene.dna import complementary_nucleotide, complementary_trinucleotide, nucleotides
+
 logger = logging.getLogger(__name__)
 
 
@@ -25,7 +25,7 @@ def read_profile_file(profile_file):
         with open(profile_file) as f:
             profile_str = f.read()
             return read_profile_str(profile_str)
-    except IOError:
+    except OSError:
         logger.warning("Could not read profile file " + profile_file)
         return None
 
@@ -90,7 +90,7 @@ def read_COSMICv3_signatures():
     dirname = os.path.dirname(os.path.realpath(__file__))
     fname = dirname + "/../data/signatures/sigProfiler_SBS_signatures_2019_05_22.csv"
     signature_names = []
-    with open(fname, 'r') as f:
+    with open(fname) as f:
         for i, line in enumerate(f):
             fields = line.strip().split(',')
             if i == 0:
@@ -131,7 +131,7 @@ def read_KUCAB_signatures():
     dirname = os.path.dirname(os.path.realpath(__file__))
     fname = os.path.normpath(dirname + "/../data/signatures/Kucab.txt")
     signature_names = []
-    with open(fname, 'r') as f:
+    with open(fname) as f:
         for i, line in enumerate(f):
             fields = line.strip().split("\t")
             if i == 0:
@@ -172,10 +172,10 @@ def _read_mutagene_signatures(name, n_signatures):
     W = []
     signature_names = []
     for i in range(n_signatures):
-        fname = dirname + "/../data/signatures/{}_{}.profile".format(name, i + 1)
+        fname = dirname + f"/../data/signatures/{name}_{i + 1}.profile"
         profile = read_profile_file(fname)
         W.append(profile)
-        signature_names.append("{}".format(i + 1))
+        signature_names.append(f"{i + 1}")
 
     W = np.array(W).T
     return W, signature_names
@@ -212,9 +212,9 @@ def read_signatures(name, only=None):
     if name in signatures_dict:
         name = signatures_dict[name]
 
-    assert name in inv_signatures_dict, "Unknown name for a signature set: {}".format(name)
+    assert name in inv_signatures_dict, f"Unknown name for a signature set: {name}"
 
-    function_name = "read_{}_signatures".format(name)
+    function_name = f"read_{name}_signatures"
     W, signature_names = globals()[function_name]()
 
     # filter by list of 'only' signatures,
@@ -226,7 +226,7 @@ def read_signatures(name, only=None):
             if x not in only:
                 delete_signatures.append(i)
                 continue
-        filtered_signature_names.append("{}-{}".format(name, x))
+        filtered_signature_names.append(f"{name}-{x}")
 
     if only is not None:
         W = np.delete(W, np.array(delete_signatures), axis=1)
@@ -290,9 +290,9 @@ def get_attributes():
     for i, v in enumerate(attribs):
         x, y = v['mutation']
         p5, p3 = v['context']
-        attribs[i]['mut'] = "{}{}".format(x, y),
-        attribs[i]['mutation'] = "{}{}{} → {}{}{}".format(p5, x, p3, p5, y, p3),
-        attribs[i]['context'] = "{}{}".format(p5, p3)
+        attribs[i]['mut'] = f"{x}{y}",
+        attribs[i]['mutation'] = f"{p5}{x}{p3} → {p5}{y}{p3}",
+        attribs[i]['context'] = f"{p5}{p3}"
     return attribs
 
 

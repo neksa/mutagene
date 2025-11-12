@@ -1,8 +1,6 @@
-import requests
 import json
-import csv
-import glob
 
+import requests
 
 MUTAGENE_URL = "https://www.ncbi.nlm.nih.gov/research/mutagene"
 
@@ -41,7 +39,7 @@ def print_profile_counts(profile_counts):
     Printing context-dependent mutational profile
     """
     for mutation, value in profile_counts.items():
-        print("{}\t{:.0f}".format(mutation, value))
+        print(f"{mutation}\t{value:.0f}")
     print()
 
 

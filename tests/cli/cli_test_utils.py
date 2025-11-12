@@ -1,6 +1,7 @@
-import hashlib, sys
-from mutagene.__main__ import MutaGeneApp
+import hashlib
+import sys
 
+from mutagene.__main__ import MutaGeneApp
 
 TEST_DIR = 'test-reports'
 COHORTS_FILE = 'cohorts.tar.gz'
@@ -33,7 +34,7 @@ def run_with_args(cmd, cmd_args):
 # Method to return a number of lines of a file
 def get_file_lines(outfile, num_lines):
     out_lines = []
-    out_fh = open(outfile, 'r')
+    out_fh = open(outfile)
 
     for i in range(num_lines):
         out_lines.append(out_fh.readline())

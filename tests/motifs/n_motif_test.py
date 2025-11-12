@@ -1,5 +1,7 @@
 import unittest
+
 from mutagene.motifs import *
+
 # purpose: check  processing of motifs w/ "N"
 
 

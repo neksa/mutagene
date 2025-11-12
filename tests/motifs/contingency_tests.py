@@ -1,5 +1,6 @@
-import pytest
 import numpy as np
+import pytest
+
 from mutagene.motifs import *
 
 
@@ -69,12 +70,12 @@ def test_RR_zero(contingency_table):
 
 @pytest.mark.parametrize(
     "contingency_table",
-    make_contingency_table((np.array(
+    make_contingency_table(np.array(
         [
             [20, 10],
             [40, 60]
         ]
-    )))
+    ))
 )
 def test_bad_stat(contingency_table):
     """purpose: test if user enters incorrect pvalue type"""

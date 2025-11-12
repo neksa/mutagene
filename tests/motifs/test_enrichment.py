@@ -1,8 +1,9 @@
 
-from mutagene.motifs import *
+import logging
 from pprint import pprint
 
-import logging
+from mutagene.motifs import *
+
 logger = logging.getLogger(__name__)
 
 
