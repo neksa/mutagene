@@ -1,6 +1,6 @@
 
 import logging
-from pprint import pprint
+import pprint
 
 from mutagene.motifs import *
 
@@ -48,7 +48,7 @@ def test_enrichment():
         'bases_not_mutated_in_motif': stat_motif_count,
         'bases_not_mutated_not_in_motif': stat_ref_count
     }
-    pprint(result)
+    pprint.pprint(result)
 
 
 if __name__ == '__main__':
