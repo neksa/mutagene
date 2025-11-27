@@ -1,14 +1,12 @@
 import csv
-from collections import namedtuple
+import logging
+from collections import defaultdict, namedtuple
 
 import twobitreader as tbr
-
 from tqdm import tqdm
-from collections import defaultdict
 
-from mutagene.dna import nucleotides, complementary_nucleotide
+from mutagene.dna import complementary_nucleotide, nucleotides
 
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -18,31 +16,31 @@ def get_context_53_twobit(mutations, twobit_file):
     """
     contexts = {}
 
-    fname = twobit_file if twobit_file.endswith('.2bit') else twobit_file + '.2bit'
+    fname = twobit_file if twobit_file.endswith(".2bit") else twobit_file + ".2bit"
     f = tbr.TwoBitFile(fname)
 
     cn = complementary_nucleotide
-    for (chrom, pos, x, y) in tqdm(mutations, leave=False):
+    for chrom, pos, x, y in tqdm(mutations, leave=False):
         start = int(pos) - 1  # zero-based numbering
         chrom = str(chrom)
-        chromosome = chrom if chrom.startswith('chr') else 'chr' + chrom
+        chromosome = chrom if chrom.startswith("chr") else "chr" + chrom
 
-        nuc5 = 'N'
-        nuc3 = 'N'
-        nuc = 'N'
+        nuc5 = "N"
+        nuc3 = "N"
+        nuc = "N"
         if chromosome in f:
             try:
-                seq = f[chromosome][start - 1: start + 2]  # +/- 1 nucleotide
+                seq = f[chromosome][start - 1 : start + 2]  # +/- 1 nucleotide
                 nuc5, nuc, nuc3 = tuple(seq.upper())
             except:
-                nuc = 'N'
+                nuc = "N"
                 # print(chromosome, x, nuc5, nuc, nuc3)
-            if nuc != 'N' and nuc != x:
+            if nuc != "N" and nuc != x:
                 if cn[nuc] == x:
                     nuc3 = cn[nuc5]
                     nuc5 = cn[nuc3]
                 else:
-                    nuc3 = nuc5 = 'N'
+                    nuc3 = nuc5 = "N"
         else:
             # print("NO CHROM", chromosome)
             pass
@@ -50,19 +48,19 @@ def get_context_53_twobit(mutations, twobit_file):
     return contexts
 
 
-def get_context_batch(mutations, assembly, method='twobit'):
+def get_context_batch(mutations, assembly, method="twobit"):
     """
-        Get context for a list of mutations [(chrom, pos, x, y) ] format
+    Get context for a list of mutations [(chrom, pos, x, y) ] format
     """
     if assembly is None:
         assembly = 38
 
     if method is None:
-        method = 'twobit'
+        method = "twobit"
 
     methods = {
         # 'ensembl': get_context_ensembl,
-        'twobit': get_context_53_twobit
+        "twobit": get_context_53_twobit
     }
 
     contexts = methods[method](mutations, assembly)
@@ -79,7 +77,7 @@ def read_auto_profile(muts, fmt, asm):
     if fmt is not None:
         fmt = fmt.upper()
 
-    if fmt is None or fmt == "AUTO" or fmt == 'auto' or fmt == "":
+    if fmt is None or fmt == "AUTO" or fmt == "auto" or fmt == "":
         mutations_lines = []
         for line in muts:
             mutations_lines.append(line.strip())
@@ -108,8 +106,8 @@ def read_auto_profile(muts, fmt, asm):
 
     logger.info("DATA FORMAT:" + fmt)
 
-    if fmt not in ['MAF', 'VCF']:
-        logger.warning("The dataformat [{}] is not supported".format(fmt))
+    if fmt not in ["MAF", "VCF"]:
+        logger.warning(f"The dataformat [{fmt}] is not supported")
 
     if fmt == "VCF":
         mutations, processing_stats = read_VCF_profile(mutations_lines, asm)
@@ -126,11 +124,11 @@ def read_MAF_profile(muts, asm):
     N_skipped = 0
 
     try:
-        reader = csv.reader((row for row in muts if not row.startswith('#')), delimiter='\t')
+        reader = csv.reader((row for row in muts if not row.startswith("#")), delimiter="\t")
         # get names from column headers
         header = next(reader)
         # MAF = namedtuple("MAF", map(str.lower, next(reader)))
-        header = tuple(map(lambda s: s.lower().replace('.', '_'), header))
+        header = tuple(map(lambda s: s.lower().replace(".", "_"), header))
         # print(header)
         MAF = namedtuple("MAF", header, rename=True)
     except ValueError:
@@ -153,12 +151,12 @@ def read_MAF_profile(muts, asm):
         # if len(chrom) == 2 and chrom[1] not in "0123456789":
         #     chrom = chrom[0]
 
-        pos = int(data.start_position)    # MAF POS START
+        pos = int(data.start_position)  # MAF POS START
         pos_end = int(data.end_position)  # MAF POS END
-        x = data.reference_allele         # MAF REF
+        x = data.reference_allele  # MAF REF
 
-        y1 = data.tumor_seq_allele1       # MAF ALT1
-        y2 = data.tumor_seq_allele2       # MAF ALT2
+        y1 = data.tumor_seq_allele1  # MAF ALT1
+        y2 = data.tumor_seq_allele2  # MAF ALT2
 
         if pos != pos_end:
             continue
@@ -188,7 +186,7 @@ def read_MAF_profile(muts, asm):
         if len(contexts) == 0:
             return None, None
 
-        for (chrom, pos, x, y) in raw_mutations:
+        for chrom, pos, x, y in raw_mutations:
             p5, p3 = contexts.get((chrom, pos), ("N", "N"))
 
             if len(set([p5, x, y, p3]) - set(nucleotides)) > 0:
@@ -203,7 +201,7 @@ def read_MAF_profile(muts, asm):
                 mutations[cn[p3] + cn[p5] + cn[x] + cn[y]] += 1.0
 
     N_loaded = int(sum(mutations.values()))
-    processing_stats = {'loaded': N_loaded, 'skipped': N_skipped, 'format': 'MAF'}
+    processing_stats = {"loaded": N_loaded, "skipped": N_skipped, "format": "MAF"}
     return mutations, processing_stats
 
 
@@ -232,8 +230,8 @@ def read_VCF_profile(muts, asm=None):
         #     chrom = chrom[0]
 
         pos = int(col_list[1])  # VCF POS
-        x = col_list[3]         # VCF REF
-        y = col_list[4]         # VCF ALT
+        x = col_list[3]  # VCF REF
+        y = col_list[4]  # VCF ALT
 
         # if multiple REF or ALT alleles are given, ignore mutation entry (could mean seq error, could mean deletion)
         if len(x) != 1:
@@ -259,7 +257,7 @@ def read_VCF_profile(muts, asm=None):
         if len(contexts) == 0:
             return None, None
 
-        for (chrom, pos, x, y) in raw_mutations:
+        for chrom, pos, x, y in raw_mutations:
             p5, p3 = contexts.get((chrom, pos), ("N", "N"))
             # print("RESULT: {} {}".format(p5, p3))
 
@@ -276,5 +274,5 @@ def read_VCF_profile(muts, asm=None):
                 mutations[cn[p3] + cn[p5] + cn[x] + cn[y]] += 1.0
 
     N_loaded = int(sum(mutations.values()))
-    processing_stats = {'loaded': N_loaded, 'skipped': N_skipped, 'format': 'VCF'}
+    processing_stats = {"loaded": N_loaded, "skipped": N_skipped, "format": "VCF"}
     return mutations, processing_stats

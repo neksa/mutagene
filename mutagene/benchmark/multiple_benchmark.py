@@ -1,16 +1,22 @@
 import glob
 import random
 import uuid
-import numpy as np
-
 from multiprocessing import Pool
-from sklearn.metrics import (
-    recall_score, precision_score, accuracy_score, f1_score, mean_squared_error)
 
-from mutagene.io.profile import read_profile_file, write_profile, read_signatures
-from mutagene.signatures.identify import NegLogLik
+import numpy as np
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    mean_squared_error,
+    precision_score,
+    recall_score,
+)
+
 from mutagene.benchmark.deconstructsigs import deconstruct_sigs_custom
 from mutagene.benchmark.generate_benchmark import *
+from mutagene.io.profile import read_profile_file, read_signatures, write_profile
+from mutagene.signatures.identify import NegLogLik
+
 # from mutagene.identify import decompose_mutational_profile_counts
 
 
@@ -18,7 +24,9 @@ def multiple_benchmark_helper(j):
     dirname = "data/benchmark/multiple"
 
     # for i in [5, 10, 30]:
-    for i in [30, ]:
+    for i in [
+        30,
+    ]:
         W, signature_names = read_signatures(i)
         N = W.shape[1]
 
@@ -39,7 +47,7 @@ def multiple_benchmark_helper(j):
         # print(v0_counts)
 
         random_name = str(uuid.uuid4())[:4]
-        fname = dirname + "/{:02d}_{}_{}_{}".format(i, r, n_mutations, random_name)
+        fname = dirname + f"/{i:02d}_{r}_{n_mutations}_{random_name}"
         print(fname)
         profile_fname = fname + ".profile"
         info_fname = fname + ".info"
@@ -57,11 +65,8 @@ def multiple_benchmark_helper(j):
         profile = read_profile_file(profile_fname)
         for method, method_fname in [("MLE", mle_info), ("MLEZ", mlez_info)]:
             _, _, results = decompose_mutational_profile_counts(
-                profile,
-                (W, signature_names),
-                method,
-                debug=False,
-                others_threshold=0.0)
+                profile, (W, signature_names), method, debug=False, others_threshold=0.0
+            )
             write_decomposition(method_fname, results, signature_names)
 
 
@@ -76,7 +81,7 @@ def multiple_benchmark():
 def multiple_benchmark_run_helper(data):
     fname, signature_ids, W, force = data
     # methods = ['MLE', 'MLEZ', 'AICc', 'BIC', 'AICcZ', 'BICZ']
-    methods = ['AICc', 'AICcZ']
+    methods = ["AICc", "AICcZ"]
 
     # print(fname)
     profile = read_profile_file(fname)
@@ -89,20 +94,17 @@ def multiple_benchmark_run_helper(data):
         print(info)
 
         _, _, results = decompose_mutational_profile_counts(
-            profile,
-            (W, signature_ids),
-            method,
-            debug=False,
-            others_threshold=0.0)
-        exposure_dict = {x['name']: x['score'] for x in results}
+            profile, (W, signature_ids), method, debug=False, others_threshold=0.0
+        )
+        exposure_dict = {x["name"]: x["score"] for x in results}
         exposure = [exposure_dict[name] for name in signature_ids]
         write_decomposition(info, np.array(exposure), signature_ids)
 
 
 def multiple_benchmark_run(N, signature_ids, W, force=False):
     def get_iterator():
-        for fname in glob.glob("data/benchmark/multiple/{:02d}_*.profile".format(N), recursive=True):
-                yield (fname, signature_ids, W, force)
+        for fname in glob.glob(f"data/benchmark/multiple/{N:02d}_*.profile", recursive=True):
+            yield (fname, signature_ids, W, force)
 
     random.seed(13425)
     with Pool(10) as p:
@@ -114,10 +116,10 @@ def aggregate_multiple_benchmarks():
         "mle": ".MLE.info",
         "mlez": ".MLEZ.info",
         "ds": ".ds.info",
-        'aicc': '.AICc.info',
-        'bic': '.BIC.info',
-        'aiccz': '.AICcz.info',
-        'bicz': '.BICz.info',
+        "aicc": ".AICc.info",
+        "bic": ".BIC.info",
+        "aiccz": ".AICcz.info",
+        "bicz": ".BICz.info",
     }
 
     # signatures_thresholds = {
@@ -139,8 +141,10 @@ def aggregate_multiple_benchmarks():
     # }
 
     # only report the signature 2 value (as in DeconstructSigs benchmark)
-    with open("data/benchmark/multiple/res1.txt", 'w') as o:
-        o.write("file_id\tsigtype\tnsig\tnmut\tmethod\tSRMSE\tPRMSE\tSTRMSE\tLLIK\tLLIK0\tTLLIK\tTLLIK0\tprecision\trecall\taccuracy\tf1\n")
+    with open("data/benchmark/multiple/res1.txt", "w") as o:
+        o.write(
+            "file_id\tsigtype\tnsig\tnmut\tmethod\tSRMSE\tPRMSE\tSTRMSE\tLLIK\tLLIK0\tTLLIK\tTLLIK0\tprecision\trecall\taccuracy\tf1\n"
+        )
         for fname in glob.glob("data/benchmark/multiple/*.profile", recursive=True):
             file_id = fname.split("/")[-1].split(".")[0]
             sigtype, r, nmut, replica = fname.split("/")[-1].split(".")[0].split("_")
@@ -151,7 +155,7 @@ def aggregate_multiple_benchmarks():
 
             W, signature_names = read_signatures(sigtype)
 
-            info_fname = fname.split(".")[0] + '.info'
+            info_fname = fname.split(".")[0] + ".info"
             orig_profile = read_profile_file(fname)
             h0, names = read_decomposition(info_fname)
 
@@ -160,7 +164,7 @@ def aggregate_multiple_benchmarks():
 
             # threshold = 1.0 / np.sqrt(int(nmut)) if method != "ds" else 0.06
             h0_threshold = np.where(h0 > threshold, h0, 0.0)  # zero below threshold
-            h0_binary = np.array(h0_threshold) > 0.0   # true / false for threshold
+            h0_binary = np.array(h0_threshold) > 0.0  # true / false for threshold
             nsig = np.count_nonzero(h0_binary)
 
             if nsig < int(r):
@@ -193,15 +197,18 @@ def aggregate_multiple_benchmarks():
                 # print(h)
                 # print(reconstructed_profile)
 
-                PRMSE = np.sqrt(mean_squared_error(
-                    np.array(orig_profile) / np.array(orig_profile).sum(),
-                    np.array(reconstructed_profile) / np.array(reconstructed_profile).sum()))
+                PRMSE = np.sqrt(
+                    mean_squared_error(
+                        np.array(orig_profile) / np.array(orig_profile).sum(),
+                        np.array(reconstructed_profile) / np.array(reconstructed_profile).sum(),
+                    )
+                )
                 SRMSE = np.sqrt(mean_squared_error(h0, h))
                 STRMSE = np.sqrt(mean_squared_error(h0_threshold, h_threshold))
-                LLIK0 = - NegLogLik(h0, W, orig_profile)
-                TLLIK0 = - NegLogLik(h0_threshold, W, orig_profile)
-                LLIK = - NegLogLik(h, W, orig_profile)
-                TLLIK = - NegLogLik(h_threshold, W, orig_profile)
+                LLIK0 = -NegLogLik(h0, W, orig_profile)
+                TLLIK0 = -NegLogLik(h0_threshold, W, orig_profile)
+                LLIK = -NegLogLik(h, W, orig_profile)
+                TLLIK = -NegLogLik(h_threshold, W, orig_profile)
 
                 # print(h0.sum())
                 # print(h.sum())
@@ -212,5 +219,6 @@ def aggregate_multiple_benchmarks():
                 accuracy = accuracy_score(h0_binary, h_binary)
                 f1 = f1_score(h0_binary, h_binary)
 
-                o.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                    file_id, sigtype, nsig, nmut, method, SRMSE, PRMSE, STRMSE, LLIK, LLIK0, TLLIK, TLLIK0, precision, recall, accuracy, f1))
+                o.write(
+                    f"{file_id}\t{sigtype}\t{nsig}\t{nmut}\t{method}\t{SRMSE}\t{PRMSE}\t{STRMSE}\t{LLIK}\t{LLIK0}\t{TLLIK}\t{TLLIK0}\t{precision}\t{recall}\t{accuracy}\t{f1}\n"
+                )

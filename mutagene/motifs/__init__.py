@@ -1,27 +1,37 @@
-import re
+import logging
 import math
-import scipy.stats as stats
-from statsmodels.stats.multitest import multipletests
-import numpy as np
-import pandas as pd
 
-from tqdm import tqdm
 # import functools
 import pprint
+import re
+
+import numpy as np
+import pandas as pd
+import scipy.stats as stats
+from statsmodels.stats.multitest import multipletests
+from tqdm import tqdm
 
 from mutagene.dna import (
-    nucleotides, complementary_nucleotide,
     bases_dict,
+    complementary_extended_nucleotide,
+    complementary_nucleotide,
     # comp_dict,
-    extended_nucleotides, complementary_extended_nucleotide)
-
+    extended_nucleotides,
+    nucleotides,
+)
 from mutagene.io.motifs import get_known_motifs
 
-import logging
 logger = logging.getLogger(__name__)
 
 
-def identify_motifs(samples_mutations, custom_motif=None, strand=None, threshold=None, dump_matches=None, stat_type=None):
+def identify_motifs(
+    samples_mutations,
+    custom_motif=None,
+    strand=None,
+    threshold=None,
+    dump_matches=None,
+    stat_type=None,
+):
     """
     :param samples_mutations: list of mutations from input file
     :param custom_motif: specified motif to search for
@@ -35,7 +45,7 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None, threshold
     pvals = []
 
     if strand is None:
-        strand = 'A'
+        strand = "A"
     else:
         strand = set(strand)  # in case TNA codes repeat
 
@@ -49,15 +59,13 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None, threshold
         search_motifs = motifs.copy()
     # search_motifs.extend(scanf_motif(custom_motif))
 
-    _strand_map = {
-        'T': 'transcribed',
-        'N': 'non-transcribed',
-        'A': 'any strand'
-    }
+    _strand_map = {"T": "transcribed", "N": "non-transcribed", "A": "any strand"}
 
     disable_progress_bar = logger.getEffectiveLevel() == logging.DEBUG
 
-    for sample, mutations in tqdm(samples_mutations.items(), leave=False, disable=disable_progress_bar):
+    for sample, mutations in tqdm(
+        samples_mutations.items(), leave=False, disable=disable_progress_bar
+    ):
         if mutations is not None and len(mutations) > 0:
             first_mut_seq_with_coords = mutations[0][-1]
             window_size = (len(first_mut_seq_with_coords) - 1) // 2
@@ -66,47 +74,49 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None, threshold
                 for s in strand:
                     result, saved_data = process_mutations(
                         mutations,
-                        m['motif'],
-                        m['position'],
-                        m['ref'],
-                        m['alt'],
+                        m["motif"],
+                        m["position"],
+                        m["ref"],
+                        m["alt"],
                         window_size,
                         s,
-                        stat_type=stat_type)
+                        stat_type=stat_type,
+                    )
 
                     if dump_matches:
-                        for chrom, pos in saved_data['mutation_motif']:
+                        for chrom, pos in saved_data["mutation_motif"]:
                             dump_matches.write(
                                 "chr{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                                    chrom, pos, int(pos) + 1, sample, m['logo'], _strand_map[s]))
+                                    chrom, pos, int(pos) + 1, sample, m["logo"], _strand_map[s]
+                                )
+                            )
 
-                    debug_data = {
-                        'sample': sample,
-                        'motif': m['logo'],
-                        'strand': s}
+                    debug_data = {"sample": sample, "motif": m["logo"], "strand": s}
                     debug_data.update(result)
                     debug_string = pprint.pformat(debug_data, indent=4)
                     logger.debug(debug_string)
 
-                    motif_matches.append({
-                        'sample': sample,
-                        'mutagen': m['name'],
-                        'motif': m['logo'],
-                        'strand': _strand_map[s],
-                        'enrichment': result['enrichment'],
-                        'mut_min': result['mutation_load'],
-                        'mut_max': result['bases_mutated_in_motif'],
-                        'odds_ratio': result['odds_ratio'],
-                        'pvalue': result['pvalue']
-                    })
-                    pvals.append(result['pvalue'])
+                    motif_matches.append(
+                        {
+                            "sample": sample,
+                            "mutagen": m["name"],
+                            "motif": m["logo"],
+                            "strand": _strand_map[s],
+                            "enrichment": result["enrichment"],
+                            "mut_min": result["mutation_load"],
+                            "mut_max": result["bases_mutated_in_motif"],
+                            "odds_ratio": result["odds_ratio"],
+                            "pvalue": result["pvalue"],
+                        }
+                    )
+                    pvals.append(result["pvalue"])
 
     qvalues = get_corrected_pvalues(pvals)
     for i, motif_dict in enumerate(motif_matches):
-        motif_matches[i]['qvalue'] = qvalues[i]
-        if motif_dict['mut_min'] == 0:
+        motif_matches[i]["qvalue"] = qvalues[i]
+        if motif_dict["mut_min"] == 0:
             continue
-        if motif_dict['qvalue'] >= threshold:
+        if motif_dict["qvalue"] >= threshold:
             continue
         sig_motif_matches.append(motif_dict)
 
@@ -114,24 +124,35 @@ def identify_motifs(samples_mutations, custom_motif=None, strand=None, threshold
 
 
 def scanf_motif(custom_motif):
-    """ recognize motif syntax like A[C>T]G and create a motif entry """
+    """recognize motif syntax like A[C>T]G and create a motif entry"""
     m = re.search(
-        r'([' + extended_nucleotides + ']*)\\[([' + nucleotides + '])>([' + extended_nucleotides + '])\\]([' + extended_nucleotides + ']*)',
-        custom_motif.upper())
+        r"(["
+        + extended_nucleotides
+        + "]*)\\[(["
+        + nucleotides
+        + "])>(["
+        + extended_nucleotides
+        + "])\\](["
+        + extended_nucleotides
+        + "]*)",
+        custom_motif.upper(),
+    )
     if m:
-        g = m.groups('')
+        g = m.groups("")
         # print("GROUPS", m.group(1), m.group(2), m.group(3), m.group(4))
         entry = {}
-        entry['logo'] = m.group(0)
-        entry['motif'] = g[0] + g[1] + g[3]
-        entry['position'] = len(g[0])
-        entry['ref'] = g[1]
-        entry['alt'] = g[2]
-        if entry['ref'] == entry['alt']:
+        entry["logo"] = m.group(0)
+        entry["motif"] = g[0] + g[1] + g[3]
+        entry["position"] = len(g[0])
+        entry["ref"] = g[1]
+        entry["alt"] = g[2]
+        if entry["ref"] == entry["alt"]:
             return []
-        entry['name'] = 'Custom motif'
-        entry['references'] = ''
-        return [entry, ]
+        entry["name"] = "Custom motif"
+        entry["references"] = ""
+        return [
+            entry,
+        ]
     return []
 
 
@@ -144,8 +165,13 @@ def calculate_RR(ct):
     :return: enrichment or risk ratio
     """
     try:
-        RR = ((ct.loc['mutation', 'motif'] / (ct.loc['mutation', 'motif'] + ct.loc['mutation', 'no motif'])) /
-              (ct.loc['no mutation', 'motif'] / (ct.loc['no mutation', 'motif'] + ct.loc['no mutation', 'no motif'])))
+        RR = (
+            ct.loc["mutation", "motif"]
+            / (ct.loc["mutation", "motif"] + ct.loc["mutation", "no motif"])
+        ) / (
+            ct.loc["no mutation", "motif"]
+            / (ct.loc["no mutation", "motif"] + ct.loc["no mutation", "no motif"])
+        )
     except ZeroDivisionError:
         RR = 0.0
     return RR
@@ -160,8 +186,13 @@ def calculate_RR_for_motif(ct):
     :return: enrichment or risk ratio
     """
     try:
-        RR = ((ct.loc['mutation', 'motif'] / (ct.loc['mutation', 'motif'] + ct.loc['no mutation', 'motif'])) /
-              (ct.loc['mutation', 'no motif'] / (ct.loc['mutation', 'no motif'] + ct.loc['no mutation', 'no motif'])))
+        RR = (
+            ct.loc["mutation", "motif"]
+            / (ct.loc["mutation", "motif"] + ct.loc["no mutation", "motif"])
+        ) / (
+            ct.loc["mutation", "no motif"]
+            / (ct.loc["mutation", "no motif"] + ct.loc["no mutation", "no motif"])
+        )
     except ZeroDivisionError:
         RR = 0.0
     return RR
@@ -173,9 +204,9 @@ def calculate_OR(ct):
     :return: odds ratio
     """
     try:
-        OR = (
-            (ct.loc['mutation', 'motif'] / ct.loc['mutation', 'no motif']) /
-            (ct.loc['no mutation', 'motif'] / ct.loc['no mutation', 'no motif']))
+        OR = (ct.loc["mutation", "motif"] / ct.loc["mutation", "no motif"]) / (
+            ct.loc["no mutation", "motif"] / ct.loc["no mutation", "no motif"]
+        )
     except ZeroDivisionError:
         OR = 0.0
     return OR
@@ -204,7 +235,7 @@ def calculate_mutation_load(N_mutations, enrichment):
     return mutation_load
 
 
-def get_stats(ct, stat_type='fisher'):
+def get_stats(ct, stat_type="fisher"):
     """
     Calculate Fisher and Chi2 test pvalues,
     :param ct: counts of mutated matching motifs, matching mutations, matching motifs, and matching bases
@@ -214,22 +245,22 @@ def get_stats(ct, stat_type='fisher'):
     p_val = 1.0
 
     if stat_type is None:
-        stat_type = 'fisher'
+        stat_type = "fisher"
 
     stat_type = stat_type.lower()
 
-    acceptable_tests = ('fisher', 'chi2')
+    acceptable_tests = ("fisher", "chi2")
     if stat_type not in acceptable_tests:
-        logger.warning('get_stats() can only calculate p-values for ' + str(acceptable_tests))
+        logger.warning("get_stats() can only calculate p-values for " + str(acceptable_tests))
 
-    if stat_type == 'fisher':
+    if stat_type == "fisher":
         try:
             p_val = stats.fisher_exact(ct, alternative="greater")[1]
             # if p_val > 0.05:
             #     p_val = stats.fisher_exact(ct, alternative="less")[1] #calculates if motif is underrepresented
         except ValueError:
             p_val = 1.0
-    elif stat_type == 'chi2':
+    elif stat_type == "chi2":
         try:
             p_val = stats.chi2_contingency(ct)[1]
         except ValueError:
@@ -240,7 +271,7 @@ def get_stats(ct, stat_type='fisher'):
 def get_corrected_pvalues(p_values):
     qvalues = []
     if len(p_values):
-        qvalues = multipletests(pvals=p_values, method='fdr_bh')[1]
+        qvalues = multipletests(pvals=p_values, method="fdr_bh")[1]
     return qvalues
 
 
@@ -252,7 +283,7 @@ def get_rev_comp_seq(sequence):
     """
     # rev_comp_seq = "".join([complementary_nucleotide[i] for i in reversed(sequence)])
     cn = complementary_nucleotide
-    return [(i[0], i[1], cn[i[2]], '-') for i in reversed(sequence)]
+    return [(i[0], i[1], cn[i[2]], "-") for i in reversed(sequence)]
 
 
 def mutated_base(mutation, ref, alt):
@@ -305,28 +336,30 @@ def find_matching_bases(seq, ref, motif, motif_position):
 
 
 def make_contingency_table(
-        array=None,
-        motif_mutation=None,
-        no_motif_mutation=None,
-        motif_no_mutation=None,
-        no_motif_no_mutation=None):
-    """ Make a 2x2 contingency table out of a numpy array or four integers"""
+    array=None,
+    motif_mutation=None,
+    no_motif_mutation=None,
+    motif_no_mutation=None,
+    no_motif_no_mutation=None,
+):
+    """Make a 2x2 contingency table out of a numpy array or four integers"""
 
     if array is not None:
         assert isinstance(array, np.ndarray)
         assert array.shape == (2, 2)
     else:
-        array = np.array([
-            [motif_mutation, no_motif_mutation],
-            [motif_no_mutation, no_motif_no_mutation]
-        ])
+        array = np.array(
+            [[motif_mutation, no_motif_mutation], [motif_no_mutation, no_motif_no_mutation]]
+        )
     contingency_table = pd.DataFrame(array)
     contingency_table.columns = ["motif", "no motif"]
     contingency_table.index = ["mutation", "no mutation"]
     return contingency_table
 
 
-def process_mutations(mutations, motif, motif_position, ref, alt, range_size, strand, stat_type=None):
+def process_mutations(
+    mutations, motif, motif_position, ref, alt, range_size, strand, stat_type=None
+):
     """
     :param mutations: mutations to be analyzed
     :param motif: specified motif to search for
@@ -343,7 +376,9 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
     assert len(ref) == 1
     assert len(alt) == 1
     assert 0 <= motif_position < len(motif)
-    assert len(set(strand) - set("ATN")) == 0, "[process_mutations] only A, T, N allowed in strand parameter"
+    assert (
+        len(set(strand) - set("ATN")) == 0
+    ), "[process_mutations] only A, T, N allowed in strand parameter"
 
     matching_bases = set()
     matching_motifs = set()
@@ -357,7 +392,11 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
         rev_seq = get_rev_comp_seq(seq)
 
         # assuming that all mutations are reported in '+' reference strand
-        if strand == 'A' or (strand == 'T' and transcript_strand == '+') or (strand == 'N' and transcript_strand == '-'):
+        if (
+            strand == "A"
+            or (strand == "T" and transcript_strand == "+")
+            or (strand == "N" and transcript_strand == "-")
+        ):
             # not mutated:
             for ref_match in find_matching_bases(seq, ref, motif, motif_position):
                 matching_bases.add(ref_match[0:2])
@@ -369,11 +408,17 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
                 # m = (mutation[0], mutation[1], mutation[2], "+")
                 matching_mutated_bases.add(mutation[0:2])
 
-                context_of_mutation = seq[range_size - motif_position: range_size - motif_position + len(motif)]
+                context_of_mutation = seq[
+                    range_size - motif_position : range_size - motif_position + len(motif)
+                ]
                 for motif_match in find_matching_motifs(context_of_mutation, motif, motif_position):
                     matching_mutated_motifs.add(motif_match[0:2])
 
-        if strand == 'A' or (strand == 'T' and transcript_strand == '-') or (strand == 'N' and transcript_strand == '+'):
+        if (
+            strand == "A"
+            or (strand == "T" and transcript_strand == "-")
+            or (strand == "N" and transcript_strand == "+")
+        ):
             # rev compl: not mutated:
             for ref_match in find_matching_bases(rev_seq, ref, motif, motif_position):
                 matching_bases.add(ref_match[0:2])
@@ -382,19 +427,29 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
                 matching_motifs.add(motif_match[0:2])
 
             # rev compl: mutated:
-            if mutated_base(mutation, complementary_extended_nucleotide[ref], complementary_extended_nucleotide[alt]):
+            if mutated_base(
+                mutation,
+                complementary_extended_nucleotide[ref],
+                complementary_extended_nucleotide[alt],
+            ):
                 # m = (mutation[0], mutation[1], mutation[2], "-")
                 matching_mutated_bases.add(mutation[0:2])
 
                 # rev comp:
-                context_of_mutation = rev_seq[range_size - motif_position: range_size - motif_position + len(motif)]
+                context_of_mutation = rev_seq[
+                    range_size - motif_position : range_size - motif_position + len(motif)
+                ]
                 for motif_match in find_matching_motifs(context_of_mutation, motif, motif_position):
                     matching_mutated_motifs.add(motif_match[0:2])
 
     motif_mutation_count = len(matching_mutated_motifs)  # bases mutated in motif
-    stat_mutation_count = len(matching_mutated_bases - matching_mutated_motifs)  # bases mutated not in motif
+    stat_mutation_count = len(
+        matching_mutated_bases - matching_mutated_motifs
+    )  # bases mutated not in motif
     stat_motif_count = len(matching_motifs - matching_mutated_motifs)  # bases not mutated in motif
-    stat_ref_count = len(matching_bases - (matching_motifs | matching_mutated_bases))  # bases not mutated not in motif
+    stat_ref_count = len(
+        matching_bases - (matching_motifs | matching_mutated_bases)
+    )  # bases not mutated not in motif
 
     # number of A[T>G]T occurrences               motif_mutation_count
     # / number of [T>G] occurrences               stat_mutation_count + motif_mutation_count
@@ -406,7 +461,8 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
         motif_mutation=motif_mutation_count,
         no_motif_mutation=stat_mutation_count,
         motif_no_mutation=stat_motif_count,
-        no_motif_no_mutation=stat_ref_count)
+        no_motif_no_mutation=stat_ref_count,
+    )
 
     # data={
     # "'{}>{}' mutation".format(ref, alt): [stat_mutation_count, motif_mutation_count],
@@ -414,13 +470,16 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
     # index=("no '{}' motif".format(motif), "'{}' motif".format(motif)))
     logger.debug("\n" + contingency_table.to_string() + "\n")
 
-    logger.debug("({} / ({} + {})  ) /  ({} / ({} + {}))".format(
-        contingency_table.loc['mutation', 'motif'],
-        contingency_table.loc['mutation', 'motif'],
-        contingency_table.loc['mutation', 'no motif'],
-        contingency_table.loc['no mutation', 'motif'],
-        contingency_table.loc['no mutation', 'motif'],
-        contingency_table.loc['no mutation', 'no motif']))
+    logger.debug(
+        "({} / ({} + {})  ) /  ({} / ({} + {}))".format(
+            contingency_table.loc["mutation", "motif"],
+            contingency_table.loc["mutation", "motif"],
+            contingency_table.loc["mutation", "no motif"],
+            contingency_table.loc["no mutation", "motif"],
+            contingency_table.loc["no mutation", "motif"],
+            contingency_table.loc["no mutation", "no motif"],
+        )
+    )
 
     contingency_table = Haldane_correction(contingency_table)
 
@@ -432,18 +491,16 @@ def process_mutations(mutations, motif, motif_position, ref, alt, range_size, st
     mut_load = calculate_mutation_load(motif_mutation_count, enrichment)
 
     result = {
-        'enrichment': enrichment,  # AKA risk ratio
-        'odds_ratio': odds_ratio,
-        'mutation_load': math.ceil(mut_load),
-        'pvalue': p_val,
-        'bases_mutated_in_motif': motif_mutation_count,
-        'bases_mutated_not_in_motif': stat_mutation_count,
-        'bases_not_mutated_in_motif': stat_motif_count,
-        'bases_not_mutated_not_in_motif': stat_ref_count,
-        'total_mutations': len(mutations)
+        "enrichment": enrichment,  # AKA risk ratio
+        "odds_ratio": odds_ratio,
+        "mutation_load": math.ceil(mut_load),
+        "pvalue": p_val,
+        "bases_mutated_in_motif": motif_mutation_count,
+        "bases_mutated_not_in_motif": stat_mutation_count,
+        "bases_not_mutated_in_motif": stat_motif_count,
+        "bases_not_mutated_not_in_motif": stat_ref_count,
+        "total_mutations": len(mutations),
     }
 
-    saved_matches = {
-        'mutation_motif': matching_mutated_motifs
-    }
+    saved_matches = {"mutation_motif": matching_mutated_motifs}
     return result, saved_matches

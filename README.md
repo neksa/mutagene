@@ -17,7 +17,7 @@ unique functionality.
 How can I install and use MutaGene?
 -----------------------------------
 
-**Installation:** MutaGene package is accessible via standard python repository PyPi. The package requires Python3.7 or higher.
+**Installation:** MutaGene package is accessible via standard python repository PyPi. The package requires Python 3.8 or higher.
 
 It is recommended to use `venv` or `conda` to create an isolated environment for mutagene package: 
 ```
@@ -66,7 +66,7 @@ What are MutaGene's five subpackages?
 
 4. MutaGene Motif allows you to analyze the presence of mutational motifs in genomic data.
 
-5. MutaGene Signature allows you to analyze the presence of mutational signatures in genomic data.
+5. MutaGene Signature allows you to decompose mutational profiles from one or multiple samples into known mutational signatures.
 
 
 # module fetch
@@ -194,7 +194,7 @@ optional arguments:
 
 Required arguments:
   --infile INFILE, -i INFILE
-                        Input file in VCF or MAF format
+                        Input file in VCF or MAF format with one or multiple samples
   --genome GENOME, -g GENOME
                         Location of genome assembly file in 2bit format
   --signatures {5,10,30,49,53,MGA,MGB,COSMICv2,COSMICv3,KUCAB}, -s {5,10,30,49,53,MGA,MGB,COSMICv2,COSMICv3,KUCAB}
@@ -224,6 +224,18 @@ Bootstrap-specific arguments:
                         Confidence level
   --bootstrap-method {t,p}, -bm {t,p}
                         Bootstrap method (t: t-distribution, p: percentile)
+
+Output format:
+  TSV file with columns: sample, signature, exposure, mutations
+  Multi-sample input produces one row per sample-signature combination
+  Bootstrap analysis adds confidence interval columns: exposure_low, exposure_high, mutations_low, mutations_high
+
+Examples:
+# Decompose single sample into COSMIC v2 signatures
+mutagene signature -i sample.maf -g hg19 -s COSMICv2 -o results.tsv
+
+# Multi-sample decomposition with bootstrap confidence intervals
+mutagene signature -i cohort.maf -g hg19 -s COSMICv3 -b -br 100 -o results.tsv
 ```
 
 ------------------------

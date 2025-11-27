@@ -1,0 +1,109 @@
+name: Version Bump
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main, master]
+
+jobs:
+  bump-version:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Detect version bump type
+        id: bump_type
+        run: |
+          LABELS=$(echo '${{ toJson(github.event.pull_request.labels.*.name) }}' | jq -r '.[]')
+
+          if echo "$LABELS" | grep -q "^major$"; then
+            echo "type=major" >> $GITHUB_OUTPUT
+          elif echo "$LABELS" | grep -q "^minor$"; then
+            echo "type=minor" >> $GITHUB_OUTPUT
+          elif echo "$LABELS" | grep -q "^patch$"; then
+            echo "type=patch" >> $GITHUB_OUTPUT
+          else
+            echo "type=none" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get current version
+        id: get_version
+        if: steps.bump_type.outputs.type != 'none'
+        run: |
+          VERSION=$(grep -oP '__version__ = "\K[^"]+' mutagene/version.py)
+          echo "current=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Calculate new version
+        id: new_version
+        if: steps.bump_type.outputs.type != 'none'
+        run: |
+          CURRENT="${{ steps.get_version.outputs.current }}"
+          TYPE="${{ steps.bump_type.outputs.type }}"
+
+          IFS='.' read -r major minor patch <<< "$CURRENT"
+
+          case $TYPE in
+            major)
+              major=$((major + 1))
+              minor=0
+              patch=0
+              ;;
+            minor)
+              minor=$((minor + 1))
+              patch=0
+              ;;
+            patch)
+              patch=$((patch + 1))
+              ;;
+          esac
+
+          NEW_VERSION="$major.$minor.$patch"
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Update version files
+        if: steps.bump_type.outputs.type != 'none'
+        run: |
+          NEW_VERSION="${{ steps.new_version.outputs.version }}"
+
+          # Update pyproject.toml
+          sed -i "s/^version = .*/version = \"$NEW_VERSION\"/" pyproject.toml
+
+          # Update mutagene/version.py
+          sed -i "s/__version__ = .*/__version__ = '$NEW_VERSION'/" mutagene/version.py
+
+      - name: Commit and tag
+        if: steps.bump_type.outputs.type != 'none'
+        run: |
+          NEW_VERSION="${{ steps.new_version.outputs.version }}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add pyproject.toml mutagene/version.py
+          git commit -m "chore: bump version to $NEW_VERSION"
+          git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
+
+          git push origin ${{ github.event.pull_request.base.ref }}
+          git push origin "v$NEW_VERSION"
+
+      - name: Create GitHub Release
+        if: steps.bump_type.outputs.type != 'none'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.new_version.outputs.version }}
+          release_name: Release v${{ steps.new_version.outputs.version }}
+          body: |
+            Version bump: ${{ steps.bump_type.outputs.type }}
+
+            Changes in PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}
+          draft: false
+          prerelease: false

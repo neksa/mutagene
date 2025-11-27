@@ -1,11 +1,12 @@
+import logging
 import os
+
 # import io
 import sys
-import requests
 
+import requests
 from tqdm import tqdm
 
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -43,7 +44,7 @@ def download_from_url(url, dst):
             logger.warning("Not able to retrieve data from " + url)
             sys.exit(1)
 
-        file_size = int(r.headers['Content-Length'])
+        file_size = int(r.headers["Content-Length"])
     except:
         logger.warning("Could not access URL " + url)
         sys.exit(1)
@@ -57,14 +58,15 @@ def download_from_url(url, dst):
 
     # need to access raw stream because r.iter_content() deflates .gz automatically
     # opening file in append mode
-    with open(dst, 'ab') as fp:
+    with open(dst, "ab") as fp:
         for chunk in tqdm(
-                generate(r.raw, chunk_size=chunk_size),
-                initial=first_byte // chunk_size,
-                total=file_size // chunk_size,
-                unit='KB',
-                desc=dst,
-                leave=True):
+            generate(r.raw, chunk_size=chunk_size),
+            initial=first_byte // chunk_size,
+            total=file_size // chunk_size,
+            unit="KB",
+            desc=dst,
+            leave=True,
+        ):
             fp.write(chunk)
     return file_size
 
@@ -72,12 +74,12 @@ def download_from_url(url, dst):
 def fetch_genome(name):
     # ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit
     # http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit
-    assembly = name.rsplit('.', 1)[0] if '.2bit' in name else name
+    assembly = name.rsplit(".", 1)[0] if ".2bit" in name else name
     assembly = assembly.lower()
-    mode = 'http'
+    mode = "http"
 
-    url = f'{mode}://hgdownload.cse.ucsc.edu/goldenPath/{assembly}/bigZips/{assembly}.2bit'
-    dst = f'{assembly}.2bit'
+    url = f"{mode}://hgdownload.cse.ucsc.edu/goldenPath/{assembly}/bigZips/{assembly}.2bit"
+    dst = f"{assembly}.2bit"
     download_from_url(url, dst)
 
 
@@ -95,7 +97,7 @@ def fetch_examples():
 
 
 def fetch_MSKCC(dataset):
-    """ Download dataset from cBioPortal https://www.cbioportal.org/datasets """
+    """Download dataset from cBioPortal https://www.cbioportal.org/datasets"""
     url = f"https://cbioportal-datahub.s3.amazonaws.com/{dataset}.tar.gz"
     dst = f"{dataset}.tar.gz"
     download_from_url(url, dst)

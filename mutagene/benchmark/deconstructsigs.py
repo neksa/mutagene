@@ -1,8 +1,8 @@
 import json
-from subprocess import Popen, PIPE
+from subprocess import PIPE, Popen
 
 
-def deconstruct_sigs(profile_fname, sample='sample'):
+def deconstruct_sigs(profile_fname, sample="sample"):
     script1 = """
 library(jsonlite)
 library(deconstructSigs)
@@ -23,30 +23,26 @@ toJSON(w)
     json_string = out.decode("utf-8")
     w = json.loads(json_string)
     result = []
-    for k, v in w['weights'][0].items():
-        if k.startswith('_row'):
+    for k, v in w["weights"][0].items():
+        if k.startswith("_row"):
             continue
         # if float(v) == 0.0:
         #     continue
-        name = k.replace('Signature.', '')
-        result.append({
-            'name': name,
-            'score': v})
+        name = k.replace("Signature.", "")
+        result.append({"name": name, "score": v})
     return result
 
 
-def deconstruct_sigs_custom(profile_fname, sample='sample', signatures=30, cutoff=0.00, reverse=False):
+def deconstruct_sigs_custom(
+    profile_fname, sample="sample", signatures=30, cutoff=0.00, reverse=False
+):
     script1 = """
 library(jsonlite)
 library(deconstructSigs)
 """
     script1 += "W <- data.frame()"
 
-    sig_map = {
-        5: "A",
-        10: "B",
-        30: "C"
-    }
+    sig_map = {5: "A", 10: "B", 30: "C"}
 
     if reverse:
         signatures_list = list(reversed(range(signatures)))
@@ -54,11 +50,15 @@ library(deconstructSigs)
         signatures_list = list(range(signatures))
 
     for i in signatures_list:
-        script1 += """
-W <- rbind(W, t(read.table('/Users/agoncear/projects/mutagene/data/signatures/{}_{}.profile', sep="\t", header=FALSE, row.names=1)))
-""".format(sig_map[signatures], i + 1)
+        script1 += f"""
+W <- rbind(W, t(read.table('/Users/agoncear/projects/mutagene/data/signatures/{sig_map[signatures]}_{i + 1}.profile', sep="\t", header=FALSE, row.names=1)))
+"""
 
-    script1 += "row.names(W) <- c(" + ",".join(["'Signature." + str(i + 1) + "'" for i in signatures_list]) + ")\n"
+    script1 += (
+        "row.names(W) <- c("
+        + ",".join(["'Signature." + str(i + 1) + "'" for i in signatures_list])
+        + ")\n"
+    )
     script1 += "W <- as.data.frame(W)\n"
 
     script2 = """
@@ -80,13 +80,11 @@ toJSON(w)
     # import pprint
     # pprint.pprint(w)
     result = []
-    for k, v in w['weights'][0].items():
-        if k.startswith('_row'):
+    for k, v in w["weights"][0].items():
+        if k.startswith("_row"):
             continue
         # if float(v) == 0.0:
         #     continue
-        name = k.replace('Signature.', '')
-        result.append({
-            'name': name,
-            'score': v})
+        name = k.replace("Signature.", "")
+        result.append({"name": name, "score": v})
     return result

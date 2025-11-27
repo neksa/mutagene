@@ -1,12 +1,12 @@
 # from tqdm import tqdm
-from collections import defaultdict
-from mutagene.dna import nucleotides
-from mutagene.dna import complementary_trinucleotide, complementary_nucleotide
-
+import logging
 import os
+from collections import defaultdict
+
 import numpy as np
 
-import logging
+from mutagene.dna import complementary_nucleotide, complementary_trinucleotide, nucleotides
+
 logger = logging.getLogger(__name__)
 
 
@@ -25,7 +25,7 @@ def read_profile_file(profile_file):
         with open(profile_file) as f:
             profile_str = f.read()
             return read_profile_str(profile_str)
-    except IOError:
+    except OSError:
         logger.warning("Could not read profile file " + profile_file)
         return None
 
@@ -35,7 +35,7 @@ def read_profile_str(profile_str):
     for line in profile_str.splitlines():
         if len(line) == 0:
             continue
-        if line.startswith('#'):
+        if line.startswith("#"):
             continue
         fields = line.strip().upper().split()
         if len(fields) != 2:
@@ -81,18 +81,37 @@ Sequencing artifacts:
 
 Possible sequencing artefacts
 """
+
+
 def read_COSMICv3_signatures():
     sequencing_artifacts = [
-        "SBS27", "SBS43", "SBS45", "SBS46", "SBS47", "SBS48", "SBS49", "SBS50", "SBS51",
-        "SBS52", "SBS53", "SBS54", "SBS55", "SBS56", "SBS57", "SBS58", "SBS59", "SBS60"]
+        "SBS27",
+        "SBS43",
+        "SBS45",
+        "SBS46",
+        "SBS47",
+        "SBS48",
+        "SBS49",
+        "SBS50",
+        "SBS51",
+        "SBS52",
+        "SBS53",
+        "SBS54",
+        "SBS55",
+        "SBS56",
+        "SBS57",
+        "SBS58",
+        "SBS59",
+        "SBS60",
+    ]
 
     mutations = defaultdict(dict)
     dirname = os.path.dirname(os.path.realpath(__file__))
     fname = dirname + "/../data/signatures/sigProfiler_SBS_signatures_2019_05_22.csv"
     signature_names = []
-    with open(fname, 'r') as f:
+    with open(fname) as f:
         for i, line in enumerate(f):
-            fields = line.strip().split(',')
+            fields = line.strip().split(",")
             if i == 0:
                 signature_names = fields[2:]
                 continue
@@ -131,7 +150,7 @@ def read_KUCAB_signatures():
     dirname = os.path.dirname(os.path.realpath(__file__))
     fname = os.path.normpath(dirname + "/../data/signatures/Kucab.txt")
     signature_names = []
-    with open(fname, 'r') as f:
+    with open(fname) as f:
         for i, line in enumerate(f):
             fields = line.strip().split("\t")
             if i == 0:
@@ -141,11 +160,11 @@ def read_KUCAB_signatures():
             # parse A[C>A]A
             m = fields[0]
             p5 = m[0]
-            assert m[1] == '['
+            assert m[1] == "["
             x = m[2]
-            assert m[3] == '>'
+            assert m[3] == ">"
             y = m[4]
-            assert m[5] == ']'
+            assert m[5] == "]"
             p3 = m[6]
 
             for j, val in enumerate(fields[1:]):
@@ -167,30 +186,30 @@ def read_KUCAB_signatures():
 
 
 def _read_mutagene_signatures(name, n_signatures):
-    """ Read signatures preprocessed for mutagene website / package """
+    """Read signatures preprocessed for mutagene website / package"""
     dirname = os.path.dirname(os.path.realpath(__file__))
     W = []
     signature_names = []
     for i in range(n_signatures):
-        fname = dirname + "/../data/signatures/{}_{}.profile".format(name, i + 1)
+        fname = dirname + f"/../data/signatures/{name}_{i + 1}.profile"
         profile = read_profile_file(fname)
         W.append(profile)
-        signature_names.append("{}".format(i + 1))
+        signature_names.append(f"{i + 1}")
 
     W = np.array(W).T
     return W, signature_names
 
 
 def read_MGA_signatures():
-    return _read_mutagene_signatures('A', 5)
+    return _read_mutagene_signatures("A", 5)
 
 
 def read_MGB_signatures():
-    return _read_mutagene_signatures('B', 10)
+    return _read_mutagene_signatures("B", 10)
 
 
 def read_COSMICv2_signatures():
-    return _read_mutagene_signatures('C', 30)
+    return _read_mutagene_signatures("C", 30)
 
 
 def read_signatures(name, only=None):
@@ -200,21 +219,15 @@ def read_signatures(name, only=None):
     """
 
     # number of sigatures matching to names
-    signatures_dict = {
-        '5': 'MGA',
-        '10': 'MGB',
-        '30': 'COSMICv2',
-        '49': 'COSMICv3',
-        '53': 'KUKAB'
-    }
+    signatures_dict = {"5": "MGA", "10": "MGB", "30": "COSMICv2", "49": "COSMICv3", "53": "KUKAB"}
     inv_signatures_dict = dict(zip(signatures_dict.values(), signatures_dict.keys()))
 
     if name in signatures_dict:
         name = signatures_dict[name]
 
-    assert name in inv_signatures_dict, "Unknown name for a signature set: {}".format(name)
+    assert name in inv_signatures_dict, f"Unknown name for a signature set: {name}"
 
-    function_name = "read_{}_signatures".format(name)
+    function_name = f"read_{name}_signatures"
     W, signature_names = globals()[function_name]()
 
     # filter by list of 'only' signatures,
@@ -226,7 +239,7 @@ def read_signatures(name, only=None):
             if x not in only:
                 delete_signatures.append(i)
                 continue
-        filtered_signature_names.append("{}-{}".format(name, x))
+        filtered_signature_names.append(f"{name}-{x}")
 
     if only is not None:
         W = np.delete(W, np.array(delete_signatures), axis=1)
@@ -235,7 +248,7 @@ def read_signatures(name, only=None):
 
 
 def write_profile(profile_file, p, counts=True):
-    with open(profile_file, 'w') as o:
+    with open(profile_file, "w") as o:
         write_profile_file(o, p, counts)
 
 
@@ -247,8 +260,8 @@ def format_profile(values, counts=False):
     attrib = get_profile_attributes_dict()
     result = ""
     for i, v in enumerate(values):
-        x, y = attrib[i]['mutation']
-        p5, p3 = attrib[i]['context']
+        x, y = attrib[i]["mutation"]
+        p5, p3 = attrib[i]["context"]
         if counts:
             v = int(v)
         result += format_str.format(p5, x, y, p3, v)
@@ -268,31 +281,25 @@ def get_profile_attributes_dict(signature_order=False):
                 if x != y:
                     for p5 in nucleotides:
                         for p3 in nucleotides:
-                            attribs.append({
-                                'mutation': x + y,
-                                'context': p5 + p3
-                            })
+                            attribs.append({"mutation": x + y, "context": p5 + p3})
     else:
         for p5 in nucleotides:
             for p3 in nucleotides:
                 for x in "CT":
                     for y in nucleotides:
                         if x != y:
-                            attribs.append({
-                                'mutation': x + y,
-                                'context': p5 + p3
-                            })
+                            attribs.append({"mutation": x + y, "context": p5 + p3})
     return attribs
 
 
 def get_attributes():
     attribs = get_profile_attributes_dict()
     for i, v in enumerate(attribs):
-        x, y = v['mutation']
-        p5, p3 = v['context']
-        attribs[i]['mut'] = "{}{}".format(x, y),
-        attribs[i]['mutation'] = "{}{}{} → {}{}{}".format(p5, x, p3, p5, y, p3),
-        attribs[i]['context'] = "{}{}".format(p5, p3)
+        x, y = v["mutation"]
+        p5, p3 = v["context"]
+        attribs[i]["mut"] = (f"{x}{y}",)
+        attribs[i]["mutation"] = (f"{p5}{x}{p3} → {p5}{y}{p3}",)
+        attribs[i]["context"] = f"{p5}{p3}"
     return attribs
 
 
@@ -302,8 +309,8 @@ def profile_to_dict(counts_profile):
     freqs = [x / total_count for x in counts_profile]
 
     for i, attrib in enumerate(get_profile_attributes_dict()):
-        x, y = attrib['mutation']
-        p5, p3 = attrib['context']
+        x, y = attrib["mutation"]
+        p5, p3 = attrib["context"]
         tri = p5 + x + p3
         mutation_prob[tri][y] = freqs[i]
         mutation_prob[complementary_trinucleotide[tri]][complementary_nucleotide[y]] = freqs[i]
