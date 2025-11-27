@@ -26,16 +26,30 @@ logger = logging.getLogger(__name__)
 
 class BenchmarkMenu:
     def __init__(self, parser):
-        required_group = parser.add_argument_group('Required arguments')
-        required_group.add_argument("--mode", "-m", choices=[
-            'pairwise_gen',
-            'pairwise_run',
-            'pairwise_run_ds',
-            'multiple_gen',
-            'multiple_run',
-            'multiple_run_ds',
-            'aggregate'], help="Multiple or pairwise mode, etc", type=str)
-        required_group.add_argument("--signatures", "-i", nargs='*', help="Signatures (5, 10, 30, ...), default 30", type=str, default=["30"])
+        required_group = parser.add_argument_group("Required arguments")
+        required_group.add_argument(
+            "--mode",
+            "-m",
+            choices=[
+                "pairwise_gen",
+                "pairwise_run",
+                "pairwise_run_ds",
+                "multiple_gen",
+                "multiple_run",
+                "multiple_run_ds",
+                "aggregate",
+            ],
+            help="Multiple or pairwise mode, etc",
+            type=str,
+        )
+        required_group.add_argument(
+            "--signatures",
+            "-i",
+            nargs="*",
+            help="Signatures (5, 10, 30, ...), default 30",
+            type=str,
+            default=["30"],
+        )
 
         # dirname = os.path.dirname(os.path.realpath(__file__))
         # default_root = dirname + "/../data/benchmark"
@@ -46,7 +60,8 @@ class BenchmarkMenu:
             "--root",
             help=f"path to benchmark data, default {default_root}",
             type=str,
-            default=default_root)
+            default=default_root,
+        )
 
         # required_group.add_argument('--genome', "-g", help="Location of genome assembly file in 2bit format", type=str)
         self.parser = parser
@@ -58,24 +73,26 @@ class BenchmarkMenu:
                 i = int(i)
                 W, signature_names = read_signatures(i)
 
-                if args.mode.endswith('gen'):
+                if args.mode.endswith("gen"):
                     gen_benchmark_2combinations(args.root, signature_names, W)
-                elif args.mode.endswith('run'):
+                elif args.mode.endswith("run"):
                     run_benchmark_2combinations(args.root, i, signature_names, W, force=True)
-                elif args.mode.endswith('run_ds'):
-                    run_benchmark_2combinations_deconstruct_sigs(args.root, i, signature_names, W, force=True)
+                elif args.mode.endswith("run_ds"):
+                    run_benchmark_2combinations_deconstruct_sigs(
+                        args.root, i, signature_names, W, force=True
+                    )
 
-        elif args.mode.startswith('multiple'):
-            if args.mode.endswith('gen'):
+        elif args.mode.startswith("multiple"):
+            if args.mode.endswith("gen"):
                 pass
-            elif args.mode.endswith('run'):
+            elif args.mode.endswith("run"):
                 multiple_benchmark_run(i, signature_names, W, force=True)
-            elif args.mode.endswith('run_ds'):
+            elif args.mode.endswith("run_ds"):
                 pass
             multiple_benchmark()
             aggregate_multiple_benchmarks()
 
-        elif args.mode == 'aggregate':
+        elif args.mode == "aggregate":
             aggregate_benchmarks(args.root)
 
         else:

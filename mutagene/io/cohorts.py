@@ -28,13 +28,13 @@ def read_cohort_size_from_profile_str(profile_str):
 
 
 def list_cohorts_in_tar(tar_fname):
-    """ Returns a multiline string formatted list of cohorts contained in tar file """
+    """Returns a multiline string formatted list of cohorts contained in tar file"""
     cohorts = []
-    with tarfile.open(tar_fname, 'r:*') as tar:
+    with tarfile.open(tar_fname, "r:*") as tar:
         for t in tar:
             haystack = t.name.lower()
             if haystack.endswith(".aa_mutations.txt"):
-                cohorts.append("\t" + haystack.split("/")[1].split('.')[0])
+                cohorts.append("\t" + haystack.split("/")[1].split(".")[0])
     return "\n".join(cohorts)
 
 
@@ -67,24 +67,24 @@ def read_na_mutations_map(na_str):
 
 
 def read_cohort_mutations_from_tar(tar_fname, cohort):
-    """ Loads up profile, cohort size, aa mutations and na mutations from precalculated cohorts tar file """
+    """Loads up profile, cohort size, aa mutations and na mutations from precalculated cohorts tar file"""
     aa_mutations = {}
     na_mutations = {}
     profile = []
     cohort_size = 0
-    with tarfile.open(tar_fname, 'r:*') as tar:
+    with tarfile.open(tar_fname, "r:*") as tar:
         for t in tar:
             haystack = t.name.lower()
             needle = f"/{cohort.lower()}."
             if haystack.find(needle) != -1:
-                if haystack.endswith('.profile'):
-                    profile_str = tar.extractfile(t).read().decode('utf-8')
+                if haystack.endswith(".profile"):
+                    profile_str = tar.extractfile(t).read().decode("utf-8")
                     profile = read_profile_str(profile_str)
                     cohort_size = read_cohort_size_from_profile_str(profile_str)
-                if haystack.endswith('.aa_mutations.txt'):
-                    aa_mutations_str = tar.extractfile(t).read().decode('utf-8')
+                if haystack.endswith(".aa_mutations.txt"):
+                    aa_mutations_str = tar.extractfile(t).read().decode("utf-8")
                     aa_mutations = read_aa_mutations_map(aa_mutations_str)
-                if haystack.endswith('.dna_mutations.txt'):
-                    na_mutations_str = tar.extractfile(t).read().decode('utf-8')
+                if haystack.endswith(".dna_mutations.txt"):
+                    na_mutations_str = tar.extractfile(t).read().decode("utf-8")
                     na_mutations = read_na_mutations_map(na_mutations_str)
     return profile, cohort_size, aa_mutations, na_mutations

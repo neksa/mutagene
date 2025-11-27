@@ -3,12 +3,14 @@ import sys
 
 from mutagene.__main__ import MutaGeneApp
 
-TEST_DIR = 'test-reports'
-COHORTS_FILE = 'cohorts.tar.gz'
-TEST_FILE_MAP = { COHORTS_FILE: 'https://www.ncbi.nlm.nih.gov/research/mutagene/static/data/cohorts.tar.gz',
-                    'sample1.maf': 'https://www.ncbi.nlm.nih.gov/research/mutagene/static/data/sample1.maf',
-                    'hg19.2bit': 'https://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit' }
-                    # 'chrY.fa.gz': 'https://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/chrY.fa.gz'
+TEST_DIR = "test-reports"
+COHORTS_FILE = "cohorts.tar.gz"
+TEST_FILE_MAP = {
+    COHORTS_FILE: "https://www.ncbi.nlm.nih.gov/research/mutagene/static/data/cohorts.tar.gz",
+    "sample1.maf": "https://www.ncbi.nlm.nih.gov/research/mutagene/static/data/sample1.maf",
+    "hg19.2bit": "https://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit",
+}
+# 'chrY.fa.gz': 'https://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/chrY.fa.gz'
 
 
 # Method to run MutaGene CLI commands in a manner similar to actual CLI execution
@@ -18,7 +20,7 @@ def run_with_args(cmd, cmd_args):
 
     del sys.argv[1:]
 
-    sys.argv.append('-v')
+    sys.argv.append("-v")
     sys.argv.append(cmd)
 
     for a in cmd_args:
@@ -38,7 +40,8 @@ def get_file_lines(outfile, num_lines):
 
     for i in range(num_lines):
         out_lines.append(out_fh.readline())
-        if i >= num_lines: break
+        if i >= num_lines:
+            break
 
     out_fh.close()
 

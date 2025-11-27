@@ -11,8 +11,8 @@ def write_motif_matches(outfile, motif_matches):
     """Convert motif matches list of dictionaries to CSV format"""
     if len(motif_matches) > 0:
         header = motif_matches[0].keys()
-        d = pd.DataFrame.from_records(motif_matches, columns=header).sort_values(by='pvalue')
-        d.to_csv(outfile, sep="\t", index=False, float_format='%g')
+        d = pd.DataFrame.from_records(motif_matches, columns=header).sort_values(by="pvalue")
+        d.to_csv(outfile, sep="\t", index=False, float_format="%g")
 
 
 def get_known_motifs():

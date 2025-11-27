@@ -19,7 +19,7 @@ THRESHOLD_PASSENGER = 0.003440945  # 10% FPR
 
 def get_all_codon_substitutions(P, seq5, Q):
     """
-        Find all possible single nucleotide substitutions that mutate seq5 codon + context to amino acid Q
+    Find all possible single nucleotide substitutions that mutate seq5 codon + context to amino acid Q
     """
     seq5_codon = seq5[1:-1]
     mutated_seq5s = []
@@ -48,7 +48,7 @@ def predict_driver(observed, N, p, threshold_driver, threshold_passenger):
     # need more tumor samples than mutations for sure
 
     if N > 0 and observed > 0 and observed <= N:
-        pvalue = binomtest(observed, N, p, alternative='greater').pvalue
+        pvalue = binomtest(observed, N, p, alternative="greater").pvalue
     else:
         pvalue = 1.0
 
@@ -80,7 +80,7 @@ def calculate_codon_mutability(mutation_model, seq5, mutated_seq5s):
                 break
         if j > 0 and y is not None:
             # should always be > 0
-            tri = seq5[j - 1: j + 2]
+            tri = seq5[j - 1 : j + 2]
             positional_mutability[i] += mutation_model[tri][y]
     return 1.0 - reduce(lambda x, y: x * (1.0 - y), positional_mutability.values(), 1.0)
 
@@ -90,14 +90,16 @@ def calculate_base_substitution_mutability(counts_profile, cohort_size):
         assert cohort_size > 0
         assert len(counts_profile) == 96
     except AssertionError:
-        sys.exit("The profile file does not seem to be properly formatted!  By default, the profile is generated from the input MAF file.  Otherwise, consider using the 'mutagene profile' command to generate a profile file.")
+        sys.exit(
+            "The profile file does not seem to be properly formatted!  By default, the profile is generated from the input MAF file.  Otherwise, consider using the 'mutagene profile' command to generate a profile file."
+        )
 
     mutability = defaultdict(dict)
     counts_profile_dict = defaultdict(dict)
 
     for i, attrib in enumerate(get_profile_attributes_dict()):
-        x, y = attrib['mutation']
-        p5, p3 = attrib['context']
+        x, y = attrib["mutation"]
+        p5, p3 = attrib["context"]
         tri = p5 + x + p3
         counts_profile_dict[tri][y] = counts_profile[i]
 
@@ -109,13 +111,23 @@ def calculate_base_substitution_mutability(counts_profile, cohort_size):
             if tri_sum > 0:
                 f = float(y_counts) / tri_sum
             mutability[tri][y] = f * mutability_tri
-            mutability[complementary_trinucleotide[tri]][complementary_nucleotide[y]] = mutability[tri][y]
+            mutability[complementary_trinucleotide[tri]][complementary_nucleotide[y]] = mutability[
+                tri
+            ][y]
 
     return mutability
 
 
 # import pprint
-def rank(mutations_to_rank, outfile, profile, cohort_aa_mutations, cohort_size, threshold_driver, threshold_passenger):
+def rank(
+    mutations_to_rank,
+    outfile,
+    profile,
+    cohort_aa_mutations,
+    cohort_size,
+    threshold_driver,
+    threshold_passenger,
+):
     # profile_dict = profile_to_dict(profile)
     mutation_model = calculate_base_substitution_mutability(profile, cohort_size)
     # cohort_size_corrected = cohort_size + 1  # add currently analyzed sample (many samples?) to cohort
@@ -125,7 +137,7 @@ def rank(mutations_to_rank, outfile, profile, cohort_aa_mutations, cohort_size, 
     results = []
     for mutation_key, mutation_value in mutations_to_rank.items():
         gene, mut = mutation_key
-        for seq5, observed_k in mutation_value['seq5'].items():
+        for seq5, observed_k in mutation_value["seq5"].items():
             break
         # if gene == "BRAF" and mut == "V600E":
         #     print("BRAF V600E", seq5)
@@ -133,7 +145,7 @@ def rank(mutations_to_rank, outfile, profile, cohort_aa_mutations, cohort_size, 
 
         P, Q = mut[0], mut[-1]
         # support for silent mutations
-        if Q == '=':
+        if Q == "=":
             Q = P
         all_substitutions = get_all_codon_substitutions(P, seq5, Q)
         mutability = calculate_codon_mutability(mutation_model, seq5, all_substitutions)
@@ -146,26 +158,30 @@ def rank(mutations_to_rank, outfile, profile, cohort_aa_mutations, cohort_size, 
             # pseudocount
             observed_k += 1  # we also observe this mutation in analyzed sample
 
-        pval, label, *_ = predict_driver(observed_k, cohort_size_corrected, mutability, threshold_driver, threshold_passenger)
+        pval, label, *_ = predict_driver(
+            observed_k, cohort_size_corrected, mutability, threshold_driver, threshold_passenger
+        )
         # print(gene, mut, seq5, all_substitutions, " = ", mutability, observed_k, cohort_size, " = ", pval, label)
-        results.append({
-            'gene': gene,
-            'mutation': mut,
-            'mutability': mutability,
-            'observed': observed_k,
-            'bscore': pval,
-            'qvalue': pval,  # temporarily set to pval
-            'label': label,
-        })
-    pvalues = [result['bscore'] for result in results]
+        results.append(
+            {
+                "gene": gene,
+                "mutation": mut,
+                "mutability": mutability,
+                "observed": observed_k,
+                "bscore": pval,
+                "qvalue": pval,  # temporarily set to pval
+                "label": label,
+            }
+        )
+    pvalues = [result["bscore"] for result in results]
     qvalues = []
     if len(pvalues):
         # qvalues = multipletests(pvals=pvalues, method='')[1]
-        qvalues = multipletests(pvals=pvalues, method='fdr_bh')[1]
+        qvalues = multipletests(pvals=pvalues, method="fdr_bh")[1]
     for i, qvalue in enumerate(qvalues):
-        results[i]['qvalue'] = qvalue
+        results[i]["qvalue"] = qvalue
 
-    results = list(map(OrderedDict, sorted(results, key=lambda k: k['bscore'])))
+    results = list(map(OrderedDict, sorted(results, key=lambda k: k["bscore"])))
     if len(results) == 0:
         return
     df = pd.DataFrame(results, columns=results[0].keys())
