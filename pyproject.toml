@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mutagene"
-version = "0.9.2.0"
+version = "1.0.0"
 description = "Mutational analysis with Python"
 readme = "README.md"
 requires-python = ">=3.8"
