@@ -174,12 +174,15 @@ class RankMenu:
         logger.info(f"THRESHOLD_PASSENGER: {args.threshold_passenger}")
 
         # ranking:
-        rank(
-            protein_mutations,
-            args.outfile,
-            profile,
-            cohort_aa_mutations,
-            cohort_size,
-            args.threshold_driver,
-            args.threshold_passenger,
-        )
+        try:
+            rank(
+                protein_mutations,
+                args.outfile,
+                profile,
+                cohort_aa_mutations,
+                cohort_size,
+                args.threshold_driver,
+                args.threshold_passenger,
+            )
+        except ValueError as e:
+            logger.error(str(e))

@@ -72,10 +72,12 @@ Partial download is supported: if the process is interrupted run the same comman
 
     @classmethod
     def examples(cls, args):
-        # print('Cohorts', args)
         if args.resource == "examples":
-            fetch_examples()
-            logger.info("Example files saved to current directory")
+            try:
+                fetch_examples()
+                logger.info("Example files saved to current directory")
+            except ConnectionError as e:
+                logger.error(str(e))
 
     @classmethod
     def cohorts(cls, args):
@@ -84,8 +86,11 @@ Partial download is supported: if the process is interrupted run the same comman
 
     @classmethod
     def cohorts_COSMIC(cls, args):
-        fetch_cohorts()
-        logger.info("cohorts.tar.gz saved to current directory")
+        try:
+            fetch_cohorts()
+            logger.info("cohorts.tar.gz saved to current directory")
+        except ConnectionError as e:
+            logger.error(str(e))
 
     @classmethod
     def cohorts_GDC(cls, args):
@@ -111,7 +116,10 @@ Partial download is supported: if the process is interrupted run the same comman
                 )
         elif args.cohort:
             logger.info("Will download cohort " + args.cohort)
-            fetch_MSKCC(args.cohort)
+            try:
+                fetch_MSKCC(args.cohort)
+            except ConnectionError as e:
+                logger.error(str(e))
         else:
             logger.warning("Cohort not specified, use --list to display all available data sets")
 
@@ -126,8 +134,11 @@ Partial download is supported: if the process is interrupted run the same comman
             if not args.genome:
                 logger.warning(genome_error_message)
                 return
-            fetch_genome(args.genome)
-            logger.info("Twobit file saved to current directory")
+            try:
+                fetch_genome(args.genome)
+                logger.info("Twobit file saved to current directory")
+            except ConnectionError as e:
+                logger.error(str(e))
 
     def callback(self, args):
         if not args.resource:
