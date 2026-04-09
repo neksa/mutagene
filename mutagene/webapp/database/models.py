@@ -33,8 +33,7 @@ def init_db(db_path):
     cursor = conn.cursor()
 
     # Analyses table
-    cursor.execute(
-        """
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS analyses (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
@@ -47,12 +46,10 @@ def init_db(db_path):
             error_message TEXT,
             config JSON
         )
-    """
-    )
+    """)
 
     # Results table - stores analysis results as JSON
-    cursor.execute(
-        """
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS results (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             analysis_id INTEGER NOT NULL,
@@ -62,12 +59,10 @@ def init_db(db_path):
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (analysis_id) REFERENCES analyses(id) ON DELETE CASCADE
         )
-    """
-    )
+    """)
 
     # Files table - tracks input/output files
-    cursor.execute(
-        """
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS files (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             analysis_id INTEGER NOT NULL,
@@ -78,8 +73,7 @@ def init_db(db_path):
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (analysis_id) REFERENCES analyses(id) ON DELETE CASCADE
         )
-    """
-    )
+    """)
 
     # Create indices
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_analyses_status ON analyses(status)")

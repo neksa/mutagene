@@ -39,7 +39,9 @@ def create_app(config=None):
     secret = os.environ.get("SECRET_KEY")
     if not secret:
         secret = secrets.token_hex(32)
-        logger.info("No SECRET_KEY set; using auto-generated key (sessions won't persist across restarts)")
+        logger.info(
+            "No SECRET_KEY set; using auto-generated key (sessions won't persist across restarts)"
+        )
     app.config["SECRET_KEY"] = secret
     app.config["MAX_CONTENT_LENGTH"] = 500 * 1024 * 1024  # 500 MB max upload
     app.config["UPLOAD_FOLDER"] = Path.home() / ".mutagene" / "uploads"
@@ -393,8 +395,7 @@ def start_server(host="127.0.0.1", port=5000, debug=False, open_browser=True):
     """
     app, socketio = create_app()
 
-    print(
-        f"""
+    print(f"""
 ╔══════════════════════════════════════════════════════════════╗
 ║                    MutaGene Local Server                     ║
 ╠══════════════════════════════════════════════════════════════╣
@@ -405,8 +406,7 @@ def start_server(host="127.0.0.1", port=5000, debug=False, open_browser=True):
 ║ Open your browser to get started!                           ║
 ║ Press Ctrl+C to stop                                         ║
 ╚══════════════════════════════════════════════════════════════╝
-"""
-    )
+""")
 
     if open_browser:
         # Open browser after short delay
