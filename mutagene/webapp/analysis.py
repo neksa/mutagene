@@ -13,60 +13,45 @@ from .genome_manager import GenomeManager
 logger = logging.getLogger(__name__)
 
 
-def open_input_file(file_path: Path, mode: str = "rt"):
-    """Open file, handling gzip compression and tar.gz archives automatically.
+def extract_input_file(file_path: Path, output_dir: Path) -> Path:
+    """Extract tar.gz archives to a stable location; return path to the mutation file.
 
-    Args:
-        file_path: Path to file (may be gzipped or tar.gz)
-        mode: File open mode (default: 'rt' for text read)
-
-    Returns:
-        File handle (text mode) or extracted file path
+    For non-archive files the original path is returned unchanged.
+    Extracted files go into *output_dir* so they are cleaned up with the analysis.
     """
     import tarfile
-    import tempfile
 
-    # Check if it's a tar.gz archive
     if str(file_path).endswith(".tar.gz") or str(file_path).endswith(".tgz"):
-        # Extract MAF file from tarball
         with tarfile.open(file_path, "r:gz") as tar:
-            # Look for mutation files
             maf_candidates = [
                 m
                 for m in tar.getmembers()
                 if m.isfile() and ("mutation" in m.name.lower() or m.name.endswith(".maf"))
             ]
-
             if not maf_candidates:
                 raise ValueError("No mutation file found in tar.gz archive")
 
-            # Use the first mutation file found
             maf_member = maf_candidates[0]
             logger.info(f"Extracting {maf_member.name} from tarball")
 
-            # Extract to temp location (validate path to prevent traversal CVE-2007-4559)
-            temp_dir = Path(tempfile.gettempdir()) / "mutagene_extracted"
-            temp_dir.mkdir(exist_ok=True)
-            extracted_path = (temp_dir / maf_member.name).resolve()
-            if not str(extracted_path).startswith(str(temp_dir.resolve())):
+            extract_dir = output_dir / "extracted"
+            extract_dir.mkdir(exist_ok=True)
+            extracted_path = (extract_dir / Path(maf_member.name).name).resolve()
+            if not str(extracted_path).startswith(str(extract_dir.resolve())):
                 raise ValueError(
                     f"Tar member {maf_member.name} would extract outside target directory"
                 )
-            tar.extract(maf_member, path=temp_dir)
+            tar.extract(maf_member, path=extract_dir)
+            return extracted_path
 
-            # Return open file handle
-            if maf_member.name.endswith(".gz"):
-                return gzip.open(extracted_path, mode, encoding="utf-8")
-            else:
-                return open(extracted_path, mode, encoding="utf-8")
+    return file_path
 
-    # Regular gzipped file
-    elif str(file_path).endswith(".gz"):
+
+def open_input_file(file_path: Path, mode: str = "rt"):
+    """Open a mutation file, handling gzip transparently."""
+    if str(file_path).endswith(".gz"):
         return gzip.open(file_path, mode, encoding="utf-8")
-
-    # Plain text file
-    else:
-        return open(file_path, mode, encoding="utf-8")
+    return open(file_path, mode, encoding="utf-8")
 
 
 def run_cohort_analysis(
@@ -119,6 +104,9 @@ def run_cohort_analysis(
         "classification": {},
         "files": [],
     }
+
+    # Extract tar.gz once; plain files pass through unchanged
+    input_file = extract_input_file(Path(input_file), output_dir)
 
     # Track genome mismatch warnings
     genome_mismatch_count = 0

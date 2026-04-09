@@ -168,6 +168,9 @@ def register_routes(app, db, socketio):
         analysis = db.get_analysis(analysis_id)
         if not analysis:
             return jsonify({"error": "Analysis not found"}), 404
+        # Strip internal traceback from client response
+        if analysis.get("error_message"):
+            analysis["error_message"] = analysis["error_message"].split("\n")[0]
         return jsonify(analysis)
 
     @app.route("/results/<int:analysis_id>")
@@ -230,7 +233,14 @@ def register_routes(app, db, socketio):
         if not file_record:
             return jsonify({"error": "File not found"}), 404
 
-        file_path = Path(file_record["path"])
+        file_path = Path(file_record["path"]).resolve()
+        allowed_dirs = [
+            Path(app.config["UPLOAD_FOLDER"]).resolve(),
+            (Path.home() / ".mutagene" / "results").resolve(),
+        ]
+        if not any(str(file_path).startswith(str(d)) for d in allowed_dirs):
+            return jsonify({"error": "Access denied"}), 403
+
         if not file_path.exists():
             return jsonify({"error": "File no longer exists on disk"}), 404
 
