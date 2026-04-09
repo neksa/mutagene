@@ -1,6 +1,5 @@
 """Shared test fixtures for mutagene tests."""
 
-import os
 import tempfile
 from pathlib import Path
 
