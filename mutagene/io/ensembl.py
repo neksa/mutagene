@@ -1,10 +1,13 @@
 import json
+import logging
 import multiprocessing
 
 import requests
 from tqdm import tqdm
 
 from mutagene.dna import complementary_nucleotide
+
+logger = logging.getLogger(__name__)
 
 
 def mp_ensembl_worker(raw_mutations_chunk):

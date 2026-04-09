@@ -24,11 +24,11 @@ def gen_benchmark_2combinations(data_root, signature_names, W):
 
     # for r in [0.9, 0.8, 0.7, 0.6, 0.5]:
     for r in [0.7, 0.5]:
-        for l in [0.1, 0.2]:
+        for noise in [0.1, 0.2]:
             # for n in [10, 50, 100, 500, 1000, 10000]:
             for n in [50, 500]:
                 gen_sample_2combinations(
-                    data_root, signature_names, W, ratio=r, noise_level=l, n_mutations=n
+                    data_root, signature_names, W, ratio=r, noise_level=noise, n_mutations=n
                 )
 
 

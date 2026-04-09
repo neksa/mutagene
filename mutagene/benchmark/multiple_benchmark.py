@@ -128,12 +128,6 @@ def aggregate_multiple_benchmarks():
     #     30: 0.01,
     # }
 
-    signatures_thresholds = {
-        5: 0.06,
-        10: 0.06,
-        30: 0.06,
-    }
-
     # signatures_thresholds = {
     #     5: 0.0001,
     #     10: 0.0001,

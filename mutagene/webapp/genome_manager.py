@@ -2,7 +2,6 @@
 
 import logging
 from pathlib import Path
-from typing import List, Optional
 
 from mutagene.io.fetch import download_from_url
 
@@ -20,7 +19,7 @@ class GenomeManager:
         "mm9": "https://hgdownload.cse.ucsc.edu/goldenPath/mm9/bigZips/mm9.2bit",
     }
 
-    def __init__(self, genomes_dir: Optional[Path] = None):
+    def __init__(self, genomes_dir: Path | None = None):
         """Initialize genome manager.
 
         Args:
@@ -55,7 +54,7 @@ class GenomeManager:
         """
         return self.get_genome_path(genome).exists()
 
-    def get_available_genomes(self) -> List[str]:
+    def get_available_genomes(self) -> list[str]:
         """Get list of available (downloaded) genomes.
 
         Returns:
@@ -63,7 +62,7 @@ class GenomeManager:
         """
         return [g for g in self.SUPPORTED_GENOMES if self.is_downloaded(g)]
 
-    def get_missing_genomes(self) -> List[str]:
+    def get_missing_genomes(self) -> list[str]:
         """Get list of supported but not downloaded genomes.
 
         Returns:
@@ -101,7 +100,7 @@ class GenomeManager:
             return False
 
     def check_and_download_required_genomes(
-        self, required: Optional[List[str]] = None, auto_download: bool = False
+        self, required: list[str] | None = None, auto_download: bool = False
     ) -> dict:
         """Check for required genomes and optionally download them.
 

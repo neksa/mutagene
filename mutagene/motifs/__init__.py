@@ -1,6 +1,5 @@
 import logging
 import math
-
 import pprint
 import re
 
@@ -464,7 +463,7 @@ def process_mutations(
 
     contingency_table = Haldane_correction(contingency_table)
 
-    enrichment = risk_ratio = calculate_RR(contingency_table)  # enrichment = risk ratio
+    enrichment = calculate_RR(contingency_table)  # enrichment = risk ratio
     odds_ratio = calculate_OR(contingency_table)
 
     p_val = get_stats(contingency_table, stat_type)

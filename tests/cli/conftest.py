@@ -48,7 +48,7 @@ def test_data():
     # Start of teardown code
 
     # If COHORTS_FILE was copied to ./, remove it
-    if cp_cohorts == True:
+    if cp_cohorts:
         os.remove(f"./{cli_test_utils.COHORTS_FILE}")
 
     # Teardown code cleans up test articles from TEST_DIR in CI

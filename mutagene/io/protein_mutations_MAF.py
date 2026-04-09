@@ -130,7 +130,6 @@ def read_protein_mutations_MAF(infile, genome, motifs=False):
 
             protein_mutation = HGVSp.split(".")[1].upper()
             P = protein_mutation[0]
-            Q = protein_mutation[-1]
 
             if not hasattr(data, "hugo_symbol"):
                 logger.warning("Could not find Hugo_Symbol in MAF file")
