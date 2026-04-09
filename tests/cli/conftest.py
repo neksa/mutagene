@@ -9,7 +9,7 @@ from tests.cli import cli_test_utils
 
 # Download test files from public sources if not present
 @pytest.fixture(scope="module")
-def artifactory_circleci():
+def test_data():
     # Ensure TEST_DIR exists
     os.makedirs(cli_test_utils.TEST_DIR, exist_ok=True)
 
@@ -51,8 +51,8 @@ def artifactory_circleci():
     if cp_cohorts == True:
         os.remove(f"./{cli_test_utils.COHORTS_FILE}")
 
-    # Teardown code cleans up test articles from TEST_DIR if running in CircleCI to prevent saving as artifacts
-    if "CIRCLECI" in os.environ and os.environ["CIRCLECI"] == "true":
+    # Teardown code cleans up test articles from TEST_DIR in CI
+    if os.environ.get("CI"):
         for f in cli_test_utils.TEST_FILE_MAP.keys():
             if os.path.isfile(f"{cli_test_utils.TEST_DIR}/{f}"):
                 os.remove(f"{cli_test_utils.TEST_DIR}/{f}")
