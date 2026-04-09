@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}MutaGene - Upload{% endblock %}
+
+{% block content %}
+<h2>Upload MAF/VCF File</h2>
+<p>Upload your mutation data file to start comprehensive analysis.</p>
+
+<div style="margin-top: 30px;">
+    <form id="uploadForm" enctype="multipart/form-data">
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Analysis Name:</label>
+            <input type="text" name="name" id="analysisName" placeholder="My Cohort Analysis"
+                   style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">File (MAF or VCF):</label>
+            <div id="dropZone" style="border: 2px dashed #667eea; border-radius: 8px; padding: 40px; text-align: center; cursor: pointer; transition: background 0.3s;">
+                <p style="font-size: 18px; color: #667eea;">📁 Drag and drop file here or click to browse</p>
+                <p style="color: #666; margin-top: 10px;">Supported formats: .maf, .vcf, .maf.gz, .vcf.gz</p>
+            </div>
+            <input type="file" name="file" id="fileInput" accept=".maf,.vcf,.maf.gz,.vcf.gz" style="display: none;">
+            <p id="fileName" style="margin-top: 10px; color: #667eea; font-weight: bold;"></p>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Genome Build:</label>
+            <select name="genome" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="hg19">hg19 (GRCh37)</option>
+                <option value="hg38">hg38 (GRCh38)</option>
+                <option value="mm10">mm10 (Mouse)</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 5px; font-weight: bold;">Signature Set:</label>
+            <select name="signatures" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="COSMICv3">COSMIC v3 (latest)</option>
+                <option value="COSMICv2">COSMIC v2</option>
+                <option value="KUCAB">KUCAB 2019</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 10px; font-weight: bold;">Analyses to Run:</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <label style="display: flex; align-items: center;">
+                    <input type="checkbox" name="classify" checked style="margin-right: 8px;">
+                    Classification (Cancer Type Prediction)
+                </label>
+                <label style="display: flex; align-items: center;">
+                    <input type="checkbox" name="cluster" checked style="margin-right: 8px;">
+                    Hierarchical Clustering
+                </label>
+                <label style="display: flex; align-items: center;">
+                    <input type="checkbox" name="hotspots" checked style="margin-right: 8px;">
+                    Hotspot Detection
+                </label>
+                <label style="display: flex; align-items: center;">
+                    <input type="checkbox" name="motifs" checked style="margin-right: 8px;">
+                    Motif Enrichment
+                </label>
+            </div>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%; padding: 15px; font-size: 18px;">
+            🚀 Upload and Analyze
+        </button>
+    </form>
+
+    <div id="uploadProgress" style="display: none; margin-top: 20px;">
+        <div class="alert alert-info">
+            <strong>Uploading...</strong>
+            <div style="background: #e9ecef; border-radius: 4px; height: 20px; margin-top: 10px; overflow: hidden;">
+                <div id="progressBar" style="background: #667eea; height: 100%; width: 0%; transition: width 0.3s;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if analyses %}
+<div style="margin-top: 40px;">
+    <h3>Recent Analyses</h3>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+        <thead>
+            <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                <th style="padding: 12px; text-align: left;">Name</th>
+                <th style="padding: 12px; text-align: left;">Date</th>
+                <th style="padding: 12px; text-align: left;">Status</th>
+                <th style="padding: 12px; text-align: left;">Samples</th>
+                <th style="padding: 12px; text-align: left;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for analysis in analyses %}
+            <tr style="border-bottom: 1px solid #dee2e6;">
+                <td style="padding: 12px;">{{ analysis.name }}</td>
+                <td style="padding: 12px;">{{ analysis.uploaded_at }}</td>
+                <td style="padding: 12px;">
+                    <span class="status-badge status-{{ analysis.status }}">{{ analysis.status }}</span>
+                </td>
+                <td style="padding: 12px;">{{ analysis.samples or '-' }}</td>
+                <td style="padding: 12px;">
+                    {% if analysis.status == 'complete' %}
+                        <a href="/results/{{ analysis.id }}" class="btn" style="padding: 5px 15px;">View Results</a>
+                    {% elif analysis.status == 'pending' %}
+                        <button onclick="startAnalysis({{ analysis.id }})" class="btn" style="padding: 5px 15px;">Start</button>
+                    {% elif analysis.status == 'running' %}
+                        <a href="/results/{{ analysis.id }}" class="btn btn-secondary" style="padding: 5px 15px;">View Progress</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<style>
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    .status-pending { background: #ffc107; color: #000; }
+    .status-running { background: #17a2b8; color: white; }
+    .status-complete { background: #28a745; color: white; }
+    .status-error { background: #dc3545; color: white; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Drag and drop handling
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const fileName = document.getElementById('fileName');
+
+dropZone.addEventListener('click', () => fileInput.click());
+
+dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.style.background = '#f0f0ff';
+});
+
+dropZone.addEventListener('dragleave', () => {
+    dropZone.style.background = 'white';
+});
+
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.style.background = 'white';
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        fileInput.files = files;
+        fileName.textContent = `Selected: ${files[0].name}`;
+    }
+});
+
+fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        fileName.textContent = `Selected: ${e.target.files[0].name}`;
+    }
+});
+
+// Form submission
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+
+    // Auto-fill name if empty
+    if (!formData.get('name')) {
+        formData.set('name', formData.get('file').name);
+    }
+
+    // Show progress
+    document.getElementById('uploadProgress').style.display = 'block';
+
+    try {
+        const response = await fetch('/api/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            // Start analysis automatically
+            const startResponse = await fetch(`/api/analyze/${result.analysis_id}`, {
+                method: 'POST'
+            });
+
+            if (startResponse.ok) {
+                // Redirect to results page
+                window.location.href = `/results/${result.analysis_id}`;
+            }
+        } else {
+            alert('Error: ' + result.error);
+            document.getElementById('uploadProgress').style.display = 'none';
+        }
+    } catch (error) {
+        alert('Upload failed: ' + error.message);
+        document.getElementById('uploadProgress').style.display = 'none';
+    }
+});
+
+// Start analysis for pending analyses
+function startAnalysis(analysisId) {
+    fetch(`/api/analyze/${analysisId}`, { method: 'POST' })
+        .then(response => response.json())
+        .then(result => {
+            if (result.status === 'started') {
+                window.location.href = `/results/${analysisId}`;
+            }
+        });
+}
+</script>
+{% endblock %}

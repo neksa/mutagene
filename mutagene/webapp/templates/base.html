@@ -1,0 +1,119 @@
+<!doctype html>
+<head>
+<meta charset="utf-8">
+<title>MutaGene: {% block title %}{% endblock %}</title>
+
+<!-- meta -->
+<meta name="description" content="">
+<meta name="author" content="">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- /meta -->
+
+<!-- styles -->
+<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-table.css') }}">
+<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
+<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='fonts/avenir-lt-std/style.css') }}" />
+<!-- /styles -->
+
+<!-- favicons -->
+<link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='ico/favicon.png') }}?v=3">
+
+<!-- scripts -->
+<script src="{{ url_for('static', filename='js/libs/modernizr-2.6.2.min.js') }}"></script>
+<!-- /scripts -->
+
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:400italic,400,300,700,700italic" rel="stylesheet" type="text/css">
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+
+{% block extra_css %}{% endblock %}
+
+</head>
+<body>
+
+  <noscript>
+      <div class="content">
+          <h1><span class="t_badge t_badge_icon" style="background: #dc322f"><i class="icon-attention"></i></span>
+              Javascript is required to view the MutaGene website.</h1>
+          <section><h2>Please enable Javascript and reload the page.</h2></section>
+      </div>
+  </noscript>
+
+    <!-- Fixed navbar -->
+    <nav id="main-menu" class="navbar navbar-default" role="navigation">
+      <div class="container-fluid">
+          <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="nav navbar-nav" href="/"><img src="{{ url_for('static', filename='img/mutagene_logo5.png') }}" height="67" style="vertical-align:bottom; padding-left: 25px; padding-right: 25px;"></a>
+          </div>
+
+          <div id="navbar" class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+                <li {% if request.path == "/" %}class="active"{% endif %}><a href="/"><span class="glyphicon glyphicon-home" aria-hidden="false"></span> Home</a></li>
+                <li {% if "/history" in request.path %}class="active"{% endif %}><a href="/history"><span class="glyphicon glyphicon-time" aria-hidden="false"></span> History</a></li>
+                <li><a href="https://mutagene.readthedocs.io" target="_blank"><span class="glyphicon glyphicon-question-sign" aria-hidden="false"></span> Help</a></li>
+              </ul>
+          </div>
+      </div>
+    </nav>
+
+    <!-- Begin page content -->
+    <main id="content" role="main" class="container shadow">
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+          <div class="alert alert-block alert-error fade in">
+              <a class="close" data-dismiss="alert">&times;</a>
+              {{ message  }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+
+    </main>
+
+  {% block footer %}
+  <footer id="page_footer">
+      <div role="contentinfo">
+          <div class="footer_padding">
+              <div class="footer_border">
+                  <p style="text-align: center; padding: 20px 0;">
+                      <strong>MutaGene</strong> &mdash; Local Mutation Analysis Server
+                      <br>
+                      <a href="https://github.com/neksa/mutagene" style="margin: 0 10px;">GitHub</a>
+                      |
+                      <a href="https://mutagene.readthedocs.io" style="margin: 0 10px;">Documentation</a>
+                      |
+                      <a href="https://academic.oup.com/nar/article/45/W1/W514/3796332" style="margin: 0 10px;">Citation</a>
+                  </p>
+              </div>
+          </div>
+      </div>
+  </footer>
+  {% endblock %}
+
+  <div id="helper-tooltip" class="tooltip" style="opacity: 0; left: 0px; top: 0px;"></div>
+
+<script>window.jQuery || document.write("<script src=\"{{ url_for('static', filename='js/libs/jquery-1.11.3.min.js') }}\"><\/script>")</script>
+
+  <script defer src="{{ url_for('static', filename='js/libs/bootstrap.min.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='js/libs/bootstrap-table.min.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='js/libs/d3.min.js') }}" charset="utf-8"></script>
+  <script defer src="{{ url_for('static', filename='js/libs/d3.tip.v0.6.3.js') }}"></script>
+  <script defer src="{{ url_for('static', filename='js/plugins.js') }}"></script>
+
+  {% block extra_js %}{% endblock %}
+
+  <script defer src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>

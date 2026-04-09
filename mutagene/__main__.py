@@ -13,6 +13,7 @@ from mutagene.cli.fetch_menu import FetchMenu
 from mutagene.cli.motif_menu import MotifMenu
 from mutagene.cli.profile_menu import ProfileMenu
 from mutagene.cli.rank_menu import RankMenu
+from mutagene.cli.serve_menu import ServeMenu  # lazy import in serve_menu.callback
 from mutagene.cli.signature_menu import SignatureMenu
 from mutagene.version import __version__
 
@@ -62,13 +63,14 @@ class MutaGeneApp:
 
         subparsers = parser.add_subparsers(
             help="",
-            metavar="{fetch, profile, rank, motif, signature}",
+            metavar="{fetch, profile, rank, motif, signature, serve}",
             description="""\
         fetch - Load data such as genomes and cancer datasets from remote sources (alias: download)
         profile - Create a mutational profile given a sample with mutations
         rank - Predict driver mutations by ranking observed mutations with respect to their expected mutability
         motif - Test samples for presence of mutational motifs
-        signature - Identify activity of existing mutational signatures in samples or derive new signatures (aliases: identify, decompose)\
+        signature - Identify activity of existing mutational signatures in samples or derive new signatures (aliases: identify, decompose)
+        serve - Start local web server for interactive analysis\
             """,
             dest="command",
             title="Choose MutaGene subpackage",
@@ -81,6 +83,7 @@ class MutaGeneApp:
             "motif": {"class": MotifMenu, "aliases": []},
             "signature": {"class": SignatureMenu, "aliases": ["identify", "decompose"]},
             "benchmark": {"class": BenchmarkMenu, "aliases": []},
+            "serve": {"class": ServeMenu, "aliases": []},
         }
 
         for command, menu in parser_mapping.items():
