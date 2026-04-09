@@ -84,13 +84,6 @@ def FrobeniusZero(x, A, b):
     return np.linalg.norm(error)
 
 
-# def DerNegLogLik(x, A, b):
-#     print(b / A.dot(x))
-#     DLL = - np.ma.divide(b, A.dot(x)).filled(0)
-#     print(x, DLL)
-#     return DLL
-
-
 def NegLogLik(x, A, b):
     """
     Log Likelihood of a mixture of multinomials
@@ -103,11 +96,10 @@ def NegLogLik(x, A, b):
     #     return 1e6
 
     if x.sum() > 1.0:
-        x /= x.sum()
+        x = x / x.sum()
 
     LL = np.sum(b * np.ma.log(A.dot(x)).filled(0.0))
 
-    # print("NegLL\t{}\t{}\t{}".format(len(x), "\t".join(map(lambda a: "{:.2f}".format(a), x)), -LL))
     return -LL
 
 
@@ -268,7 +260,10 @@ def decompose_mutational_profile_counts(
     # print(signature_names)
 
     v = np.array([profile]).ravel()
-    v_freq = v / v.sum()
+    v_sum = v.sum()
+    if v_sum == 0:
+        raise ValueError("Profile is all zeros — cannot decompose an empty mutational profile")
+    v_freq = v / v_sum
 
     # Initial guess with NNLS:
     # DATA, residuals = nnls(W.T, X.T.ravel())
@@ -331,26 +326,6 @@ def decompose_mutational_profile_counts(
                     break
             return xnew
 
-    # class RandomDisplacementBounds(object):
-    #     """random displacement with bounds"""
-    #     def __init__(self, xmin, xmax, stepsize=0.1):
-    #         self.xmin = xmin
-    #         self.xmax = xmax
-    #         self.stepsize = stepsize
-
-    #     def __call__(self, x):
-    #         """take a random step but ensure the new position is within the bounds"""
-    #         while True:
-    #             # xnew = x + np.random.uniform(-self.stepsize, self.stepsize, x.shape)
-    #             inew = np.random.randint(0, x.shape[0])
-    #             xnew = x.copy()
-    #             xnew[inew] += np.random.uniform(-self.stepsize, self.stepsize)
-    #             # print("it", np.sum(xnew), xnew)
-    #             if np.all(xnew <= self.xmax) and np.all(xnew >= self.xmin) and np.sum(xnew) <= 1.0:
-    #                 break
-    #         return xnew
-
-    # define the new step taking routine and pass it to basinhopping
     take_step = RandomDisplacementBounds()
 
     def accept_test(f_new, x_new, f_old, x_old):
@@ -386,42 +361,14 @@ def decompose_mutational_profile_counts(
             }  # , 'jac': get_constraint(i, False)}  # lower
         )
 
-    ##############################################################################
     if config["global_optimization"]:
-        # L-BFGS-B COBYLA SLSQP
-        """
-        minout = basinhopping(NegLogLik, h0, minimizer_kwargs={  # 'jac': DerNegLogLik,
-            'args': (W, v_target), 'method': 'SLSQP',
-            'constraints': cobyla_constraints, 'options': {'disp': False, 'ftol': 0.00001, 'eps': 0.0000001}}, niter=100, T=0.001, take_step=take_step, accept_test=accept_test, callback=print_fun)  #, take_step=take_step , callback=print_fun)
-
-        if debug:
-            print(minout, type(minout))
-            print(minout.message)
-            # print("Status: # failures", minout.res.minimization_failures)
-
-        if np.any(np.isnan(minout.x)):
-            print("FAILED!!!!!!!!!!!!!!!!")
-            if debug:
-                print("MINIMIZATION FAILED:", minout.message, minout.nit)
-            # fallback decomposition:
-            h = h0.ravel() / h0.sum()
-            # h = h0.ravel() * 0.0
-        else:
-            h = minout.x
-            if debug:
-                print("MAX LIK", h, round(-NegLogLik(h, W, v_target), 4))
-                print("MIN FRO", h, round(min_func(h, W, v_target), 4))
-                print("FRO", round(Frobenius(h, W, v_target), 4), "DIV", round(DivergenceKL(h, W, v), 4))
-        """
-        # Bayesian Optimization
         from functools import partial
 
         from bayes_opt import BayesianOptimization
 
         optimizer = BayesianOptimization(
             f=partial(min_func, A=W, b=v_target),
-            # pbounds=pbounds,
-            verbose=2,  # verbose = 1 prints only when a maximum is observed, verbose = 0 is silent
+            verbose=2,
             random_state=1,
         )
 

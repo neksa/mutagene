@@ -1,7 +1,6 @@
 import logging
 import math
 
-# import functools
 import pprint
 import re
 
@@ -15,7 +14,6 @@ from mutagene.dna import (
     bases_dict,
     complementary_extended_nucleotide,
     complementary_nucleotide,
-    # comp_dict,
     extended_nucleotides,
     nucleotides,
 )
@@ -57,8 +55,6 @@ def identify_motifs(
     else:
         motifs = get_known_motifs()
         search_motifs = motifs.copy()
-    # search_motifs.extend(scanf_motif(custom_motif))
-
     _strand_map = {"T": "transcribed", "N": "non-transcribed", "A": "any strand"}
 
     disable_progress_bar = logger.getEffectiveLevel() == logging.DEBUG
@@ -139,7 +135,6 @@ def scanf_motif(custom_motif):
     )
     if m:
         g = m.groups("")
-        # print("GROUPS", m.group(1), m.group(2), m.group(3), m.group(4))
         entry = {}
         entry["logo"] = m.group(0)
         entry["motif"] = g[0] + g[1] + g[3]
@@ -231,7 +226,6 @@ def calculate_mutation_load(N_mutations, enrichment):
     mutation_load = 0.0
     if enrichment > 1.0:
         mutation_load = N_mutations * (enrichment - 1) / enrichment
-    # elif p_value < p_value_threshold:   tests for enrichment depletion
     return mutation_load
 
 
@@ -256,8 +250,6 @@ def get_stats(ct, stat_type="fisher"):
     if stat_type == "fisher":
         try:
             p_val = stats.fisher_exact(ct, alternative="greater")[1]
-            # if p_val > 0.05:
-            #     p_val = stats.fisher_exact(ct, alternative="less")[1] #calculates if motif is underrepresented
         except ValueError:
             p_val = 1.0
     elif stat_type == "chi2":
@@ -275,13 +267,11 @@ def get_corrected_pvalues(p_values):
     return qvalues
 
 
-# @functools.lru_cache(maxsize=None)
 def get_rev_comp_seq(sequence):
     """
     :param sequence: forward DNA sequence
     :return: reverse complimentary DNA sequence
     """
-    # rev_comp_seq = "".join([complementary_nucleotide[i] for i in reversed(sequence)])
     cn = complementary_nucleotide
     return [(i[0], i[1], cn[i[2]], "-") for i in reversed(sequence)]
 
@@ -310,10 +300,7 @@ def find_matching_motifs(seq, motif, motif_position):
 
     TODO: SLOW algorithm O(n * m). Need to create a suffix tree with regexp
     """
-    # print("Looking for motif {} in {}, {}".format(motif, sequence, len(sequence) - len(motif)))
     for i in range(len(seq) - len(motif) + 1):
-        # s = seq[i: i + len(motif)]
-        # print(s)
         for j, c in enumerate(motif):
             if seq[i + j][2] not in bases_dict[c]:
                 break
@@ -405,7 +392,6 @@ def process_mutations(
 
             # mutated:
             if mutated_base(mutation, ref, alt):
-                # m = (mutation[0], mutation[1], mutation[2], "+")
                 matching_mutated_bases.add(mutation[0:2])
 
                 context_of_mutation = seq[
@@ -432,7 +418,6 @@ def process_mutations(
                 complementary_extended_nucleotide[ref],
                 complementary_extended_nucleotide[alt],
             ):
-                # m = (mutation[0], mutation[1], mutation[2], "-")
                 matching_mutated_bases.add(mutation[0:2])
 
                 # rev comp:
@@ -464,10 +449,6 @@ def process_mutations(
         no_motif_no_mutation=stat_ref_count,
     )
 
-    # data={
-    # "'{}>{}' mutation".format(ref, alt): [stat_mutation_count, motif_mutation_count],
-    # "no '{}>{}' mutation".format(ref, alt): [stat_ref_count, stat_motif_count]},
-    # index=("no '{}' motif".format(motif), "'{}' motif".format(motif)))
     logger.debug("\n" + contingency_table.to_string() + "\n")
 
     logger.debug(
