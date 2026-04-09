@@ -95,15 +95,17 @@ jobs:
 
       - name: Create GitHub Release
         if: steps.bump_type.outputs.type != 'none'
-        uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: v${{ steps.new_version.outputs.version }}
-          release_name: Release v${{ steps.new_version.outputs.version }}
-          body: |
-            Version bump: ${{ steps.bump_type.outputs.type }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NEW_VERSION="${{ steps.new_version.outputs.version }}"
+          PR_BODY=$(cat <<'PREOF'
+          ${{ github.event.pull_request.body }}
+          PREOF
+          )
 
-            Changes in PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}
-          draft: false
-          prerelease: false
+          gh release create "v$NEW_VERSION" \
+            --title "v$NEW_VERSION" \
+            --notes "PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}
+
+          ${PR_BODY}"

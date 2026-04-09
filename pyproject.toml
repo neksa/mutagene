@@ -20,12 +20,13 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: POSIX",
     "License :: Public Domain",
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Medical Science Apps.",
-    "Environment :: Console"
+    "Environment :: Console",
 ]
 
 dependencies = [
@@ -39,17 +40,20 @@ dependencies = [
     "statsmodels>=0.14.0",
     "pyvcf3>=1.0.0",
     "twobitreader>=3.1.7",
-    "tqdm>=4.65.0"
+    "tqdm>=4.65.0",
 ]
 
 [project.optional-dependencies]
-dev = [
-    "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
-    "coverage>=7.2.0",
-    "black>=23.0.0",
-    "ruff>=0.1.0",
-    "mypy>=1.5.0"
+web = [
+    "flask>=3.0.0",
+    "flask-socketio>=5.3.0",
+    "python-socketio>=5.11.0",
+    "jinja2>=3.1.0",
+    "pyyaml>=6.0",
+]
+viz = [
+    "matplotlib>=3.7.0",
+    "seaborn>=0.12.0",
 ]
 
 [project.urls]
@@ -63,13 +67,14 @@ mutagene = "mutagene.__main__:main"
 packages = {find = {exclude = ["tests*", "docs*", "contrib*"]}}
 
 [tool.setuptools.package-data]
-mutagene = ["py.typed"]
+mutagene = ["data/**/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
+python_files = ["test_*.py", "*_test.py", "*_tests.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
+norecursedirs = ["venv*", ".*", "data"]
 addopts = "-v --cov=mutagene --cov-report=term-missing"
 
 [tool.black]
