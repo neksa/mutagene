@@ -10,16 +10,12 @@ def test_fetch():
     file_name = "paac_jhu_2014.tar.gz"
     os.rename(f"./{file_name}", f"{cli_test_utils.TEST_DIR}/{file_name}")
 
-    # Removed due to inconsistent md5 sums across repeated downloads, affecting both this test and CircleCI
-    # file_md5sum = cli_test_utils.md5sum(f'{cli_test_utils.TEST_DIR}/{file_name}')
-    # assert file_md5sum == 'acbf8c569c2b8f5684ccfb1e036743f0'
-
     # File size check: external data source may change, so check for reasonable size (> 100KB)
     file_size = os.path.getsize(f"{cli_test_utils.TEST_DIR}/{file_name}")
     assert file_size > 100000, f"Downloaded file too small: {file_size} bytes"
 
 
-def test_profile(artifactory_circleci):
+def test_profile(test_data):
     infile = "tests/motifs/data/vcf/data.vcf"
     outfile = f"{cli_test_utils.TEST_DIR}/cli-profile-test.txt"
     genome = f"{cli_test_utils.TEST_DIR}/hg19.2bit"  # 'tests/motifs/data/test_genome.2bit'
@@ -34,7 +30,7 @@ def test_profile(artifactory_circleci):
     assert out_lines[2] == "A[C>T]A\t4\n"
 
 
-def test_signature(artifactory_circleci):
+def test_signature(test_data):
     infile = f"{cli_test_utils.TEST_DIR}/sample1.maf"
     outfile = f"{cli_test_utils.TEST_DIR}/cli-signature-sample1.txt"
     genome = f"{cli_test_utils.TEST_DIR}/hg19.2bit"

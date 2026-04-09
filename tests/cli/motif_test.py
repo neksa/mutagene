@@ -7,7 +7,7 @@ DEFAULT_GENOME = f"{cli_test_utils.TEST_DIR}/hg19.2bit"
 
 
 # mutagene -v motif -i sample1.maf -g hg19 --motif "C[A>T]" --strand A -o test-reports/cli-motif-sample1-CA_T.txt
-def test_motif(artifactory_circleci):
+def test_motif(test_data):
     infile = DEFAULT_INFILE
     outfile = f"{cli_test_utils.TEST_DIR}/cli-motif-sample1-CA_T.txt"
     genome = DEFAULT_GENOME
@@ -22,7 +22,7 @@ def test_motif(artifactory_circleci):
 
 
 # mutagene -v motif -i sample1.maf -g hg19 --strand A -o test-reports/cli-motif-sample1.txt
-def test_motif_5_1(artifactory_circleci):
+def test_motif_5_1(test_data):
     infile = DEFAULT_INFILE
     outfile = f"{cli_test_utils.TEST_DIR}/cli-motif-sample1.txt"
     genome = DEFAULT_GENOME
@@ -37,7 +37,7 @@ def test_motif_5_1(artifactory_circleci):
 
 
 # mutagene -v motif -i sample1.maf -g hg19 -m 'C[A>T]' -o test-reports/cli-motif-sample1-CA_T.txt
-def test_motif_5_2(artifactory_circleci):
+def test_motif_5_2(test_data):
     infile = DEFAULT_INFILE
     outfile = f"{cli_test_utils.TEST_DIR}/cli-motif-sample1-CA_T.txt"
     genome = DEFAULT_GENOME
