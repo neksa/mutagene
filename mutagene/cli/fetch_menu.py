@@ -104,11 +104,7 @@ Partial download is supported: if the process is interrupted run the same comman
 
             try:
                 with pd.option_context("display.max_rows", None):
-                    print(
-                        pd.read_json(
-                            "https://www.cbioportal.org/api/column-store/studies"
-                        )
-                    )
+                    print(pd.read_json("https://www.cbioportal.org/api/column-store/studies"))
             except (OSError, Exception) as e:
                 logger.warning(f"Unable to retrieve data from cBioPortal: {e}")
                 logger.warning(
