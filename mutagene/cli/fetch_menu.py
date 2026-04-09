@@ -130,11 +130,25 @@ Partial download is supported: if the process is interrupted run the same comman
             if not args.genome:
                 logger.warning(genome_error_message)
                 return
+            # Use GenomeManager to download to standard location
             try:
-                fetch_genome(args.genome)
-                logger.info("Twobit file saved to current directory")
-            except ConnectionError as e:
-                logger.error(str(e))
+                from mutagene.webapp.genome_manager import GenomeManager
+
+                genome_manager = GenomeManager()
+                logger.info(f"Downloading {args.genome} to {genome_manager.genomes_dir}")
+                success = genome_manager.download_genome(args.genome)
+                if success:
+                    logger.info(f"Genome saved to {genome_manager.get_genome_path(args.genome)}")
+                else:
+                    logger.error(f"Failed to download {args.genome}")
+            except ImportError:
+                # Fallback to old behavior if webapp not available
+                try:
+                    logger.info("Downloading to current directory")
+                    fetch_genome(args.genome)
+                    logger.info("Twobit file saved to current directory")
+                except ConnectionError as e:
+                    logger.error(str(e))
 
     def callback(self, args):
         if not args.resource:
