@@ -18,14 +18,19 @@ from mutagene.version import __version__
 
 logger = logging.getLogger(__name__)
 
-genome_error_message = "requires genome name argument -g hg19, hg38, mm10, see http://hgdownload.cse.ucsc.edu/downloads.html for more"
+genome_error_message = (
+    "requires genome name argument -g hg19, hg38, mm10, "
+    "see http://hgdownload.cse.ucsc.edu/downloads.html for more. "
+    "Use mutagene fetch to download genome assemblies"
+)
 
 
 class MutaGeneApp:
     def __init__(self):
         signal.signal(signal.SIGINT, self.signal_handler)
         # ignore BrokenPipeError: [Errno 32] Broken pipe which occurs when using less or head
-        signal.signal(signal.SIGPIPE, signal.SIG_DFL)
+        if hasattr(signal, "SIGPIPE"):
+            signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
         parser = argparse.ArgumentParser(
             prog="mutagene",
@@ -59,7 +64,7 @@ class MutaGeneApp:
             help="",
             metavar="{fetch, profile, rank, motif, signature}",
             description="""\
-        fetch - Load data such as genomes and cancer datasets from demote sources (alias: download)
+        fetch - Load data such as genomes and cancer datasets from remote sources (alias: download)
         profile - Create a mutational profile given a sample with mutations
         rank - Predict driver mutations by ranking observed mutations with respect to their expected mutability
         motif - Test samples for presence of mutational motifs

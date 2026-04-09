@@ -4,7 +4,11 @@ import sys
 from mutagene.io.fetch import fetch_cohorts, fetch_examples, fetch_genome, fetch_MSKCC
 
 logger = logging.getLogger(__name__)
-genome_error_message = "requires genome name argument -g hg19, hg38, mm10, see http://hgdownload.cse.ucsc.edu/downloads.html for more"
+genome_error_message = (
+    "requires genome name argument -g hg19, hg38, mm10, "
+    "see http://hgdownload.cse.ucsc.edu/downloads.html for more. "
+    "Use mutagene fetch to download genome assemblies"
+)
 
 
 class FetchMenu:
@@ -101,8 +105,8 @@ Partial download is supported: if the process is interrupted run the same comman
                             sep="\t",
                         )
                     )
-            except:
-                logger.warning("Unable to retrieve data from cBioPortal")
+            except (OSError, Exception) as e:
+                logger.warning(f"Unable to retrieve data from cBioPortal: {e}")
                 logger.warning(
                     "Make sure your SSL certificates are up to date with: pip install -U certifi"
                 )
