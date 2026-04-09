@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis in Progress - MutaGene{% endblock %}
+
+{% block content %}
+<h2>Analysis in Progress</h2>
+<p><strong>{{ analysis.name }}</strong></p>
+
+<div id="progressContainer" style="margin-top: 30px;">
+    <div class="alert alert-info">
+        <h3 style="margin-bottom: 15px;">🔄 <span id="currentStep">Initializing...</span></h3>
+        <div style="background: white; border-radius: 4px; height: 30px; overflow: hidden;">
+            <div id="progressBar" style="background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; width: 0%; transition: width 0.5s; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                <span id="progressPercent">0%</span>
+            </div>
+        </div>
+        <p id="progressMessage" style="margin-top: 10px; color: #666;"></p>
+    </div>
+</div>
+
+<div id="logContainer" style="margin-top: 20px; background: #f8f9fa; border-radius: 4px; padding: 15px; max-height: 400px; overflow-y: auto; font-family: monospace; font-size: 13px;">
+    <div id="logMessages"></div>
+</div>
+
+<div style="margin-top: 20px;">
+    <a href="/" class="btn btn-secondary">Back to Home</a>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const socket = io();
+const analysisId = {{ analysis.id }};
+
+socket.on('connect', () => {
+    console.log('Connected to server');
+    addLog('Connected to analysis server');
+});
+
+socket.on('progress', (data) => {
+    if (data.analysis_id === analysisId) {
+        updateProgress(data.step, data.progress);
+    }
+});
+
+socket.on('complete', (data) => {
+    if (data.analysis_id === analysisId) {
+        document.getElementById('currentStep').textContent = '✅ Analysis Complete!';
+        document.getElementById('progressBar').style.width = '100%';
+        document.getElementById('progressPercent').textContent = '100%';
+        addLog('Analysis completed successfully');
+
+        // Redirect to results after 2 seconds
+        setTimeout(() => {
+            window.location.href = `/results/${analysisId}`;
+        }, 2000);
+    }
+});
+
+socket.on('error', (data) => {
+    if (data.analysis_id === analysisId) {
+        document.getElementById('currentStep').textContent = '❌ Error occurred';
+        document.getElementById('progressContainer').innerHTML = `
+            <div class="alert alert-error">
+                <h3>Analysis Failed</h3>
+                <p>${data.error}</p>
+            </div>
+        `;
+        addLog(`ERROR: ${data.error}`, 'error');
+    }
+});
+
+function updateProgress(step, progress) {
+    document.getElementById('currentStep').textContent = step;
+    document.getElementById('progressBar').style.width = progress + '%';
+    document.getElementById('progressPercent').textContent = progress + '%';
+    addLog(`[${progress}%] ${step}`);
+}
+
+function addLog(message, type = 'info') {
+    const logMessages = document.getElementById('logMessages');
+    const timestamp = new Date().toLocaleTimeString();
+    const color = type === 'error' ? '#dc3545' : '#667eea';
+    logMessages.innerHTML += `<div style="color: ${color}; margin-bottom: 5px;">[${timestamp}] ${message}</div>`;
+    logMessages.parentElement.scrollTop = logMessages.parentElement.scrollHeight;
+}
+
+// Check current status periodically
+setInterval(async () => {
+    const response = await fetch(`/api/analysis/${analysisId}`);
+    const data = await response.json();
+    if (data.status === 'complete') {
+        window.location.href = `/results/${analysisId}`;
+    } else if (data.status === 'error') {
+        document.getElementById('progressContainer').innerHTML = `
+            <div class="alert alert-error">
+                <h3>Analysis Failed</h3>
+                <p>${data.error_message || 'Unknown error'}</p>
+            </div>
+        `;
+    }
+}, 5000);
+</script>
+{% endblock %}

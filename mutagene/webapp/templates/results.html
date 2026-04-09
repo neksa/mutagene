@@ -1,0 +1,450 @@
+{% extends "base.html" %}
+
+{% block title %}Results - {{ analysis.name }} - MutaGene{% endblock %}
+
+{% block content %}
+<h2>Analysis Results</h2>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div>
+        <h3 style="margin: 0;">{{ analysis.name }}</h3>
+        <p style="color: #666; margin: 5px 0;">
+            {{ analysis.samples }} samples | {{ analysis.mutations }} mutations | {{ analysis.genome }}
+        </p>
+        <p style="color: #999; font-size: 14px;">Analyzed: {{ analysis.uploaded_at }}</p>
+    </div>
+    <div>
+        <a href="/" class="btn btn-secondary">New Analysis</a>
+        <button onclick="deleteAnalysis()" class="btn btn-danger">Delete</button>
+    </div>
+</div>
+
+<div class="alert alert-success">
+    ✅ Analysis completed successfully!
+</div>
+
+{% set genome_warning = results | selectattr('result_type', 'equalto', 'genome_warning') | list %}
+{% if genome_warning %}
+    {% set warning_data = genome_warning[0].data %}
+    <div class="alert alert-warning" style="background-color: #fff3cd; border-color: #ffc107; color: #856404; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+        <h4 style="margin-top: 0; color: #856404;">⚠️ Genome Assembly Mismatch Detected</h4>
+        <p style="margin: 0;">{{ warning_data.message }}</p>
+        <p style="margin: 10px 0 0 0; font-size: 14px;">
+            <strong>Recommendation:</strong> Re-run the analysis with a different genome assembly for more accurate results.
+        </p>
+    </div>
+{% endif %}
+
+<!-- Tabs -->
+<div style="border-bottom: 2px solid #dee2e6; margin-bottom: 20px;">
+    <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="showTab('profiles')">Profiles</button>
+    <button class="tab-btn" onclick="showTab('signatures')">Signatures</button>
+    <button class="tab-btn" onclick="showTab('classification')">Classification</button>
+    <button class="tab-btn" onclick="showTab('clustering')">Clustering</button>
+    <button class="tab-btn" onclick="showTab('hotspots')">Hotspots</button>
+    <button class="tab-btn" onclick="showTab('motifs')">Motifs</button>
+    <button class="tab-btn" onclick="showTab('files')">Files</button>
+</div>
+
+<!-- Tab Content -->
+<div id="overview" class="tab-content active">
+    <h3>Summary Statistics</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px;">
+        <div class="stat-card">
+            <div class="stat-value">{{ analysis.samples }}</div>
+            <div class="stat-label">Samples</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ analysis.mutations }}</div>
+            <div class="stat-label">Mutations</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ analysis.genome }}</div>
+            <div class="stat-label">Genome Build</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ analysis.signatures }}</div>
+            <div class="stat-label">Signatures</div>
+        </div>
+    </div>
+
+    <p style="margin-top: 30px; color: #666;">
+        📊 This analysis includes mutational profiles, signature decomposition, and additional analyses based on your configuration.
+        Navigate through the tabs above to explore different aspects of the results.
+    </p>
+</div>
+
+<div id="profiles" class="tab-content">
+    <h3>Mutational Profiles</h3>
+    {% set profile_results = results | selectattr('result_type', 'equalto', 'profile') | list %}
+    {% if profile_results %}
+        {% set profile_data = profile_results[0].data %}
+        <div style="margin-top: 20px;">
+            <h4>96-Channel Trinucleotide Context</h4>
+            <p style="color: #666; margin-bottom: 20px;">
+                Total mutations: {{ profile_data.values() | sum | int }}
+            </p>
+
+            <!-- Histogram visualization -->
+            <div id="profileHistogram" style="width: 100%; height: 500px; margin-bottom: 30px; border: 1px solid #ddd; border-radius: 8px; background: white;"></div>
+
+            <!-- Data table -->
+            <details>
+                <summary style="cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 4px; margin-bottom: 10px;">
+                    <strong>📊 View Detailed Data Table</strong>
+                </summary>
+                <div style="max-height: 600px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px; padding: 15px; background: #f9f9f9; margin-top: 10px;">
+                    <table style="width: 100%; border-collapse: collapse; font-family: monospace; font-size: 14px;">
+                        <thead>
+                            <tr style="background: #667eea; color: white;">
+                                <th style="padding: 10px; text-align: left; position: sticky; top: 0; background: #667eea;">Mutation Context</th>
+                                <th style="padding: 10px; text-align: right; position: sticky; top: 0; background: #667eea;">Count</th>
+                                <th style="padding: 10px; text-align: right; position: sticky; top: 0; background: #667eea;">Percentage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% set total = profile_data.values() | sum %}
+                            {% for mutation_type, count in profile_data.items() | sort %}
+                            <tr style="border-bottom: 1px solid #ddd;">
+                                <td style="padding: 8px; font-weight: bold;">{{ mutation_type }}</td>
+                                <td style="padding: 8px; text-align: right;">{{ count | int }}</td>
+                                <td style="padding: 8px; text-align: right;">{{ "%.2f" | format((count / total * 100) if total > 0 else 0) }}%</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        </div>
+
+        <script>
+        // Create histogram visualization
+        (function() {
+            const profileData = {{ profile_data | tojson }};
+
+            // Group by mutation type
+            const mutationTypes = {
+                'C>A': [], 'C>G': [], 'C>T': [],
+                'T>A': [], 'T>C': [], 'T>G': []
+            };
+
+            const labels = [];
+            // D3 category10 colors (matching original MutaGene website)
+            const colors = {
+                'C>A': '#1f77b4',  // blue
+                'C>G': '#ff7f0e',  // orange
+                'C>T': '#2ca02c',  // green
+                'T>A': '#d62728',  // red
+                'T>C': '#9467bd',  // purple
+                'T>G': '#8c564b'   // brown
+            };
+
+            // Sort and categorize mutations
+            Object.keys(profileData).sort().forEach(key => {
+                // Extract mutation type, e.g., "A[C>A]A" -> "C>A"
+                const match = key.match(/\[([ACGT])>([ACGT])\]/);
+                if (match) {
+                    const mutType = match[1] + '>' + match[2];
+                    if (mutationTypes[mutType]) {
+                        mutationTypes[mutType].push(profileData[key]);
+                        labels.push(key);
+                    }
+                }
+            });
+
+            // Create traces for each mutation type
+            const traces = [];
+            let offset = 0;
+            Object.keys(mutationTypes).forEach(mutType => {
+                const counts = mutationTypes[mutType];
+                const x = Array.from({length: counts.length}, (_, i) => offset + i);
+
+                traces.push({
+                    x: x,
+                    y: counts,
+                    type: 'bar',
+                    name: mutType,
+                    marker: { color: colors[mutType] },
+                    hovertemplate: labels.slice(offset, offset + counts.length).map((label, i) =>
+                        `${label}<br>Count: ${counts[i]}<extra></extra>`
+                    )
+                });
+
+                offset += counts.length;
+            });
+
+            const layout = {
+                title: '96-Channel Trinucleotide Mutational Profile',
+                xaxis: {
+                    title: 'Trinucleotide Context',
+                    showticklabels: false
+                },
+                yaxis: { title: 'Mutation Count' },
+                barmode: 'group',
+                showlegend: true,
+                legend: { orientation: 'h', y: -0.15 },
+                margin: { t: 50, b: 50, l: 60, r: 30 }
+            };
+
+            Plotly.newPlot('profileHistogram', traces, layout, {responsive: true});
+        })();
+        </script>
+    {% else %}
+        <p>No profile data available.</p>
+    {% endif %}
+</div>
+
+<div id="signatures" class="tab-content">
+    <h3>Signature Decomposition</h3>
+    {% set sig_results = results | selectattr('result_type', 'equalto', 'signatures') | list %}
+    {% if sig_results %}
+        {% set sig_data = sig_results[0].data %}
+        <div style="margin-top: 20px;">
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h4 style="margin-top: 0;">Decomposition Summary</h4>
+                <p style="color: #666;">
+                    <strong>Method:</strong> {{ sig_data.method or 'NNLS' }}<br>
+                    <strong>Total Mutations:</strong> {{ "{:,}".format(sig_data.total_mutations | default(0) | int) }}<br>
+                    <strong>Signature Set:</strong> {{ analysis.signatures or 'COSMICv3' }}
+                </p>
+            </div>
+
+            {% if sig_data.signatures %}
+            <h4>Identified Signatures</h4>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+                    <thead>
+                        <tr style="background: #667eea; color: white;">
+                            <th style="padding: 12px; text-align: left;">Signature</th>
+                            <th style="padding: 12px; text-align: center;">Preview</th>
+                            <th style="padding: 12px; text-align: right;">Exposure</th>
+                            <th style="padding: 12px; text-align: right;">Mutations</th>
+                            <th style="padding: 12px; text-align: right;">Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sig_name, sig_info in sig_data.signatures.items() | sort(attribute='1.mutations', reverse=True) %}
+                        <tr style="border-bottom: 1px solid #ddd;">
+                            <td style="padding: 12px;">
+                                <strong>{{ sig_name }}</strong>
+                            </td>
+                            <td style="padding: 12px; text-align: center;">
+                                <div style="width: 100px; height: 30px; background: #f0f0f0; display: inline-block; border-radius: 4px;">
+                                    <!-- Mini signature SVG would go here -->
+                                    <svg width="100" height="30"></svg>
+                                </div>
+                            </td>
+                            <td style="padding: 12px; text-align: right;">{{ "%.4f" | format(sig_info.exposure) }}</td>
+                            <td style="padding: 12px; text-align: right;">{{ "{:,}".format(sig_info.mutations) }}</td>
+                            <td style="padding: 12px; text-align: right;">{{ "%.2f" | format((sig_info.mutations / (sig_data.total_mutations | default(1)) * 100) if (sig_data.total_mutations | default(0)) > 0 else 0) }}%</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div style="padding: 30px; text-align: center; background: #f8f9fa; border-radius: 8px; margin-top: 20px;">
+                <div style="font-size: 48px; margin-bottom: 15px;">🔬</div>
+                <h4>Signature Decomposition</h4>
+                <p style="color: #666; max-width: 600px; margin: 15px auto;">
+                    Signature decomposition identifies which mutational processes (COSMIC signatures)
+                    contributed to the observed mutation pattern. This analysis will decompose the
+                    96-channel profile into known signature components.
+                </p>
+                <p style="color: #999; font-size: 14px; margin-top: 15px;">
+                    <em>Full implementation coming soon - will show SBS signatures with mini-previews</em>
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    {% else %}
+        <div style="padding: 30px; text-align: center; background: #f8f9fa; border-radius: 8px; margin-top: 20px;">
+            <p>No signature decomposition data available.</p>
+        </div>
+    {% endif %}
+</div>
+
+<div id="classification" class="tab-content">
+    <h3>Cancer Type Classification</h3>
+    <div style="padding: 30px; text-align: center; background: #f8f9fa; border-radius: 8px; margin-top: 20px;">
+        <div style="font-size: 48px; margin-bottom: 15px;">🔬</div>
+        <h4>ML-Based Classification</h4>
+        <p style="color: #666; max-width: 600px; margin: 15px auto;">
+            This feature uses machine learning to predict cancer type based on mutational signatures.
+            Enable this analysis in the upload form to see predictions here.
+        </p>
+        <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 4px; display: inline-block;">
+            <strong>What you'll see:</strong>
+            <ul style="text-align: left; margin: 10px 0 0 0; padding-left: 20px;">
+                <li>Predicted cancer type</li>
+                <li>Confidence scores</li>
+                <li>Top matching cancer types</li>
+                <li>Feature importance</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div id="clustering" class="tab-content">
+    <h3>Hierarchical Clustering</h3>
+    <div style="padding: 30px; text-align: center; background: #f8f9fa; border-radius: 8px; margin-top: 20px;">
+        <div style="font-size: 48px; margin-bottom: 15px;">🌳</div>
+        <h4>Multi-Sample Clustering</h4>
+        <p style="color: #666; max-width: 600px; margin: 15px auto;">
+            Hierarchical clustering analysis requires multiple samples to compare mutational patterns.
+            Upload a multi-sample MAF file to see clustering dendrograms and heatmaps.
+        </p>
+        <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 4px; display: inline-block;">
+            <strong>What you'll see:</strong>
+            <ul style="text-align: left; margin: 10px 0 0 0; padding-left: 20px;">
+                <li>Dendrogram showing sample relationships</li>
+                <li>Clustered heatmap of mutation profiles</li>
+                <li>Distance matrix</li>
+                <li>Cluster assignments</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div id="hotspots" class="tab-content">
+    <h3>Mutation Hotspots</h3>
+    <div style="padding: 30px; text-align: center; background: #f8f9fa; border-radius: 8px; margin-top: 20px;">
+        <div style="font-size: 48px; margin-bottom: 15px;">🔥</div>
+        <h4>Recurrent Mutation Sites</h4>
+        <p style="color: #666; max-width: 600px; margin: 15px auto;">
+            Hotspot detection identifies genes and specific positions with recurrent mutations.
+            Enable this analysis to discover statistically significant mutation clusters.
+        </p>
+        <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 4px; display: inline-block;">
+            <strong>What you'll see:</strong>
+            <ul style="text-align: left; margin: 10px 0 0 0; padding-left: 20px;">
+                <li>Top mutated genes</li>
+                <li>Recurrent mutation positions</li>
+                <li>Statistical significance scores</li>
+                <li>Known cancer driver genes</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div id="motifs" class="tab-content">
+    <h3>Motif Enrichment</h3>
+    <div style="padding: 30px; text-align: center; background: #f8f9fa; border-radius: 8px; margin-top: 20px;">
+        <div style="font-size: 48px; margin-bottom: 15px;">🧬</div>
+        <h4>Sequence Motif Analysis</h4>
+        <p style="color: #666; max-width: 600px; margin: 15px auto;">
+            Motif enrichment identifies specific DNA sequence patterns that are preferentially mutated,
+            revealing mechanistic insights into mutagenesis.
+        </p>
+        <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 4px; display: inline-block;">
+            <strong>What you'll see:</strong>
+            <ul style="text-align: left; margin: 10px 0 0 0; padding-left: 20px;">
+                <li>Enriched sequence motifs</li>
+                <li>Statistical significance (p-values, FDR)</li>
+                <li>Motif logos and patterns</li>
+                <li>Association with known processes</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div id="files" class="tab-content">
+    <h3>Output Files</h3>
+    {% if files %}
+    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+        <thead>
+            <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                <th style="padding: 12px; text-align: left;">File Type</th>
+                <th style="padding: 12px; text-align: left;">Filename</th>
+                <th style="padding: 12px; text-align: left;">Size</th>
+                <th style="padding: 12px; text-align: left;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for file in files %}
+            <tr style="border-bottom: 1px solid #dee2e6;">
+                <td style="padding: 12px;">{{ file.file_type }}</td>
+                <td style="padding: 12px;">{{ file.filename }}</td>
+                <td style="padding: 12px;">{{ file.size_bytes // 1024 }} KB</td>
+                <td style="padding: 12px;">
+                    <a href="/api/download/{{ file.id }}" class="btn" style="padding: 5px 15px;">Download</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No output files available yet.</p>
+    {% endif %}
+</div>
+
+<style>
+    .tab-btn {
+        padding: 10px 20px;
+        background: none;
+        border: none;
+        border-bottom: 3px solid transparent;
+        cursor: pointer;
+        font-size: 16px;
+        color: #666;
+        transition: all 0.3s;
+    }
+    .tab-btn:hover {
+        color: #667eea;
+    }
+    .tab-btn.active {
+        color: #667eea;
+        border-bottom-color: #667eea;
+        font-weight: bold;
+    }
+    .tab-content {
+        display: none;
+    }
+    .tab-content.active {
+        display: block;
+    }
+    .stat-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+    }
+    .stat-value {
+        font-size: 2.5em;
+        font-weight: bold;
+    }
+    .stat-label {
+        font-size: 14px;
+        opacity: 0.9;
+        margin-top: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+
+    // Show selected tab
+    document.getElementById(tabName).classList.add('active');
+    event.target.classList.add('active');
+}
+
+function deleteAnalysis() {
+    if (confirm('Are you sure you want to delete this analysis?')) {
+        fetch(`/api/delete/{{ analysis.id }}`, { method: 'DELETE' })
+            .then(() => {
+                window.location.href = '/';
+            });
+    }
+}
+</script>
+{% endblock %}

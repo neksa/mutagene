@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis History{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>Analysis History</h2>
+</div>
+
+{% if analyses %}
+<table class="table table-striped table-hover" style="margin-top: 20px;">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Samples</th>
+            <th>Mutations</th>
+            <th>Genome</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for analysis in analyses %}
+        <tr>
+            <td><strong>{{ analysis.name }}</strong></td>
+            <td>{{ analysis.uploaded_at }}</td>
+            <td>
+                {% if analysis.status == 'complete' %}
+                <span class="label label-success">Complete</span>
+                {% elif analysis.status == 'running' %}
+                <span class="label label-info">Running</span>
+                {% elif analysis.status == 'pending' %}
+                <span class="label label-warning">Pending</span>
+                {% elif analysis.status == 'error' %}
+                <span class="label label-danger">Error</span>
+                {% endif %}
+            </td>
+            <td>{{ analysis.samples or '-' }}</td>
+            <td>{{ analysis.mutations or '-' }}</td>
+            <td>{{ analysis.genome }}</td>
+            <td>
+                {% if analysis.status == 'complete' %}
+                    <a href="/results/{{ analysis.id }}" class="btn btn-sm btn-primary">View Results</a>
+                {% elif analysis.status == 'running' %}
+                    <a href="/results/{{ analysis.id }}" class="btn btn-sm btn-info">View Progress</a>
+                {% elif analysis.status == 'pending' %}
+                    <button onclick="startAnalysis({{ analysis.id }})" class="btn btn-sm btn-success">Start</button>
+                {% endif %}
+                <button onclick="deleteAnalysis({{ analysis.id }})" class="btn btn-sm btn-danger">Delete</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-info" style="margin-top: 30px;">
+    <h4>No analyses yet</h4>
+    <p>Upload a MAF or VCF file to get started.</p>
+    <a href="/" class="btn btn-primary">Upload File</a>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function startAnalysis(analysisId) {
+    fetch(`/api/analyze/${analysisId}`, { method: 'POST' })
+        .then(response => response.json())
+        .then(result => {
+            if (result.status === 'started') {
+                window.location.href = `/results/${analysisId}`;
+            }
+        });
+}
+
+function deleteAnalysis(analysisId) {
+    if (confirm('Are you sure you want to delete this analysis?')) {
+        fetch(`/api/delete/${analysisId}`, { method: 'DELETE' })
+            .then(() => {
+                window.location.reload();
+            });
+    }
+}
+</script>
+{% endblock %}
