@@ -32,9 +32,8 @@ def get_context_53_twobit(mutations, twobit_file):
             try:
                 seq = f[chromosome][start - 1 : start + 2]  # +/- 1 nucleotide
                 nuc5, nuc, nuc3 = tuple(seq.upper())
-            except:
+            except (ValueError, KeyError, IndexError):
                 nuc = "N"
-                # print(chromosome, x, nuc5, nuc, nuc3)
             if nuc != "N" and nuc != x:
                 if cn[nuc] == x:
                     nuc3 = cn[nuc5]
@@ -42,7 +41,6 @@ def get_context_53_twobit(mutations, twobit_file):
                 else:
                     nuc3 = nuc5 = "N"
         else:
-            # print("NO CHROM", chromosome)
             pass
         contexts[(chrom, pos)] = (nuc5, nuc3)
     return contexts
@@ -68,10 +66,6 @@ def get_context_batch(mutations, assembly, method="twobit"):
 
 
 def read_auto_profile(muts, fmt, asm):
-    # if isinstance(muts, io.TextIOWrapper):
-    #     print("OOOO")
-    #     muts = muts.readlines()
-    # print(muts)
     mutations = None
     processing_stats = None
     if fmt is not None:
@@ -94,10 +88,23 @@ def read_auto_profile(muts, fmt, asm):
                 fmt = "TRI"
                 break
             if len(tabs) > 3:
+                # Check for MAF-specific column names
+                line_lower = line.lower()
+                maf_indicators = [
+                    "hugo_symbol",
+                    "start_position",
+                    "end_position",
+                    "reference_allele",
+                    "tumor_seq_allele",
+                ]
+                if any(indicator in line_lower for indicator in maf_indicators):
+                    fmt = "MAF"
+                    break
+                # Fall back to position-based detection
                 fmt = "VCF"
                 if tabs[0].lower().startswith("chr"):
                     break  # yes, it's VCF
-                if tabs[4].lower().startswith("chr"):
+                if len(tabs) > 4 and tabs[4].lower().startswith("chr"):
                     fmt = "MAF"
                     break
         mutations_lines.extend(muts.readlines())
@@ -125,11 +132,8 @@ def read_MAF_profile(muts, asm):
 
     try:
         reader = csv.reader((row for row in muts if not row.startswith("#")), delimiter="\t")
-        # get names from column headers
         header = next(reader)
-        # MAF = namedtuple("MAF", map(str.lower, next(reader)))
         header = tuple(map(lambda s: s.lower().replace(".", "_"), header))
-        # print(header)
         MAF = namedtuple("MAF", header, rename=True)
     except ValueError:
         # raise
@@ -140,23 +144,17 @@ def read_MAF_profile(muts, asm):
 
     raw_mutations = []
     for data in map(MAF._make, reader):
-        # assembly_build = col_list[3]  # MAF ASSEMBLY
-        # strand = col_list[7]    # MAF STRAND
-        # ID = col_list[2]
-
-        # chromosome is expected to be one or two number or one letter
         chrom = data.chromosome  # MAF CHROM
         if chrom.lower().startswith("chr"):
             chrom = chrom[3:]
-        # if len(chrom) == 2 and chrom[1] not in "0123456789":
-        #     chrom = chrom[0]
 
         pos = int(data.start_position)  # MAF POS START
         pos_end = int(data.end_position)  # MAF POS END
         x = data.reference_allele  # MAF REF
 
-        y1 = data.tumor_seq_allele1  # MAF ALT1
-        y2 = data.tumor_seq_allele2  # MAF ALT2
+        # Handle optional tumor allele columns
+        y1 = getattr(data, "tumor_seq_allele1", x)  # MAF ALT1 (optional)
+        y2 = getattr(data, "tumor_seq_allele2", x)  # MAF ALT2 (optional)
 
         if pos != pos_end:
             continue
@@ -164,7 +162,6 @@ def read_MAF_profile(muts, asm):
         # skip if found unexpected nucleotide characters
         if len(set([x, y1, y2]) - set(nucleotides)) > 0:
             continue
-        # print("OK")
 
         y = y1 if y1 != x else None
         y = y2 if y2 != x else y
@@ -173,11 +170,7 @@ def read_MAF_profile(muts, asm):
 
         raw_mutations.append((chrom, pos, x, y))
 
-    # MAX = 100000000
     if len(raw_mutations) > 0:
-        # if len(raw_mutations) > MAX:
-        #     raw_mutations = raw_mutations[:MAX]
-
         contexts = get_context_batch(raw_mutations, asm)
 
         if contexts is None:
@@ -190,7 +183,6 @@ def read_MAF_profile(muts, asm):
             p5, p3 = contexts.get((chrom, pos), ("N", "N"))
 
             if len(set([p5, x, y, p3]) - set(nucleotides)) > 0:
-                # print("Skipping invalid nucleotides")
                 N_skipped += 1
                 continue
 
@@ -221,13 +213,9 @@ def read_VCF_profile(muts, asm=None):
         if len(col_list) < 4:
             continue
 
-        # ID = col_list[2]
-        # chromosome is expected to be one or two number or one letter
         chrom = col_list[0]  # VCF CHROM
         if chrom.lower().startswith("chr"):
             chrom = chrom[3:]
-        # if len(chrom) == 2 and chrom[1] not in "0123456789":
-        #     chrom = chrom[0]
 
         pos = int(col_list[1])  # VCF POS
         x = col_list[3]  # VCF REF
@@ -243,13 +231,8 @@ def read_VCF_profile(muts, asm=None):
 
         raw_mutations.append((chrom, pos, x, y))
 
-    # MAX = 1e7
     if len(raw_mutations) > 0:
-        # if len(raw_mutations) > MAX:
-        #     raw_mutations = raw_mutations[:MAX]
-
         contexts = get_context_batch(raw_mutations, asm)
-        # print("CONTEXTS", contexts)
 
         if contexts is None:
             return None, None
@@ -259,11 +242,8 @@ def read_VCF_profile(muts, asm=None):
 
         for chrom, pos, x, y in raw_mutations:
             p5, p3 = contexts.get((chrom, pos), ("N", "N"))
-            # print("RESULT: {} {}".format(p5, p3))
 
             if len(set([p5, x, y, p3]) - set(nucleotides)) > 0:
-                # print(chrom, pos, p5, p3, x)
-                # print("Skipping invalid nucleotides")
                 N_skipped += 1
                 continue
 
