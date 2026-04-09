@@ -75,8 +75,7 @@ def get_context_twobit_window(mutations, twobit_file, window_size):
 
         if nuc != "N" and nuc != x:
             if cn[nuc] == x:
-                nuc3 = cn[nuc5]
-                nuc5 = cn[nuc3]
+                nuc5, nuc3 = cn[nuc3], cn[nuc5]
                 # print('debug: complementary REF sequence detected')
             else:
                 # print("{}:{}  {}>{}   {}[{}]{}".format(chromosome, pos, x, y, nuc5, nuc, nuc3))
