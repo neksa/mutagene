@@ -36,7 +36,11 @@ def create_app(config=None):
     # Configuration
     import secrets
 
-    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
+    secret = os.environ.get("SECRET_KEY")
+    if not secret:
+        secret = secrets.token_hex(32)
+        logger.info("No SECRET_KEY set; using auto-generated key (sessions won't persist across restarts)")
+    app.config["SECRET_KEY"] = secret
     app.config["MAX_CONTENT_LENGTH"] = 500 * 1024 * 1024  # 500 MB max upload
     app.config["UPLOAD_FOLDER"] = Path.home() / ".mutagene" / "uploads"
     app.config["UPLOAD_FOLDER"].mkdir(parents=True, exist_ok=True)

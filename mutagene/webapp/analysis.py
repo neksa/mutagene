@@ -116,7 +116,8 @@ def run_cohort_analysis(
         logger.info(f"Reading mutations from {input_file}")
         profile_file = output_dir / "profile.txt"
 
-        # Capture warnings about genome mismatches using logging (thread-safe)
+        # Count genome mismatches by intercepting log messages from context_window.
+        # Coupled to the warning string in io/context_window.py — update if that changes.
         import logging as _logging
 
         class MismatchCounter(_logging.Handler):
