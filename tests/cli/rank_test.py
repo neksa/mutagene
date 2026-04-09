@@ -5,7 +5,7 @@ DEFAULT_GENOME = f"{cli_test_utils.TEST_DIR}/hg19.2bit"
 
 
 # mutagene -v rank -g hg19 -i sample1.maf -c pancancer -o test-reports/cli-rank-sample1-pancancer.txt
-def test_rank(artifactory_circleci):
+def test_rank(test_data):
     infile = DEFAULT_INFILE
     outfile = f"{cli_test_utils.TEST_DIR}/cli-rank-sample1-pancancer.txt"
     genome = DEFAULT_GENOME
@@ -20,7 +20,7 @@ def test_rank(artifactory_circleci):
 
 
 # mutagene rank -i sample1.maf -g hg19 -c gcb_lymphomas -o test-reports/cli-rank-sample1-gcb_lymphomas.txt
-def test_rank_4_1(artifactory_circleci):
+def test_rank_4_1(test_data):
     infile = DEFAULT_INFILE
     outfile = f"{cli_test_utils.TEST_DIR}/cli-rank-sample1-gcb_lymphomas.txt"
     genome = DEFAULT_GENOME
