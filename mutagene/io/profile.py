@@ -57,7 +57,7 @@ def read_profile_str(profile_str):
 
         try:
             f = float(fields[1])
-        except:
+        except (ValueError, TypeError):
             return None, None
 
         mutations[p5 + p3 + x + y] = f
@@ -219,13 +219,17 @@ def read_signatures(name, only=None):
     """
 
     # number of sigatures matching to names
-    signatures_dict = {"5": "MGA", "10": "MGB", "30": "COSMICv2", "49": "COSMICv3", "53": "KUKAB"}
+    signatures_dict = {"5": "MGA", "10": "MGB", "30": "COSMICv2", "49": "COSMICv3", "53": "KUCAB"}
     inv_signatures_dict = dict(zip(signatures_dict.values(), signatures_dict.keys()))
 
     if name in signatures_dict:
         name = signatures_dict[name]
 
-    assert name in inv_signatures_dict, f"Unknown name for a signature set: {name}"
+    if name not in inv_signatures_dict:
+        valid = ", ".join(
+            sorted(set(list(signatures_dict.keys()) + list(inv_signatures_dict.keys())))
+        )
+        raise ValueError(f"Unknown signature set: {name}. Valid options: {valid}")
 
     function_name = f"read_{name}_signatures"
     W, signature_names = globals()[function_name]()
