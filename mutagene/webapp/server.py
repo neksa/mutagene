@@ -255,6 +255,11 @@ def register_routes(app, db, socketio):
         """Delete an analysis and associated files."""
         import shutil
 
+        # Refuse to delete a running analysis
+        analysis = db.get_analysis(analysis_id)
+        if analysis and analysis.get("status") == "running":
+            return jsonify({"error": "Cannot delete a running analysis"}), 409
+
         # Clean up files on disk
         files = db.get_all_files(analysis_id)
         for f in files:
@@ -277,12 +282,12 @@ def register_socketio_handlers(socketio, db):
     @socketio.on("connect")
     def handle_connect():
         """Handle client connection."""
-        print("Client connected")
+        logger.debug("Client connected")
 
     @socketio.on("disconnect")
     def handle_disconnect():
         """Handle client disconnection."""
-        print("Client disconnected")
+        logger.debug("Client disconnected")
 
 
 def run_analysis(analysis_id, db, socketio):

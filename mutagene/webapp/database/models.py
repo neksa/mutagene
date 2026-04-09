@@ -5,6 +5,24 @@ import sqlite3
 from pathlib import Path
 
 
+class _SafeEncoder(json.JSONEncoder):
+    """JSON encoder that handles numpy types gracefully."""
+
+    def default(self, obj):
+        try:
+            import numpy as np
+
+            if isinstance(obj, (np.integer,)):
+                return int(obj)
+            if isinstance(obj, (np.floating,)):
+                return float(obj)
+            if isinstance(obj, np.ndarray):
+                return obj.tolist()
+        except ImportError:
+            pass
+        return super().default(obj)
+
+
 def init_db(db_path):
     """Initialize the database schema.
 
@@ -193,7 +211,7 @@ class Result:
             INSERT INTO results (analysis_id, result_type, sample_id, data)
             VALUES (?, ?, ?, ?)
         """,
-            (analysis_id, result_type, sample_id, json.dumps(data)),
+            (analysis_id, result_type, sample_id, json.dumps(data, cls=_SafeEncoder)),
         )
         conn.commit()
         return cursor.lastrowid
