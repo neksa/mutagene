@@ -98,11 +98,10 @@ Partial download is supported: if the process is interrupted run the same comman
             import pandas as pd
 
             try:
-                with pd.option_context("display.max_rows", None):  # , 'display.max_columns', None
+                with pd.option_context("display.max_rows", None):
                     print(
-                        pd.read_csv(
-                            "https://www.cbioportal.org/webservice.do?cmd=getCancerStudies",
-                            sep="\t",
+                        pd.read_json(
+                            "https://www.cbioportal.org/api/column-store/studies"
                         )
                     )
             except (OSError, Exception) as e:

@@ -37,7 +37,7 @@ def download_from_url(url, dst):
     header = {"Range": "bytes=%s-%s" % (first_byte, file_size)}
     try:
         r = requests.get(url, headers=header, stream=True)
-        if r.status_code != 200:
+        if r.status_code not in (200, 206):
             raise ConnectionError(f"Not able to retrieve data from {url} (status {r.status_code})")
 
         file_size = int(r.headers["Content-Length"])
@@ -93,6 +93,6 @@ def fetch_examples():
 
 def fetch_MSKCC(dataset):
     """Download dataset from cBioPortal https://www.cbioportal.org/datasets"""
-    url = f"https://cbioportal-datahub.s3.amazonaws.com/{dataset}.tar.gz"
+    url = f"https://datahub.assets.cbioportal.org/{dataset}.tar.gz"
     dst = f"{dataset}.tar.gz"
     download_from_url(url, dst)
