@@ -88,8 +88,8 @@ def get_context_ensembl(mutations, assembly):
     try:
         p = multiprocessing.Pool(7)
         cc = p.map(mp_ensembl_worker, tqdm(chunks), MAX_POST_SIZE)
-    except:
-        # raise
+    except (OSError, requests.RequestException) as e:
+        logger.warning(f"Ensembl API batch request failed: {e}")
         cc = []
     finally:
         p.close()

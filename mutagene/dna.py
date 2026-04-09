@@ -185,42 +185,6 @@ aa_long = [
 ]
 aa_dict = dict(zip(aa_short, aa_long))
 
-bases_dict = {
-    "A": "A",
-    "G": "G",
-    "T": "T",
-    "C": "C",
-    "W": "AT",
-    "S": "CG",
-    "M": "AC",
-    "K": "GT",
-    "R": "AG",
-    "Y": "CT",
-    "B": "TCG",
-    "D": "AGT",
-    "H": "ACT",
-    "V": "ACG",
-    "N": "ATGC",
-}
-
-comp_dict = {
-    "A": "T",
-    "T": "A",
-    "C": "G",
-    "G": "C",
-    "W": "AT",
-    "S": "CG",
-    "K": "AC",
-    "M": "GT",
-    "Y": "AG",
-    "R": "CT",
-    "V": "TCG",
-    "H": "AGT",
-    "D": "ACT",
-    "B": "ACG",
-    "N": "ATGC",
-}
-
 chromosome_name_mapping = {
     "chr23": "chrX",
     "chr24": "chrY",

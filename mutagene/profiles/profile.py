@@ -30,7 +30,7 @@ def calc_profile(infile, outfile, genome, fmt="auto"):
             for k in set(all_mutations) | set(mutations)
         }
     if sum(all_mutations.values()) == 0:
-        logger.warn("Can not create profile")
+        logger.warning("Can not create profile")
         return
     profile = get_mutational_profile(all_mutations, counts=True)
     write_profile_file(outfile, profile)

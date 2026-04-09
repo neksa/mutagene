@@ -7,7 +7,7 @@ try:
 
     # from . import *
     from .mutations import *
-except:
+except ImportError:
     pass
 
 import csv
@@ -131,14 +131,13 @@ def read_MAF_extended(muts, asm=None):
             x = col_list[10]  # MAF REF
             y1 = col_list[11]  # MAF ALT1
             y2 = col_list[12]  # MAF ALT2
-        except:
-            # raise
+        except (IndexError, ValueError):
             continue
 
         sample = None
         try:
             sample = col_list[15]  # Tumor_Sample_Barcode
-        except:
+        except IndexError:
             raise
 
         if pos != pos_end:

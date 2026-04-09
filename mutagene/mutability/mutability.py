@@ -1,5 +1,4 @@
 import logging
-import sys
 from collections import OrderedDict, defaultdict
 from functools import lru_cache, reduce
 
@@ -86,12 +85,14 @@ def calculate_codon_mutability(mutation_model, seq5, mutated_seq5s):
 
 
 def calculate_base_substitution_mutability(counts_profile, cohort_size):
-    try:
-        assert cohort_size > 0
-        assert len(counts_profile) == 96
-    except AssertionError:
-        sys.exit(
-            "The profile file does not seem to be properly formatted!  By default, the profile is generated from the input MAF file.  Otherwise, consider using the 'mutagene profile' command to generate a profile file."
+    if cohort_size <= 0:
+        raise ValueError(
+            "Cohort size must be > 0. By default, the profile is generated from the input MAF file."
+        )
+    if len(counts_profile) != 96:
+        raise ValueError(
+            "The profile must have exactly 96 channels. "
+            "Consider using the 'mutagene profile' command to generate a profile file."
         )
 
     mutability = defaultdict(dict)

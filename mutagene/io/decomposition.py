@@ -217,7 +217,7 @@ def read_decomposition(fname):
                 a, b = line.strip().split()
                 signature_ids.append(a)
                 h.append(float(b))
-    except:
+    except (OSError, ValueError):
         return None, None
     # except FileNotFoundError:
     #     return None, None

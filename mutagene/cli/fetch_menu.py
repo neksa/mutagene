@@ -4,7 +4,11 @@ import sys
 from mutagene.io.fetch import fetch_cohorts, fetch_examples, fetch_genome, fetch_MSKCC
 
 logger = logging.getLogger(__name__)
-genome_error_message = "requires genome name argument -g hg19, hg38, mm10, see http://hgdownload.cse.ucsc.edu/downloads.html for more"
+genome_error_message = (
+    "requires genome name argument -g hg19, hg38, mm10, "
+    "see http://hgdownload.cse.ucsc.edu/downloads.html for more. "
+    "Use mutagene fetch to download genome assemblies"
+)
 
 
 class FetchMenu:
@@ -68,10 +72,12 @@ Partial download is supported: if the process is interrupted run the same comman
 
     @classmethod
     def examples(cls, args):
-        # print('Cohorts', args)
         if args.resource == "examples":
-            fetch_examples()
-            logger.info("Example files saved to current directory")
+            try:
+                fetch_examples()
+                logger.info("Example files saved to current directory")
+            except ConnectionError as e:
+                logger.error(str(e))
 
     @classmethod
     def cohorts(cls, args):
@@ -80,8 +86,11 @@ Partial download is supported: if the process is interrupted run the same comman
 
     @classmethod
     def cohorts_COSMIC(cls, args):
-        fetch_cohorts()
-        logger.info("cohorts.tar.gz saved to current directory")
+        try:
+            fetch_cohorts()
+            logger.info("cohorts.tar.gz saved to current directory")
+        except ConnectionError as e:
+            logger.error(str(e))
 
     @classmethod
     def cohorts_GDC(cls, args):
@@ -94,21 +103,19 @@ Partial download is supported: if the process is interrupted run the same comman
             import pandas as pd
 
             try:
-                with pd.option_context("display.max_rows", None):  # , 'display.max_columns', None
-                    print(
-                        pd.read_csv(
-                            "https://www.cbioportal.org/webservice.do?cmd=getCancerStudies",
-                            sep="\t",
-                        )
-                    )
-            except:
-                logger.warning("Unable to retrieve data from cBioPortal")
+                with pd.option_context("display.max_rows", None):
+                    print(pd.read_json("https://www.cbioportal.org/api/column-store/studies"))
+            except (OSError, Exception) as e:
+                logger.warning(f"Unable to retrieve data from cBioPortal: {e}")
                 logger.warning(
                     "Make sure your SSL certificates are up to date with: pip install -U certifi"
                 )
         elif args.cohort:
             logger.info("Will download cohort " + args.cohort)
-            fetch_MSKCC(args.cohort)
+            try:
+                fetch_MSKCC(args.cohort)
+            except ConnectionError as e:
+                logger.error(str(e))
         else:
             logger.warning("Cohort not specified, use --list to display all available data sets")
 
@@ -123,8 +130,11 @@ Partial download is supported: if the process is interrupted run the same comman
             if not args.genome:
                 logger.warning(genome_error_message)
                 return
-            fetch_genome(args.genome)
-            logger.info("Twobit file saved to current directory")
+            try:
+                fetch_genome(args.genome)
+                logger.info("Twobit file saved to current directory")
+            except ConnectionError as e:
+                logger.error(str(e))
 
     def callback(self, args):
         if not args.resource:

@@ -1,6 +1,5 @@
 import csv
 import logging
-import sys
 from collections import defaultdict, namedtuple
 from itertools import cycle
 
@@ -30,9 +29,11 @@ def get_context_twobit_window(mutations, twobit_file, window_size):
     try:
         f = tbr.TwoBitFile(fname)
     except FileNotFoundError:
-        sys.exit(f"The 2bit genome assembly file, {fname}, was not found!")
+        raise FileNotFoundError(f"The 2bit genome assembly file, {fname}, was not found!")
     except Exception:
-        sys.exit(f"An error occurred while reading the 2bit genome assembly file, {fname}!")
+        raise RuntimeError(
+            f"An error occurred while reading the 2bit genome assembly file, {fname}!"
+        )
 
     cn = complementary_nucleotide
     for chrom, pos, transcript_strand, x, y in mutations:
@@ -173,7 +174,7 @@ def read_TCGI_with_context_window(infile, asm, window_size):
             contexts = get_context_twobit_window(sample_mutations, asm, window_size)
 
             if contexts is None or len(contexts) == 0:
-                return None, None
+                return None, None, {"loaded": 0, "skipped": 0, "nsamples": 0, "format": "unknown"}
 
             for chrom, pos, transcript_strand, x, y in sample_mutations:
                 (p5, p3), seq_with_coords = contexts.get((chrom, pos), (("N", "N"), []))
@@ -205,8 +206,15 @@ def read_TCGI_with_context_window(infile, asm, window_size):
     return mutations, mutations_with_context, processing_stats
 
 
+_SUPPORTED_FORMATS = {"MAF", "VCF", "TCGI"}
+
+
 def read_mutations(file_format, *args, **kwargs):
     """Wrapper for read_X_with_context_window"""
+    if file_format not in _SUPPORTED_FORMATS:
+        raise ValueError(
+            f"Unsupported file format: {file_format}. Valid options: {', '.join(sorted(_SUPPORTED_FORMATS))}"
+        )
     function_name = f"read_{file_format}_with_context_window"
     return globals()[function_name](*args, **kwargs)
 
@@ -317,7 +325,7 @@ def read_MAF_with_context_window(infile, asm, window_size):
             contexts = get_context_twobit_window(sample_mutations, asm, window_size)
 
             if contexts is None or len(contexts) == 0:
-                return None, None
+                return None, None, {"loaded": 0, "skipped": 0, "nsamples": 0, "format": "unknown"}
 
             for chrom, pos, transcript_strand, x, y in sample_mutations:
                 (p5, p3), seq_with_coords = contexts.get((chrom, pos), (("N", "N"), []))
@@ -405,7 +413,7 @@ def read_VCF_with_context_window(infile, asm, window_size):
         if len(sample_mutations) > 0:
             contexts = get_context_twobit_window(sample_mutations, asm, window_size)
             if contexts is None or len(contexts) == 0:
-                return None, None
+                return None, None, {"loaded": 0, "skipped": 0, "nsamples": 0, "format": "unknown"}
 
             for chrom, pos, transcript_strand, x, y in sample_mutations:
                 (p5, p3), seq_with_coords = contexts.get((chrom, pos), (("N", "N"), []))

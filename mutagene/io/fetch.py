@@ -1,9 +1,6 @@
 import logging
 import os
 
-# import io
-import sys
-
 import requests
 from tqdm import tqdm
 
@@ -23,13 +20,13 @@ def download_from_url(url, dst):
     try:
         req = requests.head(url)
         if req.status_code != 200:
-            logger.warning("Not able to retrieve data from " + url)
-            sys.exit(1)
+            raise ConnectionError(
+                f"Not able to retrieve data from {url} (status {req.status_code})"
+            )
 
         file_size = int(req.headers["Content-Length"])
-    except:
-        logger.warning("Could not access URL " + url)
-        sys.exit(1)
+    except requests.RequestException as e:
+        raise ConnectionError(f"Could not access URL {url}: {e}") from e
 
     first_byte = os.path.getsize(dst) if os.path.exists(dst) else 0
 
@@ -40,14 +37,12 @@ def download_from_url(url, dst):
     header = {"Range": "bytes=%s-%s" % (first_byte, file_size)}
     try:
         r = requests.get(url, headers=header, stream=True)
-        if req.status_code != 200:
-            logger.warning("Not able to retrieve data from " + url)
-            sys.exit(1)
+        if r.status_code not in (200, 206):
+            raise ConnectionError(f"Not able to retrieve data from {url} (status {r.status_code})")
 
         file_size = int(r.headers["Content-Length"])
-    except:
-        logger.warning("Could not access URL " + url)
-        sys.exit(1)
+    except requests.RequestException as e:
+        raise ConnectionError(f"Could not access URL {url}: {e}") from e
 
     def generate(raw, chunk_size):
         while True:
@@ -98,6 +93,6 @@ def fetch_examples():
 
 def fetch_MSKCC(dataset):
     """Download dataset from cBioPortal https://www.cbioportal.org/datasets"""
-    url = f"https://cbioportal-datahub.s3.amazonaws.com/{dataset}.tar.gz"
+    url = f"https://datahub.assets.cbioportal.org/{dataset}.tar.gz"
     dst = f"{dataset}.tar.gz"
     download_from_url(url, dst)
