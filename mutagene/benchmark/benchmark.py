@@ -76,7 +76,6 @@ def benchmark_simulated(results_fname, signature_names, W):
                     h0 += np.random.multinomial(
                         int(0.2 * N_mutations), [1.0 / N] * N
                     )  # uniform distribution
-                    h0_counts = h0.copy()
 
                     h0 /= h0.sum()
                     v0 = W.dot(h0)
@@ -96,7 +95,6 @@ def benchmark_simulated(results_fname, signature_names, W):
                     #     o.write(query_formatted)
 
                     THRESHOLD = 0.0
-                    # print(h0_counts)
                     # print(v0_counts)
                     _, _, exposure = decompose_mutational_profile_counts(
                         v0_counts, W, "MLE", others_threshold=THRESHOLD
@@ -159,10 +157,6 @@ def benchmark_2combinations(results_fname, signature_names, W):
 
     np.set_printoptions(precision=4)
 
-    noise_level = 0.05
-    ratio = 0.7
-    n_sample = 20
-
     with open(results_fname, "w") as report:
         report.write(
             "ratio\tn_sample\tnoise_level\tsignatures\tSIGNATURE\tVALUE\tSE_E\tMSE_M\tMSE_E\tLL\tFROB\tFROB0\tJS\tKL\n"
@@ -189,7 +183,6 @@ def benchmark_2combinations(results_fname, signature_names, W):
                     h0 += np.random.multinomial(
                         int(0.2 * N_mutations), [1.0 / N] * N
                     )  # uniform distribution
-                    h0_counts = h0.copy()
 
                     h0 /= h0.sum()
                     v0 = W.dot(h0)

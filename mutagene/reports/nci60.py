@@ -88,7 +88,7 @@ def make_NCI60_report(prefix, n=30, decomposition="L"):
                         exposure["other"] = value
             unexplained = 1.0 - sum(exposure.values())
             o.write(
-                "\t".join(["{0:.2f}".format(exposure[f"{s}{x}"]) for x in range(1, n + 1)])
+                "\t".join(["{:.2f}".format(exposure[f"{s}{x}"]) for x in range(1, n + 1)])
                 + "\t{:.2f}\t{:.2f}\n".format(exposure["other"], unexplained)
             )
 
@@ -601,7 +601,6 @@ def analyze_nci60_samples(prefix):
 
         mutational_profile = get_mutational_profile(mutations)
         mutational_profile_counts = get_mutational_profile(mutations, counts=True)
-        query_signature = make_bar_struct_from_values(mutational_profile)
         query_formatted = format_profile(mutational_profile)
 
         oname = prefix + f"/profiles/{SAMPLE_ID}.profile"
@@ -641,16 +640,6 @@ def analyze_nci60_samples(prefix):
             o.write(
                 "Skipped_context_NC\t{}\n".format(processing_stats_NCV[sample]["skipped_context"])
             )
-
-        classification_method = "rf"
-        cancer_type_matches = [
-            format_numbers(d)
-            for d in identify_cancer_type(mutational_profile, classification_method)
-        ]
-        primary_site_matches = [
-            format_numbers(d)
-            for d in identify_primary_site(mutational_profile, classification_method)
-        ]
 
         for method in "LJRZ":
             # for method in "D":

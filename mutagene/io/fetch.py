@@ -34,7 +34,7 @@ def download_from_url(url, dst):
         logger.warning("Looks like the file has been downloaded already: " + dst)
         return file_size
 
-    header = {"Range": "bytes=%s-%s" % (first_byte, file_size)}
+    header = {"Range": f"bytes={first_byte}-{file_size}"}
     try:
         r = requests.get(url, headers=header, stream=True)
         if r.status_code not in (200, 206):

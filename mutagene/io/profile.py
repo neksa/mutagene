@@ -84,27 +84,6 @@ Possible sequencing artefacts
 
 
 def read_COSMICv3_signatures():
-    sequencing_artifacts = [
-        "SBS27",
-        "SBS43",
-        "SBS45",
-        "SBS46",
-        "SBS47",
-        "SBS48",
-        "SBS49",
-        "SBS50",
-        "SBS51",
-        "SBS52",
-        "SBS53",
-        "SBS54",
-        "SBS55",
-        "SBS56",
-        "SBS57",
-        "SBS58",
-        "SBS59",
-        "SBS60",
-    ]
-
     mutations = defaultdict(dict)
     dirname = os.path.dirname(os.path.realpath(__file__))
     fname = dirname + "/../data/signatures/sigProfiler_SBS_signatures_2019_05_22.csv"

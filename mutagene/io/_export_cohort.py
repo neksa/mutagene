@@ -78,7 +78,7 @@ def export_cohorts(PATH):
         )
         .filter(Signature.signature_type == "BEN")
         .filter(Signature.mut_type == "A")
-        .filter(Signature.primary_site == None)
+        .filter(Signature.primary_site == None)  # noqa: E711
         .one()
     )
     profiles.append(q)
@@ -100,7 +100,7 @@ def export_cohorts(PATH):
         )
         .filter(Signature.signature_type == "SNP")
         .filter(Signature.mut_type == "A")
-        .filter(Signature.primary_site == None)
+        .filter(Signature.primary_site == None)  # noqa: E711
         .one()
     )
     profiles.append(q)

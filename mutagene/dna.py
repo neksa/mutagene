@@ -39,24 +39,6 @@ bases_dict = {
 extended_nucleotides = "ACTGWSMKRYBDHVN"
 complementary_extended_nucleotide = dict(zip(extended_nucleotides, "TGACWSKMYRVHDBN"))
 
-comp_dict = {
-    "A": "T",
-    "T": "A",
-    "C": "G",
-    "G": "C",
-    "W": "AT",
-    "S": "CG",
-    "K": "AC",
-    "M": "GT",
-    "Y": "AG",
-    "R": "CT",
-    "V": "TCG",
-    "H": "AGT",
-    "D": "ACT",
-    "B": "ACG",
-    "N": "ATGC",
-}
-
 codon_table = {
     "GCT": "A",
     "GCC": "A",

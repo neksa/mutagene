@@ -79,11 +79,11 @@ addopts = "-v --cov=mutagene --cov-report=term-missing"
 
 [tool.black]
 line-length = 100
-target-version = ["py38", "py39", "py310", "py311"]
+target-version = ["py310", "py311", "py312", "py313"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py38"
+target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP"]
@@ -92,10 +92,17 @@ ignore = [
     "F403",  # Star imports - legacy code
     "F405",  # Star imports - legacy code
     "N802",  # Function naming - legacy test code
+    "N803",  # Argument naming - scientific conventions (N_mutations, etc.)
+    "N806",  # Variable naming - scientific conventions (W, H, SRMSE, etc.)
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"mutagene/io/_export_cohort.py" = ["F821"]  # Legacy dead code with undefined DB refs
+"mutagene/benchmark/benchmark.py" = ["F821"]  # N defined at module level in notebook-style code
+"mutagene/io/protein_mutations_MAF.py" = ["N999"]  # Uppercase in module name is legacy convention
+
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false

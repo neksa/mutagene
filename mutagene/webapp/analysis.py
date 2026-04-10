@@ -4,7 +4,7 @@ import gzip
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 from mutagene.profiles.profile import calc_profile
 
@@ -59,8 +59,8 @@ def run_cohort_analysis(
     output_dir: Path,
     genome: str = "hg19",
     signatures_set: str = "COSMICv3",
-    config: Dict[str, bool] = None,
-) -> Dict[str, Any]:
+    config: dict[str, bool] = None,
+) -> dict[str, Any]:
     """Run comprehensive cohort analysis.
 
     Args:

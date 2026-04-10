@@ -326,8 +326,6 @@ def decompose_mutational_profile_counts(
                     break
             return xnew
 
-    take_step = RandomDisplacementBounds()
-
     def accept_test(f_new, x_new, f_old, x_old):
         if np.any(np.isnan(x_new)):
             return False
@@ -359,17 +357,6 @@ def decompose_mutational_profile_counts(
                 "type": "ineq",
                 "fun": get_constraint(i, False),
             }  # , 'jac': get_constraint(i, False)}  # lower
-        )
-
-    if config["global_optimization"]:
-        from functools import partial
-
-        from bayes_opt import BayesianOptimization
-
-        optimizer = BayesianOptimization(
-            f=partial(min_func, A=W, b=v_target),
-            verbose=2,
-            random_state=1,
         )
 
     ##############################################################################
