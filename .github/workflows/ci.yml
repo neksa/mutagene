@@ -26,7 +26,7 @@ jobs:
       run: uv python install ${{ matrix.python-version }}
 
     - name: Install dependencies
-      run: uv sync --dev
+      run: uv sync --dev --extra web
 
     - name: Run tests
       run: uv run pytest tests/ -v --cov=mutagene --cov-report=xml --cov-report=term-missing
