@@ -1,6 +1,7 @@
 """Genome reference management for webapp."""
 
 import logging
+import threading
 from pathlib import Path
 
 from mutagene.io.fetch import download_from_url
@@ -32,6 +33,15 @@ class GenomeManager:
         self.genomes_dir = Path(genomes_dir)
         self.genomes_dir.mkdir(parents=True, exist_ok=True)
 
+        # Serializes downloads per assembly: two concurrent requests for the
+        # same genome would otherwise write the same partial file.
+        self._download_locks: dict[str, threading.Lock] = {}
+        self._locks_guard = threading.Lock()
+
+    def _lock_for(self, genome: str) -> threading.Lock:
+        with self._locks_guard:
+            return self._download_locks.setdefault(genome, threading.Lock())
+
     def get_genome_path(self, genome: str) -> Path:
         """Get the path to a genome file.
 
@@ -40,7 +50,16 @@ class GenomeManager:
 
         Returns:
             Path to the .2bit file
+
+        Raises:
+            ValueError: If *genome* is not a supported assembly name. Rejecting
+                unknown names here keeps request-supplied values from being
+                interpolated into a filesystem path.
         """
+        if genome not in self.SUPPORTED_GENOMES:
+            raise ValueError(
+                f"Unsupported genome: {genome!r}. Supported: {', '.join(self.SUPPORTED_GENOMES)}"
+            )
         return self.genomes_dir / f"{genome}.2bit"
 
     def is_downloaded(self, genome: str) -> bool:
@@ -50,9 +69,13 @@ class GenomeManager:
             genome: Genome assembly name
 
         Returns:
-            True if genome file exists
+            True if genome file exists. Unknown assembly names return False
+            rather than raising, so callers can probe freely.
         """
-        return self.get_genome_path(genome).exists()
+        try:
+            return self.get_genome_path(genome).exists()
+        except ValueError:
+            return False
 
     def get_available_genomes(self) -> list[str]:
         """Get list of available (downloaded) genomes.
@@ -84,19 +107,31 @@ class GenomeManager:
             logger.error(f"Unsupported genome: {genome}")
             return False
 
+        with self._lock_for(genome):
+            return self._download_locked(genome)
+
+    def _download_locked(self, genome: str) -> bool:
+        # Another thread may have finished this download while we waited.
+        if self.is_downloaded(genome):
+            return True
+
         url = self.GENOME_URLS[genome]
-        dst = str(self.get_genome_path(genome))
+        final_path = self.get_genome_path(genome)
+        # Download to a sibling temp file and rename only on success, so an
+        # interrupted download never leaves a truncated file that
+        # is_downloaded() would report as a usable genome.
+        partial_path = final_path.with_name(final_path.name + ".part")
 
         try:
             logger.info(f"Downloading {genome} from {url}")
-            download_from_url(url, dst)
-            logger.info(f"Successfully downloaded {genome} to {dst}")
+            download_from_url(url, str(partial_path))
+            partial_path.replace(final_path)
+            logger.info(f"Successfully downloaded {genome} to {final_path}")
             return True
         except Exception as e:
             logger.error(f"Failed to download {genome}: {e}")
             # Clean up partial download
-            if Path(dst).exists():
-                Path(dst).unlink()
+            partial_path.unlink(missing_ok=True)
             return False
 
     def check_and_download_required_genomes(

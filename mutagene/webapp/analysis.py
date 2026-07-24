@@ -3,6 +3,7 @@
 import gzip
 import json
 import logging
+import threading
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +12,14 @@ from mutagene.profiles.profile import calc_profile
 from .genome_manager import GenomeManager
 
 logger = logging.getLogger(__name__)
+
+# A few hundred MB of mutation text is far beyond any realistic MAF; the cap
+# stops a small tarball from expanding into a disk-filling extract.
+MAX_EXTRACTED_BYTES = 2 * 1024 * 1024 * 1024
+
+# Per-sample decomposition is linear but clustering builds an N x N distance
+# matrix, so a file with many unique sample IDs is a memory-exhaustion vector.
+MAX_CLUSTERING_SAMPLES = 1000
 
 
 def extract_input_file(file_path: Path, output_dir: Path) -> Path:
@@ -32,16 +41,51 @@ def extract_input_file(file_path: Path, output_dir: Path) -> Path:
                 raise ValueError("No mutation file found in tar.gz archive")
 
             maf_member = maf_candidates[0]
+            if maf_member.size > MAX_EXTRACTED_BYTES:
+                raise ValueError(
+                    f"Archived mutation file is too large "
+                    f"({maf_member.size} bytes, limit {MAX_EXTRACTED_BYTES})"
+                )
             logger.info(f"Extracting {maf_member.name} from tarball")
 
             extract_dir = output_dir / "extracted"
-            extract_dir.mkdir(exist_ok=True)
-            extracted_path = (extract_dir / Path(maf_member.name).name).resolve()
-            if not str(extracted_path).startswith(str(extract_dir.resolve())):
+            extract_dir.mkdir(parents=True, exist_ok=True)
+
+            # Never trust the member name: it may contain path separators, "..",
+            # or be an absolute path. Stream the member out under a basename we
+            # control instead of letting tarfile choose the destination.
+            safe_name = Path(maf_member.name).name
+            if not safe_name or safe_name in (".", ".."):
+                raise ValueError(
+                    f"Refusing to extract tar member with unsafe name: {maf_member.name!r}"
+                )
+
+            extracted_path = extract_dir / safe_name
+            resolved = extracted_path.resolve()
+            if not resolved.is_relative_to(extract_dir.resolve()):
                 raise ValueError(
                     f"Tar member {maf_member.name} would extract outside target directory"
                 )
-            tar.extract(maf_member, path=extract_dir)
+
+            source = tar.extractfile(maf_member)
+            if source is None:
+                raise ValueError(f"Tar member {maf_member.name} is not a regular file")
+
+            # Enforce the cap while copying rather than trusting the header size,
+            # which an attacker controls independently of the actual stream.
+            written = 0
+            try:
+                with source, open(extracted_path, "wb") as dest:
+                    while chunk := source.read(1024 * 1024):
+                        written += len(chunk)
+                        if written > MAX_EXTRACTED_BYTES:
+                            raise ValueError(
+                                f"Archived mutation file exceeds {MAX_EXTRACTED_BYTES} bytes"
+                            )
+                        dest.write(chunk)
+            except Exception:
+                extracted_path.unlink(missing_ok=True)
+                raise
             return extracted_path
 
     return file_path
@@ -52,6 +96,29 @@ def open_input_file(file_path: Path, mode: str = "rt"):
     if str(file_path).endswith(".gz"):
         return gzip.open(file_path, mode, encoding="utf-8")
     return open(file_path, mode, encoding="utf-8")
+
+
+def profile_channel_order() -> list[str]:
+    """Return the canonical 96 mutation channel labels in signature-matrix row order.
+
+    The signature matrices returned by ``read_signatures`` and the profiles written
+    by ``calc_profile`` both follow ``get_profile_attributes_dict()`` order
+    (5' base, 3' base, then mutation). Sorting the labels alphabetically yields a
+    *different* permutation, so the two must never be zipped together by sorted key.
+    """
+    from mutagene.io.profile import get_profile_attributes_dict
+
+    return [
+        f"{a['context'][0]}[{a['mutation'][0]}>{a['mutation'][1]}]{a['context'][1]}"
+        for a in get_profile_attributes_dict()
+    ]
+
+
+def profile_dict_to_array(profile_data: dict[str, int]):
+    """Convert a ``{'A[C>T]G': count}`` dict into a 96-element array in signature order."""
+    import numpy as np
+
+    return np.array([profile_data.get(k, 0) for k in profile_channel_order()], dtype=float)
 
 
 def run_cohort_analysis(
@@ -121,11 +188,20 @@ def run_cohort_analysis(
         import logging as _logging
 
         class MismatchCounter(_logging.Handler):
+            """Count REF-mismatch warnings emitted by *this* thread only.
+
+            The handler is attached to a module-level logger shared by every
+            concurrent analysis, so records from other analyses must be ignored.
+            """
+
             def __init__(self):
                 super().__init__()
                 self.mismatch_count = 0
+                self._thread_id = threading.get_ident()
 
             def emit(self, record):
+                if record.thread != self._thread_id:
+                    return
                 if "REF allele does not match" in record.getMessage():
                     self.mismatch_count += 1
 
@@ -197,9 +273,9 @@ def run_cohort_analysis(
             logger.info(f"Loaded {len(signature_names)} signatures from {signatures_set}")
             logger.info(f"Signature matrix shape: {W.shape}")
 
-            # Convert profile_data dict to numpy array in correct order
-            profile_keys = sorted(profile_data.keys())
-            profile_array = np.array([profile_data[k] for k in profile_keys], dtype=float)
+            # Convert profile_data dict to numpy array in signature-matrix row order.
+            # NB: this must match W's row order, not alphabetical key order.
+            profile_array = profile_dict_to_array(profile_data)
 
             logger.info(f"Profile array shape: {profile_array.shape}, sum: {profile_array.sum()}")
 
@@ -368,7 +444,13 @@ def run_cohort_analysis(
                     logger.info(f"Exposure matrix shape: {exposure_matrix.shape}")
 
                     # Perform hierarchical clustering
-                    if len(sample_ids) >= 2:
+                    if len(sample_ids) > MAX_CLUSTERING_SAMPLES:
+                        logger.warning(
+                            f"Skipping clustering: {len(sample_ids)} samples exceeds the "
+                            f"limit of {MAX_CLUSTERING_SAMPLES} (pairwise distance matrix "
+                            f"grows quadratically)"
+                        )
+                    elif len(sample_ids) >= 2:
                         # Calculate cosine distance
                         distances = pdist(exposure_matrix, metric="cosine")
                         linkage_matrix = linkage(distances, method="average")
@@ -464,10 +546,8 @@ def run_cohort_analysis(
                 logger.info(f"Loaded {protein_stats.get('loaded', 0)} protein mutations")
 
                 if protein_mutations:
-                    # Get profile for mutability calculation
-                    profile_array_for_rank = np.array(
-                        [profile_data[k] for k in sorted(profile_data.keys())], dtype=float
-                    )
+                    # Get profile for mutability calculation (signature-matrix row order)
+                    profile_array_for_rank = profile_dict_to_array(profile_data)
 
                     # Try to load precalculated cohort data
                     cohorts_file = Path.home() / ".mutagene" / "cohorts.tar.gz"

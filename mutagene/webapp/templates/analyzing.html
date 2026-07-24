@@ -57,15 +57,29 @@ socket.on('complete', (data) => {
     }
 });
 
+// Render a failure panel without ever parsing server-supplied text as HTML.
+function showFailure(message) {
+    const container = document.getElementById('progressContainer');
+    container.textContent = '';
+
+    const alertBox = document.createElement('div');
+    alertBox.className = 'alert alert-error';
+
+    const heading = document.createElement('h3');
+    heading.textContent = 'Analysis Failed';
+
+    const detail = document.createElement('p');
+    detail.textContent = message;
+
+    alertBox.appendChild(heading);
+    alertBox.appendChild(detail);
+    container.appendChild(alertBox);
+}
+
 socket.on('error', (data) => {
     if (data.analysis_id === analysisId) {
         document.getElementById('currentStep').textContent = '❌ Error occurred';
-        document.getElementById('progressContainer').innerHTML = `
-            <div class="alert alert-error">
-                <h3>Analysis Failed</h3>
-                <p>${data.error}</p>
-            </div>
-        `;
+        showFailure(data.error);
         addLog(`ERROR: ${data.error}`, 'error');
     }
 });
@@ -81,7 +95,11 @@ function addLog(message, type = 'info') {
     const logMessages = document.getElementById('logMessages');
     const timestamp = new Date().toLocaleTimeString();
     const color = type === 'error' ? '#dc3545' : '#667eea';
-    logMessages.innerHTML += `<div style="color: ${color}; margin-bottom: 5px;">[${timestamp}] ${message}</div>`;
+    const entry = document.createElement('div');
+    entry.style.color = color;
+    entry.style.marginBottom = '5px';
+    entry.textContent = `[${timestamp}] ${message}`;
+    logMessages.appendChild(entry);
     logMessages.parentElement.scrollTop = logMessages.parentElement.scrollHeight;
 }
 
@@ -92,12 +110,7 @@ setInterval(async () => {
     if (data.status === 'complete') {
         window.location.href = `/results/${analysisId}`;
     } else if (data.status === 'error') {
-        document.getElementById('progressContainer').innerHTML = `
-            <div class="alert alert-error">
-                <h3>Analysis Failed</h3>
-                <p>${data.error_message || 'Unknown error'}</p>
-            </div>
-        `;
+        showFailure(data.error_message || 'Unknown error');
     }
 }, 5000);
 </script>

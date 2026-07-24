@@ -1,14 +1,12 @@
 """Tests for webapp database models and manager."""
 
 import json
-import tempfile
-from pathlib import Path
 
 import numpy as np
 import pytest
 
 from mutagene.webapp.database.manager import DatabaseManager
-from mutagene.webapp.database.models import Analysis, File, Result, _SafeEncoder, init_db
+from mutagene.webapp.database.models import _SafeEncoder, init_db
 
 
 @pytest.fixture
@@ -178,3 +176,48 @@ class TestFileCRUD:
 
     def test_get_nonexistent_file(self, db):
         assert db.get_file(999) is None
+
+
+class TestCascadeDelete:
+    def test_delete_removes_dependent_rows(self, db, tmp_path):
+        aid = db.create_analysis("test.maf", "hg19")
+        db.store_result(aid, "profile", {"p": 1})
+        f = tmp_path / "a.maf"
+        f.write_text("x")
+        db.register_file(aid, "input_maf", "a.maf", str(f))
+
+        assert db.get_all_results(aid) and db.get_all_files(aid)
+        db.delete_analysis(aid)
+
+        # Requires PRAGMA foreign_keys=ON; without it these rows are orphaned.
+        assert db.get_all_results(aid) == []
+        assert db.get_all_files(aid) == []
+
+
+class TestClaimAndRecovery:
+    def test_claim_is_exclusive(self, db):
+        aid = db.create_analysis("test.maf", "hg19")
+        assert db.try_claim_analysis(aid) is True
+        # Second claim must lose while the first is still running.
+        assert db.try_claim_analysis(aid) is False
+        assert db.get_analysis(aid)["status"] == "running"
+
+    def test_claim_unknown_analysis(self, db):
+        assert db.try_claim_analysis(999) is False
+
+    def test_claim_clears_previous_error(self, db):
+        aid = db.create_analysis("test.maf", "hg19")
+        db.update_analysis_status(aid, "error", "boom")
+        assert db.try_claim_analysis(aid) is True
+        assert db.get_analysis(aid)["error_message"] is None
+
+    def test_reset_stale_running(self, db):
+        running = db.create_analysis("a.maf", "hg19")
+        done = db.create_analysis("b.maf", "hg19")
+        db.update_analysis_status(running, "running")
+        db.update_analysis_status(done, "complete")
+
+        assert db.reset_stale_running() == 1
+        assert db.get_analysis(running)["status"] == "error"
+        assert "interrupted" in db.get_analysis(running)["error_message"]
+        assert db.get_analysis(done)["status"] == "complete"
