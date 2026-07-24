@@ -7,7 +7,7 @@ from mutagene.io.fetch import fetch_cohorts, fetch_examples, fetch_genome, fetch
 logger = logging.getLogger(__name__)
 genome_error_message = (
     "requires genome name argument -g hg19, hg38, mm10, "
-    "see http://hgdownload.cse.ucsc.edu/downloads.html for more. "
+    "see http://hgdownload.soe.ucsc.edu/downloads.html for more. "
     "Use mutagene fetch to download genome assemblies"
 )
 

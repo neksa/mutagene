@@ -175,7 +175,7 @@ def read_protein_mutations_MAF(infile, genome, motifs=False):
             else:
                 if genome.upper() == "MAF":
                     logger.warning(
-                        "ref_context not found in MAF file. Provide genome name argument -g hg19, hg38, mm10, see http://hgdownload.cse.ucsc.edu/downloads.html for more"
+                        "ref_context not found in MAF file. Provide genome name argument -g hg19, hg38, mm10, see http://hgdownload.soe.ucsc.edu/downloads.html for more"
                     )
                     break
 

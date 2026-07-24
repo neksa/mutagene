@@ -67,13 +67,13 @@ def download_from_url(url, dst):
 
 
 def fetch_genome(name):
-    # ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit
-    # http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit
+    # ftp://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit
+    # http://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit
     assembly = name.rsplit(".", 1)[0] if ".2bit" in name else name
     assembly = assembly.lower()
     mode = "http"
 
-    url = f"{mode}://hgdownload.cse.ucsc.edu/goldenPath/{assembly}/bigZips/{assembly}.2bit"
+    url = f"{mode}://hgdownload.soe.ucsc.edu/goldenPath/{assembly}/bigZips/{assembly}.2bit"
     dst = f"{assembly}.2bit"
     download_from_url(url, dst)
 

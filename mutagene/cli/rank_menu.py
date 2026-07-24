@@ -15,7 +15,7 @@ from mutagene.mutability.mutability import THRESHOLD_DRIVER, THRESHOLD_PASSENGER
 from mutagene.profiles.profile import get_pooled_multisample_mutational_profile
 
 logger = logging.getLogger(__name__)
-genome_error_message = """requires genome name argument -g hg19, hg38, mm10, see http://hgdownload.cse.ucsc.edu/downloads.html for more
+genome_error_message = """requires genome name argument -g hg19, hg38, mm10, see http://hgdownload.soe.ucsc.edu/downloads.html for more
                           Use mutagene fetch to download genome assemblies"""
 
 
