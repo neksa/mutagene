@@ -8,9 +8,9 @@ COHORTS_FILE = "cohorts.tar.gz"
 TEST_FILE_MAP = {
     COHORTS_FILE: "https://www.ncbi.nlm.nih.gov/research/mutagene/static/data/cohorts.tar.gz",
     "sample1.maf": "https://www.ncbi.nlm.nih.gov/research/mutagene/static/data/sample1.maf",
-    "hg19.2bit": "https://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit",
+    "hg19.2bit": "https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit",
 }
-# 'chrY.fa.gz': 'https://hgdownload.cse.ucsc.edu/goldenPath/hg19/chromosomes/chrY.fa.gz'
+# 'chrY.fa.gz': 'https://hgdownload.soe.ucsc.edu/goldenPath/hg19/chromosomes/chrY.fa.gz'
 
 
 # Method to run MutaGene CLI commands in a manner similar to actual CLI execution
