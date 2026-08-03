@@ -142,6 +142,44 @@ class Analysis:
         conn.commit()
 
     @staticmethod
+    def try_claim(conn, analysis_id):
+        """Atomically move an analysis to 'running'.
+
+        Returns True if this caller won the claim, False if the analysis was
+        already running or does not exist. Doing the check and the update in one
+        statement prevents two concurrent requests from both starting the same
+        analysis.
+        """
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            UPDATE analyses
+            SET status = 'running', error_message = NULL
+            WHERE id = ? AND status != 'running'
+        """,
+            (analysis_id,),
+        )
+        conn.commit()
+        return cursor.rowcount > 0
+
+    @staticmethod
+    def reset_stale_running(conn):
+        """Fail analyses left 'running' by a process that exited.
+
+        Analysis workers are in-process daemon threads, so a restart orphans
+        anything still running. Returns the number of rows reset.
+        """
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE analyses
+            SET status = 'error',
+                error_message = 'Analysis was interrupted by a server restart'
+            WHERE status = 'running'
+        """)
+        conn.commit()
+        return cursor.rowcount
+
+    @staticmethod
     def update_counts(conn, analysis_id, samples, mutations):
         """Update sample and mutation counts."""
         cursor = conn.cursor()

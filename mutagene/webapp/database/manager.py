@@ -35,6 +35,9 @@ class DatabaseManager:
         """Context manager for database connections."""
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
+        # Required for the ON DELETE CASCADE clauses in the schema to fire;
+        # SQLite disables foreign key enforcement per-connection by default.
+        conn.execute("PRAGMA foreign_keys = ON")
         try:
             yield conn
         finally:
@@ -60,6 +63,16 @@ class DatabaseManager:
         """Update analysis status."""
         with self.get_connection() as conn:
             Analysis.update_status(conn, analysis_id, status, error_message)
+
+    def reset_stale_running(self):
+        """Mark analyses orphaned by a server restart as failed; returns the count."""
+        with self.get_connection() as conn:
+            return Analysis.reset_stale_running(conn)
+
+    def try_claim_analysis(self, analysis_id):
+        """Atomically mark an analysis as running; True if this caller claimed it."""
+        with self.get_connection() as conn:
+            return Analysis.try_claim(conn, analysis_id)
 
     def update_analysis_counts(self, analysis_id, samples, mutations):
         """Update sample and mutation counts."""

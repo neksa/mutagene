@@ -24,15 +24,25 @@ def test_data():
                 shutil.copyfile(f"./{filename}", target_path)
             # Otherwise, download from public source
             else:
-                # Use stream=True to avoid automatic decompression
-                # Important for .tar.gz files that need to stay compressed
-                r = requests.get(url, stream=True)
-                r.raise_for_status()
-                r.raw.decode_content = False  # Keep content as-is, don't decode gzip
-                with open(target_path, "wb") as outfile:
-                    for chunk in r.iter_content(chunk_size=8192):
-                        if chunk:
-                            outfile.write(chunk)
+                # These fixtures pull hundreds of MB from third-party hosts
+                # (UCSC, NCBI). Their availability is outside this project's
+                # control, and an outage there should not be reported as a
+                # failure of the code under test, so skip instead of erroring.
+                try:
+                    # Use stream=True to avoid automatic decompression
+                    # Important for .tar.gz files that need to stay compressed
+                    r = requests.get(url, stream=True, timeout=60)
+                    r.raise_for_status()
+                    r.raw.decode_content = False  # Keep content as-is, don't decode gzip
+                    with open(target_path, "wb") as outfile:
+                        for chunk in r.iter_content(chunk_size=8192):
+                            if chunk:
+                                outfile.write(chunk)
+                except requests.RequestException as e:
+                    # Don't leave a truncated file behind for the next run.
+                    if os.path.isfile(target_path):
+                        os.remove(target_path)
+                    pytest.skip(f"Could not download test fixture {filename} from {url}: {e}")
 
     # Copy COHORTS_FILE to ./ for use in mutagene rank tests
     cp_cohorts = False
