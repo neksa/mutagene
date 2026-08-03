@@ -197,7 +197,7 @@ def read_MAF_extended(muts, asm=None):
     return samples, processing_stats
 
 
-uniq_mut = defaultdict(set)
+uniq_mut: defaultdict[str, set[tuple[str, str, str]]] = defaultdict(set)
 
 
 def read_CLP_extended(f, asm=None, ids=None):

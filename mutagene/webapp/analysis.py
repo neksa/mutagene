@@ -126,7 +126,7 @@ def run_cohort_analysis(
     output_dir: Path,
     genome: str = "hg19",
     signatures_set: str = "COSMICv3",
-    config: dict[str, bool] = None,
+    config: dict[str, bool] | None = None,
 ) -> dict[str, Any]:
     """Run comprehensive cohort analysis.
 
@@ -163,7 +163,7 @@ def run_cohort_analysis(
             f"Download it with: mutagene fetch genome {genome}"
         )
 
-    results = {
+    results: dict[str, Any] = {
         "samples": 0,
         "mutations": 0,
         "profiles": {},
@@ -291,7 +291,7 @@ def run_cohort_analysis(
             logger.info(f"Decomposition returned {len(decomp_results)} results")
 
             # Format results for display
-            signature_summary = {
+            signature_summary: dict[str, Any] = {
                 "method": "MLE",
                 "signatures": {},
                 "total_mutations": int(sum(profile_data.values())),
@@ -420,15 +420,15 @@ def run_cohort_analysis(
                     per_sample_data = results["signatures"]["per_sample"]
 
                     # Build signature exposure matrix (samples x signatures)
-                    all_signatures = set()
+                    signature_set = set()
                     for sample_data in per_sample_data.values():
-                        all_signatures.update(sample_data["signatures"].keys())
+                        signature_set.update(sample_data["signatures"].keys())
 
-                    all_signatures = sorted(list(all_signatures))
+                    all_signatures = sorted(signature_set)
                     sample_ids = sorted(per_sample_data.keys())
 
                     # Create exposure matrix
-                    exposure_matrix = []
+                    exposure_rows = []
                     for sample_id in sample_ids:
                         sample_exposures = []
                         for sig_name in all_signatures:
@@ -438,9 +438,9 @@ def run_cohort_analysis(
                                 .get("exposure", 0.0)
                             )
                             sample_exposures.append(exposure)
-                        exposure_matrix.append(sample_exposures)
+                        exposure_rows.append(sample_exposures)
 
-                    exposure_matrix = np.array(exposure_matrix)
+                    exposure_matrix = np.array(exposure_rows)
                     logger.info(f"Exposure matrix shape: {exposure_matrix.shape}")
 
                     # Perform hierarchical clustering
