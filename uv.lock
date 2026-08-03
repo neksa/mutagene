@@ -1221,7 +1221,7 @@ requires-dist = [
     { name = "matplotlib", marker = "extra == 'viz'", specifier = ">=3.7.0" },
     { name = "numpy", specifier = ">=1.24.0" },
     { name = "pandas", specifier = ">=2.0.0" },
-    { name = "python-socketio", marker = "extra == 'web'", specifier = ">=5.11.0" },
+    { name = "python-socketio", marker = "extra == 'web'", specifier = ">=5.16.2" },
     { name = "pyvcf3", specifier = ">=1.0.0" },
     { name = "pyyaml", marker = "extra == 'web'", specifier = ">=6.0" },
     { name = "requests", specifier = ">=2.33.0" },
