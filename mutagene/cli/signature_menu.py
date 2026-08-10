@@ -31,11 +31,15 @@ chosen collection and reports the exposure of each signature.
 
 Signature collections available with --signatures (-s):
 
-  MGA, 5        MutaGene-5, five signatures derived by MutaGene
-  MGB, 10       MutaGene-10, ten signatures derived by MutaGene
+  MGA, 5        MutaGene-5, 5 signatures derived by MutaGene
+  MGB, 10       MutaGene-10, 10 signatures derived by MutaGene
   COSMICv2, 30  COSMIC v2, 30 signatures
-  COSMICv3, 49  COSMIC v3, 49 single-base-substitution signatures
-  KUCAB, 53     53 signatures of environmental mutagen exposure
+  COSMICv3, 49  COSMIC v3, 67 single-base-substitution signatures (SBS1-SBS85)
+  KUCAB, 53     54 profiles of environmental mutagen exposure, including a
+                Control profile
+
+The numeric aliases are historical names and do not always match the number of
+signatures in the collection.
 
 Read more about MutaGene signatures at
 https://www.ncbi.nlm.nih.gov/research/mutagene/signatures and about COSMIC

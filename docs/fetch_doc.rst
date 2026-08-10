@@ -35,15 +35,29 @@ Fetch cohorts
     provided.
 
 
-    Command: "mutagene fetch (--list | --cohort COHORT) {COSMIC,GDC,MSKC,ICGC}"
+    Command: "mutagene fetch cohorts [{COSMIC,GDC,MSKCC,ICGC}] [--list | --cohort COHORT]"
 
     Arguments:
      -h, --help  show this help message and exit
-     -l, --list  List available cohorts
-     -c, --cohort  Specify cohort
+     -l, --list  List the cohorts available in the chosen source repository
+     -c, --cohort  Download a single cohort by name (MSKCC only)
+
+    The source defaults to COSMIC when it is not given.
 
     Usage in MutaGene: Cohorts are required for ranking of mutations, because ranking
     relies upon counts of observed mutations and cancer type-specific profiles.
+
+    Examples:
+
+    To list the COSMIC cohorts. The names printed here are the ones accepted by
+    "mutagene rank --cohort". Listing reads cohorts.tar.gz from the current
+    directory and downloads it first if it is not there yet::
+
+      $ mutagene fetch cohorts --list
+
+    To list the cohorts available from cBioPortal instead::
+
+      $ mutagene fetch cohorts MSKCC --list
 
 
 Fetch genome assemblies
@@ -54,18 +68,27 @@ Fetch genome assemblies
     process is interrupted run the same command again to continue downloading. Genome files are needed for mutagene motif,
     rank, profile, and signature commands.
 
-    Command: "mutagene fetch genome -g <name of genome assembly>"
+    Command: "mutagene fetch genome (-g <name of genome assembly> | --list)"
 
     Arguments:
      -h, --help         show this help message and exit
      -g, --genome
-                        hg38, hg19, mm10 according to UCSC genome browser
+                        hg38, hg19, mm10, mm9 according to UCSC genome browser
                         nomenclature
+     -l, --list         List genome assemblies available for download and show
+                        which of them are already on disk
+
+    Genomes are downloaded to ~/.mutagene/genomes/. The other subcommands do not
+    search that directory, so pass the full path that "--list" prints to their
+    -g argument, for example -g ~/.mutagene/genomes/hg19.2bit
 
     Usage in MutaGene:
     Genome assemblies required for genome argument in MutaGene subpackages.
 
     Examples:
+
+    To see which assemblies can be downloaded and which are already present:
+      $ mutagene fetch genome --list
 
     To download hg19 file:
       $ mutagene fetch genome -g hg19

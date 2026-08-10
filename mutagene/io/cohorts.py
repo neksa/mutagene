@@ -19,11 +19,19 @@ def read_cohort_size_from_profile_file(profile_file):
 
 def read_cohort_size_from_profile_str(profile_str):
     for line in profile_str.splitlines():
-        if line.startswith("#"):
-            # print(line)
-            a, b = line.strip().split()
-            if a == "#NSAMPLES":
-                return int(b)
+        if not line.startswith("#"):
+            continue
+        fields = line.strip().split()
+        # a comment line can hold anything, only #NSAMPLES <n> is meaningful here
+        if len(fields) != 2 or fields[0] != "#NSAMPLES":
+            continue
+        try:
+            return int(fields[1])
+        except ValueError:
+            # some published cohorts carry '#NSAMPLES None' and an unknown
+            # cohort size must not take down the whole run
+            logger.warning(f"Cohort size is not a number, treating it as unknown: {fields[1]}")
+            return 0
     return 0
 
 

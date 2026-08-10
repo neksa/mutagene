@@ -186,10 +186,14 @@ Partial download is supported: if the process is interrupted run the same comman
 
         print("\nGenome assemblies available for download:")
         for genome in SUPPORTED_GENOMES:
-            status = "downloaded" if genome in downloaded else "not downloaded"
-            print(f"\t{genome:8}\t{status}")
-        print(f"\nGenomes are stored in {genomes_dir}")
-        print("Download an assembly with: mutagene fetch genome -g <name>")
+            if genome in downloaded:
+                # other subcommands do not search the genomes directory, so
+                # print the path that has to be passed to their -g argument
+                print(f"\t{genome:8}\tdownloaded\t{genomes_dir / f'{genome}.2bit'}")
+            else:
+                print(f"\t{genome:8}\tnot downloaded")
+        print("\nDownload an assembly with: mutagene fetch genome -g <name>")
+        print("Pass the printed path to the -g argument of the other subcommands")
 
     @classmethod
     def genome(cls, args):

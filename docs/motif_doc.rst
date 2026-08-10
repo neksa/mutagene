@@ -81,8 +81,12 @@ Argument                    Description                                         
 Argument                    Description                                                   Example
 ==========================  ============================================================  ============================
 --motif MOTIF               Motif to search for, use the 'R[C>T]GY' syntax for the        --motif 'C[A>T]'
-                            motif. Use quotes.
+                            motif. Use quotes. If omitted, all pre-identified
+                            motifs bundled with MutaGene are tested.
 -m MOTIF                    Short form of ``--motif MOTIF``                               -m 'C[A>T]'
+--list                      Print the pre-identified motifs bundled with                  --list
+                            MutaGene, with their references, and exit
+-l                          Short form of ``--list``                                      -l
 --input-format FORMAT       Input format, either MAF (the default) or VCF                 --input-format 'VCF'
 -f FORMAT                   Short form of ``--input-format`` argument                     -i 'MAF'
 --outfile OUTFILE           Name of output file, will be generated in TSV format          --outfile ../../out/out.tsv
