@@ -29,13 +29,17 @@ def read_cohort_size_from_profile_str(profile_str):
 
 def list_cohorts_in_tar(tar_fname):
     """Returns a multiline string formatted list of cohorts contained in tar file"""
-    cohorts = []
+    suffix = ".aa_mutations.txt"
+    cohorts = set()
     with tarfile.open(tar_fname, "r:*") as tar:
         for t in tar:
-            haystack = t.name.lower()
-            if haystack.endswith(".aa_mutations.txt"):
-                cohorts.append("\t" + haystack.split("/")[1].split(".")[0])
-    return "\n".join(cohorts)
+            name = t.name.rsplit("/", 1)[-1]
+            # skip AppleDouble sidecars and other hidden entries
+            if name.startswith("."):
+                continue
+            if name.lower().endswith(suffix):
+                cohorts.add(name[: -len(suffix)])
+    return "\n".join("\t" + cohort for cohort in sorted(cohorts))
 
 
 def read_aa_mutations_map(aa_str):
