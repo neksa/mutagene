@@ -13,10 +13,29 @@ genome_error_message = """requires genome name argument -g hg19, hg38, mm10, see
 
 class MotifMenu:
     def __init__(self, parser):
-        parser.description = ""
+        parser.description = """
+Test samples for the presence of mutational motifs.
+
+A mutational motif is a mutation in a particular sequence context (e.g. C[C>T]G)
+that occurs more often than expected by chance. Enrichment is assessed with a
+contingency table test and corrected for multiple comparisons.
+
+Without --motif (-m) the sample is tested against the pre-identified motifs
+bundled with MutaGene: a curated set of motifs with known or suspected
+mutagenic sources (APOBEC, UV light, tobacco, and others). Use --list (-l) to
+print them. Testing all of them at once reduces statistical power because of
+multiple comparisons, so prefer --motif when you already have a hypothesis.
+
+With --motif (-m) only the motif you specify is tested, using the 'R[C>T]GY'
+syntax where the mutated base is in brackets and flanking positions may use
+IUPAC ambiguity codes.
+"""
         parser.epilog = """
 Examples:
-# search in sample2.vcf for all preidentified motifs in mutagene using hg19
+# list the pre-identified motifs bundled with mutagene
+mutagene motif --list
+
+# search in sample2.vcf for all pre-identified motifs in mutagene using hg19
 mutagene motif --infile sample2.vcf --input-format VCF --genome hg19
 
 # search for the presence of the C[A>T] motif in sample1.maf using hg19 not checking for strand-specificity
@@ -48,8 +67,15 @@ mutagene motif --infile sample1.maf --input-format MAF --genome hg19 --motif 'C[
         optional_group.add_argument(
             "--motif",
             "-m",
-            help="Motif to search for, use the 'R[C>T]GY' syntax for the motif. Use quotes",
+            help="Motif to search for, use the 'R[C>T]GY' syntax for the motif. Use quotes. "
+            "If omitted, all pre-identified motifs bundled with MutaGene are tested",
             type=str,
+        )
+        optional_group.add_argument(
+            "--list",
+            "-l",
+            action="store_true",
+            help="List the pre-identified motifs bundled with MutaGene and exit",
         )
         optional_group.add_argument(
             "--outfile",
@@ -189,16 +215,23 @@ mutagene motif --infile sample1.maf --input-format MAF --genome hg19 --motif 'C[
         else:
             write_motif_matches(args.outfile, matching_motifs)
 
-    def list(self, args):
-        """Prints the list of known motifs bundled with the package"""
-        print("\nThe list of mutational motifs that will be tested by default:")
+    def list(self, args=None):
+        """Prints the list of pre-identified motifs bundled with the package"""
+        print("\nPre-identified motifs, tested by default when --motif (-m) is not given:")
+        print("{:20}\t{:12}\t{}".format("NAME", "MOTIF", "REFERENCES"))
         for m in get_known_motifs():
-            print("{:20}\t{}".format(m["name"], m["logo"]))
-        print("any custom motif can be specified with --motif (-m)")
+            print(
+                "{:20}\t{:12}\t{}".format(
+                    m["name"].strip(), m["logo"].strip(), m.get("references", "").strip()
+                )
+            )
+        print("\nAny custom motif can be specified with --motif (-m), e.g. --motif 'C[C>T]G'")
 
     def callback(self, args):
         # getattr(cls, args.action)(args)
-        if args.infile:
+        if args.list:
+            self.list(args)
+        elif args.infile:
             MotifMenu.search(args)
         else:
             self.parser.print_usage()

@@ -29,8 +29,22 @@ followed by the required arguments from the command line. You can always find he
 **2.2.Required Arguments (must be specified):**
                                                                                                                                       
 
-1. The MutaGene signature package allows for the analysis of mutational processes operating in a given sample or a cohort using four different sets of mutational signatures: MutaGene5, MutaGene10, Cosmic30 and Cosmic49 signature sets.
-Read more about the MutaGene signature packag at https://www.ncbi.nlm.nih.gov/research/mutagene/signatures#mutational_signatures.
+1. The MutaGene signature package allows for the analysis of mutational processes operating in a given sample or a cohort using five different sets of mutational signatures, selected with --signatures (-s):
+
+==================  ==========  ==============================================
+Value               Alias       Collection
+==================  ==========  ==============================================
+MGA                 5           MutaGene-5, 5 signatures derived by MutaGene
+MGB                 10          MutaGene-10, 10 signatures derived by MutaGene
+COSMICv2            30          COSMIC v2, 30 signatures
+COSMICv3            49          COSMIC v3, 67 SBS signatures (SBS1-SBS85)
+KUCAB               53          54 profiles of environmental mutagen exposure,
+                                including a Control profile
+==================  ==========  ==============================================
+
+The numeric aliases are historical names and do not always match the number of signatures in the collection: -s 49 loads 67 COSMIC v3 signatures and -s 53 loads 54 KUCAB profiles.
+
+Read more about the MutaGene signature package at https://www.ncbi.nlm.nih.gov/research/mutagene/signatures#mutational_signatures.
 Read more about Cosmic signatures at https://cancer.sanger.ac.uk/cosmic/signatures/.
 
 

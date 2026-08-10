@@ -1,8 +1,17 @@
 import logging
 import sys
+import tarfile
 from pathlib import Path
 
-from mutagene.io.fetch import fetch_cohorts, fetch_examples, fetch_genome, fetch_MSKCC
+from mutagene.io.cohorts import list_cohorts_in_tar
+from mutagene.io.fetch import (
+    COHORTS_FILE,
+    SUPPORTED_GENOMES,
+    fetch_cohorts,
+    fetch_examples,
+    fetch_genome,
+    fetch_MSKCC,
+)
 
 logger = logging.getLogger(__name__)
 genome_error_message = (
@@ -49,9 +58,14 @@ Cohorts are required for ranking of mutations, because ranking relies upon count
         )
         cohorts_parser_action = cohorts_parser.add_mutually_exclusive_group(required=False)
         cohorts_parser_action.add_argument(
-            "--list", "-l", action="store_true", help="List available MSKCC cohorts"
+            "--list",
+            "-l",
+            action="store_true",
+            help="List the cohorts available in the chosen source repository",
         )
-        cohorts_parser_action.add_argument("--cohort", "-c", type=str, help="Specify MSKCC cohort")
+        cohorts_parser_action.add_argument(
+            "--cohort", "-c", type=str, help="Download a single cohort by name (MSKCC only)"
+        )
 
         genome_parser = subparsers.add_parser(
             "genome",
@@ -59,16 +73,23 @@ Cohorts are required for ranking of mutations, because ranking relies upon count
 This command will download reference genome assembly sequence in 2bit format from the UCSC genome browser website.
 
 You need to specify the name of genome assembly in --genome (-g) argument.
+Use --list (-l) to see the assemblies MutaGene can download and which of them you already have.
 
 Partial download is supported: if the process is interrupted run the same command again to continue downloading.
 """,
         )
-        genome_parser.add_argument(
+        genome_parser_action = genome_parser.add_mutually_exclusive_group(required=True)
+        genome_parser_action.add_argument(
             "--genome",
             "-g",
             type=str,
-            help="hg38, hg19, mm10 according to UCSC genome browser nomenclature",
-            required=True,
+            help="hg38, hg19, mm10, mm9 according to UCSC genome browser nomenclature",
+        )
+        genome_parser_action.add_argument(
+            "--list",
+            "-l",
+            action="store_true",
+            help="List genome assemblies available for download",
         )
 
     @classmethod
@@ -87,9 +108,34 @@ Partial download is supported: if the process is interrupted run the same comman
 
     @classmethod
     def cohorts_COSMIC(cls, args):
+        if args.list:
+            # The cohort names only exist inside the bundle, so it has to be
+            # present locally before anything can be listed.
+            if not Path(COHORTS_FILE).exists():
+                logger.info(f"{COHORTS_FILE} not found in current directory, downloading it first")
+                try:
+                    fetch_cohorts()
+                except (ConnectionError, OSError, KeyError) as e:
+                    logger.error(f"Could not download {COHORTS_FILE}: {e}")
+                    return
+            try:
+                print(f"\nCOSMIC cohorts available in {COHORTS_FILE}:")
+                print(list_cohorts_in_tar(COHORTS_FILE))
+            except (OSError, tarfile.TarError) as e:
+                logger.error(f"Could not read {COHORTS_FILE}: {e}")
+            return
+
+        if args.cohort:
+            logger.warning(
+                "--cohort is only supported for the MSKCC source. "
+                "COSMIC cohorts are distributed as a single bundle: "
+                "run 'mutagene fetch cohorts COSMIC' to download them all"
+            )
+            return
+
         try:
             fetch_cohorts()
-            logger.info("cohorts.tar.gz saved to current directory")
+            logger.info(f"{COHORTS_FILE} saved to current directory")
         except ConnectionError as e:
             logger.error(str(e))
 
@@ -126,8 +172,35 @@ Partial download is supported: if the process is interrupted run the same comman
         logger.warning("ICGC currently not supported")
 
     @classmethod
+    def list_genomes(cls):
+        """Prints the genome assemblies MutaGene can download and their local status"""
+        try:
+            from mutagene.webapp.genome_manager import GenomeManager
+
+            genome_manager = GenomeManager()
+            genomes_dir = genome_manager.genomes_dir
+            downloaded = set(genome_manager.get_available_genomes())
+        except (ImportError, OSError):
+            genomes_dir = Path.home() / ".mutagene" / "genomes"
+            downloaded = {g for g in SUPPORTED_GENOMES if (genomes_dir / f"{g}.2bit").exists()}
+
+        print("\nGenome assemblies available for download:")
+        for genome in SUPPORTED_GENOMES:
+            if genome in downloaded:
+                # other subcommands do not search the genomes directory, so
+                # print the path that has to be passed to their -g argument
+                print(f"\t{genome:8}\tdownloaded\t{genomes_dir / f'{genome}.2bit'}")
+            else:
+                print(f"\t{genome:8}\tnot downloaded")
+        print("\nDownload an assembly with: mutagene fetch genome -g <name>")
+        print("Pass the printed path to the -g argument of the other subcommands")
+
+    @classmethod
     def genome(cls, args):
         if args.resource == "genome":
+            if args.list:
+                cls.list_genomes()
+                return
             if not args.genome:
                 logger.warning(genome_error_message)
                 return

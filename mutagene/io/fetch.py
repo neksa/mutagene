@@ -6,6 +6,11 @@ from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
+# Genome assemblies MutaGene knows how to download from the UCSC genome browser
+SUPPORTED_GENOMES = ("hg19", "hg38", "mm10", "mm9")
+
+COHORTS_FILE = "cohorts.tar.gz"
+
 
 # ########### URL ##############
 def download_from_url(url, dst):
@@ -79,9 +84,8 @@ def fetch_genome(name):
 
 
 def fetch_cohorts():
-    url = "https://www.ncbi.nlm.nih.gov/research/mutagene/static/data/cohorts.tar.gz"
-    dst = "cohorts.tar.gz"
-    download_from_url(url, dst)
+    url = f"https://www.ncbi.nlm.nih.gov/research/mutagene/static/data/{COHORTS_FILE}"
+    download_from_url(url, COHORTS_FILE)
 
 
 def fetch_examples():

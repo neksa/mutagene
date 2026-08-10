@@ -4,6 +4,7 @@ import logging
 import threading
 from pathlib import Path
 
+from mutagene.io.fetch import SUPPORTED_GENOMES as _SUPPORTED_GENOMES
 from mutagene.io.fetch import download_from_url
 
 logger = logging.getLogger(__name__)
@@ -12,7 +13,7 @@ logger = logging.getLogger(__name__)
 class GenomeManager:
     """Manage genome reference files for the webapp."""
 
-    SUPPORTED_GENOMES = ["hg19", "hg38", "mm10", "mm9"]
+    SUPPORTED_GENOMES = list(_SUPPORTED_GENOMES)
     GENOME_URLS = {
         "hg19": "https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.2bit",
         "hg38": "https://hgdownload.soe.ucsc.edu/goldenPath/hg38/bigZips/hg38.2bit",

@@ -21,6 +21,46 @@ genome_error_message = """requires genome name argument -g hg19, hg38, mm10, see
 
 class SignatureMenu:
     def __init__(self, parser):
+        parser.description = """
+Identify the activity of known mutational signatures in samples.
+
+Mutational signatures are characteristic 96-channel profiles left behind by
+distinct mutagenic processes. This command decomposes the mutational profile of
+each sample into a non-negative linear combination of the signatures in the
+chosen collection and reports the exposure of each signature.
+
+Signature collections available with --signatures (-s):
+
+  MGA, 5        MutaGene-5, 5 signatures derived by MutaGene
+  MGB, 10       MutaGene-10, 10 signatures derived by MutaGene
+  COSMICv2, 30  COSMIC v2, 30 signatures
+  COSMICv3, 49  COSMIC v3, 67 single-base-substitution signatures (SBS1-SBS85)
+  KUCAB, 53     54 profiles of environmental mutagen exposure, including a
+                Control profile
+
+The numeric aliases are historical names and do not always match the number of
+signatures in the collection.
+
+Read more about MutaGene signatures at
+https://www.ncbi.nlm.nih.gov/research/mutagene/signatures and about COSMIC
+signatures at https://cancer.sanger.ac.uk/cosmic/signatures/
+
+The decomposition is an optimization problem; --method (-m) selects the
+function that is minimized. Confidence intervals for the exposures can be
+obtained by bootstrap resampling with --bootstrap.
+"""
+        parser.epilog = """
+Examples:
+# identify COSMIC v2 signatures in sample1.maf using hg19
+mutagene signature -i sample1.maf -g hg19 -s COSMICv2
+
+# identify MutaGene-5 signatures and write the result to a file
+mutagene signature -i sample1.maf -g hg19 -s 5 -o exposures.tsv
+
+# add bootstrap confidence intervals from 1000 replicates
+mutagene signature -i sample1.maf -g hg19 -s COSMICv3 --bootstrap -br 1000
+        """
+
         required_group = parser.add_argument_group("Required arguments")
         required_group.add_argument(
             "--infile", "-i", help="Input file in VCF or MAF format", type=argparse.FileType("r")
