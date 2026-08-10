@@ -76,11 +76,17 @@ def read_cohort_mutations_from_tar(tar_fname, cohort):
     na_mutations = {}
     profile = []
     cohort_size = 0
+    prefix = f"{cohort.lower()}."
     with tarfile.open(tar_fname, "r:*") as tar:
         for t in tar:
-            haystack = t.name.lower()
-            needle = f"/{cohort.lower()}."
-            if haystack.find(needle) != -1:
+            name = t.name.rsplit("/", 1)[-1]
+            # skip AppleDouble sidecars and other hidden entries
+            if name.startswith("."):
+                continue
+            haystack = name.lower()
+            # match on the file name so that bundles without a top level
+            # directory load the same cohorts that list_cohorts_in_tar shows
+            if haystack.startswith(prefix):
                 if haystack.endswith(".profile"):
                     profile_str = tar.extractfile(t).read().decode("utf-8")
                     profile = read_profile_str(profile_str)

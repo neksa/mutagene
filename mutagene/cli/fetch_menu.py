@@ -115,8 +115,8 @@ Partial download is supported: if the process is interrupted run the same comman
                 logger.info(f"{COHORTS_FILE} not found in current directory, downloading it first")
                 try:
                     fetch_cohorts()
-                except ConnectionError as e:
-                    logger.error(str(e))
+                except (ConnectionError, OSError, KeyError) as e:
+                    logger.error(f"Could not download {COHORTS_FILE}: {e}")
                     return
             try:
                 print(f"\nCOSMIC cohorts available in {COHORTS_FILE}:")
@@ -180,7 +180,7 @@ Partial download is supported: if the process is interrupted run the same comman
             genome_manager = GenomeManager()
             genomes_dir = genome_manager.genomes_dir
             downloaded = set(genome_manager.get_available_genomes())
-        except ImportError:
+        except (ImportError, OSError):
             genomes_dir = Path.home() / ".mutagene" / "genomes"
             downloaded = {g for g in SUPPORTED_GENOMES if (genomes_dir / f"{g}.2bit").exists()}
 
