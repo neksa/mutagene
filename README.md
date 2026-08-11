@@ -7,7 +7,7 @@ MutaGene is a Python package for analyzing mutations and mutational processes in
 
 ## Installation
 
-Requires Python 3.8+.
+Requires Python 3.10+.
 
 ```bash
 pip install mutagene

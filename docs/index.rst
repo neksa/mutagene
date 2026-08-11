@@ -20,7 +20,7 @@ Subcommands
 Installation
 ------------
 
-Requires Python 3.8 or higher::
+Requires Python 3.10 or higher::
 
     pip install mutagene
 
