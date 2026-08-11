@@ -51,10 +51,6 @@ web = [
     "jinja2>=3.1.0",
     "werkzeug>=3.0.0",
 ]
-viz = [
-    "matplotlib>=3.7.0",
-    "seaborn>=0.12.0",
-]
 
 [project.urls]
 Homepage = "http://www.ncbi.nlm.nih.gov/projects/mutagene/"
