@@ -2,6 +2,7 @@ import argparse
 import logging
 import sys
 
+from mutagene.cli.genome_resolver import GenomeNotFoundError, resolve_genome
 from mutagene.profiles.profile import calc_profile
 
 logger = logging.getLogger(__name__)
@@ -44,4 +45,9 @@ class ProfileMenu:
         if not args.genome:
             logger.warning(genome_error_message)
             return
+        try:
+            args.genome = resolve_genome(args.genome)
+        except GenomeNotFoundError as e:
+            logger.error(str(e))
+            sys.exit(1)
         calc_profile(args.infile, args.outfile, args.genome, args.input_format)

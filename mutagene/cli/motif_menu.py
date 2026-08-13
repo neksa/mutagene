@@ -2,6 +2,7 @@ import argparse
 import logging
 import sys
 
+from mutagene.cli.genome_resolver import GenomeNotFoundError, resolve_genome
 from mutagene.io.context_window import read_MAF_with_context_window, read_VCF_with_context_window
 from mutagene.io.motifs import get_known_motifs, write_motif_matches
 from mutagene.motifs import identify_motifs
@@ -139,6 +140,11 @@ mutagene motif --infile sample1.maf --input-format MAF --genome hg19 --motif 'C[
         if not args.genome:
             logger.warning(genome_error_message)
             return
+        try:
+            args.genome = resolve_genome(args.genome)
+        except GenomeNotFoundError as e:
+            logger.error(str(e))
+            sys.exit(1)
         if args.threshold > 1.0 or args.threshold < 0.0:
             logger.warning("The threshold value should be between 0.0 and 1.0, inclusive")
             return

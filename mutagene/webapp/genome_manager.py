@@ -4,6 +4,7 @@ import logging
 import threading
 from pathlib import Path
 
+from mutagene.cli.genome_resolver import DEFAULT_GENOMES_DIR
 from mutagene.io.fetch import SUPPORTED_GENOMES as _SUPPORTED_GENOMES
 from mutagene.io.fetch import download_from_url
 
@@ -29,7 +30,7 @@ class GenomeManager:
                          Defaults to ~/.mutagene/genomes/
         """
         if genomes_dir is None:
-            genomes_dir = Path.home() / ".mutagene" / "genomes"
+            genomes_dir = DEFAULT_GENOMES_DIR
 
         self.genomes_dir = Path(genomes_dir)
         self.genomes_dir.mkdir(parents=True, exist_ok=True)

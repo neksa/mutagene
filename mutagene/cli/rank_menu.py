@@ -3,6 +3,7 @@ import logging
 import sys
 from pathlib import Path
 
+from mutagene.cli.genome_resolver import GenomeNotFoundError, resolve_genome
 from mutagene.io.cohorts import (
     list_cohorts_in_tar,
     read_cohort_mutations_from_tar,
@@ -99,6 +100,15 @@ class RankMenu:
                     "List of available cohorts:\n" + list_cohorts_in_tar(args.cohorts_file)
                 )
                 return
+
+        if not args.genome:
+            logger.warning(genome_error_message)
+            return
+        try:
+            args.genome = resolve_genome(args.genome)
+        except GenomeNotFoundError as e:
+            logger.error(str(e))
+            sys.exit(1)
 
         try:
             mutations, _, processing_stats = read_mutations(

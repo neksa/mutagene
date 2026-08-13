@@ -3,6 +3,7 @@ import sys
 import tarfile
 from pathlib import Path
 
+from mutagene.cli.genome_resolver import DEFAULT_GENOMES_DIR
 from mutagene.io.cohorts import list_cohorts_in_tar
 from mutagene.io.fetch import (
     COHORTS_FILE,
@@ -181,19 +182,17 @@ Partial download is supported: if the process is interrupted run the same comman
             genomes_dir = genome_manager.genomes_dir
             downloaded = set(genome_manager.get_available_genomes())
         except (ImportError, OSError):
-            genomes_dir = Path.home() / ".mutagene" / "genomes"
+            genomes_dir = DEFAULT_GENOMES_DIR
             downloaded = {g for g in SUPPORTED_GENOMES if (genomes_dir / f"{g}.2bit").exists()}
 
         print("\nGenome assemblies available for download:")
         for genome in SUPPORTED_GENOMES:
             if genome in downloaded:
-                # other subcommands do not search the genomes directory, so
-                # print the path that has to be passed to their -g argument
                 print(f"\t{genome:8}\tdownloaded\t{genomes_dir / f'{genome}.2bit'}")
             else:
                 print(f"\t{genome:8}\tnot downloaded")
         print("\nDownload an assembly with: mutagene fetch genome -g <name>")
-        print("Pass the printed path to the -g argument of the other subcommands")
+        print("Downloaded assemblies can be passed to -g by name, e.g. -g hg19")
 
     @classmethod
     def genome(cls, args):
@@ -219,7 +218,7 @@ Partial download is supported: if the process is interrupted run the same comman
                 # Fallback: download to ~/.mutagene/genomes/ if webapp not installed
                 import os
 
-                genomes_dir = Path.home() / ".mutagene" / "genomes"
+                genomes_dir = DEFAULT_GENOMES_DIR
                 genomes_dir.mkdir(parents=True, exist_ok=True)
                 prev_cwd = os.getcwd()
                 try:
