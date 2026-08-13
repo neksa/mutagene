@@ -4,6 +4,7 @@ import sys
 
 from tqdm import tqdm
 
+from mutagene.cli.genome_resolver import GenomeNotFoundError, resolve_genome
 from mutagene.io.context_window import read_mutations
 from mutagene.io.decomposition import write_decomposition
 from mutagene.io.profile import read_signatures
@@ -168,6 +169,11 @@ mutagene signature -i sample1.maf -g hg19 -s COSMICv3 --bootstrap -br 1000
         if not args.genome:
             logger.warning(genome_error_message)
             return
+        try:
+            args.genome = resolve_genome(args.genome)
+        except GenomeNotFoundError as e:
+            logger.error(str(e))
+            sys.exit(1)
         if not args.signatures:
             logger.warning(
                 "Set of signatures required. Use 5 and 10 for MUTAGENE-5 and MUTAGENE-10. Use 30 for COSMIC-30"
