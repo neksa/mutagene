@@ -65,6 +65,11 @@ def get_context_batch(mutations, assembly, method="twobit"):
     return contexts
 
 
+def strip_line_terminator(line):
+    """Remove the line terminator only, preserving empty trailing tab-delimited columns"""
+    return line.rstrip("\r\n")
+
+
 def read_auto_profile(muts, fmt, asm):
     mutations = None
     processing_stats = None
@@ -74,7 +79,7 @@ def read_auto_profile(muts, fmt, asm):
     if fmt is None or fmt == "AUTO" or fmt == "auto" or fmt == "":
         mutations_lines = []
         for line in muts:
-            mutations_lines.append(line.strip())
+            mutations_lines.append(strip_line_terminator(line))
             if line.startswith("#version 2."):
                 fmt = "MAF"
                 break
@@ -107,9 +112,9 @@ def read_auto_profile(muts, fmt, asm):
                 if len(tabs) > 4 and tabs[4].lower().startswith("chr"):
                     fmt = "MAF"
                     break
-        mutations_lines.extend(muts.readlines())
+        mutations_lines.extend(strip_line_terminator(line) for line in muts.readlines())
     else:
-        mutations_lines = muts.readlines()
+        mutations_lines = [strip_line_terminator(line) for line in muts.readlines()]
 
     logger.info("DATA FORMAT:" + fmt)
 

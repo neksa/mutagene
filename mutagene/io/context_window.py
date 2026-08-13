@@ -208,6 +208,50 @@ def read_TCGI_with_context_window(infile, asm, window_size):
 _SUPPORTED_FORMATS = {"MAF", "VCF", "TCGI"}
 
 
+class _LineNumberTracker:
+    """
+    Iterates over input lines dropping comments, remembering the source line number
+    of the line handed to csv.reader last, so that malformed rows can be reported.
+    """
+
+    def __init__(self, lines):
+        self.lines = lines
+        self.line_number = 0
+
+    def __iter__(self):
+        for line_number, line in enumerate(self.lines, start=1):
+            self.line_number = line_number
+            if line.startswith("#"):
+                continue
+            yield line
+
+
+# GDC uses 1 and -1, an empty value means the strand is unknown
+_TRANSCRIPT_STRAND_VALUES = {"+": "+", "-": "-", "1": "+", "-1": "-", "": "+"}
+
+
+def _normalize_transcript_strand(value):
+    """Map a MAF transcript_strand value to '+' or '-', raising ValueError on unknown values"""
+    try:
+        return _TRANSCRIPT_STRAND_VALUES[value]
+    except KeyError:
+        raise ValueError(f"unexpected value of transcript_strand {value!r}") from None
+
+
+def _report_malformed_rows(skipped_rows, file_format):
+    """Warn once about all rows that were skipped because they could not be parsed"""
+    if not skipped_rows:
+        return
+    shown = ", ".join(f"line {line_number} ({reason})" for line_number, reason in skipped_rows[:5])
+    if len(skipped_rows) > 5:
+        shown += f" and {len(skipped_rows) - 5} more"
+    plural = "row" if len(skipped_rows) == 1 else "rows"
+    logger.warning(
+        f"Skipped {len(skipped_rows)} malformed {plural} in {file_format} file: {shown}. "
+        "The remaining rows were processed"
+    )
+
+
 def read_mutations(file_format, *args, **kwargs):
     """Wrapper for read_X_with_context_window"""
     if file_format not in _SUPPORTED_FORMATS:
@@ -234,8 +278,9 @@ def read_MAF_with_context_window(infile, asm, window_size):
         logger.warning("No input file")
         return mutations, {}, processing_stats
 
+    tracker = _LineNumberTracker(infile)
     try:
-        reader = csv.reader((row for row in infile if not row.startswith("#")), delimiter="\t")
+        reader = csv.reader(tracker, delimiter="\t")
         # get names from column headers
         header = next(reader)
         header = tuple(map(lambda s: s.lower().replace(".", "_"), header))
@@ -247,8 +292,23 @@ def read_MAF_with_context_window(infile, asm, window_size):
         return mutations, {}, processing_stats
 
     raw_mutations = defaultdict(list)
+    skipped_rows = []
     # for line in tqdm(infile):
-    for data in tqdm(map(MAF._make, reader), leave=False):
+    for row in tqdm(reader, leave=False):
+        if not any(field.strip() for field in row):
+            # empty line, carries no mutation
+            continue
+
+        try:
+            data = MAF._make(row)
+        except TypeError:
+            # wrong number of fields in this row: skip it and keep reading the file
+            skipped_rows.append(
+                (tracker.line_number, f"expected {len(header)} fields, got {len(row)}")
+            )
+            N_skipped += 1
+            continue
+
         # assembly_build = col_list[3]  # MAF ASSEMBLY
 
         # chromosome is expected to be one or two number or one letter
@@ -297,25 +357,20 @@ def read_MAF_with_context_window(infile, asm, window_size):
 
         # transcript strand could be anything
         if hasattr(data, "transcript_strand"):
-            transcript_strand = data.transcript_strand
-            # GDC uses 1 and -1
-            if transcript_strand == "+":
-                pass
-            elif transcript_strand == "-":
-                pass
-            elif transcript_strand == "1":
-                transcript_strand = "+"
-            elif transcript_strand == "-1":
-                transcript_strand = "-"
-            elif transcript_strand == "":
-                transcript_strand = "+"  # default value
-            else:
-                raise ValueError("Unexpected value of transcript_strand in MAF file")
+            try:
+                transcript_strand = _normalize_transcript_strand(data.transcript_strand)
+            except ValueError as e:
+                # unusable strand in this row: skip it and keep reading the file
+                skipped_rows.append((tracker.line_number, str(e)))
+                N_skipped += 1
+                continue
         else:
             # this is an incorrect assumption about transcript strand
             transcript_strand = "+"
 
         raw_mutations[sample].append((chrom, pos, transcript_strand, x, y))
+
+    _report_malformed_rows(skipped_rows, "MAF")
 
     mutations_with_context = defaultdict(list)
 
@@ -324,7 +379,11 @@ def read_MAF_with_context_window(infile, asm, window_size):
             contexts = get_context_twobit_window(sample_mutations, asm, window_size)
 
             if contexts is None or len(contexts) == 0:
-                return None, None, {"loaded": 0, "skipped": 0, "nsamples": 0, "format": "unknown"}
+                return (
+                    None,
+                    None,
+                    {"loaded": 0, "skipped": N_skipped, "nsamples": 0, "format": "unknown"},
+                )
 
             for chrom, pos, transcript_strand, x, y in sample_mutations:
                 (p5, p3), seq_with_coords = contexts.get((chrom, pos), (("N", "N"), []))
