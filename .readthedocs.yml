@@ -4,13 +4,16 @@
 
 version: 2
 
-# Build documentation in the docs/ directory with Sphinx
+# build.os and build.tools are required by Read the Docs. The old
+# python.version key this file used was removed and every build failed.
+build:
+  os: ubuntu-24.04
+  tools:
+    python: "3.12"
+
 sphinx:
   configuration: docs/conf.py
 
-
-# Optionally set the version of Python and requirements required to build your docs
 python:
-  version: 3.7
   install:
     - requirements: docs/requirements.txt

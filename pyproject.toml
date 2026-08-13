@@ -15,8 +15,6 @@ authors = [
 keywords = ["bioinformatics", "cancer", "mutations"]
 classifiers = [
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -30,15 +28,12 @@ classifiers = [
 ]
 
 dependencies = [
-    "bayesian-optimization>=1.4.0",
-    "clustergrammer>=1.13.0",
     "numpy>=1.24.0",
     "pandas>=2.0.0",
     "requests>=2.33.0",
     "scikit-learn>=1.3.0",
     "scipy>=1.10.0",
     "statsmodels>=0.14.0",
-    "pyvcf3>=1.0.0",
     "twobitreader>=3.1.7",
     "tqdm>=4.65.0",
 ]
@@ -52,12 +47,9 @@ web = [
     # is the patched boundary for its own advisory. uv.lock only governs this
     # repo, so this floor is what protects anyone installing the package.
     "python-socketio>=5.16.2",
+    # rendering the bundled templates and secure_filename in webapp/server.py
     "jinja2>=3.1.0",
-    "pyyaml>=6.0",
-]
-viz = [
-    "matplotlib>=3.7.0",
-    "seaborn>=0.12.0",
+    "werkzeug>=3.0.0",
 ]
 
 [project.urls]
