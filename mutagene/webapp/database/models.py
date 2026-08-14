@@ -85,6 +85,82 @@ def init_db(db_path):
     conn.close()
 
 
+def publish_run(
+    conn,
+    analysis_id,
+    samples,
+    mutations,
+    file_rows,
+    result_rows,
+    keep_types=("input_maf",),
+):
+    """Replace an analysis's stored output with the results of a completed run.
+
+    Clearing the previous run and writing the new one happen in a single
+    transaction, so a failure part way through cannot leave the analysis with
+    its old results deleted and the new ones only partially written. Callers
+    that committed each step separately had exactly that gap.
+
+    Args:
+        conn: SQLite connection
+        analysis_id: Analysis ID
+        samples: Sample count for the run
+        mutations: Mutation count for the run
+        file_rows: Iterable of (file_type, filename, path) for generated output
+        result_rows: Iterable of (result_type, data, sample_id)
+        keep_types: File types belonging to the analysis rather than to any one
+            run. The uploaded input is kept because a re-run reads from it.
+
+    Returns:
+        (results_removed, files_removed) from the previous run.
+    """
+    placeholders = ",".join("?" for _ in keep_types)
+
+    # `with conn` commits on success and rolls back if anything below raises.
+    with conn:
+        cursor = conn.cursor()
+
+        cursor.execute("DELETE FROM results WHERE analysis_id = ?", (analysis_id,))
+        results_removed = cursor.rowcount
+
+        cursor.execute(
+            f"DELETE FROM files WHERE analysis_id = ? AND file_type NOT IN ({placeholders})",
+            (analysis_id, *keep_types),
+        )
+        files_removed = cursor.rowcount
+
+        cursor.execute(
+            "UPDATE analyses SET samples = ?, mutations = ? WHERE id = ?",
+            (samples, mutations, analysis_id),
+        )
+
+        for file_type, filename, path in file_rows:
+            size_bytes = Path(path).stat().st_size if Path(path).exists() else 0
+            cursor.execute(
+                """
+                INSERT INTO files (analysis_id, file_type, filename, path, size_bytes)
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (analysis_id, file_type, filename, str(path), size_bytes),
+            )
+
+        for result_type, data, sample_id in result_rows:
+            cursor.execute(
+                """
+                INSERT INTO results (analysis_id, result_type, sample_id, data)
+                VALUES (?, ?, ?, ?)
+                """,
+                (analysis_id, result_type, sample_id, json.dumps(data, cls=_SafeEncoder)),
+            )
+
+        cursor.execute(
+            "UPDATE analyses SET status = 'complete', error_message = NULL WHERE id = ?",
+            (analysis_id,),
+        )
+
+    return results_removed, files_removed
+
+
 class Analysis:
     """Represents an analysis run."""
 

@@ -4,7 +4,7 @@ import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
 
-from .models import Analysis, File, Result, init_db
+from .models import Analysis, File, Result, init_db, publish_run
 
 
 class DatabaseManager:
@@ -89,6 +89,16 @@ class DatabaseManager:
         """Store analysis results."""
         with self.get_connection() as conn:
             return Result.create(conn, analysis_id, result_type, data, sample_id)
+
+    def publish_run_results(self, analysis_id, samples, mutations, file_rows, result_rows):
+        """Atomically replace an analysis's output with a completed run's results.
+
+        Returns (results_removed, files_removed) from the previous run. Either
+        everything lands or nothing does, so a failure cannot destroy the
+        previous results without storing the new ones.
+        """
+        with self.get_connection() as conn:
+            return publish_run(conn, analysis_id, samples, mutations, file_rows, result_rows)
 
     def get_results_by_type(self, analysis_id, result_type):
         """Get results of specific type."""
