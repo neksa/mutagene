@@ -55,15 +55,15 @@ Argument                                   Description                          
                                            TSV format  (If this argument is not included,
                                            output is to screen)   
 -o OUTFILE                                 Short form of --outfile OUTFILE                     -o out.tsv
---cohort COHORT                            Name of precalculated cohort which overwrites  
-                                           input sample(s). If cohort is specified, all three  --cohort gcb_lymphomas
-                                           method's input parameters will be derived from it.
-                                           Pan-cancer cohort is used by default if profile
-                                           is not specified, see below.
--c COHORT                                  Short form of --cohort COHORT argument              -c gcb_lymphomas
---profile PROFILE                          Specifies background mutability model. 
-                                           See comments below.                                          
--p PROFILE                                 Short form of --profile PROFILE
+--cohort COHORT                            Name of a precalculated cohort supplying the        --cohort GCB_Lymphomas
+                                           background profile, cohort size and observed
+                                           mutation frequencies. See section 2.4.
+-c COHORT                                  Short form of --cohort COHORT argument              -c GCB_Lymphomas
+-c                                         Given with no value, lists the available            -c
+                                           cohorts and exits
+--profile PROFILE                          Specifies background mutability model.              --profile my.profile
+                                           See section 2.4.
+-p PROFILE                                 Short form of --profile PROFILE                     -p my.profile
 --nsamples NSAMPLES                        Overrides the number of samples in cohort           --nsamples 20
 -n NSAMPLES                                Short form of --nsamples                            -n 20
 --threshold-driver THRESHOLD_DRIVER        BScore threshold between Driver and Pontential      --threshold-driver 0.000009
@@ -72,17 +72,70 @@ Argument                                   Description                          
 --threshold-passenger THRESHOLD_PASSENGER  BScore threshold between Potential Driver and       --threshold-passenger 0.0003
                                            Passenger mutations
 -tp THRESHOLD_PASSENGER                    Short form of --threshold-passenger                 -tp 0.0003
---cohorts-file COHORTS_FILE                Location of tar.gz container or directory for
-                                           cohorts
-=========================================  ==================================================  ==================================  
+--cohorts-file COHORTS_FILE                Location of tar.gz container or directory for       --cohorts-file cohorts.tar.gz
+                                           cohorts. Defaults to cohorts.tar.gz in the
+                                           current directory
+--params-out FILE                          Write the parameters of this run to FILE as         --params-out run.json
+                                           JSON
+--params-in FILE                           Take parameters from a FILE written by              --params-in run.json
+                                           --params-out. Arguments given on the command
+                                           line take precedence
+=========================================  ==================================================  ==================================
 
-Priorities of arguments:
+**2.4. Which argument controls which input**
 
-1. Profile and/or cohort size specified by "PROFILE".
-2. Profile, cohort size and observed mutation frequencies specified by "COHORT". 
-3. Profile, cohort size, observed mutation frequencies, and the list of mutations are taken from the Input file if PROFILE and COHORT are not specified.
+The method takes three separate inputs, and four arguments can set them. They
+overlap, which is the source of most confusion about this command.
 
-Priority 1 overrides 2, and 2 overrides 3
+=================  ==================  ======================  ==================
+Argument           Background profile  Cohort size             Observed mutations
+=================  ==================  ======================  ==================
+neither below      input sample        samples in input        input sample
+``--cohort``       cohort              cohort                  cohort
+``--profile``      profile file        if the file records it  unchanged
+``--nsamples``     unchanged           given value             unchanged
+=================  ==================  ======================  ==================
+
+"unchanged" means the argument leaves that input alone, so it keeps whatever a
+lower-precedence source set. ``--cohorts-file`` does not appear because it sets
+none of the three: it only selects where ``--cohort`` looks.
+
+Precedence, highest first:
+
+1. ``--nsamples`` sets the cohort size only.
+2. ``--profile`` sets the background profile, and the cohort size too if the
+   profile file records one.
+3. ``--cohort`` sets all three.
+4. With none of them, all three come from the input file.
+
+Each overrides the ones below it for the inputs it sets and no others. Combining
+``--profile`` with ``--cohort``, for instance, takes the profile from the file
+and the observed mutation frequencies from the cohort.
+
+**With no cohort and no profile, everything comes from the input file itself.**
+There is no default cohort. Ranking a single sample against itself gives a
+cohort size of 1, which makes the binomial test very weak, so a precalculated
+cohort is what makes the ranking meaningful.
+
+To see the cohorts available in your ``cohorts.tar.gz``, run ``mutagene rank -c``
+with no value. The names are descriptive rather than TCGA codes:
+``Lung_Adenocarcinoma``, not ``LUAD``. Download the file first with
+``mutagene fetch cohorts``.
+
+**2.5. Which transcript is used for each gene**
+
+A protein change such as ``V600E`` sits at different coordinates in different
+transcripts, so ranking a gene has to settle on one of them; mutations annotated
+against the others are not ranked.
+
+The longest transcript is chosen. Transcript length is read from a MAF column of
+the form ``1071/2445`` (``cDNA_position``, ``CDS_position`` or
+``Protein_position``), which VEP-annotated and GDC MAFs carry. Where no such
+column exists, the transcript carrying the most mutations for that gene is used
+instead, and an identifier comparison settles any remaining tie.
+
+The choice never depends on the order of rows in the MAF, and the transcript
+that was used appears in the ``transcript`` column of the output.
 
 --------------------------------
 3. Interpretation of Rank Output
@@ -94,7 +147,8 @@ The output will show a table with the headers described in table below.
 Output Table Header  Description    
 ===================  =======================================================================================================
 gene                 Name of gene with mutation
-mutation             Expressed as, eg. Y99F, ie. amino acid tyrosine (Y) replaced by phenylalanine (F) at position 99  
+transcript           Transcript the mutation was annotated against, chosen as described in section 2.5
+mutation             Expressed as, eg. Y99F, ie. amino acid tyrosine (Y) replaced by phenylalanine (F) at position 99
 mutability           Expected mutation rate in a particular DNA context
 observed             Observed mutational frequencies
 bscore               A binomial p-value for the observed number of occurences of mutation in comparison to the expected
@@ -103,6 +157,40 @@ qvalue               Bscore corrected for multiple testing with Benjamini-Hochbe
 label                Prediction of cancer drivers, Potential drivers, and Passengers is based on the thresholds established
                      for the Bscore optimized using this benchmark datasets. This is a rather arbitrary threshold.
 ===================  =======================================================================================================
+
+**3.1. The provenance header**
+
+The table is preceded by comment lines recording what produced it, because a
+ranking cannot be interpreted without knowing which profile, cohort size and
+observed-mutation counts went into it::
+
+    # mutagene_version: 1.0.0
+    # command: rank
+    # input_file: sample1.maf
+    # genome: /home/user/.mutagene/genomes/hg19.2bit
+    # profile_source: precalculated cohort Pancancer
+    # cohort_size: 9450
+    # cohort_size_source: precalculated cohort Pancancer
+    # observed_mutations_source: precalculated cohort Pancancer
+    # threshold_driver: 8.030647e-05
+    # threshold_passenger: 0.003440945
+    gene    transcript   mutation   mutability   observed   bscore     qvalue     label
+    CPXM2   uc001lhk.1   T536M      1.148e-05    6          2.064e-09  6.79e-07   Driver
+
+``cohort_size`` and ``cohort_size_source`` are separate because ``--nsamples``,
+a profile file and ``--cohort`` can each set the cohort size, and the number
+alone does not say which of them won.
+
+When ``--outfile`` names a file, the same information is also written to
+``<outfile>.provenance.json`` for programs to read. Output to the screen gets
+the comment lines only.
+
+Consumers of the table must skip lines beginning with ``#``. With pandas::
+
+    import pandas as pd
+    ranking = pd.read_csv("out.tsv", sep="\t", comment="#")
+
+Command-line tools generally need ``grep -v '^#'`` first.
 
 -----------
 4. Examples

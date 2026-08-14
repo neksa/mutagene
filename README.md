@@ -34,14 +34,16 @@ Use `mutagene <command> --help` for detailed usage of each subcommand.
 ## Quick Start
 
 ```bash
-# Download a genome assembly
+# Download a genome assembly and the precalculated cohorts
 mutagene fetch genome hg19
+mutagene fetch cohorts
 
 # Create a mutational profile
 mutagene profile -i sample.maf -g hg19 -o profile.tsv
 
-# Rank driver mutations
-mutagene rank -i sample.maf -g hg19 --cohort LUAD
+# List the available cohorts, then rank driver mutations against one
+mutagene rank -c
+mutagene rank -i sample.maf -g hg19 --cohort Lung_Adenocarcinoma
 
 # Search for mutational motifs
 mutagene motif -i sample.maf -g hg19 --motif 'C[C>T]G'
@@ -52,6 +54,18 @@ mutagene signature -i sample.maf -g hg19 -s COSMICv2
 # Start the web interface
 mutagene serve
 ```
+
+Every subcommand accepts `--params-out FILE` to record the parameters of a run,
+and `--params-in FILE` to replay it:
+
+```bash
+mutagene profile -i sample.maf -g hg19 -o profile.tsv --params-out run.json
+mutagene profile --params-in run.json -o rerun.tsv
+```
+
+The genome assembly must match the coordinates in your input file. Run with `-v`
+to see how many reference alleles disagree with the assembly; a large share
+means the wrong one was chosen.
 
 ## Citation
 
