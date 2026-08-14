@@ -7,6 +7,7 @@ import twobitreader as tbr
 from tqdm import tqdm
 
 from mutagene.dna import chromosome_name_mapping
+from mutagene.io.maf_columns import normalize_header, resolve_alleles, resolve_sample
 from mutagene.motifs import complementary_nucleotide, nucleotides
 
 logger = logging.getLogger(__name__)
@@ -87,6 +88,65 @@ def get_context_twobit_window(mutations, twobit_file, window_size):
     return contexts
 
 
+def _assemble_mutations(raw_mutations, asm, window_size):
+    """Attach genomic context to raw mutations, one sample at a time.
+
+    Returns ``(mutations, mutations_with_context, n_skipped)``.
+
+    A sample that yields no context at all -- because its chromosome names are
+    absent from the chosen assembly, say -- is dropped and the remaining samples
+    are still processed. Returning from the whole function there (#100) meant a
+    single bad sample discarded every sample after it and the caller saw
+    ``loaded: 0``, as though the file were empty, with sample order deciding how
+    much was lost. A genome that genuinely cannot be read still raises from
+    ``get_context_twobit_window``.
+    """
+    cn = complementary_nucleotide
+    mutations = defaultdict(lambda: defaultdict(float))
+    mutations_with_context = defaultdict(list)
+    samples_without_context = []
+    n_skipped = 0
+
+    for sample, sample_mutations in raw_mutations.items():
+        if len(sample_mutations) == 0:
+            continue
+
+        contexts = get_context_twobit_window(sample_mutations, asm, window_size)
+
+        if contexts is None or len(contexts) == 0:
+            samples_without_context.append(sample)
+            n_skipped += len(sample_mutations)
+            continue
+
+        for chrom, pos, transcript_strand, x, y in sample_mutations:
+            (p5, p3), seq_with_coords = contexts.get((chrom, pos), (("N", "N"), []))
+
+            if len(set([p5, x, y, p3]) - set(nucleotides)) > 0:
+                n_skipped += 1
+                continue
+
+            if x in "CT":
+                mutations[sample][p5 + p3 + x + y] += 1.0
+            else:
+                # complementary mutation
+                mutations[sample][cn[p3] + cn[p5] + cn[x] + cn[y]] += 1.0
+            mutations_with_context[sample].append(
+                (chrom, pos, transcript_strand, x, y, seq_with_coords)
+            )
+
+    if samples_without_context:
+        shown = ", ".join(map(str, samples_without_context[:5]))
+        if len(samples_without_context) > 5:
+            shown += f" and {len(samples_without_context) - 5} more"
+        logger.warning(
+            f"No genomic context found for {len(samples_without_context)} sample(s): {shown}. "
+            "Check that the chromosome names match the chosen genome assembly. "
+            "The remaining samples were processed"
+        )
+
+    return mutations, mutations_with_context, n_skipped
+
+
 def read_TCGI_with_context_window(infile, asm, window_size):
     """
     Tabular file; no particular column order required but must contain header line with four mandatory column names:
@@ -104,26 +164,23 @@ def read_TCGI_with_context_window(infile, asm, window_size):
 
     returns mutations, mutations_with_context, processing_stats
     """
-    cn = complementary_nucleotide
-    mutations = defaultdict(lambda: defaultdict(float))
     N_skipped = 0
 
     processing_stats = {"loaded": 0, "skipped": 0, "nsamples": 0, "format": "unknown"}
     if not infile:
         logger.warning("No input file")
-        return mutations, {}, processing_stats
+        return defaultdict(lambda: defaultdict(float)), {}, processing_stats
 
     try:
         reader = csv.reader((row for row in infile if not row.startswith("#")), delimiter="\t")
         # get names from column headers
         header = next(reader)
-        header = tuple(map(lambda s: s.lower().replace(".", "_"), header))
+        header = normalize_header(header)
         # print(header)
         TCGI = namedtuple("TCGI", header, rename=True)
     except ValueError:
         logger.warning("TCGI format not recognized")
         raise
-        return mutations, {}, processing_stats
 
     raw_mutations = defaultdict(list)
     # for line in tqdm(infile):
@@ -166,31 +223,10 @@ def read_TCGI_with_context_window(infile, asm, window_size):
         transcript_strand = "+"
         raw_mutations[sample].append((chrom, pos, transcript_strand, x, y))
 
-    mutations_with_context = defaultdict(list)
-
-    for sample, sample_mutations in raw_mutations.items():
-        if len(sample_mutations) > 0:
-            contexts = get_context_twobit_window(sample_mutations, asm, window_size)
-
-            if contexts is None or len(contexts) == 0:
-                return None, None, {"loaded": 0, "skipped": 0, "nsamples": 0, "format": "unknown"}
-
-            for chrom, pos, transcript_strand, x, y in sample_mutations:
-                (p5, p3), seq_with_coords = contexts.get((chrom, pos), (("N", "N"), []))
-
-                if len(set([p5, x, y, p3]) - set(nucleotides)) > 0:
-                    # print("Skipping invalid nucleotides")
-                    N_skipped += 1
-                    continue
-
-                if x in "CT":
-                    mutations[sample][p5 + p3 + x + y] += 1.0
-                else:
-                    # complementary mutation
-                    mutations[sample][cn[p3] + cn[p5] + cn[x] + cn[y]] += 1.0
-                mutations_with_context[sample].append(
-                    (chrom, pos, transcript_strand, x, y, seq_with_coords)
-                )
+    mutations, mutations_with_context, n_skipped = _assemble_mutations(
+        raw_mutations, asm, window_size
+    )
+    N_skipped += n_skipped
 
     N_loaded = 0
     for sample, sample_mutations in mutations.items():
@@ -269,27 +305,24 @@ def read_MAF_with_context_window(infile, asm, window_size):
 
     returns mutations, mutations_with_context, processing_stats
     """
-    cn = complementary_nucleotide
-    mutations = defaultdict(lambda: defaultdict(float))
     N_skipped = 0
 
     processing_stats = {"loaded": 0, "skipped": 0, "nsamples": 0, "format": "unknown"}
     if not infile:
         logger.warning("No input file")
-        return mutations, {}, processing_stats
+        return defaultdict(lambda: defaultdict(float)), {}, processing_stats
 
     tracker = _LineNumberTracker(infile)
     try:
         reader = csv.reader(tracker, delimiter="\t")
         # get names from column headers
         header = next(reader)
-        header = tuple(map(lambda s: s.lower().replace(".", "_"), header))
+        header = normalize_header(header)
         # print(header)
         MAF = namedtuple("MAF", header, rename=True)
     except ValueError:
         logger.warning("MAF format not recognized")
         raise
-        return mutations, {}, processing_stats
 
     raw_mutations = defaultdict(list)
     skipped_rows = []
@@ -317,27 +350,8 @@ def read_MAF_with_context_window(infile, asm, window_size):
         else:
             raise ValueError("Chromosome is not defined in MAF file")
 
-        if hasattr(data, "tumor_sample_barcode"):
-            sample = data.tumor_sample_barcode  # Tumor barcode
-        elif hasattr(data, "sample_id"):
-            sample = data.sample_id
-        else:
-            raise ValueError("Sample ID is not defined in MAF file")
-
-        if hasattr(data, "reference_allele"):
-            x = data.reference_allele  # MAF REF
-        else:
-            raise ValueError("Reference allele is not defined in MAF file")
-
-        if hasattr(data, "variant_allele"):
-            y = data.variant_allele
-        elif hasattr(data, "tumor_seq_allele1") and hasattr(data, "tumor_seq_allele2"):
-            y1 = data.tumor_seq_allele1  # MAF ALT1
-            y2 = data.tumor_seq_allele2  # MAF ALT2
-            y = y1 if y1 != x else None
-            y = y2 if y2 != x else y
-        else:
-            raise ValueError("Variant allele is not defined in MAF file")
+        sample = resolve_sample(data)
+        x, y = resolve_alleles(data)  # MAF REF and variant allele
 
         if y is None:
             continue
@@ -372,35 +386,10 @@ def read_MAF_with_context_window(infile, asm, window_size):
 
     _report_malformed_rows(skipped_rows, "MAF")
 
-    mutations_with_context = defaultdict(list)
-
-    for sample, sample_mutations in raw_mutations.items():
-        if len(sample_mutations) > 0:
-            contexts = get_context_twobit_window(sample_mutations, asm, window_size)
-
-            if contexts is None or len(contexts) == 0:
-                return (
-                    None,
-                    None,
-                    {"loaded": 0, "skipped": N_skipped, "nsamples": 0, "format": "unknown"},
-                )
-
-            for chrom, pos, transcript_strand, x, y in sample_mutations:
-                (p5, p3), seq_with_coords = contexts.get((chrom, pos), (("N", "N"), []))
-
-                if len(set([p5, x, y, p3]) - set(nucleotides)) > 0:
-                    # print("Skipping invalid nucleotides")
-                    N_skipped += 1
-                    continue
-
-                if x in "CT":
-                    mutations[sample][p5 + p3 + x + y] += 1.0
-                else:
-                    # complementary mutation
-                    mutations[sample][cn[p3] + cn[p5] + cn[x] + cn[y]] += 1.0
-                mutations_with_context[sample].append(
-                    (chrom, pos, transcript_strand, x, y, seq_with_coords)
-                )
+    mutations, mutations_with_context, n_skipped = _assemble_mutations(
+        raw_mutations, asm, window_size
+    )
+    N_skipped += n_skipped
 
     N_loaded = 0
     for sample, sample_mutations in mutations.items():
@@ -421,9 +410,6 @@ def read_VCF_with_context_window(infile, asm, window_size):
     Read VCF file and extract context of mutations for assembly asm and window +/- window_size around each mutation
     returns mutations, mutations_with_context, processing_stats
     """
-    cn = complementary_nucleotide
-    mutations = defaultdict(lambda: defaultdict(float))
-    mutations_with_context = defaultdict(list)
     raw_mutations = defaultdict(list)
 
     N_skipped = 0
@@ -467,31 +453,10 @@ def read_VCF_with_context_window(infile, asm, window_size):
     # print("RAW", raw_mutations)
     # print("INDELS", N_skipped)
 
-    for sample, sample_mutations in raw_mutations.items():
-        if len(sample_mutations) > 0:
-            contexts = get_context_twobit_window(sample_mutations, asm, window_size)
-            if contexts is None or len(contexts) == 0:
-                return None, None, {"loaded": 0, "skipped": 0, "nsamples": 0, "format": "unknown"}
-
-            for chrom, pos, transcript_strand, x, y in sample_mutations:
-                (p5, p3), seq_with_coords = contexts.get((chrom, pos), (("N", "N"), []))
-                # print("RESULT: {} {}".format(p5, p3))
-
-                if len(set([p5, x, y, p3]) - set(nucleotides)) > 0:
-                    # print(chrom, pos, p5, p3, x)
-                    # print("Skipping invalid nucleotides")
-                    N_skipped += 1
-                    continue
-
-                if x in "CT":
-                    mutations[sample][p5 + p3 + x + y] += 1.0
-                else:
-                    # complementary mutation
-                    mutations[sample][cn[p3] + cn[p5] + cn[x] + cn[y]] += 1.0
-
-                mutations_with_context[sample].append(
-                    (chrom, pos, transcript_strand, x, y, seq_with_coords)
-                )
+    mutations, mutations_with_context, n_skipped = _assemble_mutations(
+        raw_mutations, asm, window_size
+    )
+    N_skipped += n_skipped
 
     N_loaded = 0
     for sample, sample_mutations in mutations.items():

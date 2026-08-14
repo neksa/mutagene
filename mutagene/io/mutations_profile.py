@@ -6,6 +6,7 @@ import twobitreader as tbr
 from tqdm import tqdm
 
 from mutagene.dna import complementary_nucleotide, nucleotides
+from mutagene.io.maf_columns import normalize_header, resolve_alleles
 
 logger = logging.getLogger(__name__)
 
@@ -36,8 +37,11 @@ def get_context_53_twobit(mutations, twobit_file):
                 nuc = "N"
             if nuc != "N" and nuc != x:
                 if cn[nuc] == x:
-                    nuc3 = cn[nuc5]
-                    nuc5 = cn[nuc3]
+                    # REF is reported on the strand opposite the assembly, so the
+                    # flanking bases swap sides as well as complement. Assigning
+                    # them one at a time made the second read the value the first
+                    # had just written (#101).
+                    nuc5, nuc3 = cn[nuc3], cn[nuc5]
                 else:
                     nuc3 = nuc5 = "N"
         else:
@@ -138,7 +142,7 @@ def read_MAF_profile(muts, asm):
     try:
         reader = csv.reader((row for row in muts if not row.startswith("#")), delimiter="\t")
         header = next(reader)
-        header = tuple(map(lambda s: s.lower().replace(".", "_"), header))
+        header = normalize_header(header)
         MAF = namedtuple("MAF", header, rename=True)
     except ValueError:
         # raise
@@ -155,22 +159,16 @@ def read_MAF_profile(muts, asm):
 
         pos = int(data.start_position)  # MAF POS START
         pos_end = int(data.end_position)  # MAF POS END
-        x = data.reference_allele  # MAF REF
-
-        # Handle optional tumor allele columns
-        y1 = getattr(data, "tumor_seq_allele1", x)  # MAF ALT1 (optional)
-        y2 = getattr(data, "tumor_seq_allele2", x)  # MAF ALT2 (optional)
 
         if pos != pos_end:
             continue
 
-        # skip if found unexpected nucleotide characters
-        if len(set([x, y1, y2]) - set(nucleotides)) > 0:
+        x, y = resolve_alleles(data)  # MAF REF and variant allele
+        if y is None:
             continue
 
-        y = y1 if y1 != x else None
-        y = y2 if y2 != x else y
-        if y is None:
+        # skip if found unexpected nucleotide characters
+        if len(set([x, y]) - set(nucleotides)) > 0:
             continue
 
         raw_mutations.append((chrom, pos, x, y))
