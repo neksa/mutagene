@@ -3,10 +3,10 @@
 import gzip
 import json
 import logging
-import threading
 from pathlib import Path
 from typing import Any
 
+from mutagene.io.context_stats import assembly_mismatch_warning
 from mutagene.profiles.profile import calc_profile
 
 from .genome_manager import GenomeManager
@@ -175,59 +175,25 @@ def run_cohort_analysis(
     # Extract tar.gz once; plain files pass through unchanged
     input_file = extract_input_file(Path(input_file), output_dir)
 
-    # Track genome mismatch warnings
-    genome_mismatch_count = 0
-
     try:
         # Step 1: Generate mutational profiles
         logger.info(f"Reading mutations from {input_file}")
         profile_file = output_dir / "profile.txt"
 
-        # Count genome mismatches by intercepting log messages from context_window.
-        # Coupled to the warning string in io/context_window.py — update if that changes.
-        import logging as _logging
+        with open_input_file(input_file, "rt") as infile:
+            with open(profile_file, "w") as outfile:
+                profile_stats = calc_profile([infile], outfile, str(genome_path), fmt="auto")
 
-        class MismatchCounter(_logging.Handler):
-            """Count REF-mismatch warnings emitted by *this* thread only.
-
-            The handler is attached to a module-level logger shared by every
-            concurrent analysis, so records from other analyses must be ignored.
-            """
-
-            def __init__(self):
-                super().__init__()
-                self.mismatch_count = 0
-                self._thread_id = threading.get_ident()
-
-            def emit(self, record):
-                if record.thread != self._thread_id:
-                    return
-                if "REF allele does not match" in record.getMessage():
-                    self.mismatch_count += 1
-
-        mismatch_handler = MismatchCounter()
-        ctx_logger = _logging.getLogger("mutagene.io.context_window")
-        ctx_logger.addHandler(mismatch_handler)
-
-        try:
-            with open_input_file(input_file, "rt") as infile:
-                with open(profile_file, "w") as outfile:
-                    calc_profile([infile], outfile, str(genome_path), fmt="auto")
-        finally:
-            ctx_logger.removeHandler(mismatch_handler)
-
-        genome_mismatch_count = mismatch_handler.mismatch_count
-
-        if genome_mismatch_count > 0:
-            logger.warning(f"Found {genome_mismatch_count} genome assembly mismatches")
-            if genome_mismatch_count > 20:
-                logger.error(
-                    f"High number of genome mismatches ({genome_mismatch_count}) suggests wrong assembly!"
-                )
-                results["genome_warning"] = {
-                    "mismatch_count": genome_mismatch_count,
-                    "message": f"Found {genome_mismatch_count} reference allele mismatches. This suggests the wrong genome assembly was selected. Please try {('hg38' if genome == 'hg19' else 'hg19')}.",
-                }
+        # The mismatch count comes from the parser that does the comparison
+        # rather than from counting its log records. The old handler watched a
+        # logger around calc_profile, but the message it looked for is emitted
+        # by a different code path and only after the handler was removed, so
+        # it could never fire and wrong-assembly runs completed silently (#99).
+        genome_warning = assembly_mismatch_warning(
+            profile_stats, profile_stats.get("loaded", 0), genome
+        )
+        if genome_warning is not None:
+            results["genome_warning"] = genome_warning
 
         # Parse the profile data for visualization
         profile_data = {}

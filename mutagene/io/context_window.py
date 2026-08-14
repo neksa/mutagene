@@ -7,6 +7,7 @@ import twobitreader as tbr
 from tqdm import tqdm
 
 from mutagene.dna import chromosome_name_mapping
+from mutagene.io.context_stats import merge_context_stats, new_context_stats
 from mutagene.io.maf_columns import normalize_header, resolve_alleles, resolve_sample
 from mutagene.motifs import complementary_nucleotide, nucleotides
 
@@ -19,11 +20,14 @@ def get_context_twobit_window(mutations, twobit_file, window_size):
     It's a special data structure.
     contexts[(chrom, pos)] = (nuc5, nuc3), seq_with_coords
     where seq_with_coords = [(chrom, pos, nucleotide, strand)]
+
+    returns contexts, context_stats
     """
     if window_size is None:
         window_size = 50
 
     contexts = {}
+    stats = new_context_stats()
 
     fname = twobit_file if twobit_file.endswith(".2bit") else twobit_file + ".2bit"
 
@@ -51,11 +55,13 @@ def get_context_twobit_window(mutations, twobit_file, window_size):
                 seq = seq.upper()
             except Exception as e:
                 logger.warning(f"TwoBit exception while reading the genome in {chrom}:{pos}: {e}")
+                stats["read_errors"] += 1
                 continue
         else:
             logger.warning(
                 f"Chromosome {chromosome} not found in 2bit file. Consider renaming it or using a different genome assembly"
             )
+            stats["chromosome_not_found"] += 1
             continue
 
         strand = transcript_strand
@@ -76,22 +82,26 @@ def get_context_twobit_window(mutations, twobit_file, window_size):
 
         if nuc != "N" and nuc != x:
             if cn[nuc] == x:
+                # REF reported on the strand opposite the assembly. Normal, and
+                # not evidence of a wrong genome, so counted separately.
                 nuc5, nuc3 = cn[nuc3], cn[nuc5]
-                # print('debug: complementary REF sequence detected')
+                stats["reverse_strand_ref"] += 1
             else:
+                # REF matches neither strand: this is the wrong-assembly signal.
                 # print("{}:{}  {}>{}   {}[{}]{}".format(chromosome, pos, x, y, nuc5, nuc, nuc3))
                 nuc3 = nuc5 = "N"
-            logger.warning(
-                f"REF allele does not match the genomic sequence in {chromosome}:{pos} {x}!={nuc}. Multiple errors could mean wrong genome assembly choice"
-            )
+                stats["ref_mismatches"] += 1
+                logger.warning(
+                    f"REF allele does not match the genomic sequence in {chromosome}:{pos} {x}!={nuc}. Multiple errors could mean wrong genome assembly choice"
+                )
         contexts[(chrom, pos)] = (nuc5, nuc3), seq_with_coords
-    return contexts
+    return contexts, stats
 
 
 def _assemble_mutations(raw_mutations, asm, window_size):
     """Attach genomic context to raw mutations, one sample at a time.
 
-    Returns ``(mutations, mutations_with_context, n_skipped)``.
+    Returns ``(mutations, mutations_with_context, n_skipped, context_stats)``.
 
     A sample that yields no context at all -- because its chromosome names are
     absent from the chosen assembly, say -- is dropped and the remaining samples
@@ -105,13 +115,15 @@ def _assemble_mutations(raw_mutations, asm, window_size):
     mutations = defaultdict(lambda: defaultdict(float))
     mutations_with_context = defaultdict(list)
     samples_without_context = []
+    context_stats = new_context_stats()
     n_skipped = 0
 
     for sample, sample_mutations in raw_mutations.items():
         if len(sample_mutations) == 0:
             continue
 
-        contexts = get_context_twobit_window(sample_mutations, asm, window_size)
+        contexts, sample_stats = get_context_twobit_window(sample_mutations, asm, window_size)
+        merge_context_stats(context_stats, sample_stats)
 
         if contexts is None or len(contexts) == 0:
             samples_without_context.append(sample)
@@ -144,7 +156,7 @@ def _assemble_mutations(raw_mutations, asm, window_size):
             "The remaining samples were processed"
         )
 
-    return mutations, mutations_with_context, n_skipped
+    return mutations, mutations_with_context, n_skipped, context_stats
 
 
 def read_TCGI_with_context_window(infile, asm, window_size):
@@ -223,7 +235,7 @@ def read_TCGI_with_context_window(infile, asm, window_size):
         transcript_strand = "+"
         raw_mutations[sample].append((chrom, pos, transcript_strand, x, y))
 
-    mutations, mutations_with_context, n_skipped = _assemble_mutations(
+    mutations, mutations_with_context, n_skipped, context_stats = _assemble_mutations(
         raw_mutations, asm, window_size
     )
     N_skipped += n_skipped
@@ -237,6 +249,7 @@ def read_TCGI_with_context_window(infile, asm, window_size):
         "skipped": N_skipped,
         "nsamples": len(mutations.keys()),
         "format": "TCGI",
+        **context_stats,
     }
     return mutations, mutations_with_context, processing_stats
 
@@ -386,7 +399,7 @@ def read_MAF_with_context_window(infile, asm, window_size):
 
     _report_malformed_rows(skipped_rows, "MAF")
 
-    mutations, mutations_with_context, n_skipped = _assemble_mutations(
+    mutations, mutations_with_context, n_skipped, context_stats = _assemble_mutations(
         raw_mutations, asm, window_size
     )
     N_skipped += n_skipped
@@ -400,6 +413,7 @@ def read_MAF_with_context_window(infile, asm, window_size):
         "skipped": N_skipped,
         "nsamples": len(mutations.keys()),
         "format": "MAF",
+        **context_stats,
     }
 
     return mutations, mutations_with_context, processing_stats
@@ -453,7 +467,7 @@ def read_VCF_with_context_window(infile, asm, window_size):
     # print("RAW", raw_mutations)
     # print("INDELS", N_skipped)
 
-    mutations, mutations_with_context, n_skipped = _assemble_mutations(
+    mutations, mutations_with_context, n_skipped, context_stats = _assemble_mutations(
         raw_mutations, asm, window_size
     )
     N_skipped += n_skipped
@@ -468,5 +482,6 @@ def read_VCF_with_context_window(infile, asm, window_size):
         "skipped": N_skipped,
         "format": "VCF",
         "nsamples": nsamples,
+        **context_stats,
     }
     return mutations, mutations_with_context, processing_stats

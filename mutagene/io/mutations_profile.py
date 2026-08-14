@@ -6,6 +6,7 @@ import twobitreader as tbr
 from tqdm import tqdm
 
 from mutagene.dna import complementary_nucleotide, nucleotides
+from mutagene.io.context_stats import new_context_stats
 from mutagene.io.maf_columns import normalize_header, resolve_alleles
 
 logger = logging.getLogger(__name__)
@@ -14,8 +15,11 @@ logger = logging.getLogger(__name__)
 def get_context_53_twobit(mutations, twobit_file):
     """
     User twobitreader to get context of mutations
+
+    returns contexts, context_stats
     """
     contexts = {}
+    stats = new_context_stats()
 
     fname = twobit_file if twobit_file.endswith(".2bit") else twobit_file + ".2bit"
     f = tbr.TwoBitFile(fname)
@@ -35,6 +39,7 @@ def get_context_53_twobit(mutations, twobit_file):
                 nuc5, nuc, nuc3 = tuple(seq.upper())
             except (ValueError, KeyError, IndexError):
                 nuc = "N"
+                stats["read_errors"] += 1
             if nuc != "N" and nuc != x:
                 if cn[nuc] == x:
                     # REF is reported on the strand opposite the assembly, so the
@@ -42,17 +47,24 @@ def get_context_53_twobit(mutations, twobit_file):
                     # them one at a time made the second read the value the first
                     # had just written (#101).
                     nuc5, nuc3 = cn[nuc3], cn[nuc5]
+                    stats["reverse_strand_ref"] += 1
                 else:
+                    # REF matches neither strand: the wrong-assembly signal. This
+                    # path used to drop the mutation silently, which is half the
+                    # reason the webapp's mismatch warning never fired (#99).
                     nuc3 = nuc5 = "N"
+                    stats["ref_mismatches"] += 1
         else:
-            pass
+            stats["chromosome_not_found"] += 1
         contexts[(chrom, pos)] = (nuc5, nuc3)
-    return contexts
+    return contexts, stats
 
 
 def get_context_batch(mutations, assembly, method="twobit"):
     """
     Get context for a list of mutations [(chrom, pos, x, y) ] format
+
+    returns contexts, context_stats
     """
     if assembly is None:
         assembly = 38
@@ -65,8 +77,7 @@ def get_context_batch(mutations, assembly, method="twobit"):
         "twobit": get_context_53_twobit
     }
 
-    contexts = methods[method](mutations, assembly)
-    return contexts
+    return methods[method](mutations, assembly)
 
 
 def strip_line_terminator(line):
@@ -151,6 +162,7 @@ def read_MAF_profile(muts, asm):
 
     N_loaded = N_skipped = 0
 
+    context_stats = new_context_stats()
     raw_mutations = []
     for data in map(MAF._make, reader):
         chrom = data.chromosome  # MAF CHROM
@@ -174,7 +186,7 @@ def read_MAF_profile(muts, asm):
         raw_mutations.append((chrom, pos, x, y))
 
     if len(raw_mutations) > 0:
-        contexts = get_context_batch(raw_mutations, asm)
+        contexts, context_stats = get_context_batch(raw_mutations, asm)
 
         if contexts is None:
             return None, None
@@ -196,7 +208,12 @@ def read_MAF_profile(muts, asm):
                 mutations[cn[p3] + cn[p5] + cn[x] + cn[y]] += 1.0
 
     N_loaded = int(sum(mutations.values()))
-    processing_stats = {"loaded": N_loaded, "skipped": N_skipped, "format": "MAF"}
+    processing_stats = {
+        "loaded": N_loaded,
+        "skipped": N_skipped,
+        "format": "MAF",
+        **context_stats,
+    }
     return mutations, processing_stats
 
 
@@ -205,6 +222,7 @@ def read_VCF_profile(muts, asm=None):
     mutations = defaultdict(float)
     N_skipped = 0
 
+    context_stats = new_context_stats()
     raw_mutations = []
     for i, line in enumerate(muts):
         if line.startswith("#"):
@@ -235,7 +253,7 @@ def read_VCF_profile(muts, asm=None):
         raw_mutations.append((chrom, pos, x, y))
 
     if len(raw_mutations) > 0:
-        contexts = get_context_batch(raw_mutations, asm)
+        contexts, context_stats = get_context_batch(raw_mutations, asm)
 
         if contexts is None:
             return None, None
@@ -257,5 +275,10 @@ def read_VCF_profile(muts, asm=None):
                 mutations[cn[p3] + cn[p5] + cn[x] + cn[y]] += 1.0
 
     N_loaded = int(sum(mutations.values()))
-    processing_stats = {"loaded": N_loaded, "skipped": N_skipped, "format": "VCF"}
+    processing_stats = {
+        "loaded": N_loaded,
+        "skipped": N_skipped,
+        "format": "VCF",
+        **context_stats,
+    }
     return mutations, processing_stats

@@ -145,3 +145,76 @@ class TestProfileChannelOrder:
         arr = profile_dict_to_array({"A[C>A]A": 3})
         assert arr.shape == (96,)
         assert arr.sum() == 3
+
+
+class TestGenomeMismatchWarning:
+    """The warning that could never fire (GitHub issue #99).
+
+    The webapp counted log records around `calc_profile`, but the message it
+    counted is emitted by a different function, after the handler was removed.
+    Analyses against the wrong assembly therefore completed silently: the
+    stored evidence was a breast-cancer cohort analysed against hg19 that
+    returned haloalkane and azathioprine signatures without a word of warning.
+    """
+
+    HEADER = (
+        "Chromosome\tStart_Position\tEnd_Position\tReference_Allele\t"
+        "Tumor_Seq_Allele2\tTumor_Sample_Barcode"
+    )
+
+    def maf(self, tmp_path, ref, count=60):
+        rows = [self.HEADER]
+        for i in range(count):
+            pos = 10 + i
+            rows.append(f"17\t{pos}\t{pos}\t{ref}\tT\tSAMPLE1")
+        path = tmp_path / "input.maf"
+        path.write_text("\n".join(rows) + "\n")
+        return path
+
+    @pytest.fixture
+    def wired_up(self, tmp_path, monkeypatch):
+        """An all-A chr17 plus a genome path that exists."""
+        import twobitreader
+
+        from mutagene.webapp import analysis as analysis_module
+
+        class FakeChromosome:
+            def __init__(self, sequence):
+                self.sequence = sequence
+
+            def __getitem__(self, key):
+                return self.sequence[key]
+
+        class FakeTwoBitFile:
+            def __contains__(self, name):
+                return name == "chr17"
+
+            def __getitem__(self, name):
+                return FakeChromosome("A" * 200)
+
+        monkeypatch.setattr(twobitreader, "TwoBitFile", lambda fname: FakeTwoBitFile())
+
+        genome_path = tmp_path / "hg19.2bit"
+        genome_path.write_bytes(b"stub")
+        monkeypatch.setattr(
+            analysis_module.GenomeManager,
+            "get_genome_path",
+            lambda self, genome: genome_path,
+        )
+
+    def test_wrong_assembly_is_reported(self, tmp_path, wired_up):
+        from mutagene.webapp.analysis import run_cohort_analysis
+
+        results = run_cohort_analysis(self.maf(tmp_path, ref="G"), tmp_path / "out", genome="hg19")
+
+        warning = results.get("genome_warning")
+        assert warning is not None, "a wrong assembly must not complete silently"
+        assert warning["mismatch_count"] == 60
+        assert "hg38" in warning["message"]
+
+    def test_matching_assembly_is_not_reported(self, tmp_path, wired_up):
+        from mutagene.webapp.analysis import run_cohort_analysis
+
+        results = run_cohort_analysis(self.maf(tmp_path, ref="A"), tmp_path / "out", genome="hg19")
+
+        assert "genome_warning" not in results

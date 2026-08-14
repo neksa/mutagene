@@ -5,6 +5,7 @@ import io
 import pytest
 
 from mutagene.io import mutations_profile
+from mutagene.io.context_stats import new_context_stats
 
 MAF_COLUMNS = [
     "Hugo_Symbol",
@@ -38,7 +39,8 @@ def stub_context(monkeypatch):
     """Return a fixed 5'/3' context so tests do not need a genome file."""
 
     def fake_get_context_batch(mutations, assembly, method="twobit"):
-        return {(chrom, pos): ("A", "G") for chrom, pos, _x, _y in mutations}
+        contexts = {(chrom, pos): ("A", "G") for chrom, pos, _x, _y in mutations}
+        return contexts, new_context_stats()
 
     monkeypatch.setattr(mutations_profile, "get_context_batch", fake_get_context_batch)
 
@@ -88,7 +90,8 @@ def test_crlf_rows_are_parsed_without_line_terminators(monkeypatch):
 
     def capture_context_batch(mutations, assembly, method="twobit"):
         parsed.extend(mutations)
-        return {(chrom, pos): ("A", "G") for chrom, pos, _x, _y in mutations}
+        contexts = {(chrom, pos): ("A", "G") for chrom, pos, _x, _y in mutations}
+        return contexts, new_context_stats()
 
     monkeypatch.setattr(mutations_profile, "get_context_batch", capture_context_batch)
 
