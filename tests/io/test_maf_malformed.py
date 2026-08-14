@@ -6,6 +6,7 @@ import os
 import pytest
 
 from mutagene.io import context_window
+from mutagene.io.context_stats import new_context_stats
 from mutagene.io.context_window import read_MAF_with_context_window
 
 HEADER = (
@@ -30,10 +31,11 @@ def fake_context(monkeypatch):
     """Replace the 2bit lookup so that parsing can be tested without a genome."""
 
     def get_context(mutations, twobit_file, window_size):
-        return {
+        contexts = {
             (chrom, pos): (("A", "A"), [(chrom, pos, x, strand)])
             for chrom, pos, strand, x, y in mutations
         }
+        return contexts, new_context_stats()
 
     monkeypatch.setattr(context_window, "get_context_twobit_window", get_context)
 
@@ -131,7 +133,13 @@ class TestWellFormedInput:
             mutations, mutations_with_context, stats = read(lines)
 
         assert caplog.records == []
-        assert stats == {"loaded": 3, "skipped": 0, "nsamples": 1, "format": "MAF"}
+        assert stats == {
+            "loaded": 3,
+            "skipped": 0,
+            "nsamples": 1,
+            "format": "MAF",
+            **new_context_stats(),
+        }
         assert sum(mutations["SAMPLE1"].values()) == 3
 
     def test_missing_transcript_strand_column_defaults_to_plus(self, fake_context):

@@ -12,6 +12,7 @@ from collections import namedtuple
 import pytest
 
 from mutagene.io import context_window, mutations_profile
+from mutagene.io.context_stats import new_context_stats
 from mutagene.io.maf_columns import resolve_alleles
 
 
@@ -35,13 +36,15 @@ def stub_genome(monkeypatch):
     """Give both parsers a fixed A/G context so no genome file is needed."""
 
     def window_context(mutations, twobit_file, window_size):
-        return {
+        contexts = {
             (chrom, pos): (("A", "G"), [(chrom, pos, x, strand)])
             for chrom, pos, strand, x, y in mutations
         }
+        return contexts, new_context_stats()
 
     def batch_context(mutations, assembly, method="twobit"):
-        return {(chrom, pos): ("A", "G") for chrom, pos, _x, _y in mutations}
+        contexts = {(chrom, pos): ("A", "G") for chrom, pos, _x, _y in mutations}
+        return contexts, new_context_stats()
 
     monkeypatch.setattr(context_window, "get_context_twobit_window", window_context)
     monkeypatch.setattr(mutations_profile, "get_context_batch", batch_context)

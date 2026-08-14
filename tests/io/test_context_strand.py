@@ -56,7 +56,7 @@ REVERSE_STRAND_REF = "C"  # complement of the G actually in the assembly
 
 
 def test_reverse_strand_context_is_complemented_and_swapped(genome):
-    contexts = get_context_53_twobit([("17", POSITION, REVERSE_STRAND_REF, "T")], "unused")
+    contexts, _stats = get_context_53_twobit([("17", POSITION, REVERSE_STRAND_REF, "T")], "unused")
 
     assert contexts[("17", POSITION)] == (cn["A"], cn["A"]) == ("T", "T")
 
@@ -65,9 +65,9 @@ def test_both_context_extractors_agree_on_reverse_strand(genome):
     """The profile reader and the context-window reader must not diverge."""
     mutation = ("17", POSITION, REVERSE_STRAND_REF, "T")
 
-    from_profile = get_context_53_twobit([mutation], "unused")[("17", POSITION)]
+    from_profile = get_context_53_twobit([mutation], "unused")[0][("17", POSITION)]
 
-    windowed = get_context_twobit_window(
+    windowed, _ = get_context_twobit_window(
         [("17", POSITION, "+", REVERSE_STRAND_REF, "T")], "unused", 1
     )
     (nuc5, nuc3), _seq = windowed[("17", POSITION)]
@@ -77,12 +77,12 @@ def test_both_context_extractors_agree_on_reverse_strand(genome):
 
 def test_forward_strand_context_is_untouched(genome):
     """When REF matches the assembly the flanks are returned as they are."""
-    contexts = get_context_53_twobit([("17", POSITION, "G", "A")], "unused")
+    contexts, _stats = get_context_53_twobit([("17", POSITION, "G", "A")], "unused")
 
     assert contexts[("17", POSITION)] == ("A", "A")
 
 
 def test_ref_matching_neither_strand_yields_no_context(genome):
-    contexts = get_context_53_twobit([("17", POSITION, "T", "A")], "unused")
+    contexts, _stats = get_context_53_twobit([("17", POSITION, "T", "A")], "unused")
 
     assert contexts[("17", POSITION)] == ("N", "N")

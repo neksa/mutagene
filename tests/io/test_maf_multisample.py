@@ -11,6 +11,7 @@ import logging
 import pytest
 
 from mutagene.io import context_window
+from mutagene.io.context_stats import new_context_stats
 
 HEADER = "Chromosome\tStart_Position\tReference_Allele\tTumor_Seq_Allele2\tTumor_Sample_Barcode"
 
@@ -28,11 +29,12 @@ def genome_with_only_chr17(monkeypatch):
     """An assembly that knows chr17, so mutations elsewhere yield no context."""
 
     def get_context(mutations, twobit_file, window_size):
-        return {
+        contexts = {
             (chrom, pos): (("A", "G"), [(chrom, pos, x, strand)])
             for chrom, pos, strand, x, y in mutations
             if chrom == "17"
         }
+        return contexts, new_context_stats()
 
     monkeypatch.setattr(context_window, "get_context_twobit_window", get_context)
 

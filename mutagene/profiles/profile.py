@@ -9,6 +9,11 @@ from operator import add
 import numpy as np
 from numpy.random import multinomial
 
+from mutagene.io.context_stats import (
+    merge_context_stats,
+    new_context_stats,
+    report_assembly_mismatch,
+)
 from mutagene.io.mutations_profile import read_auto_profile
 from mutagene.io.profile import get_profile_attributes_dict, write_profile_file
 
@@ -16,7 +21,15 @@ logger = logging.getLogger(__name__)
 
 
 def calc_profile(infile, outfile, genome, fmt="auto"):
+    """Write a 96-channel profile for the given inputs.
+
+    Returns the combined processing stats, including the ``ref_mismatches``
+    count that identifies a wrong genome assembly. Callers that only want the
+    file may ignore it.
+    """
     all_mutations = {}
+    combined_stats = new_context_stats()
+    combined_stats.update({"loaded": 0, "skipped": 0})
     for f in infile:
         mutations, processing_stats = read_auto_profile(f, fmt=fmt, asm=genome)
         msg = "Loaded {} mutations".format(processing_stats["loaded"])
@@ -25,15 +38,22 @@ def calc_profile(infile, outfile, genome, fmt="auto"):
                 processing_stats["skipped"]
             )
         logger.info(msg)
+        merge_context_stats(combined_stats, processing_stats)
+        combined_stats["loaded"] += processing_stats.get("loaded", 0)
+        combined_stats["skipped"] += processing_stats.get("skipped", 0)
         all_mutations = {
             k: all_mutations.get(k, 0) + mutations.get(k, 0)
             for k in set(all_mutations) | set(mutations)
         }
+
+    report_assembly_mismatch(combined_stats, combined_stats["loaded"], genome)
+
     if sum(all_mutations.values()) == 0:
         logger.warning("Can not create profile")
-        return
+        return combined_stats
     profile = get_mutational_profile(all_mutations, counts=True)
     write_profile_file(outfile, profile)
+    return combined_stats
 
 
 def get_mutational_profile(mutational_profile_dict, counts=False):
