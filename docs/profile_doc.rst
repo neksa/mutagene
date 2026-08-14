@@ -1,48 +1,99 @@
 ==================================
-Description
+Profile: mutational profiles
 ==================================
 
+-----------------
+1. Description
+-----------------
 
+``mutagene profile`` counts the mutations in one or more samples by their
+substitution type and immediate sequence context, producing a 96-channel
+mutational profile. The profile is the input to signature decomposition and to
+the background mutability model used by ``mutagene rank``.
 
-==================================
-Profile Subpackage Documentation
-==================================
+Reference context is read from a 2bit genome assembly, so the assembly must
+match the coordinates in the input file. See section 4.
 
-Command: mutagene profile calculate [--infile][--genome][--outfile][--help]
+-----------------
+2. Arguments
+-----------------
 
-Required arguments (must be specified):
+**Command:** ``mutagene profile [arguments]``
+
+Required arguments:
 
 --infile, -i
-    Input file in MAF or VCF format with one or multiple samples
+    Input file in MAF or VCF format, with one or multiple samples. May be given
+    more than once; the profiles are pooled.
 
 --genome, -g
-    Location of genome assembly file in 2bit format
+    Genome assembly: a name such as ``hg19``, or the path to a 2bit file.
+    A bare name is resolved against the directory used by ``mutagene fetch``.
 
-Optional arguments (can be specified):
+Optional arguments:
 
 --outfile, -o
-    Name of output file, will be generated  in TSV format
+    Name of the output file, in TSV format. Defaults to the screen.
+
+--input-format, -f
+    ``auto`` (default), ``MAF`` or ``VCF``. Automatic detection reads the header
+    to decide.
+
+--params-out FILE
+    Write the parameters of this run to FILE as JSON.
+
+--params-in FILE
+    Take parameters from a FILE written by ``--params-out``. Arguments given on
+    the command line take precedence.
 
 --help, -h
-    show this help message and exit
+    Show the help message and exit.
 
-===============================
-How to Interpret Profile Output
-===============================
+------------------------------------
+3. How to interpret profile output
+------------------------------------
 
-The output will be in two columns.
+The output has two columns: the mutation channel, and the number of mutations
+in the input matching it.
 
-The first column contains 96 context-dependent, mutation types (6 substitution types in 16 5'3' contexts).
-The second column contains the total number of mutations that match the context-dependent,
-mutation type in the left column.
+Running ``mutagene profile -i sample2.vcf -g hg19`` produces output beginning::
 
-Sample Output and Interpretation (from running mutagene profile calculate -i sample2.vcf -g hg19):
+    A[C>A]A	119
+    A[C>G]A	174
+    A[C>T]A	475
+    A[T>A]A	53
 
-For the sake of conciseness, only a fraction of the total output is shown.
+So 119 mutations in ``sample2.vcf`` are C>A substitutions with an A on either
+side, 174 are C>G in the same context, and so on.
 
- - A[C>A]A 119
- - A[C>G]A 174
- - A[C>T]A 475
- - A[C>T]A 53
+**Channels are pyrimidine-centric.** Every substitution is expressed with C or T
+as the reference base; a G>A mutation is counted as its reverse-complement
+C>T, with the flanking bases complemented and swapped. The 96 channels are the
+6 substitution types (C>A, C>G, C>T, T>A, T>C, T>G) in each of the 16
+5'-3' contexts.
 
-In sample2.vcf, 119 mutations match A[C>A]A, 174 match A[C>G]A, 475 match A[C>T]A, and 53 match A[C>T]A.
+**Row order is not alphabetical.** Rows follow 5' base, then 3' base, then
+substitution type -- the order given by ``get_profile_attributes_dict()``, which
+is also the row order of the signature matrices that profiles are decomposed
+against. Sorting the channel labels alphabetically produces a *different*
+permutation of the same 96 channels. Code that pairs a profile with a signature
+matrix must not do so by sorted key: the result looks plausible and is wrong.
+
+-----------------------------------
+4. Choosing the genome assembly
+-----------------------------------
+
+The reference base at each position is looked up in the assembly and compared
+with the reference allele in the input. An assembly that does not match the
+coordinates produces disagreement at a large fraction of positions, and those
+mutations are dropped for want of a usable context.
+
+Run with ``-v`` to see the counts. A high proportion of mismatches is reported
+explicitly, for example::
+
+    WARNING 2374 mutations have a reference allele that matches neither strand
+    ERROR Found 2374 reference allele mismatches (53% of mutations examined).
+          This suggests the wrong genome assembly was selected. Please try hg38.
+
+A reference allele reported on the opposite strand is normal and is handled, not
+counted as a mismatch.

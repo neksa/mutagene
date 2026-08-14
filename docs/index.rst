@@ -16,6 +16,7 @@ Subcommands
    rank_doc
    motif_doc
    signature_doc
+   serve_doc
 
 Installation
 ------------
