@@ -221,3 +221,68 @@ class TestClaimAndRecovery:
         assert db.get_analysis(running)["status"] == "error"
         assert "interrupted" in db.get_analysis(running)["error_message"]
         assert db.get_analysis(done)["status"] == "complete"
+
+
+class TestPublishRunResults:
+    """Replacing an analysis's output must be all-or-nothing."""
+
+    def _seed(self, db, tmp_path):
+        analysis_id = db.create_analysis("s.maf", "hg38")
+        maf = tmp_path / "s.maf"
+        maf.write_text("x")
+        db.register_file(analysis_id, "input_maf", "s.maf", str(maf))
+        old = tmp_path / "old.tsv"
+        old.write_text("old")
+        db.register_file(analysis_id, "profile_tsv", "old.tsv", str(old))
+        db.store_result(analysis_id, "profile", {"A[C>T]G": 1})
+        return analysis_id
+
+    def test_replaces_previous_run(self, db, tmp_path):
+        analysis_id = self._seed(db, tmp_path)
+        new = tmp_path / "new.tsv"
+        new.write_text("new")
+
+        removed_results, removed_files = db.publish_run_results(
+            analysis_id,
+            samples=3,
+            mutations=99,
+            file_rows=[("profile_tsv", "new.tsv", str(new))],
+            result_rows=[("profile", {"A[C>T]G": 7}, None)],
+        )
+
+        assert (removed_results, removed_files) == (1, 1)
+        profiles = db.get_results_by_type(analysis_id, "profile")
+        assert len(profiles) == 1
+        assert profiles[0]["data"] == {"A[C>T]G": 7}
+
+        analysis = db.get_analysis(analysis_id)
+        assert analysis["status"] == "complete"
+        assert (analysis["samples"], analysis["mutations"]) == (3, 99)
+
+    def test_input_file_is_preserved(self, db, tmp_path):
+        analysis_id = self._seed(db, tmp_path)
+        db.publish_run_results(analysis_id, 1, 1, file_rows=[], result_rows=[])
+        kept = db.get_files_by_type(analysis_id, "input_maf")
+        assert len(kept) == 1, "a re-run reads the input, so it must survive"
+
+    def test_failure_rolls_back_previous_results(self, db, tmp_path):
+        analysis_id = self._seed(db, tmp_path)
+
+        class Unserializable:
+            pass
+
+        with pytest.raises(TypeError):
+            db.publish_run_results(
+                analysis_id,
+                samples=3,
+                mutations=99,
+                file_rows=[],
+                result_rows=[("profile", {"bad": Unserializable()}, None)],
+            )
+
+        # The previous run must still be intact and displayable.
+        profiles = db.get_results_by_type(analysis_id, "profile")
+        assert len(profiles) == 1
+        assert profiles[0]["data"] == {"A[C>T]G": 1}
+        assert len(db.get_files_by_type(analysis_id, "profile_tsv")) == 1
+        assert db.get_analysis(analysis_id)["status"] != "complete"

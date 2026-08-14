@@ -2,6 +2,7 @@
 
 import logging
 import os
+import shutil
 import sys
 import threading
 import webbrowser
@@ -129,6 +130,15 @@ def create_app(config=None):
     reclaimed = db.reset_stale_running()
     if reclaimed:
         logger.warning(f"Marked {reclaimed} interrupted analysis(es) as failed")
+
+    # A crash between swapping a run's output into place and committing its rows
+    # leaves the directory and the database disagreeing; put them back in step.
+    restored, discarded = _recover_interrupted_runs(app.config["RESULTS_FOLDER"], db)
+    if restored or discarded:
+        logger.warning(
+            f"Recovered interrupted analysis output: restored {restored} previous "
+            f"result directory(ies), discarded {discarded} incomplete one(s)"
+        )
 
     app.config["ANALYSIS_EXECUTOR"] = ThreadPoolExecutor(
         max_workers=app.config["MAX_CONCURRENT_ANALYSES"],
@@ -445,6 +455,98 @@ def register_socketio_handlers(socketio, db):
         logger.debug("Client disconnected")
 
 
+def _recover_interrupted_runs(results_folder, db):
+    """Reconcile output directories left behind by a process that died mid-swap.
+
+    A run stages its output, swaps it into place, then commits. A crash in
+    between can leave a `.<id>.incoming` (never swapped) or a `.<id>.previous`
+    (swapped, commit unknown). publish_run sets status='complete' in the same
+    transaction as the rows, so that flag says whether the commit landed:
+    complete means the new output is live and the backup is stale, anything
+    else means the swap must be undone to match the rows still in the database.
+
+    Returns (restored, discarded) counts.
+    """
+    results_folder = Path(results_folder)
+    restored = discarded = 0
+
+    for entry in results_folder.glob(".*"):
+        if not entry.is_dir():
+            continue
+
+        name = entry.name
+        if name.endswith(".incoming"):
+            # Never swapped in, so nothing references it.
+            shutil.rmtree(entry, ignore_errors=True)
+            discarded += 1
+            continue
+
+        if not name.endswith(".previous"):
+            continue
+
+        analysis_id = name[1 : -len(".previous")]
+        analysis = db.get_analysis(int(analysis_id)) if analysis_id.isdigit() else None
+        final_dir = results_folder / analysis_id
+
+        if analysis is not None and analysis.get("status") == "complete":
+            shutil.rmtree(entry, ignore_errors=True)
+            discarded += 1
+        else:
+            shutil.rmtree(final_dir, ignore_errors=True)
+            entry.rename(final_dir)
+            restored += 1
+
+    return restored, discarded
+
+
+def _rebase(path, staging_dir, final_dir):
+    """Re-point a path produced inside the staging directory at its final home.
+
+    Preserves any subdirectory structure, so an output written to a nested path
+    is registered where it will actually live rather than at the top level.
+    """
+    path = Path(path)
+    try:
+        relative = path.relative_to(staging_dir)
+    except ValueError:
+        # Not under staging, so the swap does not move it and its current
+        # location stays valid. Rewriting it would point at a file that the
+        # run never puts there.
+        return str(path)
+    return str(Path(final_dir) / relative)
+
+
+def _swap_into_place(staging_dir, final_dir, analysis_id):
+    """Move a completed run's output into final_dir, returning the kept-aside previous dir.
+
+    Returns None when there was no previous output. The previous directory is
+    retained so the caller can restore it if the database write fails. If the
+    move itself fails the previous output is put back before raising, so the
+    caller never sees a half-applied swap.
+    """
+    backup_dir = None
+    if final_dir.exists():
+        backup_dir = final_dir.parent / f".{analysis_id}.previous"
+        shutil.rmtree(backup_dir, ignore_errors=True)
+        final_dir.rename(backup_dir)
+    try:
+        staging_dir.rename(final_dir)
+    except OSError:
+        if backup_dir is not None:
+            backup_dir.rename(final_dir)
+        raise
+    return backup_dir
+
+
+def _restore_previous(backup_dir, final_dir):
+    """Undo _swap_into_place after a failed publish."""
+    if backup_dir is None:
+        shutil.rmtree(final_dir, ignore_errors=True)
+        return
+    shutil.rmtree(final_dir, ignore_errors=True)
+    backup_dir.rename(final_dir)
+
+
 def run_analysis(analysis_id, db, socketio, results_folder=None):
     """Run analysis in background thread.
 
@@ -462,6 +564,12 @@ def run_analysis(analysis_id, db, socketio, results_folder=None):
     if results_folder is None:
         results_folder = Path.home() / ".mutagene" / "results"
 
+    # Bound before the try so the finally can clean up even if setup fails.
+    staging_dir = None
+    # True once the run's results are committed; from then on a failure must not
+    # relabel the analysis as failed.
+    published = False
+
     try:
         # Get analysis details
         analysis = db.get_analysis(analysis_id)
@@ -475,8 +583,15 @@ def run_analysis(analysis_id, db, socketio, results_folder=None):
             raise ValueError("No input file found")
 
         input_path = Path(input_files[0]["path"])
-        output_dir = Path(results_folder) / str(analysis_id)
-        output_dir.mkdir(parents=True, exist_ok=True)
+        final_dir = Path(results_folder) / str(analysis_id)
+        # Write this run into a staging directory and move it into place only
+        # once the analysis succeeds. Writing straight into final_dir let a
+        # failed re-run overwrite the files that the still-published previous
+        # results point at.
+        staging_dir = Path(results_folder) / f".{analysis_id}.incoming"
+        shutil.rmtree(staging_dir, ignore_errors=True)
+        staging_dir.mkdir(parents=True, exist_ok=True)
+        output_dir = staging_dir
 
         # Emit progress updates
         socketio.emit(
@@ -492,50 +607,89 @@ def run_analysis(analysis_id, db, socketio, results_folder=None):
             config=analysis.get("config", {}),
         )
 
-        # Update analysis with results
-        with db.get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "UPDATE analyses SET samples = ?, mutations = ? WHERE id = ?",
-                (results["samples"], results["mutations"], analysis_id),
+        # Build the rows before touching the filesystem: malformed results must
+        # fail while the previous run is still fully in place.
+        file_rows = [
+            (
+                file_info["type"],
+                Path(file_info["path"]).name,
+                _rebase(file_info["path"], staging_dir, final_dir),
             )
-            conn.commit()
+            for file_info in results["files"]
+        ]
+        result_rows = [
+            (result_type, results[result_type_key], None)
+            for result_type, result_type_key in (
+                ("profile", "profiles"),
+                ("signatures", "signatures"),
+                ("classification", "classification"),
+                ("drivers", "drivers"),
+                ("clustering", "clustering"),
+                ("genome_warning", "genome_warning"),
+            )
+            if results.get(result_type_key)
+        ]
+        samples, mutations = results["samples"], results["mutations"]
 
-        # Register output files
-        for file_info in results["files"]:
-            db.register_file(
-                analysis_id, file_info["type"], Path(file_info["path"]).name, file_info["path"]
+        # The run succeeded, so move its output into place. The previous
+        # directory is kept aside until the database write commits, so a failure
+        # below can restore both the files and the rows together.
+        backup_dir = _swap_into_place(staging_dir, final_dir, analysis_id)
+
+        try:
+            removed_results, removed_files = db.publish_run_results(
+                analysis_id,
+                samples,
+                mutations,
+                file_rows,
+                result_rows,
+            )
+        except Exception:
+            # Nothing was committed, so put the previous output back to match.
+            _restore_previous(backup_dir, final_dir)
+            raise
+
+        # Past this point the run is committed and the analysis is 'complete'.
+        # Anything that fails below is incidental and must not relabel it as
+        # failed: doing so would contradict the committed rows and make startup
+        # recovery restore the previous output over them.
+        published = True
+
+        if backup_dir is not None:
+            shutil.rmtree(backup_dir, ignore_errors=True)
+            if backup_dir.exists():
+                logger.warning(
+                    f"Could not remove the previous output directory {backup_dir}; "
+                    f"it is no longer referenced and can be deleted"
+                )
+
+        if removed_results or removed_files:
+            logger.info(
+                f"Re-run of analysis {analysis_id} replaced {removed_results} previous "
+                f"result(s) and {removed_files} output file record(s)"
             )
 
-        # Store analysis results in database
-        if results.get("profiles"):
-            db.store_result(analysis_id, "profile", results["profiles"])
-
-        if results.get("signatures"):
-            db.store_result(analysis_id, "signatures", results["signatures"])
-
-        if results.get("classification"):
-            db.store_result(analysis_id, "classification", results["classification"])
-
-        if results.get("drivers"):
-            db.store_result(analysis_id, "drivers", results["drivers"])
-
-        if results.get("clustering"):
-            db.store_result(analysis_id, "clustering", results["clustering"])
-
-        if results.get("genome_warning"):
-            db.store_result(analysis_id, "genome_warning", results["genome_warning"])
-
-        # Mark as complete
-        db.update_analysis_status(analysis_id, "complete")
         socketio.emit("complete", {"analysis_id": analysis_id})
 
     except Exception as e:
         import traceback
 
         error_msg = f"{str(e)}\n{traceback.format_exc()}"
-        db.update_analysis_status(analysis_id, "error", error_msg)
-        socketio.emit("error", {"analysis_id": analysis_id, "error": str(e)})
+        if published:
+            # The results are committed; reporting them is what broke. Telling
+            # the client it failed would contradict what is stored.
+            logger.exception(
+                f"Analysis {analysis_id} completed and was stored, but reporting it failed"
+            )
+        else:
+            db.update_analysis_status(analysis_id, "error", error_msg)
+            socketio.emit("error", {"analysis_id": analysis_id, "error": str(e)})
+
+    finally:
+        # A failed run leaves its half-written output in staging; drop it rather
+        # than let it accumulate or be picked up by the next attempt.
+        if staging_dir is not None:
+            shutil.rmtree(staging_dir, ignore_errors=True)
 
 
 def start_server(host="127.0.0.1", port=5000, debug=False, open_browser=True):
