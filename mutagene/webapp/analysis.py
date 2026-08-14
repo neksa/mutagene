@@ -8,6 +8,7 @@ from typing import Any
 
 from mutagene.io.context_stats import assembly_mismatch_warning
 from mutagene.profiles.profile import calc_profile
+from mutagene.version import __version__
 
 from .genome_manager import GenomeManager
 
@@ -547,11 +548,31 @@ def run_cohort_analysis(
                             cohort_size,
                             THRESHOLD_DRIVER,
                             THRESHOLD_PASSENGER,
+                            provenance={
+                                "mutagene_version": __version__,
+                                "command": "rank",
+                                "input_file": Path(input_file).name,
+                                "genome": genome,
+                                "profile_source": (
+                                    f"precalculated cohort {config['cohort']}"
+                                    if cohort_aa_mutations is not None
+                                    else "input sample"
+                                ),
+                                "cohort_size": cohort_size,
+                                "observed_mutations_source": (
+                                    f"precalculated cohort {config['cohort']}"
+                                    if cohort_aa_mutations is not None
+                                    else "input sample"
+                                ),
+                                "threshold_driver": THRESHOLD_DRIVER,
+                                "threshold_passenger": THRESHOLD_PASSENGER,
+                            },
                         )
 
-                    # Read the TSV back as JSON for storage
+                    # Read the TSV back as JSON for storage. The provenance
+                    # header is comment-prefixed, so it must be skipped here.
                     if drivers_file.exists() and drivers_file.stat().st_size > 0:
-                        drivers_df = pd.read_csv(drivers_file, sep="\t")
+                        drivers_df = pd.read_csv(drivers_file, sep="\t", comment="#")
                         drivers_data = drivers_df.to_dict("records")
 
                         # Load known driver genes for annotation
