@@ -21,6 +21,66 @@ def read_protein_mutations_MAF_file(fname, genome, motifs=False):
         return read_protein_mutations_MAF(infile, genome)
 
 
+# VEP and GDC MAFs write these as "position/length", so the denominator gives
+# the transcript length. Protein positions are in residues, hence the factor 3.
+_LENGTH_COLUMNS = (("cdna_position", 1), ("cds_position", 1), ("protein_position", 3))
+
+
+def transcript_length(data):
+    """Length of the row's transcript in bases, or None when no column carries it.
+
+    Oncotator-style MAFs have no such column at all, so an absent length is the
+    common case rather than an error.
+    """
+    for field, scale in _LENGTH_COLUMNS:
+        value = getattr(data, field, None)
+        if not value or "/" not in str(value):
+            continue
+        total = str(value).rpartition("/")[2].strip()
+        try:
+            return int(total) * scale
+        except ValueError:
+            continue
+    return None
+
+
+def select_gene_transcripts(mutations, transcript_lengths):
+    """Choose one transcript per gene, the same way on every run.
+
+    Ranking a gene needs a single transcript because the same protein change
+    sits at different coordinates in different ones. The previous rule kept
+    whichever transcript happened to be read first and silently discarded
+    mutations on the others, so the output depended on MAF row order (#48).
+
+    The longest transcript wins, as issue #48 asks. Transcript lengths are only
+    available when the MAF carries a position column of the form
+    ``"1071/2445"``; where it does not, the transcript carrying the most
+    mutations wins instead, and an identifier comparison settles any remaining
+    tie so the choice is still reproducible.
+    """
+    counts = defaultdict(int)
+    for sample_mutations in mutations.values():
+        for gene, transcript, _protein_mutation in sample_mutations:
+            counts[(gene, transcript)] += 1
+
+    candidates = defaultdict(list)
+    for gene, transcript in counts:
+        candidates[gene].append(transcript)
+
+    chosen = {}
+    for gene, transcripts in candidates.items():
+        chosen[gene] = max(
+            transcripts,
+            key=lambda t: (transcript_lengths.get((gene, t), 0), counts[(gene, t)], t),
+        )
+        if len(transcripts) > 1:
+            logger.debug(
+                f"{gene}: ranking {chosen[gene]} out of "
+                f"{len(transcripts)} transcripts seen in the file"
+            )
+    return chosen
+
+
 def read_protein_mutations_MAF(infile, genome, motifs=False):
     mutations = defaultdict(dict)
     processing_stats = {"loaded": 0, "skipped": 0, "nsamples": 0, "format": "unknown"}
@@ -46,6 +106,7 @@ def read_protein_mutations_MAF(infile, genome, motifs=False):
         return mutations, processing_stats
 
     N_loaded = N_skipped = 0
+    transcript_lengths = {}
 
     for data in tqdm(map(MAF._make, reader), leave=False):
         # print(data)
@@ -216,6 +277,10 @@ def read_protein_mutations_MAF(infile, genome, motifs=False):
                 continue
 
             mutations[sample][(data.hugo_symbol, transcript, protein_mutation)] = {"seq5": seq5}
+
+            length = transcript_length(data)
+            if length is not None:
+                transcript_lengths[(data.hugo_symbol, transcript)] = length
         except Exception as e:
             N_skipped += 1
             logger.debug("General MAF parsing exception " + str(e))
@@ -232,24 +297,34 @@ def read_protein_mutations_MAF(infile, genome, motifs=False):
         "format": "MAF",
     }
 
-    gene_transcript_mapping = {}
+    gene_transcript_mapping = select_gene_transcripts(mutations, transcript_lengths)
+
     flat_mutations = {}
+    dropped = 0
     for sample, sample_mutations in mutations.items():
         for (gene, transcript, protein_mutation), props in sample_mutations.items():
-            if gene in gene_transcript_mapping:
-                if transcript != gene_transcript_mapping[gene]:
-                    continue
-            else:
-                # use first encountered transcript as canonical for the gene
-                # ignore other mutations
-                gene_transcript_mapping[gene] = transcript
+            if transcript != gene_transcript_mapping[gene]:
+                # A protein change means different things in different
+                # transcripts, so ranking a gene has to settle on one of them.
+                dropped += 1
+                continue
 
             if (gene, protein_mutation) not in flat_mutations:
                 # note that mutability would be represented only for one nucleotide mutation
-                flat_mutations[(gene, protein_mutation)] = {"seq5": {props["seq5"]: 1}}
+                flat_mutations[(gene, protein_mutation)] = {
+                    "seq5": {props["seq5"]: 1},
+                    "transcript": transcript,
+                }
             else:
                 if props["seq5"] not in flat_mutations[(gene, protein_mutation)]["seq5"]:
                     flat_mutations[(gene, protein_mutation)]["seq5"][props["seq5"]] = 0
                 flat_mutations[(gene, protein_mutation)]["seq5"][props["seq5"]] += 1
+
+    if dropped:
+        logger.info(
+            f"Ignored {dropped} mutations on non-selected transcripts of "
+            f"{len(gene_transcript_mapping)} gene(s)"
+        )
+    processing_stats["dropped_other_transcripts"] = dropped
 
     return flat_mutations, processing_stats

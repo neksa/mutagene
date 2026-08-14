@@ -14,6 +14,7 @@ from mutagene.io.profile import read_profile_file
 from mutagene.io.protein_mutations_MAF import read_protein_mutations_MAF
 from mutagene.mutability.mutability import THRESHOLD_DRIVER, THRESHOLD_PASSENGER, rank
 from mutagene.profiles.profile import get_pooled_multisample_mutational_profile
+from mutagene.version import __version__
 
 logger = logging.getLogger(__name__)
 genome_error_message = """requires genome name argument -g hg19, hg38, mm10, see http://hgdownload.soe.ucsc.edu/downloads.html for more
@@ -153,6 +154,13 @@ class RankMenu:
         profile = get_pooled_multisample_mutational_profile(mutations, counts=True)
         cohort_aa_mutations = None
 
+        # Which of the three method inputs came from where. Recorded as the
+        # decisions are made rather than reconstructed afterwards, so the output
+        # says what actually produced it (#63).
+        profile_source = f"input sample ({getattr(args.infile, 'name', 'input')})"
+        cohort_size_source = "number of samples in the input file"
+        observed_source = "input sample"
+
         # optionals:
         # overriding profile, cohort size and observed mutations based on precalc cohort
         if args.cohort is not None:
@@ -161,6 +169,9 @@ class RankMenu:
             )
             logger.info("Precalculated cohort and profile loaded")
             logger.info(f"Cohort size: {cohort_size}")
+            profile_source = f"precalculated cohort {args.cohort}"
+            cohort_size_source = f"precalculated cohort {args.cohort}"
+            observed_source = f"precalculated cohort {args.cohort}"
 
         # overriding profile:
         if args.profile:
@@ -170,18 +181,34 @@ class RankMenu:
             else:
                 logger.info("Profile could not be loaded")
                 return
+            profile_source = f"profile file {args.profile}"
             cohort_size_new = read_cohort_size_from_profile_file(args.profile)
             if cohort_size_new:
                 cohort_size = cohort_size_new
                 logger.info("Cohort size loaded from profile N=" + str(cohort_size))
+                cohort_size_source = f"profile file {args.profile}"
 
         # overriding n samples
         if args.nsamples:
             cohort_size = args.nsamples
             logger.info("Cohort size overridden N=" + str(cohort_size))
+            cohort_size_source = "--nsamples"
 
         logger.info(f"THRESHOLD_DRIVER: {args.threshold_driver}")
         logger.info(f"THRESHOLD_PASSENGER: {args.threshold_passenger}")
+
+        provenance = {
+            "mutagene_version": __version__,
+            "command": "rank",
+            "input_file": getattr(args.infile, "name", "unknown"),
+            "genome": args.genome,
+            "profile_source": profile_source,
+            "cohort_size": cohort_size,
+            "cohort_size_source": cohort_size_source,
+            "observed_mutations_source": observed_source,
+            "threshold_driver": args.threshold_driver,
+            "threshold_passenger": args.threshold_passenger,
+        }
 
         # ranking:
         try:
@@ -193,6 +220,7 @@ class RankMenu:
                 cohort_size,
                 args.threshold_driver,
                 args.threshold_passenger,
+                provenance=provenance,
             )
         except ValueError as e:
             logger.error(str(e))

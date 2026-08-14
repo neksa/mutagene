@@ -1,6 +1,8 @@
+import json
 import logging
 from collections import OrderedDict, defaultdict
 from functools import lru_cache, reduce
+from pathlib import Path
 
 import pandas as pd
 from scipy.stats import binomtest
@@ -120,6 +122,32 @@ def calculate_base_substitution_mutability(counts_profile, cohort_size):
 
 
 # import pprint
+def write_provenance(outfile, provenance):
+    """Record what produced this ranking, as comment lines and a sidecar file.
+
+    A ranking is only interpretable next to the profile, cohort size and
+    observed-mutation source it was computed from, none of which appeared
+    anywhere in the output before (#63). The comment lines keep it with the
+    table; the sidecar keeps it machine-readable. Readers of the TSV must skip
+    '#' lines -- `pandas.read_csv(..., comment="#")` does.
+    """
+    for key, value in provenance.items():
+        outfile.write(f"# {key}: {value}\n")
+
+    name = getattr(outfile, "name", None)
+    if not name or name.startswith("<"):
+        # stdout or another stream with nowhere to put a companion file
+        return None
+
+    sidecar = Path(f"{name}.provenance.json")
+    try:
+        sidecar.write_text(json.dumps(provenance, indent=2, default=str))
+    except OSError as e:
+        logger.warning(f"Could not write {sidecar}: {e}")
+        return None
+    return sidecar
+
+
 def rank(
     mutations_to_rank,
     outfile,
@@ -128,6 +156,7 @@ def rank(
     cohort_size,
     threshold_driver,
     threshold_passenger,
+    provenance=None,
 ):
     # profile_dict = profile_to_dict(profile)
     mutation_model = calculate_base_substitution_mutability(profile, cohort_size)
@@ -166,6 +195,7 @@ def rank(
         results.append(
             {
                 "gene": gene,
+                "transcript": mutation_value.get("transcript", ""),
                 "mutation": mut,
                 "mutability": mutability,
                 "observed": observed_k,
@@ -188,6 +218,8 @@ def rank(
     df = pd.DataFrame(results, columns=results[0].keys())
     df.drop(df[df.mutability == 0].index, inplace=True)
     try:
+        if provenance:
+            write_provenance(outfile, provenance)
         df.to_csv(outfile, sep="\t", index=False, doublequote=False)
     except (OSError, BrokenPipeError):
         pass
