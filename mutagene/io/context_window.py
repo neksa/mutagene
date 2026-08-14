@@ -8,7 +8,12 @@ from tqdm import tqdm
 
 from mutagene.dna import chromosome_name_mapping
 from mutagene.io.context_stats import merge_context_stats, new_context_stats
-from mutagene.io.maf_columns import normalize_header, resolve_alleles, resolve_sample
+from mutagene.io.maf_columns import (
+    normalize_header,
+    report_malformed_rows,
+    resolve_alleles,
+    resolve_sample,
+)
 from mutagene.motifs import complementary_nucleotide, nucleotides
 
 logger = logging.getLogger(__name__)
@@ -287,20 +292,6 @@ def _normalize_transcript_strand(value):
         raise ValueError(f"unexpected value of transcript_strand {value!r}") from None
 
 
-def _report_malformed_rows(skipped_rows, file_format):
-    """Warn once about all rows that were skipped because they could not be parsed"""
-    if not skipped_rows:
-        return
-    shown = ", ".join(f"line {line_number} ({reason})" for line_number, reason in skipped_rows[:5])
-    if len(skipped_rows) > 5:
-        shown += f" and {len(skipped_rows) - 5} more"
-    plural = "row" if len(skipped_rows) == 1 else "rows"
-    logger.warning(
-        f"Skipped {len(skipped_rows)} malformed {plural} in {file_format} file: {shown}. "
-        "The remaining rows were processed"
-    )
-
-
 def read_mutations(file_format, *args, **kwargs):
     """Wrapper for read_X_with_context_window"""
     if file_format not in _SUPPORTED_FORMATS:
@@ -397,7 +388,7 @@ def read_MAF_with_context_window(infile, asm, window_size):
 
         raw_mutations[sample].append((chrom, pos, transcript_strand, x, y))
 
-    _report_malformed_rows(skipped_rows, "MAF")
+    report_malformed_rows(skipped_rows, "MAF")
 
     mutations, mutations_with_context, n_skipped, context_stats = _assemble_mutations(
         raw_mutations, asm, window_size

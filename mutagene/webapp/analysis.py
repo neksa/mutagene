@@ -32,10 +32,30 @@ def extract_input_file(file_path: Path, output_dir: Path) -> Path:
     import tarfile
 
     if str(file_path).endswith(".tar.gz") or str(file_path).endswith(".tgz"):
-        with tarfile.open(file_path, "r:gz") as tar:
+
+        def truncated(e):
+            # Truncation surfaces from wherever the archive ran out -- opening
+            # it, listing it, or streaming a member -- so every one of those has
+            # to say the same actionable thing rather than leak an EOFError.
+            return TruncatedInputError(
+                f"{Path(file_path).name} could not be read as a tar.gz archive ({e}). "
+                "The upload may have been interrupted; try uploading it again"
+            )
+
+        try:
+            tar = tarfile.open(file_path, "r:gz")
+        except (tarfile.ReadError, EOFError, gzip.BadGzipFile, OSError) as e:
+            raise truncated(e) from None
+
+        with tar:
+            try:
+                members = tar.getmembers()
+            except (tarfile.ReadError, EOFError, gzip.BadGzipFile, OSError) as e:
+                raise truncated(e) from None
+
             maf_candidates = [
                 m
-                for m in tar.getmembers()
+                for m in members
                 if m.isfile() and ("mutation" in m.name.lower() or m.name.endswith(".maf"))
             ]
             if not maf_candidates:
@@ -84,6 +104,9 @@ def extract_input_file(file_path: Path, output_dir: Path) -> Path:
                                 f"Archived mutation file exceeds {MAX_EXTRACTED_BYTES} bytes"
                             )
                         dest.write(chunk)
+            except (tarfile.ReadError, EOFError, gzip.BadGzipFile) as e:
+                extracted_path.unlink(missing_ok=True)
+                raise truncated(e) from None
             except Exception:
                 extracted_path.unlink(missing_ok=True)
                 raise
@@ -92,11 +115,65 @@ def extract_input_file(file_path: Path, output_dir: Path) -> Path:
     return file_path
 
 
+class TruncatedInputError(ValueError):
+    """An uploaded archive ended before it should have."""
+
+
 def open_input_file(file_path: Path, mode: str = "rt"):
     """Open a mutation file, handling gzip transparently."""
     if str(file_path).endswith(".gz"):
-        return gzip.open(file_path, mode, encoding="utf-8")
+        return _GuardedGzipFile(file_path, mode)
     return open(file_path, mode, encoding="utf-8")
+
+
+class _GuardedGzipFile:
+    """A gzip file whose truncation is reported in terms the uploader can act on.
+
+    A part-uploaded .gz raises EOFError from wherever it happened to run out,
+    which surfaced as "Compressed file ended before the end-of-stream marker was
+    reached" with no indication of which file or what to do about it.
+    """
+
+    def __init__(self, file_path, mode):
+        self._path = file_path
+        self._fh = gzip.open(file_path, mode, encoding="utf-8")
+
+    def _guard(self, call, *args):
+        try:
+            return call(*args)
+        except (EOFError, gzip.BadGzipFile, OSError) as e:
+            raise TruncatedInputError(
+                f"{Path(self._path).name} is not a complete gzip file ({e}). "
+                "The upload was probably interrupted; try uploading it again"
+            ) from None
+
+    def __iter__(self):
+        # Iterating lazily, so truncation shows up part way through the read.
+        iterator = iter(self._fh)
+        while True:
+            try:
+                yield self._guard(next, iterator)
+            except StopIteration:
+                return
+
+    def read(self, *args):
+        return self._guard(self._fh.read, *args)
+
+    def readlines(self, *args):
+        return self._guard(self._fh.readlines, *args)
+
+    def seek(self, *args):
+        return self._fh.seek(*args)
+
+    def close(self):
+        self._fh.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+        return False
 
 
 def profile_channel_order() -> list[str]:

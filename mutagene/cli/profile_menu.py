@@ -50,4 +50,17 @@ class ProfileMenu:
         except GenomeNotFoundError as e:
             logger.error(str(e))
             sys.exit(1)
-        calc_profile(args.infile, args.outfile, args.genome, args.input_format)
+
+        try:
+            calc_profile(args.infile, args.outfile, args.genome, args.input_format)
+        except (ValueError, OSError) as e:
+            # An unreadable input is the user's problem to fix, not a defect to
+            # report, so say what is wrong instead of printing a traceback.
+            # rank and signature already did this; profile did not.
+            logger.error(
+                f"Could not read the input in {args.input_format} format: {e}\n"
+                "Check the file, or name a different format with --input-format (-f)"
+            )
+            if logger.root.level == logging.DEBUG:
+                raise
+            sys.exit(1)

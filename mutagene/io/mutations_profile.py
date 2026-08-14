@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 from mutagene.dna import complementary_nucleotide, nucleotides
 from mutagene.io.context_stats import new_context_stats
-from mutagene.io.maf_columns import normalize_header, resolve_alleles
+from mutagene.io.maf_columns import normalize_header, report_malformed_rows, resolve_alleles
 
 logger = logging.getLogger(__name__)
 
@@ -131,10 +131,23 @@ def read_auto_profile(muts, fmt, asm):
     else:
         mutations_lines = [strip_line_terminator(line) for line in muts.readlines()]
 
-    logger.info("DATA FORMAT:" + fmt)
+    # Sniffing leaves fmt as it found it, so an empty file never sets one and
+    # concatenating it here was a TypeError before the format could be reported.
+    logger.info(f"DATA FORMAT: {fmt}")
 
     if fmt not in ["MAF", "VCF"]:
-        logger.warning(f"The dataformat [{fmt}] is not supported")
+        # An empty file, or one whose contents look like nothing we read. Report
+        # an empty result rather than None: callers go on to read the counts out
+        # of processing_stats, and None made an unreadable file a TypeError
+        # deep in the caller instead of a message here.
+        if fmt in (None, "", "AUTO"):
+            logger.warning(
+                "Could not tell whether this is a MAF or a VCF file. "
+                "If the file is not empty, name the format with --input-format (-f)"
+            )
+        else:
+            logger.warning(f"The dataformat [{fmt}] is not supported")
+        return defaultdict(float), {"loaded": 0, "skipped": 0, "format": "unknown"}
 
     if fmt == "VCF":
         mutations, processing_stats = read_VCF_profile(mutations_lines, asm)
@@ -164,13 +177,36 @@ def read_MAF_profile(muts, asm):
 
     context_stats = new_context_stats()
     raw_mutations = []
-    for data in map(MAF._make, reader):
-        chrom = data.chromosome  # MAF CHROM
+    skipped_rows = []
+    for line_number, row in enumerate(reader, start=2):  # row 1 is the header
+        # A row that cannot be read is skipped and counted rather than raising
+        # out of the parser: one unusable row should not cost the whole file.
+        try:
+            data = MAF._make(row)
+        except TypeError:
+            skipped_rows.append((line_number, f"expected {len(header)} fields, got {len(row)}"))
+            N_skipped += 1
+            continue
+
+        chrom = getattr(data, "chromosome", None)
+        if chrom is None:
+            raise ValueError("Chromosome is not defined in MAF file")
         if chrom.lower().startswith("chr"):
             chrom = chrom[3:]
 
-        pos = int(data.start_position)  # MAF POS START
-        pos_end = int(data.end_position)  # MAF POS END
+        try:
+            pos = int(data.start_position)  # MAF POS START
+            pos_end = int(data.end_position)  # MAF POS END
+        except AttributeError as e:
+            # A whole column is missing, which is a property of the file rather
+            # than of this row, so there is no point reading any further.
+            raise ValueError(
+                f"Start_Position and End_Position are required in MAF file: {e}"
+            ) from None
+        except ValueError:
+            skipped_rows.append((line_number, "position is not a number"))
+            N_skipped += 1
+            continue
 
         if pos != pos_end:
             continue
@@ -184,6 +220,8 @@ def read_MAF_profile(muts, asm):
             continue
 
         raw_mutations.append((chrom, pos, x, y))
+
+    report_malformed_rows(skipped_rows, "MAF")
 
     if len(raw_mutations) > 0:
         contexts, context_stats = get_context_batch(raw_mutations, asm)
@@ -224,21 +262,33 @@ def read_VCF_profile(muts, asm=None):
 
     context_stats = new_context_stats()
     raw_mutations = []
-    for i, line in enumerate(muts):
+    skipped_rows = []
+    for i, line in enumerate(muts, start=1):
         if line.startswith("#"):
             continue
         if len(line) < 10:
             continue
 
         col_list = line.split()
-        if len(col_list) < 4:
+        # ALT is the fifth column, so five are needed to read one. The old guard
+        # asked for four and then indexed the fifth, so a four-column line raised
+        # IndexError out of the parser instead of being skipped.
+        if len(col_list) < 5:
+            skipped_rows.append((i, f"expected at least 5 columns, got {len(col_list)}"))
+            N_skipped += 1
             continue
 
         chrom = col_list[0]  # VCF CHROM
         if chrom.lower().startswith("chr"):
             chrom = chrom[3:]
 
-        pos = int(col_list[1])  # VCF POS
+        try:
+            pos = int(col_list[1])  # VCF POS
+        except ValueError:
+            skipped_rows.append((i, f"position {col_list[1]!r} is not a number"))
+            N_skipped += 1
+            continue
+
         x = col_list[3]  # VCF REF
         y = col_list[4]  # VCF ALT
 
@@ -251,6 +301,8 @@ def read_VCF_profile(muts, asm=None):
             continue
 
         raw_mutations.append((chrom, pos, x, y))
+
+    report_malformed_rows(skipped_rows, "VCF")
 
     if len(raw_mutations) > 0:
         contexts, context_stats = get_context_batch(raw_mutations, asm)

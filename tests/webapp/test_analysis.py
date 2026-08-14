@@ -218,3 +218,81 @@ class TestGenomeMismatchWarning:
         results = run_cohort_analysis(self.maf(tmp_path, ref="A"), tmp_path / "out", genome="hg19")
 
         assert "genome_warning" not in results
+
+
+class TestTruncatedUploads:
+    """A part-uploaded archive must say so, not leak an EOFError.
+
+    Analysis 13 in the stored database failed with "Compressed file ended before
+    the end-of-stream marker was reached", which names neither the file nor
+    anything the uploader could do about it.
+    """
+
+    def gzipped(self, tmp_path, keep_bytes=None):
+        import gzip as gz
+
+        source = tmp_path / "sample.maf"
+        source.write_text("Chromosome\tStart_Position\n" + "17\t100\n" * 500)
+        blob = gz.compress(source.read_bytes())
+        path = tmp_path / "sample.maf.gz"
+        path.write_bytes(blob if keep_bytes is None else blob[:keep_bytes])
+        return path
+
+    def tarred(self, tmp_path, keep_bytes=None):
+        import tarfile
+
+        source = tmp_path / "data_mutations.maf"
+        source.write_text("Chromosome\tStart_Position\n" + "17\t100\n" * 500)
+        full = tmp_path / "full.tar.gz"
+        with tarfile.open(full, "w:gz") as tar:
+            tar.add(str(source), arcname="data_mutations.maf")
+        if keep_bytes is None:
+            return full
+        path = tmp_path / "truncated.tar.gz"
+        path.write_bytes(full.read_bytes()[:keep_bytes])
+        return path
+
+    def test_truncated_gzip_is_reported_usefully(self, tmp_path):
+        from mutagene.webapp.analysis import TruncatedInputError, open_input_file
+
+        path = self.gzipped(tmp_path, keep_bytes=40)
+
+        with pytest.raises(TruncatedInputError) as excinfo:
+            with open_input_file(path, "rt") as fh:
+                for _ in fh:
+                    pass
+
+        assert "sample.maf.gz" in str(excinfo.value)
+        assert "uploading it again" in str(excinfo.value)
+
+    def test_intact_gzip_still_reads(self, tmp_path):
+        from mutagene.webapp.analysis import open_input_file
+
+        with open_input_file(self.gzipped(tmp_path), "rt") as fh:
+            lines = list(fh)
+
+        assert lines[0].startswith("Chromosome")
+        assert len(lines) == 501
+
+    def test_truncated_tarball_is_reported_usefully(self, tmp_path):
+        from mutagene.webapp.analysis import TruncatedInputError, extract_input_file
+
+        path = self.tarred(tmp_path, keep_bytes=200)
+
+        with pytest.raises(TruncatedInputError) as excinfo:
+            extract_input_file(path, tmp_path / "out")
+
+        assert "truncated.tar.gz" in str(excinfo.value)
+
+    def test_intact_tarball_still_extracts(self, tmp_path):
+        from mutagene.webapp.analysis import extract_input_file
+
+        extracted = extract_input_file(self.tarred(tmp_path), tmp_path / "out")
+
+        assert extracted.read_text().startswith("Chromosome")
+
+    def test_a_truncated_error_is_a_value_error(self, tmp_path):
+        """run_analysis reports ValueError to the client; EOFError it would not."""
+        from mutagene.webapp.analysis import TruncatedInputError
+
+        assert issubclass(TruncatedInputError, ValueError)

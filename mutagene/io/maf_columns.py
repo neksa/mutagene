@@ -8,6 +8,28 @@ MAF that another command rejected. Resolving columns here keeps them in step, so
 a file either parses for every subcommand or for none of them.
 """
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+def report_malformed_rows(skipped_rows, file_format):
+    """Warn once about all rows that were skipped because they could not be parsed.
+
+    One warning naming a few line numbers is useful; one warning per bad row in a
+    file with thousands of them is not.
+    """
+    if not skipped_rows:
+        return
+    shown = ", ".join(f"line {line_number} ({reason})" for line_number, reason in skipped_rows[:5])
+    if len(skipped_rows) > 5:
+        shown += f" and {len(skipped_rows) - 5} more"
+    plural = "row" if len(skipped_rows) == 1 else "rows"
+    logger.warning(
+        f"Skipped {len(skipped_rows)} malformed {plural} in {file_format} file: {shown}. "
+        "The remaining rows were processed"
+    )
+
 
 def normalize_header(header):
     """Map MAF column names onto namedtuple-safe field names.
