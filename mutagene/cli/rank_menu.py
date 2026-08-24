@@ -12,6 +12,7 @@ from mutagene.io.cohorts import (
 from mutagene.io.context_window import read_mutations
 from mutagene.io.profile import read_profile_file
 from mutagene.io.protein_mutations_MAF import read_protein_mutations_MAF
+from mutagene.io.variant_filter import add_filter_argument
 from mutagene.mutability.mutability import THRESHOLD_DRIVER, THRESHOLD_PASSENGER, rank
 from mutagene.profiles.profile import get_pooled_multisample_mutational_profile
 from mutagene.version import __version__
@@ -65,6 +66,8 @@ class RankMenu:
             const="",
         )
 
+        add_filter_argument(optional_group)
+
         advanced_group = parser.add_argument_group("Advanced arguments")
         advanced_group.add_argument(
             "--profile",
@@ -113,7 +116,11 @@ class RankMenu:
 
         try:
             mutations, _, processing_stats = read_mutations(
-                args.input_format, args.infile, args.genome, window_size=1
+                args.input_format,
+                args.infile,
+                args.genome,
+                window_size=1,
+                keep_filtered=args.keep_filtered,
             )
         except Exception as e:
             e_message = getattr(e, "message", repr(e))
@@ -141,7 +148,9 @@ class RankMenu:
 
         # read protein mutatations:
         args.infile.seek(0)
-        protein_mutations, processing_stats = read_protein_mutations_MAF(args.infile, args.genome)
+        protein_mutations, processing_stats = read_protein_mutations_MAF(
+            args.infile, args.genome, keep_filtered=args.keep_filtered
+        )
         msg = "Loaded {} protein mutations in {} samples".format(
             processing_stats["loaded"], processing_stats["nsamples"]
         )

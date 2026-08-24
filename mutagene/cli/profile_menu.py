@@ -3,6 +3,7 @@ import logging
 import sys
 
 from mutagene.cli.genome_resolver import GenomeNotFoundError, resolve_genome
+from mutagene.io.variant_filter import add_filter_argument
 from mutagene.profiles.profile import calc_profile
 
 logger = logging.getLogger(__name__)
@@ -29,6 +30,8 @@ class ProfileMenu:
         )
 
         # for backwards compatibility with 0.8.X add a hidden action that would just take anything as a valid input
+        add_filter_argument(parser)
+
         parser.add_argument("action", nargs="?", metavar="")
 
     def callback(self, args):
@@ -52,7 +55,13 @@ class ProfileMenu:
             sys.exit(1)
 
         try:
-            calc_profile(args.infile, args.outfile, args.genome, args.input_format)
+            calc_profile(
+                args.infile,
+                args.outfile,
+                args.genome,
+                args.input_format,
+                keep_filtered=args.keep_filtered,
+            )
         except (ValueError, OSError) as e:
             # An unreadable input is the user's problem to fix, not a defect to
             # report, so say what is wrong instead of printing a traceback.

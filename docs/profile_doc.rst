@@ -39,6 +39,9 @@ Optional arguments:
     ``auto`` (default), ``MAF`` or ``VCF``. Automatic detection reads the header
     to decide.
 
+--keep-filtered
+    Include variants the caller rejected. See section 5.
+
 --params-out FILE
     Write the parameters of this run to FILE as JSON.
 
@@ -97,3 +100,30 @@ explicitly, for example::
 
 A reference allele reported on the opposite strand is normal and is handled, not
 counted as a mismatch.
+
+------------------------------------
+5. Variants the caller rejected
+------------------------------------
+
+Variant callers record their verdict in a ``FILTER`` field: ``PASS`` for a
+variant they stand behind, ``.`` when no filters were applied, and otherwise the
+names of the filters it failed, such as ``germline``, ``weak_evidence`` or
+``clustered_events``.
+
+**Only PASS variants are counted by default.** A file with no ``FILTER`` column
+has rejected nothing, so all of it is used. Pass ``--keep-filtered`` to include
+rejected variants.
+
+This matters more than it sounds. A Mutect2 file in which most rows are marked
+``germline`` yields a profile that is mostly germline variation rather than
+somatic mutation, and the signature decomposition will report that faithfully --
+typically as SBS5 with a germline-contamination signature alongside it.
+
+The field is read from the seventh column of a VCF, and from a column named
+``FILTER`` in a MAF. GDC's separate ``GDC_FILTER`` column is **not** used: it
+mixes quality flags with annotations such as ``NonExonic``, and a non-exonic
+mutation is perfectly good input to a mutational profile.
+
+Some MAF converters do not produce a ``FILTER`` column at all, leaving the
+caller's verdict in a passthrough column under another name. Nothing can be
+honoured in that case; check for such a column before trusting the counts.
