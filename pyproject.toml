@@ -75,7 +75,10 @@ addopts = "-v --cov=mutagene --cov-report=term-missing"
 
 [tool.black]
 line-length = 100
-target-version = ["py310", "py311", "py312", "py313"]
+# The lowest version listed governs the output, so py313 changed nothing about
+# formatting; it only made the AST-equivalence check parse with 3.13 grammar,
+# which fails under the 3.12 interpreters that CI and contributors also run.
+target-version = ["py310", "py311", "py312"]
 
 [tool.ruff]
 line-length = 100
