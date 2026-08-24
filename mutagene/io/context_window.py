@@ -202,11 +202,15 @@ def read_TCGI_with_context_window(infile, asm, window_size):
     raw_mutations = defaultdict(list)
     # for line in tqdm(infile):
     for data in tqdm(map(TCGI._make, reader), leave=False):
-        # chromosome is expected to be one or two number or one letter
-        if hasattr(data, "chrom"):
-            chrom = data.chrom
-        else:
-            raise ValueError("Chromosome is not defined in TCGI file")
+        # chromosome is expected to be one or two number or one letter.
+        # The documented column name is CHR; CHROM is accepted because the code
+        # only ever looked for that, so files written to the documentation were
+        # rejected and files written to the code were undocumented.
+        chrom = getattr(data, "chr", None)
+        if chrom is None:
+            chrom = getattr(data, "chrom", None)
+        if chrom is None:
+            raise ValueError("Chromosome (CHR) is not defined in TCGI file")
 
         if hasattr(data, "sample"):
             sample = data.sample
