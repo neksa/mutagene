@@ -8,6 +8,7 @@ from tqdm import tqdm
 from mutagene.dna import complementary_nucleotide, nucleotides
 from mutagene.io.context_stats import new_context_stats
 from mutagene.io.maf_columns import normalize_header, report_malformed_rows, resolve_alleles
+from mutagene.io.variant_filter import passes_filter, report_filtered
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +86,7 @@ def strip_line_terminator(line):
     return line.rstrip("\r\n")
 
 
-def read_auto_profile(muts, fmt, asm):
+def read_auto_profile(muts, fmt, asm, keep_filtered=False):
     mutations = None
     processing_stats = None
     if fmt is not None:
@@ -150,14 +151,14 @@ def read_auto_profile(muts, fmt, asm):
         return defaultdict(float), {"loaded": 0, "skipped": 0, "format": "unknown"}
 
     if fmt == "VCF":
-        mutations, processing_stats = read_VCF_profile(mutations_lines, asm)
+        mutations, processing_stats = read_VCF_profile(mutations_lines, asm, keep_filtered)
     if fmt == "MAF":
-        mutations, processing_stats = read_MAF_profile(mutations_lines, asm)
+        mutations, processing_stats = read_MAF_profile(mutations_lines, asm, keep_filtered)
 
     return mutations, processing_stats
 
 
-def read_MAF_profile(muts, asm):
+def read_MAF_profile(muts, asm, keep_filtered=False):
 
     cn = complementary_nucleotide
     mutations = defaultdict(float)
@@ -178,6 +179,7 @@ def read_MAF_profile(muts, asm):
     context_stats = new_context_stats()
     raw_mutations = []
     skipped_rows = []
+    n_filtered = 0
     for line_number, row in enumerate(reader, start=2):  # row 1 is the header
         # A row that cannot be read is skipped and counted rather than raising
         # out of the parser: one unusable row should not cost the whole file.
@@ -186,6 +188,10 @@ def read_MAF_profile(muts, asm):
         except TypeError:
             skipped_rows.append((line_number, f"expected {len(header)} fields, got {len(row)}"))
             N_skipped += 1
+            continue
+
+        if not keep_filtered and not passes_filter(getattr(data, "filter", None)):
+            n_filtered += 1
             continue
 
         chrom = getattr(data, "chromosome", None)
@@ -222,6 +228,7 @@ def read_MAF_profile(muts, asm):
         raw_mutations.append((chrom, pos, x, y))
 
     report_malformed_rows(skipped_rows, "MAF")
+    report_filtered(n_filtered, "MAF")
 
     if len(raw_mutations) > 0:
         contexts, context_stats = get_context_batch(raw_mutations, asm)
@@ -255,7 +262,7 @@ def read_MAF_profile(muts, asm):
     return mutations, processing_stats
 
 
-def read_VCF_profile(muts, asm=None):
+def read_VCF_profile(muts, asm=None, keep_filtered=False):
     cn = complementary_nucleotide
     mutations = defaultdict(float)
     N_skipped = 0
@@ -263,6 +270,7 @@ def read_VCF_profile(muts, asm=None):
     context_stats = new_context_stats()
     raw_mutations = []
     skipped_rows = []
+    n_filtered = 0
     for i, line in enumerate(muts, start=1):
         if line.startswith("#"):
             continue
@@ -289,6 +297,12 @@ def read_VCF_profile(muts, asm=None):
             N_skipped += 1
             continue
 
+        # FILTER is the seventh column. A file that stops before it has
+        # recorded no filters, so there is nothing to honour.
+        if not keep_filtered and len(col_list) > 6 and not passes_filter(col_list[6]):
+            n_filtered += 1
+            continue
+
         x = col_list[3]  # VCF REF
         y = col_list[4]  # VCF ALT
 
@@ -303,6 +317,7 @@ def read_VCF_profile(muts, asm=None):
         raw_mutations.append((chrom, pos, x, y))
 
     report_malformed_rows(skipped_rows, "VCF")
+    report_filtered(n_filtered, "VCF")
 
     if len(raw_mutations) > 0:
         contexts, context_stats = get_context_batch(raw_mutations, asm)

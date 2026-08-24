@@ -8,6 +8,7 @@ from mutagene.cli.genome_resolver import GenomeNotFoundError, resolve_genome
 from mutagene.io.context_window import read_mutations
 from mutagene.io.decomposition import write_decomposition
 from mutagene.io.profile import read_signatures
+from mutagene.io.variant_filter import add_filter_argument
 from mutagene.profiles.profile import (
     generate_resampled_profiles,
     get_multisample_mutational_profile,
@@ -102,6 +103,8 @@ mutagene signature -i sample1.maf -g hg19 -s COSMICv3 --bootstrap -br 1000
 
         # for backwards compatibility with 0.8.X add a hidden action that would just take anything as a valid input
         optional_group.add_argument("action", nargs="?", metavar="")
+
+        add_filter_argument(optional_group)
 
         advanced_group = parser.add_argument_group("Advanced arguments")
         advanced_group.add_argument(
@@ -217,7 +220,11 @@ mutagene signature -i sample1.maf -g hg19 -s COSMICv3 --bootstrap -br 1000
 
         try:
             mutations, _, processing_stats = read_mutations(
-                args.input_format, args.infile, args.genome, window_size=1
+                args.input_format,
+                args.infile,
+                args.genome,
+                window_size=1,
+                keep_filtered=args.keep_filtered,
             )
         except Exception as e:
             e_message = getattr(e, "message", repr(e))

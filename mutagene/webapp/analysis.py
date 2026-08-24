@@ -250,6 +250,9 @@ def run_cohort_analysis(
         "files": [],
     }
 
+    # Variants the caller rejected are excluded unless the run asks for them.
+    keep_filtered = bool(config.get("keep_filtered", False))
+
     # Extract tar.gz once; plain files pass through unchanged
     input_file = extract_input_file(Path(input_file), output_dir)
 
@@ -260,7 +263,13 @@ def run_cohort_analysis(
 
         with open_input_file(input_file, "rt") as infile:
             with open(profile_file, "w") as outfile:
-                profile_stats = calc_profile([infile], outfile, str(genome_path), fmt="auto")
+                profile_stats = calc_profile(
+                    [infile],
+                    outfile,
+                    str(genome_path),
+                    fmt="auto",
+                    keep_filtered=keep_filtered,
+                )
 
         # The mismatch count comes from the parser that does the comparison
         # rather than from counting its log records. The old handler watched a
@@ -294,7 +303,7 @@ def run_cohort_analysis(
 
         with open_input_file(input_file, "rt") as infile:
             samples_mutations, _, processing_stats = read_mutations(
-                "MAF", infile, str(genome_path), window_size=1
+                "MAF", infile, str(genome_path), window_size=1, keep_filtered=keep_filtered
             )
             results["mutations"] = processing_stats.get("loaded", 0)
             # Detect number of samples from mutations dict
@@ -584,7 +593,7 @@ def run_cohort_analysis(
                 # Read protein mutations
                 with open_input_file(input_file, "rt") as infile:
                     protein_mutations, protein_stats = read_protein_mutations_MAF(
-                        infile, str(genome_path)
+                        infile, str(genome_path), keep_filtered=keep_filtered
                     )
 
                 logger.info(f"Loaded {protein_stats.get('loaded', 0)} protein mutations")

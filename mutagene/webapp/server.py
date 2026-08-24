@@ -298,6 +298,7 @@ def register_routes(app, db, socketio):
                 "cluster": _form_flag("cluster"),
                 "hotspots": _form_flag("hotspots"),
                 "motifs": _form_flag("motifs"),
+                "keep_filtered": _form_flag("keep_filtered"),
             },
         )
 

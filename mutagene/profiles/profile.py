@@ -20,7 +20,7 @@ from mutagene.io.profile import get_profile_attributes_dict, write_profile_file
 logger = logging.getLogger(__name__)
 
 
-def calc_profile(infile, outfile, genome, fmt="auto"):
+def calc_profile(infile, outfile, genome, fmt="auto", keep_filtered=False):
     """Write a 96-channel profile for the given inputs.
 
     Returns the combined processing stats, including the ``ref_mismatches``
@@ -31,7 +31,9 @@ def calc_profile(infile, outfile, genome, fmt="auto"):
     combined_stats = new_context_stats()
     combined_stats.update({"loaded": 0, "skipped": 0})
     for f in infile:
-        mutations, processing_stats = read_auto_profile(f, fmt=fmt, asm=genome)
+        mutations, processing_stats = read_auto_profile(
+            f, fmt=fmt, asm=genome, keep_filtered=keep_filtered
+        )
         msg = "Loaded {} mutations".format(processing_stats["loaded"])
         if processing_stats["skipped"] > 0:
             msg += " skipped {} mutations due to mismatches with the reference genome".format(

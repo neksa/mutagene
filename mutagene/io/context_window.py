@@ -14,6 +14,7 @@ from mutagene.io.maf_columns import (
     resolve_alleles,
     resolve_sample,
 )
+from mutagene.io.variant_filter import passes_filter, report_filtered
 from mutagene.motifs import complementary_nucleotide, nucleotides
 
 logger = logging.getLogger(__name__)
@@ -306,7 +307,7 @@ def read_mutations(file_format, *args, **kwargs):
     return globals()[function_name](*args, **kwargs)
 
 
-def read_MAF_with_context_window(infile, asm, window_size):
+def read_MAF_with_context_window(infile, asm, window_size, keep_filtered=False):
     """
     Read MAF file and extract context of mutations for assembly asm and window +/- window_size around each mutation
     MAF format description: https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/
@@ -334,6 +335,7 @@ def read_MAF_with_context_window(infile, asm, window_size):
 
     raw_mutations = defaultdict(list)
     skipped_rows = []
+    n_filtered = 0
     # for line in tqdm(infile):
     for row in tqdm(reader, leave=False):
         if not any(field.strip() for field in row):
@@ -357,6 +359,10 @@ def read_MAF_with_context_window(infile, asm, window_size):
             chrom = data.chromosome  # MAF CHROM
         else:
             raise ValueError("Chromosome is not defined in MAF file")
+
+        if not keep_filtered and not passes_filter(getattr(data, "filter", None)):
+            n_filtered += 1
+            continue
 
         sample = resolve_sample(data)
         x, y = resolve_alleles(data)  # MAF REF and variant allele
@@ -393,6 +399,7 @@ def read_MAF_with_context_window(infile, asm, window_size):
         raw_mutations[sample].append((chrom, pos, transcript_strand, x, y))
 
     report_malformed_rows(skipped_rows, "MAF")
+    report_filtered(n_filtered, "MAF")
 
     mutations, mutations_with_context, n_skipped, context_stats = _assemble_mutations(
         raw_mutations, asm, window_size
@@ -414,7 +421,7 @@ def read_MAF_with_context_window(infile, asm, window_size):
     return mutations, mutations_with_context, processing_stats
 
 
-def read_VCF_with_context_window(infile, asm, window_size):
+def read_VCF_with_context_window(infile, asm, window_size, keep_filtered=False):
     """
     Read VCF file and extract context of mutations for assembly asm and window +/- window_size around each mutation
     returns mutations, mutations_with_context, processing_stats
@@ -422,6 +429,7 @@ def read_VCF_with_context_window(infile, asm, window_size):
     raw_mutations = defaultdict(list)
 
     N_skipped = 0
+    n_filtered = 0
     # N_skipped_indels = 0
 
     sample = "VCF"
@@ -445,6 +453,12 @@ def read_VCF_with_context_window(infile, asm, window_size):
         # if len(chrom) == 2 and chrom[1] not in "0123456789":
         #     chrom = chrom[0]
 
+        # FILTER is the seventh column. A row that stops before it has
+        # recorded no filters, so there is nothing to honour.
+        if not keep_filtered and len(col_list) > 6 and not passes_filter(col_list[6]):
+            n_filtered += 1
+            continue
+
         pos = int(col_list[1])  # VCF POS
         x = col_list[3]  # VCF REF
         y = col_list[4]  # VCF ALT
@@ -461,6 +475,8 @@ def read_VCF_with_context_window(infile, asm, window_size):
         raw_mutations[sample].append((chrom, pos, transcript_strand, x, y))
     # print("RAW", raw_mutations)
     # print("INDELS", N_skipped)
+
+    report_filtered(n_filtered, "VCF")
 
     mutations, mutations_with_context, n_skipped, context_stats = _assemble_mutations(
         raw_mutations, asm, window_size

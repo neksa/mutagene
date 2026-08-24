@@ -5,6 +5,7 @@ import sys
 from mutagene.cli.genome_resolver import GenomeNotFoundError, resolve_genome
 from mutagene.io.context_window import read_MAF_with_context_window, read_VCF_with_context_window
 from mutagene.io.motifs import get_known_motifs, write_motif_matches
+from mutagene.io.variant_filter import add_filter_argument
 from mutagene.motifs import identify_motifs
 
 logger = logging.getLogger(__name__)
@@ -91,6 +92,8 @@ mutagene motif --infile sample1.maf --input-format MAF --genome hg19 --motif 'C[
         optional_group.add_argument("action", nargs="?", metavar="")
 
         ###################################################################
+        add_filter_argument(optional_group)
+
         advanced_group = parser.add_argument_group("Advanced arguments")
         advanced_group.add_argument(
             "--window-size",
@@ -175,11 +178,11 @@ mutagene motif --infile sample1.maf --input-format MAF --genome hg19 --motif 'C[
         try:
             if args.input_format == "VCF":
                 mutations, mutations_with_context, processing_stats = read_VCF_with_context_window(
-                    args.infile, args.genome, args.window_size
+                    args.infile, args.genome, args.window_size, keep_filtered=args.keep_filtered
                 )
             elif args.input_format == "MAF":
                 mutations, mutations_with_context, processing_stats = read_MAF_with_context_window(
-                    args.infile, args.genome, args.window_size
+                    args.infile, args.genome, args.window_size, keep_filtered=args.keep_filtered
                 )
         except ValueError as e:
             logger.warning(

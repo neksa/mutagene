@@ -12,6 +12,7 @@ import twobitreader as tbr
 from tqdm import tqdm
 
 from mutagene.dna import codon_table, complementary_nucleotide, nucleotides
+from mutagene.io.variant_filter import passes_filter, report_filtered
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +82,7 @@ def select_gene_transcripts(mutations, transcript_lengths):
     return chosen
 
 
-def read_protein_mutations_MAF(infile, genome, motifs=False):
+def read_protein_mutations_MAF(infile, genome, motifs=False, keep_filtered=False):
     mutations = defaultdict(dict)
     processing_stats = {"loaded": 0, "skipped": 0, "nsamples": 0, "format": "unknown"}
 
@@ -106,11 +107,16 @@ def read_protein_mutations_MAF(infile, genome, motifs=False):
         return mutations, processing_stats
 
     N_loaded = N_skipped = 0
+    n_filtered = 0
     transcript_lengths = {}
 
     for data in tqdm(map(MAF._make, reader), leave=False):
         # print(data)
         try:
+            if not keep_filtered and not passes_filter(getattr(data, "filter", None)):
+                n_filtered += 1
+                continue
+
             if hasattr(data, "tumor_sample_barcode"):
                 sample = data.tumor_sample_barcode
             elif hasattr(data, "sample_id"):
@@ -285,6 +291,8 @@ def read_protein_mutations_MAF(infile, genome, motifs=False):
             N_skipped += 1
             logger.debug("General MAF parsing exception " + str(e))
             continue
+
+    report_filtered(n_filtered, "MAF")
 
     N_loaded = 0
     for sample, sample_mutations in mutations.items():
