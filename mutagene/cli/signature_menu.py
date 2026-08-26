@@ -225,6 +225,7 @@ mutagene signature -i sample1.maf -g hg19 -s COSMICv3 --bootstrap -br 1000
                 args.genome,
                 window_size=1,
                 keep_filtered=args.keep_filtered,
+                filter_column=args.filter_column,
             )
         except Exception as e:
             e_message = getattr(e, "message", repr(e))

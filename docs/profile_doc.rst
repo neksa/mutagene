@@ -42,6 +42,10 @@ Optional arguments:
 --keep-filtered
     Include variants the caller rejected. See section 5.
 
+--filter-column NAME
+    Name of the column holding the caller's verdict, for MAF files that put it
+    somewhere other than ``FILTER``. See section 5.
+
 --params-out FILE
     Write the parameters of this run to FILE as JSON.
 
@@ -124,6 +128,16 @@ The field is read from the seventh column of a VCF, and from a column named
 mixes quality flags with annotations such as ``NonExonic``, and a non-exonic
 mutation is perfectly good input to a mutational profile.
 
-Some MAF converters do not produce a ``FILTER`` column at all, leaving the
-caller's verdict in a passthrough column under another name. Nothing can be
-honoured in that case; check for such a column before trusting the counts.
+Some MAF converters do not produce a ``FILTER`` column at all and leave the
+caller's verdict in a passthrough column whose name carries no meaning. ANNOVAR,
+for example, writes Mutect2's verdicts into ``Otherinfo10``. Name that column to
+have it honoured::
+
+    mutagene profile -i sample.maf -g hg19 --filter-column Otherinfo10
+
+Such a column is never guessed at: without the option the file is read in full,
+because a column called ``Otherinfo10`` announces nothing about its contents.
+
+A column named with ``--filter-column`` and not found in the file is an error
+rather than a warning. Carrying on would filter nothing at all, which is the
+outcome the option exists to prevent.

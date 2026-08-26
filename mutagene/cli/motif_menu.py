@@ -178,7 +178,11 @@ mutagene motif --infile sample1.maf --input-format MAF --genome hg19 --motif 'C[
         try:
             if args.input_format == "VCF":
                 mutations, mutations_with_context, processing_stats = read_VCF_with_context_window(
-                    args.infile, args.genome, args.window_size, keep_filtered=args.keep_filtered
+                    args.infile,
+                    args.genome,
+                    args.window_size,
+                    keep_filtered=args.keep_filtered,
+                    filter_column=args.filter_column,
                 )
             elif args.input_format == "MAF":
                 mutations, mutations_with_context, processing_stats = read_MAF_with_context_window(

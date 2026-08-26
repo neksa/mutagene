@@ -8,7 +8,13 @@ from tqdm import tqdm
 from mutagene.dna import complementary_nucleotide, nucleotides
 from mutagene.io.context_stats import new_context_stats
 from mutagene.io.maf_columns import normalize_header, report_malformed_rows, resolve_alleles
-from mutagene.io.variant_filter import passes_filter, report_filtered
+from mutagene.io.variant_filter import (
+    DEFAULT_FILTER_COLUMN,
+    check_filter_column,
+    filter_value,
+    passes_filter,
+    report_filtered,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +92,7 @@ def strip_line_terminator(line):
     return line.rstrip("\r\n")
 
 
-def read_auto_profile(muts, fmt, asm, keep_filtered=False):
+def read_auto_profile(muts, fmt, asm, keep_filtered=False, filter_column=DEFAULT_FILTER_COLUMN):
     mutations = None
     processing_stats = None
     if fmt is not None:
@@ -153,12 +159,14 @@ def read_auto_profile(muts, fmt, asm, keep_filtered=False):
     if fmt == "VCF":
         mutations, processing_stats = read_VCF_profile(mutations_lines, asm, keep_filtered)
     if fmt == "MAF":
-        mutations, processing_stats = read_MAF_profile(mutations_lines, asm, keep_filtered)
+        mutations, processing_stats = read_MAF_profile(
+            mutations_lines, asm, keep_filtered, filter_column
+        )
 
     return mutations, processing_stats
 
 
-def read_MAF_profile(muts, asm, keep_filtered=False):
+def read_MAF_profile(muts, asm, keep_filtered=False, filter_column=DEFAULT_FILTER_COLUMN):
 
     cn = complementary_nucleotide
     mutations = defaultdict(float)
@@ -173,6 +181,8 @@ def read_MAF_profile(muts, asm, keep_filtered=False):
         # raise
         logger.warning("MAF format not recognized")
         return mutations, {}
+
+    check_filter_column(header, filter_column, keep_filtered)
 
     N_loaded = N_skipped = 0
 
@@ -190,7 +200,7 @@ def read_MAF_profile(muts, asm, keep_filtered=False):
             N_skipped += 1
             continue
 
-        if not keep_filtered and not passes_filter(getattr(data, "filter", None)):
+        if not keep_filtered and not passes_filter(filter_value(data, filter_column)):
             n_filtered += 1
             continue
 

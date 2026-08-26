@@ -14,7 +14,13 @@ from mutagene.io.maf_columns import (
     resolve_alleles,
     resolve_sample,
 )
-from mutagene.io.variant_filter import passes_filter, report_filtered
+from mutagene.io.variant_filter import (
+    DEFAULT_FILTER_COLUMN,
+    check_filter_column,
+    filter_value,
+    passes_filter,
+    report_filtered,
+)
 from mutagene.motifs import complementary_nucleotide, nucleotides
 
 logger = logging.getLogger(__name__)
@@ -307,7 +313,9 @@ def read_mutations(file_format, *args, **kwargs):
     return globals()[function_name](*args, **kwargs)
 
 
-def read_MAF_with_context_window(infile, asm, window_size, keep_filtered=False):
+def read_MAF_with_context_window(
+    infile, asm, window_size, keep_filtered=False, filter_column=DEFAULT_FILTER_COLUMN
+):
     """
     Read MAF file and extract context of mutations for assembly asm and window +/- window_size around each mutation
     MAF format description: https://docs.gdc.cancer.gov/Data/File_Formats/MAF_Format/
@@ -332,6 +340,8 @@ def read_MAF_with_context_window(infile, asm, window_size, keep_filtered=False):
     except ValueError:
         logger.warning("MAF format not recognized")
         raise
+
+    check_filter_column(header, filter_column, keep_filtered)
 
     raw_mutations = defaultdict(list)
     skipped_rows = []
@@ -360,7 +370,7 @@ def read_MAF_with_context_window(infile, asm, window_size, keep_filtered=False):
         else:
             raise ValueError("Chromosome is not defined in MAF file")
 
-        if not keep_filtered and not passes_filter(getattr(data, "filter", None)):
+        if not keep_filtered and not passes_filter(filter_value(data, filter_column)):
             n_filtered += 1
             continue
 
