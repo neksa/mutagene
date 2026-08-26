@@ -299,6 +299,7 @@ def register_routes(app, db, socketio):
                 "hotspots": _form_flag("hotspots"),
                 "motifs": _form_flag("motifs"),
                 "keep_filtered": _form_flag("keep_filtered"),
+                "filter_column": (request.form.get("filter_column") or "FILTER").strip(),
             },
         )
 

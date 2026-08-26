@@ -121,6 +121,7 @@ class RankMenu:
                 args.genome,
                 window_size=1,
                 keep_filtered=args.keep_filtered,
+                filter_column=args.filter_column,
             )
         except Exception as e:
             e_message = getattr(e, "message", repr(e))
@@ -149,7 +150,10 @@ class RankMenu:
         # read protein mutatations:
         args.infile.seek(0)
         protein_mutations, processing_stats = read_protein_mutations_MAF(
-            args.infile, args.genome, keep_filtered=args.keep_filtered
+            args.infile,
+            args.genome,
+            keep_filtered=args.keep_filtered,
+            filter_column=args.filter_column,
         )
         msg = "Loaded {} protein mutations in {} samples".format(
             processing_stats["loaded"], processing_stats["nsamples"]

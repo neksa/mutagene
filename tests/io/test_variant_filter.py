@@ -160,3 +160,89 @@ class TestVcfReaders:
         _m, stats = mutations_profile.read_auto_profile(io.StringIO(text), fmt="VCF", asm=None)
 
         assert stats["loaded"] == 1
+
+
+class TestFilterColumnOption:
+    """Some converters put the caller's verdict in a column named nothing useful.
+
+    ANNOVAR writes Mutect2's FILTER values into Otherinfo10, so a file can be
+    almost entirely germline calls with no column MutaGene would ever look at.
+    """
+
+    def annovar_style(self, *verdicts):
+        rows = [
+            "Chromosome\tStart_Position\tEnd_Position\tReference_Allele\t"
+            "Tumor_Seq_Allele2\tTumor_Sample_Barcode\tOtherinfo10"
+        ]
+        for i, verdict in enumerate(verdicts):
+            pos = 100 + i
+            rows.append(f"17\t{pos}\t{pos}\tC\tT\tSAMPLE1\t{verdict}")
+        return "\n".join(rows) + "\n"
+
+    def test_named_column_is_honoured(self, stub_genome):
+        text = self.annovar_style("PASS", "germline", "PASS", "clustered_events;germline")
+
+        _m, stats = mutations_profile.read_auto_profile(
+            io.StringIO(text), fmt="MAF", asm=None, filter_column="Otherinfo10"
+        )
+
+        assert stats["loaded"] == 2
+
+    def test_the_same_file_is_untouched_without_the_option(self, stub_genome):
+        """The column means nothing by its name, so it must not be guessed at."""
+        text = self.annovar_style("PASS", "germline", "germline", "germline")
+
+        _m, stats = mutations_profile.read_auto_profile(io.StringIO(text), fmt="MAF", asm=None)
+
+        assert stats["loaded"] == 4
+
+    def test_context_window_reader_honours_it_too(self, stub_genome):
+        text = self.annovar_style("PASS", "germline", "PASS")
+
+        _m, _c, stats = context_window.read_MAF_with_context_window(
+            io.StringIO(text), "unused", 1, filter_column="Otherinfo10"
+        )
+
+        assert stats["loaded"] == 2
+
+    def test_column_name_is_matched_case_insensitively(self, stub_genome):
+        text = self.annovar_style("PASS", "germline")
+
+        _m, stats = mutations_profile.read_auto_profile(
+            io.StringIO(text), fmt="MAF", asm=None, filter_column="OTHERINFO10"
+        )
+
+        assert stats["loaded"] == 1
+
+    def test_a_missing_named_column_is_an_error(self, stub_genome):
+        """Silently filtering nothing is the outcome this option exists to prevent."""
+        text = self.annovar_style("PASS", "germline")
+
+        with pytest.raises(ValueError, match="No column named 'Nonsense'"):
+            mutations_profile.read_auto_profile(
+                io.StringIO(text), fmt="MAF", asm=None, filter_column="Nonsense"
+            )
+
+    def test_a_missing_default_column_is_not_an_error(self, stub_genome):
+        """Most MAFs have no FILTER column at all; that is ordinary."""
+        text = (
+            "Chromosome\tStart_Position\tEnd_Position\tReference_Allele\t"
+            "Tumor_Seq_Allele2\tTumor_Sample_Barcode\n17\t100\t100\tC\tT\tSAMPLE1\n"
+        )
+        _m, stats = mutations_profile.read_auto_profile(io.StringIO(text), fmt="MAF", asm=None)
+
+        assert stats["loaded"] == 1
+
+    def test_keep_filtered_wins_over_a_missing_column(self, stub_genome):
+        """Nothing is being filtered, so a bad column name cannot break the run."""
+        text = self.annovar_style("PASS", "germline")
+
+        _m, stats = mutations_profile.read_auto_profile(
+            io.StringIO(text),
+            fmt="MAF",
+            asm=None,
+            keep_filtered=True,
+            filter_column="Nonsense",
+        )
+
+        assert stats["loaded"] == 2

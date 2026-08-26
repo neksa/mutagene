@@ -61,6 +61,7 @@ class ProfileMenu:
                 args.genome,
                 args.input_format,
                 keep_filtered=args.keep_filtered,
+                filter_column=args.filter_column,
             )
         except (ValueError, OSError) as e:
             # An unreadable input is the user's problem to fix, not a defect to
