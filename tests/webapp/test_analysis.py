@@ -296,3 +296,77 @@ class TestTruncatedUploads:
         from mutagene.webapp.analysis import TruncatedInputError
 
         assert issubclass(TruncatedInputError, ValueError)
+
+
+class TestInputFormatDetection:
+    """A VCF upload was profiled correctly and then read again as a MAF."""
+
+    def vcf(self, tmp_path, name="sample.vcf", rows=40):
+        lines = ["##fileformat=VCFv4.2", "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO"]
+        for i in range(rows):
+            lines.append(f"chr17\t{20 + i * 4}\t.\tC\tT\t.\tPASS\t.")
+        path = tmp_path / name
+        path.write_text("\n".join(lines) + "\n")
+        return path
+
+    def maf(self, tmp_path, name="sample.maf"):
+        path = tmp_path / name
+        path.write_text(
+            "Chromosome\tStart_Position\tEnd_Position\tReference_Allele\t"
+            "Tumor_Seq_Allele2\tTumor_Sample_Barcode\n17\t100\t100\tC\tT\tSAMPLE1\n"
+        )
+        return path
+
+    def test_vcf_by_extension(self, tmp_path):
+        from mutagene.webapp.analysis import detect_input_format
+
+        assert detect_input_format(self.vcf(tmp_path)) == "VCF"
+
+    def test_maf_by_extension(self, tmp_path):
+        from mutagene.webapp.analysis import detect_input_format
+
+        assert detect_input_format(self.maf(tmp_path)) == "MAF"
+
+    def test_gzipped_extension_is_seen_through(self, tmp_path):
+        from mutagene.webapp.analysis import detect_input_format
+
+        assert detect_input_format(tmp_path / "sample.vcf.gz") == "VCF"
+
+    def test_txt_upload_is_decided_by_content(self, tmp_path):
+        """.txt and .tsv are in the allow-list, so the name settles nothing."""
+        from mutagene.webapp.analysis import detect_input_format
+
+        assert detect_input_format(self.vcf(tmp_path, name="mutations.txt")) == "VCF"
+        assert detect_input_format(self.maf(tmp_path, name="mutations.txt")) == "MAF"
+
+    def test_a_vcf_upload_completes(self, tmp_path, monkeypatch):
+        """This raised 'Chromosome is not defined in MAF file'."""
+        import twobitreader
+
+        from mutagene.webapp import analysis as analysis_module
+        from mutagene.webapp.analysis import run_cohort_analysis
+
+        class FakeChromosome:
+            def __getitem__(self, key):
+                # every position reads C, matching the REF in the fixture
+                length = key.stop - key.start if isinstance(key, slice) else 1
+                return "C" * length
+
+        class FakeTwoBitFile:
+            def __contains__(self, name):
+                return name == "chr17"
+
+            def __getitem__(self, name):
+                return FakeChromosome()
+
+        genome = tmp_path / "hg19.2bit"
+        genome.write_bytes(b"stub")
+        monkeypatch.setattr(twobitreader, "TwoBitFile", lambda fname: FakeTwoBitFile())
+        monkeypatch.setattr(
+            analysis_module.GenomeManager, "get_genome_path", lambda self, g: genome
+        )
+
+        results = run_cohort_analysis(self.vcf(tmp_path), tmp_path / "out", genome="hg19")
+
+        assert results["mutations"] > 0, "the VCF produced no mutations"
+        assert results["samples"] >= 1

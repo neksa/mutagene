@@ -171,7 +171,9 @@ def _assemble_mutations(raw_mutations, asm, window_size):
     return mutations, mutations_with_context, n_skipped, context_stats
 
 
-def read_TCGI_with_context_window(infile, asm, window_size):
+def read_TCGI_with_context_window(
+    infile, asm, window_size, keep_filtered=False, filter_column=DEFAULT_FILTER_COLUMN
+):
     """
     Tabular file; no particular column order required but must contain header line with four mandatory column names:
     (CHR, POS, REF, ALT) corresponding to the chromosome, position, reference and alternate allele columns, respectively
@@ -431,10 +433,16 @@ def read_MAF_with_context_window(
     return mutations, mutations_with_context, processing_stats
 
 
-def read_VCF_with_context_window(infile, asm, window_size, keep_filtered=False):
+def read_VCF_with_context_window(
+    infile, asm, window_size, keep_filtered=False, filter_column=DEFAULT_FILTER_COLUMN
+):
     """
     Read VCF file and extract context of mutations for assembly asm and window +/- window_size around each mutation
     returns mutations, mutations_with_context, processing_stats
+
+    filter_column is accepted so that every reader takes the same arguments, and
+    ignored: a VCF's FILTER is the seventh column by specification, so there is
+    no name to configure.
     """
     raw_mutations = defaultdict(list)
 
