@@ -361,27 +361,34 @@ def decompose_mutational_profile_counts(
 
     ##############################################################################
     # debug = True
-    if not config["global_optimization"]:
-        minout = minimize(
-            min_func,
-            h0,
-            args=(W, v_target),
-            method="SLSQP",
-            bounds=bounds,
-            constraints=constraints,
-            options={"maxiter": 500},
+    if config["global_optimization"]:
+        # Nothing was ever wired up for this branch, so the exposures stayed
+        # unassigned and the call died with NameError several screens further
+        # down, long after the choice that caused it.
+        raise NotImplementedError(
+            "global_optimization is not implemented; omit it to use local minimization"
         )
 
-        if minout.success:
-            logger.debug(f"MINIMIZATION: {minout.message} {minout.nit}")
-            h = minout.x
-            logger.debug(f"MAX LIK {h} {round(-NegLogLik(h, W, v_target), 4)}")
-            # print("LIK", round(-NegLogLik(h, W, v), 4), "DIV", round(DivergenceKL(h, W, v), 4))
-        else:
-            logger.debug(f"MINIMIZATION FAILED:{minout.message} {minout.nit}")
-            # Minimization did not converge
-            # Use our initial guess, but normalize it:
-            h = h0.ravel() / h0.sum()
+    minout = minimize(
+        min_func,
+        h0,
+        args=(W, v_target),
+        method="SLSQP",
+        bounds=bounds,
+        constraints=constraints,
+        options={"maxiter": 500},
+    )
+
+    if minout.success:
+        logger.debug(f"MINIMIZATION: {minout.message} {minout.nit}")
+        h = minout.x
+        logger.debug(f"MAX LIK {h} {round(-NegLogLik(h, W, v_target), 4)}")
+        # print("LIK", round(-NegLogLik(h, W, v), 4), "DIV", round(DivergenceKL(h, W, v), 4))
+    else:
+        logger.debug(f"MINIMIZATION FAILED:{minout.message} {minout.nit}")
+        # Minimization did not converge
+        # Use our initial guess, but normalize it:
+        h = h0.ravel() / h0.sum()
 
     ##############################################################################
     N_mutations = int(math.ceil(v.sum()))
