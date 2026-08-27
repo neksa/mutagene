@@ -14,6 +14,11 @@ from mutagene.signatures import get_dummy_signatures_lists
 
 logger = logging.getLogger(__name__)
 
+# Per observed mutation in a channel the mixture rules out. Large enough to
+# dominate any achievable log-likelihood, finite so the optimizer keeps a
+# usable gradient rather than meeting a wall of infinities.
+LARGE_PENALTY = 1e6
+
 
 def multi_kl(p, q):
     """Kullback-Liebler divergence from multinomial p to multinomial q,
@@ -98,7 +103,16 @@ def NegLogLik(x, A, b):
     if x.sum() > 1.0:
         x = x / x.sum()
 
-    LL = np.sum(b * np.ma.log(A.dot(x)).filled(0.0))
+    predicted = A.dot(x)
+    # Filling a masked log with 0.0 charged nothing for a channel the mixture
+    # says is impossible but which was actually observed, so the optimizer saw
+    # no reason to avoid such a mixture. Charge the observed count instead, and
+    # only where something was observed: an impossible channel with no
+    # observations is not evidence against anything.
+    impossible = (predicted <= 0) & (b > 0)
+    LL = np.sum(b * np.ma.log(predicted).filled(0.0))
+    if np.any(impossible):
+        LL -= LARGE_PENALTY * np.sum(b[impossible])
 
     return -LL
 
