@@ -154,3 +154,56 @@ def test_ties_are_broken_deterministically(lengths):
     second = select_gene_transcripts(muts, lengths)
 
     assert first == second
+
+
+class TestAnnotationColumnFallback:
+    """A blank column must not shadow a populated one.
+
+    MAFs commonly carry several annotation columns with only one filled in.
+    Assigning each in turn let a later blank overwrite an earlier value, and the
+    row was then skipped as unannotated.
+    """
+
+    HEADER = (
+        "Hugo_Symbol\tChromosome\tStart_Position\tVariant_Classification\t"
+        "Transcript_ID\tcDNA_Change\tHGVSc\tProtein_Change\tHGVSp_Short\t"
+        "ref_context\tTumor_Sample_Barcode"
+    )
+
+    def row(self, cdna, hgvsc, protein, hgvsp_short):
+        context = "AAAAAAAAAA" + "CGA" + "AAAAAAAA"
+        return (
+            f"TP53\t17\t7578406\tMissense_Mutation\tENST1\t{cdna}\t{hgvsc}\t"
+            f"{protein}\t{hgvsp_short}\t{context}\tSAMPLE1"
+        )
+
+    def read(self, row):
+        text = "\n".join([self.HEADER, row]) + "\n"
+        return read_protein_mutations_MAF(io.StringIO(text), "MAF")
+
+    def test_an_empty_later_column_does_not_shadow_an_earlier_one(self):
+        flat, _stats = self.read(self.row("c.C4T", "", "p.R2C", ""))
+
+        assert ("TP53", "R2C") in flat, "a blank HGVSc discarded a populated cDNA_Change"
+
+    def test_a_populated_later_column_is_still_usable(self):
+        flat, _stats = self.read(self.row("", "c.C4T", "", "p.R2C"))
+
+        assert ("TP53", "R2C") in flat
+
+    def test_whitespace_counts_as_blank(self):
+        flat, _stats = self.read(self.row("c.C4T", "   ", "p.R2C", "  "))
+
+        assert ("TP53", "R2C") in flat
+
+
+def test_first_populated_prefers_the_earliest_non_blank():
+    from collections import namedtuple
+
+    from mutagene.io.protein_mutations_MAF import first_populated
+
+    Row = namedtuple("Row", "a b c")
+    assert first_populated(Row("", "second", "third"), "a", "b", "c") == "second"
+    assert first_populated(Row("first", "", ""), "a", "b", "c") == "first"
+    assert first_populated(Row("", "", ""), "a", "b", "c") is None
+    assert first_populated(Row("", "", ""), "missing") is None

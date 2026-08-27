@@ -23,6 +23,15 @@ from mutagene.io.variant_filter import (
 logger = logging.getLogger(__name__)
 
 
+def first_populated(data, *fields):
+    """The first of *fields* that is present and not blank, else None."""
+    for field in fields:
+        value = getattr(data, field, None)
+        if value is not None and value.strip():
+            return value
+    return None
+
+
 def read_protein_mutations_MAF_file(fname, genome, motifs=False):
     with open(fname) as infile:
         return read_protein_mutations_MAF(infile, genome)
@@ -143,13 +152,11 @@ def read_protein_mutations_MAF(
                 N_skipped += 1
                 continue
 
-            HGVSc = None
-            if hasattr(data, "cdna_change"):
-                HGVSc = data.cdna_change
-            if hasattr(data, "txchange"):
-                HGVSc = data.txchange
-            if hasattr(data, "hgvsc"):
-                HGVSc = data.hgvsc
+            # A MAF can carry several of these columns with only one filled
+            # in. Assigning each in turn let a later blank column overwrite an
+            # earlier populated one, and the row was then skipped as
+            # unannotated.
+            HGVSc = first_populated(data, "cdna_change", "txchange", "hgvsc")
 
             if HGVSc is None:
                 logger.warning("Could not find cDNA_Change or TxChange or HGVSc fields in MAF file")
@@ -181,13 +188,7 @@ def read_protein_mutations_MAF(
                 cDNA_position = int(HGVSc.split(".")[1][1:-1])
             offset = ((cDNA_position % 3) - 1) % 3  # determine codon offset: 0, 1, 2
 
-            HGVSp = None
-            if hasattr(data, "protein_change"):
-                HGVSp = data.protein_change
-            if hasattr(data, "hgvsp_short"):
-                HGVSp = data.hgvsp_short
-            if hasattr(data, "aachange"):
-                HGVSp = data.aachange
+            HGVSp = first_populated(data, "protein_change", "hgvsp_short", "aachange")
 
             if HGVSp is None:
                 logger.warning(
