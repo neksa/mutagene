@@ -393,6 +393,19 @@ def read_MAF_with_context_window(
         else:
             raise ValueError("Start position is not defined in MAF file")
 
+        # The profile reader has always skipped rows spanning more than one
+        # base; this one never looked, so the two disagreed about the same file.
+        # Only substitutions belong in a 96-channel profile.
+        if hasattr(data, "end_position"):
+            try:
+                if int(data.end_position) != pos:
+                    N_skipped += 1
+                    continue
+            except ValueError:
+                skipped_rows.append((tracker.line_number, "end position is not a number"))
+                N_skipped += 1
+                continue
+
         # assuming that reference strand for reported mutations is always '+'!
 
         # transcript strand could be anything
