@@ -1,5 +1,6 @@
 # from tqdm import tqdm
 import logging
+import math
 import os
 from collections import defaultdict
 
@@ -31,6 +32,12 @@ def read_profile_file(profile_file):
 
 
 def read_profile_str(profile_str):
+    """Parse a 96-channel profile; returns the values, or None if unusable.
+
+    Every failure returns None. Returning the tuple (None, None) made a bad
+    profile truthy, so callers testing `if profile:` accepted it and failed
+    later on the shape rather than on the parse.
+    """
     mutations = defaultdict(float)
     for line in profile_str.splitlines():
         if len(line) == 0:
@@ -39,28 +46,42 @@ def read_profile_str(profile_str):
             continue
         fields = line.strip().upper().split()
         if len(fields) != 2:
-            return None, None
+            return None
 
         if len(fields[0]) != 7:
-            return None, None
+            return None
 
         if fields[0][1] != "[" or fields[0][3] != ">" or fields[0][5] != "]":
-            return None, None
+            return None
 
         p5, _, x, _, y, _, p3 = tuple(fields[0])
 
         if p5 not in nucleotides or p3 not in nucleotides or y not in nucleotides:
-            return None, None
+            return None
 
         if x not in "TC":
-            return None, None
+            return None
 
         try:
             f = float(fields[1])
         except (ValueError, TypeError):
-            return None, None
+            return None
 
-        mutations[p5 + p3 + x + y] = f
+        # A profile is a count or a frequency, so it cannot be negative, and NaN
+        # or inf propagate through normalization into the decomposition as
+        # non-finite exposures that look like results.
+        if not math.isfinite(f) or f < 0:
+            logger.warning(f"Profile channel {fields[0]} has an unusable value {fields[1]}")
+            return None
+
+        channel = p5 + p3 + x + y
+        if channel in mutations:
+            # Silently keeping the last one changes the profile by however much
+            # the duplicates differ, with nothing to show for it.
+            logger.warning(f"Profile channel {fields[0]} appears more than once")
+            return None
+
+        mutations[channel] = f
 
     values = []
     for p5 in nucleotides:

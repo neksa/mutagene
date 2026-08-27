@@ -62,6 +62,10 @@ def get_mutational_profile(mutational_profile_dict, counts=False):
     attrib = get_profile_attributes_dict()
     values = []
     total_mut_number = sum(mutational_profile_dict.values())
+    if not counts and total_mut_number == 0:
+        # Nothing to take a share of. Dividing produced ZeroDivisionError from
+        # inside the loop, several frames from the empty input that caused it.
+        raise ValueError("Cannot compute a frequency profile from zero mutations")
     for i, attr in enumerate(attrib):
         number = mutational_profile_dict.get(attr["context"] + attr["mutation"], 0)
         # freq = 0.000001 * number / total_mut_number
