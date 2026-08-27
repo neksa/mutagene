@@ -6,6 +6,7 @@ assembly threw away every sample after it and the caller saw `loaded: 0` as
 though the file were empty. Sample order decided how much data was lost.
 """
 
+import io
 import logging
 
 import pytest
@@ -123,3 +124,51 @@ class TestOtherReaders:
         assert mutations == {}
         assert mutations_with_context == {}
         assert stats["loaded"] == 0
+
+
+class TestMultiBaseIntervals:
+    """The two MAF readers disagreed about rows spanning more than one base."""
+
+    HEADER = (
+        "Chromosome\tStart_Position\tEnd_Position\tReference_Allele\t"
+        "Tumor_Seq_Allele2\tTumor_Sample_Barcode"
+    )
+
+    def maf(self, *spans):
+        rows = [self.HEADER]
+        for start, end in spans:
+            rows.append(f"17\t{start}\t{end}\tC\tT\tSAMPLE1")
+        return [line + "\n" for line in rows]
+
+    def test_a_row_spanning_several_bases_is_skipped(self, genome_with_only_chr17):
+        _m, _c, stats = read(self.maf((100, 100), (200, 205), (300, 300)))
+
+        assert stats["loaded"] == 2
+        assert stats["skipped"] == 1
+
+    def test_both_readers_agree(self, genome_with_only_chr17, monkeypatch):
+        from mutagene.io import mutations_profile
+        from mutagene.io.context_stats import new_context_stats
+
+        def batch(mutations, assembly, method="twobit"):
+            return {(c, p): ("A", "G") for c, p, _x, _y in mutations}, new_context_stats()
+
+        monkeypatch.setattr(mutations_profile, "get_context_batch", batch)
+        lines = self.maf((100, 100), (200, 205))
+
+        _m, _c, window_stats = read(lines)
+        _m2, profile_stats = mutations_profile.read_auto_profile(
+            io.StringIO("".join(lines)), fmt="MAF", asm=None
+        )
+
+        assert window_stats["loaded"] == profile_stats["loaded"] == 1
+
+    def test_a_file_without_end_position_still_reads(self, genome_with_only_chr17):
+        lines = [
+            "Chromosome\tStart_Position\tReference_Allele\tTumor_Seq_Allele2\t"
+            "Tumor_Sample_Barcode\n",
+            "17\t100\tC\tT\tSAMPLE1\n",
+        ]
+        _m, _c, stats = read(lines)
+
+        assert stats["loaded"] == 1
