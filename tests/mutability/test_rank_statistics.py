@@ -7,8 +7,6 @@ impossible, so the mutations with the strongest recurrence signal came out
 labelled "Undefined".
 """
 
-import pytest
-
 from mutagene.mutability.mutability import predict_driver, rank
 
 
