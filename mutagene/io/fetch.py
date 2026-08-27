@@ -39,13 +39,15 @@ def download_from_url(url, dst):
         logger.warning("Looks like the file has been downloaded already: " + dst)
         return file_size
 
-    header = {"Range": f"bytes={first_byte}-{file_size}"}
+    # A Range is inclusive at both ends, so the last byte is file_size - 1.
+    # Asking through file_size requests one byte past the end, which a server
+    # honouring it literally answers with a trailing byte the file never had.
+    header = {"Range": f"bytes={first_byte}-{file_size - 1}"}
     try:
         r = requests.get(url, headers=header, stream=True)
         if r.status_code not in (200, 206):
+            r.close()
             raise ConnectionError(f"Not able to retrieve data from {url} (status {r.status_code})")
-
-        file_size = int(r.headers["Content-Length"])
     except requests.RequestException as e:
         raise ConnectionError(f"Could not access URL {url}: {e}") from e
 
@@ -57,8 +59,9 @@ def download_from_url(url, dst):
             yield chunk
 
     # need to access raw stream because r.iter_content() deflates .gz automatically
-    # opening file in append mode
-    with open(dst, "ab") as fp:
+    # opening file in append mode. Closing the response returns its connection
+    # to the pool; a resumed download otherwise leaks one per attempt.
+    with r, open(dst, "ab") as fp:
         for chunk in tqdm(
             generate(r.raw, chunk_size=chunk_size),
             initial=first_byte // chunk_size,
