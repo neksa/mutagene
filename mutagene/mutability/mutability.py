@@ -160,8 +160,12 @@ def rank(
 ):
     # profile_dict = profile_to_dict(profile)
     mutation_model = calculate_base_substitution_mutability(profile, cohort_size)
-    # cohort_size_corrected = cohort_size + 1  # add currently analyzed sample (many samples?) to cohort
-    cohort_size_corrected = cohort_size
+    # The analysed sample contributes a pseudocount to every observed mutation
+    # below, so it has to be counted in the cohort as well. Without it a mutation
+    # seen in every cohort sample reaches observed = N + 1, which predict_driver
+    # rejects as impossible and labels "Undefined" -- discarding exactly the
+    # mutations with the strongest recurrence signal.
+    cohort_size_corrected = cohort_size + 1 if cohort_aa_mutations is not None else cohort_size
     # import pprint
     # pprint.pprint(mutation_model)
     results = []
