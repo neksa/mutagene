@@ -176,6 +176,39 @@ class _GuardedGzipFile:
         return False
 
 
+def detect_input_format(file_path: Path) -> str:
+    """Whether to read this upload as a MAF or a VCF.
+
+    The profile step sniffs the format itself, but the per-sample read did not
+    and asked for MAF unconditionally, so a VCF upload -- which the page offers
+    and the extension allow-list accepts -- was profiled correctly and then died
+    on "Chromosome is not defined in MAF file".
+    """
+    name = str(file_path).lower()
+    if name.endswith(".gz"):
+        name = name[: -len(".gz")]
+    if name.endswith(".vcf"):
+        return "VCF"
+    if name.endswith(".maf"):
+        return "MAF"
+
+    # .txt and .tsv are allowed too, so fall back to the contents: a VCF opens
+    # with ## metadata lines and a #CHROM header, neither of which a MAF has.
+    try:
+        with open_input_file(file_path, "rt") as fh:
+            for line in fh:
+                stripped = line.strip()
+                if not stripped:
+                    continue
+                if stripped.startswith("##fileformat=VCF") or stripped.startswith("#CHROM"):
+                    return "VCF"
+                if not stripped.startswith("#"):
+                    break
+    except (OSError, ValueError):
+        pass
+    return "MAF"
+
+
 def profile_channel_order() -> list[str]:
     """Return the canonical 96 mutation channel labels in signature-matrix row order.
 
@@ -303,9 +336,12 @@ def run_cohort_analysis(
         # Use read_mutations to get per-sample data (needed for multi-sample support)
         from mutagene.io.context_window import read_mutations
 
+        input_format = detect_input_format(input_file)
+        logger.info(f"Reading per-sample mutations as {input_format}")
+
         with open_input_file(input_file, "rt") as infile:
             samples_mutations, _, processing_stats = read_mutations(
-                "MAF",
+                input_format,
                 infile,
                 str(genome_path),
                 window_size=1,
