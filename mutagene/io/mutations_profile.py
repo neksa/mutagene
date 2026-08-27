@@ -79,10 +79,7 @@ def get_context_batch(mutations, assembly, method="twobit"):
     if method is None:
         method = "twobit"
 
-    methods = {
-        # 'ensembl': get_context_ensembl,
-        "twobit": get_context_53_twobit
-    }
+    methods = {"twobit": get_context_53_twobit}
 
     return methods[method](mutations, assembly)
 
