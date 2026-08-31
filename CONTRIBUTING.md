@@ -31,7 +31,19 @@ Releases are cut by merging a labelled pull request. Label every PR with one of:
 An unlabelled PR merges without cutting a release, which is the right outcome
 for work that is not worth releasing on its own.
 
-Before merging a labelled PR, add the matching section to `CHANGELOG.md`:
+A labelled PR must also carry the release itself, because branch protection
+means nothing can be pushed to `main` outside a pull request. So the same PR:
+
+1. bumps `version` in `pyproject.toml` and `__version__` in `mutagene/version.py`
+   to the new version, and
+2. adds the matching section to `CHANGELOG.md`.
+
+The workflow checks all three agree, then tags the merge commit and publishes the
+release with the changelog section as its notes. It refuses to release if the two
+version files disagree, if the changelog section is missing, or if the tag already
+exists — which is what a forgotten bump looks like.
+
+The changelog section:
 
 ```markdown
 ## [1.2.0] - 2026-09-14
