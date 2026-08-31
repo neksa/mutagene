@@ -211,3 +211,11 @@ VCF     Pol Eta     W[A>T]    transcribed      1.13727     24       194      1.2
 -------------------------------
 
 File sample2.vcf was searched for all pre-identified motifs in MutaGene. Of these motifs, APOBEC3G and C>T in CpG were significantly present on the transcribed strand, non-transcribed strand, and both strands together. The presence of the Poly Eta motif was not significant on the non-transcribed strand but was significant on the transcribed stand and both the transcribed and non-transcribed strands together.
+
+--------------------------
+Common arguments
+--------------------------
+
+``--keep-filtered`` and ``--filter-column`` control which variants are read, and
+``--params-out`` and ``--params-in`` record and replay a run. See
+:doc:`common_options`.

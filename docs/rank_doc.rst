@@ -80,6 +80,11 @@ Argument                                   Description                          
 --params-in FILE                           Take parameters from a FILE written by              --params-in run.json
                                            --params-out. Arguments given on the command
                                            line take precedence
+--keep-filtered                            Include variants the caller rejected in its         --keep-filtered
+                                           FILTER column. See common_options
+--filter-column NAME                       Name of the column holding the caller's             --filter-column Otherinfo10
+                                           verdict, for MAF files that put it
+                                           elsewhere. See common_options
 =========================================  ==================================================  ==================================
 
 **2.4. Which argument controls which input**
