@@ -134,7 +134,9 @@ class RankMenu:
 
             if logger.root.level == logging.DEBUG:
                 raise
-            return
+            # A failed parse is a failure, and returning quietly let the caller
+            # treat an empty output file as a successful run.
+            sys.exit(1)
 
         msg = "Loaded {} mutations".format(processing_stats["loaded"])
         if processing_stats["skipped"] > 0:
@@ -142,10 +144,12 @@ class RankMenu:
         logger.info(msg)
 
         if not len(mutations) or not len(mutations[list(mutations.keys())[0]]):
-            logger.warning(
-                "No mutations to rank. Check that the input file is in MAF format and correct genome assembly is chosen"
+            # An empty result is indistinguishable from a successful one to anything downstream, so a run that loaded nothing has to say so in its exit status.
+            logger.error(
+                "No mutations to rank. Check that the input file is in MAF format "
+                "and that the correct genome assembly is chosen"
             )
-            return
+            sys.exit(1)
 
         # read protein mutatations:
         args.infile.seek(0)

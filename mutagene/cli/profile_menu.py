@@ -55,7 +55,7 @@ class ProfileMenu:
             sys.exit(1)
 
         try:
-            calc_profile(
+            stats = calc_profile(
                 args.infile,
                 args.outfile,
                 args.genome,
@@ -73,4 +73,12 @@ class ProfileMenu:
             )
             if logger.root.level == logging.DEBUG:
                 raise
+            sys.exit(1)
+
+        # An empty result is indistinguishable from a successful one to anything downstream, so a run that loaded nothing has to say so in its exit status.
+        if not stats or not stats.get("loaded"):
+            logger.error(
+                "No mutations could be read, so no profile was written. "
+                "Check the input format and that the genome assembly matches it"
+            )
             sys.exit(1)

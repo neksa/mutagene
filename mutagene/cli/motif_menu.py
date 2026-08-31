@@ -195,7 +195,13 @@ mutagene motif --infile sample1.maf --input-format MAF --genome hg19 --motif 'C[
             sys.exit(1)
 
         if len(mutations_with_context) == 0:
-            logger.warning("No mutations loaded")
+            # An empty result is indistinguishable from a successful one to anything downstream, so a run that loaded nothing has to say so in its exit status.. Finding no *motifs* in mutations that did load is a real
+            # result and still succeeds; loading no mutations at all is not.
+            logger.error(
+                "No mutations could be read, so no motifs could be searched. "
+                "Check the input format and that the genome assembly matches it"
+            )
+            sys.exit(1)
 
         #######################
         # Performance PROFILING
