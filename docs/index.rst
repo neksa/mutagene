@@ -17,6 +17,7 @@ Subcommands
    motif_doc
    signature_doc
    serve_doc
+   common_options
 
 Installation
 ------------
