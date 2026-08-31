@@ -238,7 +238,17 @@ mutagene signature -i sample1.maf -g hg19 -s COSMICv3 --bootstrap -br 1000
 
             if logger.root.level == logging.DEBUG:
                 raise
-            return
+            # A failed parse is a failure, and returning quietly let the caller
+            # treat an empty output file as a successful run.
+            sys.exit(1)
+
+        if not mutations:
+            # An empty result is indistinguishable from a successful one to anything downstream, so a run that loaded nothing has to say so in its exit status.
+            logger.error(
+                "No mutations could be read, so there is nothing to decompose. "
+                "Check the input format and that the genome assembly matches it"
+            )
+            sys.exit(1)
 
         samples_profiles = get_multisample_mutational_profile(mutations, counts=True)
         samples_results = {}
