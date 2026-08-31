@@ -76,7 +76,20 @@ jobs:
           sed -i "s/^version = .*/version = \"$NEW_VERSION\"/" pyproject.toml
 
           # Update mutagene/version.py
-          sed -i "s/__version__ = .*/__version__ = '$NEW_VERSION'/" mutagene/version.py
+          # Double quotes: black normalises to them, and a single-quoted
+          # version would make this bot's own commit fail the format check.
+          sed -i "s/^__version__ = .*/__version__ = \"$NEW_VERSION\"/" mutagene/version.py
+
+      - name: Require a changelog entry
+        if: steps.bump_type.outputs.type != 'none'
+        run: |
+          NEW_VERSION="${{ steps.new_version.outputs.version }}"
+          if ! grep -q "^## \[$NEW_VERSION\]" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no '## [$NEW_VERSION]' section."
+            echo "A release without notes is not worth publishing. Add the section"
+            echo "to CHANGELOG.md in the pull request that carries the version label."
+            exit 1
+          fi
 
       - name: Commit and tag
         if: steps.bump_type.outputs.type != 'none'
@@ -99,13 +112,24 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           NEW_VERSION="${{ steps.new_version.outputs.version }}"
-          PR_BODY=$(cat <<'PREOF'
-          ${{ github.event.pull_request.body }}
-          PREOF
-          )
+
+          # The notes are the changelog section for this version: what changed,
+          # rather than the title of whichever pull request happened to trip the
+          # version bump.
+          # Plain prefix comparison rather than a regex: a bracket in an awk
+          # -v value turns into a character class, which matched nothing and
+          # would have published every release with empty notes.
+          awk -v marker="## [$NEW_VERSION]" '
+            index($0, marker) == 1 {found = 1; next}
+            found && index($0, "## [") == 1 {exit}
+            found {print}
+          ' CHANGELOG.md > release_notes.md
+
+          if [ ! -s release_notes.md ]; then
+            echo "::error::Extracted empty release notes for $NEW_VERSION."
+            exit 1
+          fi
 
           gh release create "v$NEW_VERSION" \
             --title "v$NEW_VERSION" \
-            --notes "PR #${{ github.event.pull_request.number }}: ${{ github.event.pull_request.title }}
-
-          ${PR_BODY}"
+            --notes-file release_notes.md
