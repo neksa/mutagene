@@ -1,0 +1,100 @@
+name: Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main, master]
+
+# The bump itself lives in the pull request, not in this workflow: branch
+# protection requires changes to main to go through review, so a workflow that
+# commits its own bump is rejected with "Changes must be made through a pull
+# request" and no release is ever cut. This tags what was merged instead.
+jobs:
+  release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check for a release label
+        id: label
+        run: |
+          LABELS=$(echo '${{ toJson(github.event.pull_request.labels.*.name) }}' | jq -r '.[]')
+          if echo "$LABELS" | grep -qE '^(major|minor|patch)$'; then
+            echo "release=yes" >> $GITHUB_OUTPUT
+          else
+            echo "release=no" >> $GITHUB_OUTPUT
+            echo "No major/minor/patch label; nothing to release."
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.label.outputs.release == 'yes'
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.base.ref }}
+
+      - name: Read the version the pull request set
+        id: version
+        if: steps.label.outputs.release == 'yes'
+        run: |
+          VERSION=$(sed -n 's/^__version__ = "\(.*\)"$/\1/p' mutagene/version.py)
+          if [ -z "$VERSION" ]; then
+            echo "::error::Could not read __version__ from mutagene/version.py"
+            exit 1
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+          PYPROJECT=$(sed -n 's/^version = "\(.*\)"$/\1/p' pyproject.toml | head -1)
+          if [ "$PYPROJECT" != "$VERSION" ]; then
+            echo "::error::pyproject.toml says $PYPROJECT but version.py says $VERSION"
+            exit 1
+          fi
+
+      - name: Require a changelog entry and an unused tag
+        if: steps.label.outputs.release == 'yes'
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          if ! grep -q "^## \[$VERSION\]" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no '## [$VERSION]' section."
+            echo "A release without notes is not worth publishing. The pull request"
+            echo "carrying the version label must also bump the version files and add"
+            echo "the changelog section. See CONTRIBUTING.md."
+            exit 1
+          fi
+
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "::error::Tag v$VERSION already exists; the version was not bumped."
+            exit 1
+          fi
+
+      - name: Tag and release
+        if: steps.label.outputs.release == 'yes'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          # Plain prefix comparison rather than a regex: a bracket in an awk -v
+          # value turns into a character class, which matches nothing and would
+          # publish every release with empty notes.
+          awk -v marker="## [$VERSION]" '
+            index($0, marker) == 1 {found = 1; next}
+            found && index($0, "## [") == 1 {exit}
+            found {print}
+          ' CHANGELOG.md > release_notes.md
+
+          if [ ! -s release_notes.md ]; then
+            echo "::error::Extracted empty release notes for $VERSION."
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "v$VERSION" -m "Release v$VERSION"
+          git push origin "v$VERSION"
+
+          gh release create "v$VERSION" \
+            --title "v$VERSION" \
+            --notes-file release_notes.md
