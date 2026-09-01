@@ -51,10 +51,10 @@ def add_run_parameter_arguments(parser):
 
 def _describe(value):
     """Reduce an argument value to something JSON holds and argparse can re-read."""
-    if isinstance(value, (bool, int, float, str)) or value is None:
+    if isinstance(value, bool | int | float | str) or value is None:
         return value
 
-    if isinstance(value, (list, tuple)):
+    if isinstance(value, list | tuple):
         # nargs='*' arguments, such as `profile --infile`, arrive as a list of
         # open files. Each element has to be reduced on its own; stringifying
         # the list gives a repr that no replay can reopen.

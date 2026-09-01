@@ -98,6 +98,3 @@ Fetch genome assemblies
 
     Data Fetched:
     Any reference genome available for download on the `UCSC Sequence and Annotation Data Webpage <http://hgdownload.soe.ucsc.edu/downloads.html>`_
-
-
-
