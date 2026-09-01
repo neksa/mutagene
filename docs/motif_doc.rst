@@ -46,7 +46,7 @@ The publication `Mutational signatures and mutable motifs in cancer genomes <htt
 2. Motif search command line
 ============================
 
-To use the motif command, type 
+To use the motif command, type
 
 ``$ mutagene motif [arguments]``
 
@@ -67,11 +67,11 @@ Argument                    Description                                         
 =========================   ============================================================  ====================
 --infile INFILE             Input file in MAF or VCF format with 1 or multiple samples    --infile sample1.maf
                             (where INFILE is the sample filename with extension)
--i INFILE                   Short form of ``--infile INFILE`` argument                    -i sample1.maf 
---genome GENOME             Location of genome assembly file in 2bit format               --genome hg38.2bit   
-                            (where GENOME is the filename)                    
--g GENOME                   Short form of ``--genome GENOME`` argument                    -g hg38.2bit 
-=========================   ============================================================  ====================                                                                                                                                          
+-i INFILE                   Short form of ``--infile INFILE`` argument                    -i sample1.maf
+--genome GENOME             Location of genome assembly file in 2bit format               --genome hg38.2bit
+                            (where GENOME is the filename)
+-g GENOME                   Short form of ``--genome GENOME`` argument                    -g hg38.2bit
+=========================   ============================================================  ====================
 
 -----------------------------------------
 3.2 Optional Arguments (can be specified)
@@ -104,7 +104,7 @@ Argument                    Description                                         
 --test                      Statistical test to use, either Fisher (the default) or Chi2  --test 'Chi2'
 ==========================  ============================================================  ============================
 
-1. Window Size Parameter Explanation: window size is defined as the number of DNA bases upstream and downstream from the mutated site not including the mutated site. Therefore, the effective length of the DNA sequence searched is 2 * window-size + 1. It may be advantageous to use a window size longer than the default, 50 bases, if the motif is longer than three nucleotides. Similarly, if the motif is shorter than three nucleotides, it may be advantageous to use a window size shorter than the default 50 bases. 
+1. Window Size Parameter Explanation: window size is defined as the number of DNA bases upstream and downstream from the mutated site not including the mutated site. Therefore, the effective length of the DNA sequence searched is 2 * window-size + 1. It may be advantageous to use a window size longer than the default, 50 bases, if the motif is longer than three nucleotides. Similarly, if the motif is shorter than three nucleotides, it may be advantageous to use a window size shorter than the default 50 bases.
 
 2. Strand Parameter Explanation: MutaGene can search for the presence of a motif on the transcribed or non-transcribed DNA strands or both strands. This information is gathered from the input file provided by the user. Analyzing the presence of a motif on a transcribed or non-transcribed strand is advantageous when a mutational process is known to have transcriptional strand bias. For instance, the APOBEC1/3A/B family is known to be associated with mutational processes that have a transcriptional strand bias of mutations. The transcription strand refers to the coding DNA strand, and the non-transcription strand refers to the template DNA strand.
 
@@ -153,7 +153,7 @@ qvalue         Fisher's p-value with Benjamini-Hochberg correction for multiple 
 -------------------
 
 ============================  ==========   ======  ==========  ==========  =======  =======  ==========  ==========  =========
-sample                        mutagen      motif   strand      enrichment  mut_min  mut_max  odds_ratio  pvalue      qvalue   
+sample                        mutagen      motif   strand      enrichment  mut_min  mut_max  odds_ratio  pvalue      qvalue
 ============================  ==========   ======  ==========  ==========  =======  =======  ==========  ==========  =========
 TCGA-50-6593-01A-11D-1753-08  C>T in CpG   [C>T]G  any strand  2.11727     10       18       2.42666     0.00169896  0.0118927
 ============================  ==========   ======  ==========  ==========  =======  =======  ==========  ==========  =========
@@ -195,7 +195,7 @@ No significant motif matches are found in the data, so nothing is reported.
 -------------------
 
 ======  ==========  =======   ===============  ==========  =======  =======  ==========  ===========  ===========
-sample  mutagen     motif     strand           enrichment  mut_min  mut_max  odds_ratio  pvalue       qvalue   
+sample  mutagen     motif     strand           enrichment  mut_min  mut_max  odds_ratio  pvalue       qvalue
 ======  ==========  =======   ===============  ==========  =======  =======  ==========  ===========  ===========
 VCF     C>T in CpG  [C>T]G    non-transcribed  4.24964     1882     2460     7.50456     0            0
 VCF     C>T in CpG  [C>T]G    any strand       4.21114     3670     4812     7.38992     0            0

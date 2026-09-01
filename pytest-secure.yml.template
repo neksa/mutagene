@@ -8,6 +8,6 @@
 #     text or encrypted depending on your security settings in Artifactory.  This is described at the following URL:
 #     https://www.jfrog.com/confluence/display/JFROG/Centrally+Secure+Passwords
 artifactory:
-    username: 
-    password: 
-    url: 
+    username:
+    password:
+    url:

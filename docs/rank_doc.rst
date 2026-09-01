@@ -8,7 +8,7 @@ Description
 
 "mutagene rank" module ranks mutations with respect to their driver statuses. The method requires three input parameters: the background mutability model for each nucleotide or codon, a number of samples where a given mutation was observed (mutational frequency) and the overall number of samples in a given cohort of patients. The background mutability model, mutational frequency and number of samples are specified and taken from the input file by default. Arguments below can overwrite the default.
 
-Please cite the MutaGene ranking method as 
+Please cite the MutaGene ranking method as
 Anna-Leigh Brown, Minghui Li, Alexander Goncearenco, Anna R Panchenko
 "Finding Driver Mutations in Cancer: Elucidating the Role of Background Mutational Processes" Plos Comp Biol 15 (4), e1006981
 https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1006981
@@ -19,7 +19,7 @@ https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1006981
 1. Rank command
 ---------------
 
-To use the rank command, type 
+To use the rank command, type
 
 ``$ mutagene rank``
 
@@ -40,11 +40,11 @@ Argument                    Description                                         
 =========================   ============================================================  ====================
 --infile INFILE             Input file of mutations to be ranked in MAF format            --infile sample1.maf
                             (where INFILE is the sample(s) filename with extension)
--i INFILE                   Short form of --infile INFILE argument                         -i sample1.maf 
+-i INFILE                   Short form of --infile INFILE argument                         -i sample1.maf
 --genome GENOME             Location of genome assembly file in 2bit format                --genome hg19
 -g GENOME                   Short form of --genome GENOME argument                         -g hg19
 
-=========================   ============================================================  ====================                                                                                                                                   
+=========================   ============================================================  ====================
 
 **2.3. Optional Arguments (can be specified):**
 
@@ -53,7 +53,7 @@ Argument                                   Description                          
 =========================================  ==================================================  ==================================
 --outfile OUTFILE                          Name of output file, will be generated in           --outfile out.tsv
                                            TSV format  (If this argument is not included,
-                                           output is to screen)   
+                                           output is to screen)
 -o OUTFILE                                 Short form of --outfile OUTFILE                     -o out.tsv
 --cohort COHORT                            Name of a precalculated cohort supplying the        --cohort GCB_Lymphomas
                                            background profile, cohort size and observed
@@ -146,10 +146,10 @@ that was used appears in the ``transcript`` column of the output.
 3. Interpretation of Rank Output
 --------------------------------
 
-The output will show a table with the headers described in table below. 
+The output will show a table with the headers described in table below.
 
 ===================  =======================================================================================================
-Output Table Header  Description    
+Output Table Header  Description
 ===================  =======================================================================================================
 gene                 Name of gene with mutation
 transcript           Transcript the mutation was annotated against, chosen as described in section 2.5
@@ -239,9 +239,9 @@ ZC3H3     R59G       1.1254702103613567e-07   1         4.952056942785831e-06   
 4.2.2. Rank Output (only 4 results around potential driver and passenger are shown here)
 ----------------------------------------------------------------------------------------
 
-========  =========  =======================  ========  =======================  ======================  ================    
-gene      mutation   mutability               observed  bscore                   qvalue                  label   
-========  =========  =======================  ========  =======================  ======================  ================  
+========  =========  =======================  ========  =======================  ======================  ================
+gene      mutation   mutability               observed  bscore                   qvalue                  label
+========  =========  =======================  ========  =======================  ======================  ================
 KIAA0947  S2194S     6.797840069627803e-06    1         0.00029906125196809075   0.00030274200583846724  Potential driver
 ENG       P352P      6.797840069627803e-06    1         0.00029906125196809075   0.00030274200583846724  Potential driver
 CNNM1     D445D      7.199833295556957e-06    1         0.0003167436315779828    0.0003167436315779828   Passenger
@@ -262,9 +262,9 @@ CPXM2     T536M      7.199833295556957e-06    1         0.0003167436315779828   
 4.3.2. Rank Output (only 4 results around driver and potential driver are shown here)
 -------------------------------------------------------------------------------------
 
-========  =========  =======================  ========  =======================  ======================  ================    
-gene      mutation   mutability               observed  bscore                   qvalue                  label   
-========  =========  =======================  ========  =======================  ======================  ================  
+========  =========  =======================  ========  =======================  ======================  ================
+gene      mutation   mutability               observed  bscore                   qvalue                  label
+========  =========  =======================  ========  =======================  ======================  ================
 C1orf69   E244V      1.9422490304954465e-07   1         8.545860048022934e-06    5.4532044509315266e-05  Driver
 PARD3B    E1055V     1.9422490304954465e-07   1         8.545860048022934e-06    5.4532044509315266e-05  Driver
 KIF21B    L517V      2.1106070979826086e-07   1         9.28662909014243e-06     5.4532044509315266e-05  Potential Driver
@@ -285,12 +285,12 @@ KIAA1409  L2317V     2.1106070979826086e-07   1         9.28662909014243e-06    
 4.4.2. Rank Output (only first 5 results are shown here)
 --------------------------------------------------------
 
-========  =========  =======================  ========  =======================  =====================  ======    
-gene      mutation   mutability               observed  bscore                   qvalue                 label   
-========  =========  =======================  ========  =======================  =====================  ======  
+========  =========  =======================  ========  =======================  =====================  ======
+gene      mutation   mutability               observed  bscore                   qvalue                 label
+========  =========  =======================  ========  =======================  =====================  ======
 BOD1L     T2810S     1.7803044916053778e-07   1         3.560602961197431e-06    5.453206065356159e-05  Driver
 TEX15     V2686E     1.8788798872293455e-07   1         3.7577530671059544e-06   5.453206065356159e-05  Driver
 GRINA     Y99F       1.8788798872293455e-07   1         3.7577530671059544e-06   5.453206065356159e-05  Driver
 N4BP2L2   K143I      2.2773687058386116e-07   1         4.554727557515065e-06    5.453206065356159e-05  Driver
 ZC3H3     R59G       2.4760344619068064e-07   1         4.952057275412269e-06    5.453206065356159e-05  Driver
-========  =========  =======================  ========  =======================  =====================  ======   
+========  =========  =======================  ========  =======================  =====================  ======

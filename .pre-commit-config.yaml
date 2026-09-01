@@ -1,12 +1,43 @@
+# Hook versions track the tooling in pyproject.toml. When they drift, a
+# contributor running pre-commit sees different results from CI: ruff 0.9.0
+# flagged six UP038 violations that ruff 0.15 no longer has a rule for.
+# Data files, fixtures and vendored assets are excluded. Several carry CRLF
+# endings or trailing whitespace that is part of the file rather than a
+# formatting mistake: a MAF's trailing empty columns are the padded-header case
+# from #91, and stripping them from the fixtures silently disarms the
+# regression tests that cover it.
+exclude: |
+  (?x)^(
+    data/.*|
+    mutagene/data/.*|
+    mutagene/webapp/static/.*|
+    tests/.*/data/.*|
+    .*\.min\.(js|css)|
+    sample\d*\.vcf
+  )$
+
 repos:
   - repo: https://github.com/psf/black
-    rev: 25.1.0
+    rev: 26.5.1
     hooks:
       - id: black
         args: [--line-length=100]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.9.0
+    rev: v0.15.21
     hooks:
       - id: ruff
         args: [--fix]
+      - id: ruff-format
+        stages: [manual]
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: [--maxkb=2048]

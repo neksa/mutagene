@@ -12,7 +12,7 @@ Use mutagene signature to search for the presence of mutational signatures in mu
 1. Identify command
 -------------------
 
-To use the identify command, type 
+To use the identify command, type
 
 ``$ mutagene signature identify``
 
@@ -27,7 +27,7 @@ followed by the required arguments from the command line. You can always find he
 **2.1.Command:** mutagene signature identify [arguments]
 
 **2.2.Required Arguments (must be specified):**
-                                                                                                                                      
+
 
 1. The MutaGene signature package allows for the analysis of mutational processes operating in a given sample or a cohort using five different sets of mutational signatures, selected with --signatures (-s):
 
@@ -55,9 +55,9 @@ Argument                    Description                                         
 ==========================  =============================================================  ============================
 --input-format {MAF,VCF}    Input file format: MAF, VCF                                     --input-format VCF
                             (MAF is a default format)
--f {MAF,VCF}                Short form of --input-format {MAF,VCF} argument                 -f VCF 
+-f {MAF,VCF}                Short form of --input-format {MAF,VCF} argument                 -f VCF
 --outfile [OUTFILE]         Name of output file, will be generated in TSV format            --outfile ../../out/out.tsv
-                            
+
 -o [OUTFILE]                Short form of --outfile [OUTFILE] argument                      -o ../../out/out.tsv
 ==========================  =============================================================  ============================
 
@@ -67,15 +67,15 @@ Argument                    Description                                         
 ==========================  ===================================================================  =========================
 Argument                    Description                                                          Example
 ==========================  ===================================================================  =========================
---method [METHOD]           Method defines a target function minimized in the optimization 
+--method [METHOD]           Method defines a target function minimized in the optimization
                             procedure                                                            -method frobenius
                             (default method is mlez)\ :sup:`1`
 -m [METHOD]                 Short form of --method [METHOD] argument                             -m frobenius
 --no-unexplained-variance   not to account for unexplained variance from context-independent     --no-unexplained-variance
-                            mutational processes and unknown signatures                                                       
+                            mutational processes and unknown signatures
 -U                          Short form of --no-unexplained-variance argument                     -U
 --bootstrap                 Use the bootstrap to calculate 95% confidence intervals              --bootstrap
-                            for VCF files                                                        
+                            for VCF files
 -b                          Short form of --bootstrap argument                                   -b
 ==========================  ===================================================================  =========================
 
@@ -83,19 +83,19 @@ The bootstraping is done by random sampling with replacement of mutations from e
 
 1. Available methods
 
-================= ===================================================================================== 
-Argument           Method      
-================= ===================================================================================== 
-frobenius          Frobenius  
-frobeniuszero      FrobeniusZero 
+================= =====================================================================================
+Argument           Method
+================= =====================================================================================
+frobenius          Frobenius
+frobeniuszero      FrobeniusZero
 js                 js
 divergencejs       divergencejs
-mle                NegLogLik (Maxiumum Likelihood Estimation maximizes LogLik or minimizes NegLogLik) 
+mle                NegLogLik (Maxiumum Likelihood Estimation maximizes LogLik or minimizes NegLogLik)
 mlez               NegLogLik (MLE with added context-independent signatures)
 compat             MegLogLikOld (MLE with added context-independent signatures (old compatability mode))
-aicc               AICc (AIC corrected for small samples) 
+aicc               AICc (AIC corrected for small samples)
 bic                BIC
-aiccz              BIC (BIC with added context-independent signatures)  
+aiccz              BIC (BIC with added context-independent signatures)
 ================= =====================================================================================
 
 
@@ -113,9 +113,9 @@ aiccz              BIC (BIC with added context-independent signatures)
 3.1.2.Identify Output
 ---------------------
 
-=======  ============  ============  =========== 
-sample     signature     exposure    mutations   
-=======  ============  ============  =========== 
+=======  ============  ============  ===========
+sample     signature     exposure    mutations
+=======  ============  ============  ===========
 VCF        2             0.0935      80
 VCF        3             0.0392      33
 VCF        4             0.0074      6
@@ -125,7 +125,7 @@ VCF        7             0.0118      10
 VCF        8             0.0552      47
 VCF        9             0.0271      23
 VCF        10            0.0121      10
-=======  ============  ============  =========== 
+=======  ============  ============  ===========
 
 
 *3.2. Calculate the mutational profile for sample1.maf using -g hg38.2bit and MutaGene-5 signature set:*
@@ -139,12 +139,12 @@ VCF        10            0.0121      10
 3.2.2.Identify Output
 ---------------------
 
-=============================  ===========  ==========  ===========  
+=============================  ===========  ==========  ===========
 sample                          signature    exposure    mutations
 =============================  ===========  ==========  ===========
 TCGA-50-6593-01A-11D-1753-08    2            0.0348      5
 TCGA-50-6593-01A-11D-1753-08    3            0.0691      11
-=============================  ===========  ==========  ===========  
+=============================  ===========  ==========  ===========
 
 *3.3. Calculate the mutational profile for PD3851a.vcf using -g hg38.2bit (both in samples folder) and MutaGene-10 signature set and send output to a file out.tsv in out folder:*
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

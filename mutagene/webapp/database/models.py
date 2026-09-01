@@ -12,9 +12,9 @@ class _SafeEncoder(json.JSONEncoder):
         try:
             import numpy as np
 
-            if isinstance(obj, (np.integer,)):
+            if isinstance(obj, np.integer):
                 return int(obj)
-            if isinstance(obj, (np.floating,)):
+            if isinstance(obj, np.floating):
                 return float(obj)
             if isinstance(obj, np.ndarray):
                 return obj.tolist()

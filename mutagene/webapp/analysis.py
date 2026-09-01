@@ -399,7 +399,7 @@ def run_cohort_analysis(
                 mutations = sig_result.get("mutations", 0)
                 if (
                     mutations
-                    and isinstance(mutations, (int, float, np.integer, np.floating))
+                    and isinstance(mutations, int | float | np.integer | np.floating)
                     and mutations > 0
                 ):
                     sig_name = sig_result["name"]
@@ -439,7 +439,7 @@ def run_cohort_analysis(
                         mutations = sig_result.get("mutations", 0)
                         if (
                             mutations
-                            and isinstance(mutations, (int, float, np.integer, np.floating))
+                            and isinstance(mutations, int | float | np.integer | np.floating)
                             and mutations > 0
                         ):
                             sig_name = sig_result["name"]
