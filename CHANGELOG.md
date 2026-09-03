@@ -4,6 +4,21 @@ Notable changes to MutaGene. Dates are release dates; the format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.1] - 2026-09-03
+
+### Fixed
+
+- The published documentation at
+  [mutagene.readthedocs.io](https://mutagene.readthedocs.io) had not been
+  rebuilt: it described 1.0.0, returned 404 for pages added since, and still
+  carried the incorrect claim that `rank` uses a pan-cancer cohort by default.
+  Read the Docs has required a configuration file since 2023 and there was none,
+  so no build ran. The documented version is now read from the package rather
+  than repeated, and the build runs in CI so a failure is visible in the pull
+  request rather than only on Read the Docs.
+
+[1.1.1]: https://github.com/neksa/mutagene/compare/v1.1.0...v1.1.1
+
 ## [1.1.0] - 2026-08-31
 
 The first release since the web interface landed. Most of this is correctness
