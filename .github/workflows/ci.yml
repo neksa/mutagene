@@ -67,3 +67,32 @@ jobs:
     - name: Run mypy
       run: uv run mypy mutagene/ --ignore-missing-imports
       continue-on-error: true
+
+  docs:
+    # The published documentation drifted for months without anyone noticing:
+    # nothing built it until Read the Docs tried, and a failure there is only
+    # visible if you go looking. Build it here, with the same strictness Read
+    # the Docs uses, so a broken reference fails the pull request instead.
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        enable-cache: true
+
+    - name: Set up Python
+      run: uv python install 3.12
+
+    - name: Build documentation
+      run: uv run --with-requirements docs/requirements.txt --no-project sphinx-build -b html docs docs/_build -W --keep-going
+
+    - name: Check the documented version matches the package
+      run: |
+        PACKAGE=$(sed -n 's/^__version__ = "\(.*\)"$/\1/p' mutagene/version.py)
+        if ! grep -q "MutaGene $PACKAGE documentation" docs/_build/index.html; then
+          echo "::error::Built docs do not report version $PACKAGE"
+          exit 1
+        fi
