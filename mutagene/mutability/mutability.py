@@ -218,12 +218,22 @@ def rank(
 
     results = list(map(OrderedDict, sorted(results, key=lambda k: k["bscore"])))
     if len(results) == 0:
+        # Not "no drivers found" -- there is one row per input mutation, so an
+        # empty list means nothing could be ranked at all, and writing an empty
+        # file without a word looks identical to a run that found nothing.
+        logger.warning(
+            "No mutations could be ranked. The input needs protein annotations "
+            "(a transcript column with cDNA and protein changes) for rank to use"
+        )
         return
     df = pd.DataFrame(results, columns=results[0].keys())
     df.drop(df[df.mutability == 0].index, inplace=True)
     try:
         if provenance:
             write_provenance(outfile, provenance)
-        df.to_csv(outfile, sep="\t", index=False, doublequote=False)
+        # Four significant figures. These are estimates from binomial tests on
+        # small counts; printing them to fifteen digits, as repr does, claims a
+        # precision the method does not have and makes the table hard to read.
+        df.to_csv(outfile, sep="\t", index=False, doublequote=False, float_format="%.4g")
     except (OSError, BrokenPipeError):
         pass

@@ -67,3 +67,37 @@ def test_cohort_size_is_untouched_without_a_cohort(tmp_path):
         rank(mutations, fh, [10.0] * 96, None, 1, 8.03e-05, 0.0034)
 
     assert out.exists()
+
+
+class TestOutputPrecision:
+    """Scores are estimates from binomial tests on small counts.
+
+    Printing them at repr precision claimed fifteen significant digits the
+    method does not have, and made the table hard to read.
+    """
+
+    def ranking(self, tmp_path):
+        out = tmp_path / "out.tsv"
+        mutations = {("TP53", "R248W"): {"seq5": {"ACGGA": 1}, "transcript": "T1"}}
+        with open(out, "w") as fh:
+            rank(mutations, fh, [10.0] * 96, {"TP53": {"R248W": 3}}, 50, 8.03e-05, 0.0034)
+        return [line for line in out.read_text().splitlines() if not line.startswith("#")]
+
+    def test_no_column_carries_more_than_four_significant_figures(self, tmp_path):
+        rows = self.ranking(tmp_path)
+        assert len(rows) >= 2
+
+        header, data = rows[0].split("\t"), rows[1].split("\t")
+        for name, value in zip(header, data):
+            if name in ("gene", "transcript", "mutation", "label", "observed"):
+                continue
+            digits = value.split("e")[0].replace("-", "").replace(".", "").lstrip("0")
+            assert len(digits) <= 4, f"{name} printed {value} with {len(digits)} digits"
+
+    def test_the_values_are_still_parseable_numbers(self, tmp_path):
+        rows = self.ranking(tmp_path)
+        header, data = rows[0].split("\t"), rows[1].split("\t")
+        values = dict(zip(header, data))
+
+        assert 0.0 <= float(values["bscore"]) <= 1.0
+        assert float(values["mutability"]) > 0

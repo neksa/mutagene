@@ -33,6 +33,7 @@ from pathlib import Path
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "sphinxcontrib.mermaid",
     "sphinx.ext.autodoc",
     "sphinx.ext.coverage",
     "sphinx.ext.mathjax",
@@ -97,7 +98,13 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "alabaster"
+html_theme = "furo"
+html_title = f"MutaGene {release}"
+html_theme_options = {
+    "source_repository": "https://github.com/neksa/mutagene/",
+    "source_branch": "main",
+    "source_directory": "docs/",
+}
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

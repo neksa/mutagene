@@ -96,6 +96,25 @@ Path                        Contents
 Analyses persist across restarts and remain listed in the history page, so a
 completed analysis can be revisited without re-uploading its input.
 
+.. mermaid::
+
+   flowchart TD
+       START["re-run requested"] --> STAGE["write results into<br/>.id.incoming"]
+       STAGE --> OK{"analysis<br/>succeeded?"}
+       OK -- no --> DISCARD["discard staging;<br/>previous results untouched"]
+       OK -- yes --> SWAP["move previous aside to .id.previous<br/>swap staging into place"]
+       SWAP --> COMMIT{"database rows<br/>committed?"}
+       COMMIT -- no --> ROLLBACK["put the previous output back"]
+       COMMIT -- yes --> DONE["new results live;<br/>backup removed"]
+
+       classDef good fill:#e8f4ea,stroke:#4a7c59,color:#1b3a29
+       classDef safe fill:#fff4e0,stroke:#b07d2b,color:#4a3212
+       class DONE good
+       class DISCARD,ROLLBACK safe
+
+A server interrupted mid-swap reconciles the files with the database on next
+startup, using the committed status as the record of whether the swap landed.
+
 Re-running an analysis replaces its stored output only once the new run has
 succeeded: the results are written aside and swapped into place together with
 their database rows. A failed re-run therefore leaves the previous results

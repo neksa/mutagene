@@ -4,6 +4,31 @@ Notable changes to MutaGene. Dates are release dates; the format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] - 2026-09-08
+
+### Behaviour changes
+
+- `rank` prints its numeric columns to four significant figures. They were
+  written at full float precision, claiming fifteen significant digits for
+  estimates from binomial tests on small counts.
+
+### Fixed
+
+- `read_protein_mutations_MAF` aborted the whole file on a single row with the
+  wrong number of fields, so `rank` failed on real TCGA files that `motif` and
+  `profile` read without complaint. The other readers learned to skip such rows
+  in 1.1.0; this one had not.
+- A ranking that produced no rows wrote an empty file and said nothing. It now
+  explains that the input needs protein annotations.
+
+### Added
+
+- The documentation uses the Furo theme and carries diagrams of the analysis
+  pipeline, the FILTER decision, the cohort argument precedence and the
+  re-run swap.
+
+[1.2.0]: https://github.com/neksa/mutagene/compare/v1.1.1...v1.2.0
+
 ## [1.1.1] - 2026-09-03
 
 ### Fixed

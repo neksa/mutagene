@@ -12,6 +12,7 @@ import twobitreader as tbr
 from tqdm import tqdm
 
 from mutagene.dna import codon_table, complementary_nucleotide, nucleotides
+from mutagene.io.maf_columns import report_malformed_rows
 from mutagene.io.variant_filter import (
     DEFAULT_FILTER_COLUMN,
     check_filter_column,
@@ -129,8 +130,18 @@ def read_protein_mutations_MAF(
     n_filtered = 0
     transcript_lengths = {}
 
-    for data in tqdm(map(MAF._make, reader), leave=False):
-        # print(data)
+    skipped_rows = []
+    for line_number, row in enumerate(tqdm(reader, leave=False), start=2):
+        # One row with the wrong number of fields used to raise TypeError out of
+        # the whole read, the same way the other MAF readers did before #92 and
+        # #100. Skip it and keep going.
+        try:
+            data = MAF._make(row)
+        except TypeError:
+            skipped_rows.append((line_number, f"expected {len(header)} fields, got {len(row)}"))
+            N_skipped += 1
+            continue
+
         try:
             if not keep_filtered and not passes_filter(filter_value(data, filter_column)):
                 n_filtered += 1
@@ -303,6 +314,7 @@ def read_protein_mutations_MAF(
             logger.debug("General MAF parsing exception " + str(e))
             continue
 
+    report_malformed_rows(skipped_rows, "MAF")
     report_filtered(n_filtered, "MAF")
 
     N_loaded = 0
