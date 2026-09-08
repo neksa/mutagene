@@ -14,6 +14,26 @@ variant they stand behind, ``.`` when no filters were applied, and otherwise the
 names of the filters it failed, such as ``germline``, ``weak_evidence`` or
 ``clustered_events``.
 
+.. mermaid::
+
+   flowchart TD
+       V["variant row"] --> K{"--keep-filtered<br/>given?"}
+       K -- yes --> USE["counted"]
+       K -- no --> C{"FILTER column<br/>present?"}
+       C -- "no column" --> USE
+       C -- yes --> F{"value is<br/>PASS, . or empty?"}
+       F -- yes --> USE
+       F -- no --> DROP["excluded,<br/>and reported"]
+
+       classDef keep fill:#e8f4ea,stroke:#4a7c59,color:#1b3a29
+       classDef drop fill:#fdeaea,stroke:#b1483f,color:#4a1a16
+       class USE keep
+       class DROP drop
+
+A file with no ``FILTER`` column has rejected nothing, so all of it is read.
+``--filter-column NAME`` points at the column when a converter wrote the verdict
+somewhere else.
+
 **Only PASS variants are counted by default.** A file with no ``FILTER`` column
 has rejected nothing, so all of it is used. Pass ``--keep-filtered`` to include
 rejected variants.

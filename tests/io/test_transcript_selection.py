@@ -207,3 +207,37 @@ def test_first_populated_prefers_the_earliest_non_blank():
     assert first_populated(Row("first", "", ""), "a", "b", "c") == "first"
     assert first_populated(Row("", "", ""), "a", "b", "c") is None
     assert first_populated(Row("", "", ""), "missing") is None
+
+
+class TestMalformedRowsInProteinReader:
+    """One short row used to raise TypeError out of the whole read.
+
+    The other MAF readers learned to skip such rows in #92 and #100; this one
+    did not, so `rank` died on a real TCGA file that `motif` reads fine.
+    """
+
+    HEADER = (
+        "Hugo_Symbol\tChromosome\tStart_Position\tVariant_Classification\t"
+        "Transcript_ID\tHGVSc\tHGVSp_Short\tref_context\tTumor_Sample_Barcode"
+    )
+
+    def good_row(self):
+        context = "AAAAAAAAAA" + "CGA" + "AAAAAAAA"
+        return f"TP53\t17\t7578406\tMissense_Mutation\tENST1\tc.C4T\tp.R2C\t" f"{context}\tSAMPLE1"
+
+    def test_a_short_row_does_not_abort_the_file(self):
+        text = "\n".join([self.HEADER, "TP53\t17\t7578406", self.good_row()]) + "\n"
+
+        flat, stats = read_protein_mutations_MAF(io.StringIO(text), "MAF")
+
+        assert ("TP53", "R2C") in flat, "a short row discarded the whole file"
+        assert stats["skipped"] >= 1
+
+    def test_the_skipped_row_is_reported(self, caplog):
+        import logging
+
+        text = "\n".join([self.HEADER, "TP53\t17", self.good_row()]) + "\n"
+        with caplog.at_level(logging.WARNING):
+            read_protein_mutations_MAF(io.StringIO(text), "MAF")
+
+        assert any("malformed" in r.message for r in caplog.records)

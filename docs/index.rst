@@ -5,6 +5,33 @@ MutaGene is a Python package for analyzing mutations and mutational processes in
 It provides command-line tools that complement the
 `MutaGene website <https://www.ncbi.nlm.nih.gov/research/mutagene/>`_.
 
+How the subcommands fit together
+--------------------------------
+
+.. mermaid::
+
+   flowchart LR
+       MAF["MAF / VCF<br/>mutations"] --> P["profile"]
+       G[("2bit genome<br/>assembly")] -.-> P
+       P --> PROF["96-channel<br/>profile"]
+       PROF --> S["signature"]
+       PROF --> R["rank"]
+       MAF --> R
+       MAF --> M["motif"]
+       G -.-> R
+       G -.-> M
+       S --> EXP["signature<br/>exposures"]
+       R --> DRV["ranked<br/>driver mutations"]
+       M --> ENR["motif<br/>enrichment"]
+
+       classDef out fill:#e8f4ea,stroke:#4a7c59,color:#1b3a29
+       classDef cmd fill:#e6eefc,stroke:#3b5ea8,color:#16264a
+       class P,S,R,M cmd
+       class PROF,EXP,DRV,ENR out
+
+The genome assembly must match the coordinates in the input file; a mismatch is
+reported rather than left to produce quiet nonsense. See :doc:`profile_doc`.
+
 Subcommands
 -----------
 
