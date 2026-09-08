@@ -92,7 +92,10 @@ jobs:
     - name: Check the documented version matches the package
       run: |
         PACKAGE=$(sed -n 's/^__version__ = "\(.*\)"$/\1/p' mutagene/version.py)
-        if ! grep -q "MutaGene $PACKAGE documentation" docs/_build/index.html; then
+        # Matched loosely on purpose: the exact phrasing comes from the theme,
+        # and tying the check to it made a theme change look like a version
+        # mismatch. What matters is that the built page names this version.
+        if ! grep -q "MutaGene $PACKAGE" docs/_build/index.html; then
           echo "::error::Built docs do not report version $PACKAGE"
           exit 1
         fi
