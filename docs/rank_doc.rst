@@ -92,14 +92,14 @@ Argument                                   Description                          
 The method takes three separate inputs, and four arguments can set them. They
 overlap, which is the source of most confusion about this command.
 
-=================  ==================  ======================  ==================
-Argument           Background profile  Cohort size             Observed mutations
-=================  ==================  ======================  ==================
-neither below      input sample        samples in input        input sample
-``--cohort``       cohort              cohort                  cohort
-``--profile``      profile file        if the file records it  unchanged
-``--nsamples``     unchanged           given value             unchanged
-=================  ==================  ======================  ==================
+==============  ==================  ======================  ==================
+Argument        Background profile  Cohort size             Observed mutations
+==============  ==================  ======================  ==================
+neither below   input sample        samples in input        input sample
+``--cohort``    cohort              cohort                  cohort
+``--profile``   profile file        if the file records it  unchanged
+``--nsamples``  unchanged           given value             unchanged
+==============  ==================  ======================  ==================
 
 "unchanged" means the argument leaves that input alone, so it keeps whatever a
 lower-precedence source set. ``--cohorts-file`` does not appear because it sets
@@ -193,7 +193,7 @@ observed-mutation counts went into it::
     # cohort_size_source: precalculated cohort Pancancer
     # observed_mutations_source: precalculated cohort Pancancer
     # threshold_driver: 8.031e-05
-    # threshold_passenger: 0.003440945
+    # threshold_passenger: 0.003441
     gene    transcript   mutation   mutability   observed   bscore     qvalue     label
     CPXM2   uc001lhk.1   T536M      1.148e-05    6          2.064e-09  6.79e-07   Driver
 
@@ -230,15 +230,15 @@ Command-line tools generally need ``grep -v '^#'`` first.
 4.1.2. Rank Output (only first 5 results are shown here)
 --------------------------------------------------------
 
-========  =========  =======================  ========  =======================  ======================  ======
-gene      mutation   mutability               observed  bscore                   qvalue                  label
-========  =========  =======================  ========  =======================  ======================  ======
-BOD1L     T2810S     8.092e-08     1         3.561e-06   5.453e-05  Driver
-TEX15     V2686E     8.54e-08    1         3.758e-06   5.453e-05  Driver
-GRINA     Y99F       8.54e-08    1         3.758e-06   5.453e-05  Driver
-N4BP2L2   K143I      1.035e-07   1         4.555e-06    5.453e-05  Driver
-ZC3H3     R59G       1.125e-07   1         4.952e-06    5.453e-05  Driver
-========  =========  =======================  ========  =======================  ======================  ======
+=======  ========  ==========  ========  =========  =========  ======
+gene     mutation  mutability  observed  bscore     qvalue     label
+=======  ========  ==========  ========  =========  =========  ======
+BOD1L    T2810S    8.092e-08   1         3.561e-06  5.453e-05  Driver
+TEX15    V2686E    8.54e-08    1         3.758e-06  5.453e-05  Driver
+GRINA    Y99F      8.54e-08    1         3.758e-06  5.453e-05  Driver
+N4BP2L2  K143I     1.035e-07   1         4.555e-06  5.453e-05  Driver
+ZC3H3    R59G      1.125e-07   1         4.952e-06  5.453e-05  Driver
+=======  ========  ==========  ========  =========  =========  ======
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 *4.2. Use mutagene rank to analyze genes in sample1.maf using genome hg19 and cohort gcb_lymphomas with a BScore threshold of 0.0003 between Potential Driver and Passenger mutations*
@@ -254,14 +254,14 @@ ZC3H3     R59G       1.125e-07   1         4.952e-06    5.453e-05  Driver
 4.2.2. Rank Output (only 4 results around potential driver and passenger are shown here)
 ----------------------------------------------------------------------------------------
 
-========  =========  =======================  ========  =======================  ======================  ================
-gene      mutation   mutability               observed  bscore                   qvalue                  label
-========  =========  =======================  ========  =======================  ======================  ================
-KIAA0947  S2194S     6.798e-06    1         0.00029906125196809075   0.00030274200583846724  Potential driver
-ENG       P352P      6.798e-06    1         0.00029906125196809075   0.00030274200583846724  Potential driver
-CNNM1     D445D      7.2e-06    1         0.0003167436315779828    0.0003167436315779828   Passenger
-CPXM2     T536M      7.2e-06    1         0.0003167436315779828    0.0003167436315779828   Passenger
-========  =========  =======================  ========  =======================  ======================  ================
+========  ========  ==========  ========  =========  =========  ================
+gene      mutation  mutability  observed  bscore     qvalue     label
+========  ========  ==========  ========  =========  =========  ================
+KIAA0947  S2194S    6.798e-06   1         0.0002991  0.0003027  Potential driver
+ENG       P352P     6.798e-06   1         0.0002991  0.0003027  Potential driver
+CNNM1     D445D     7.2e-06     1         0.0003167  0.0003167  Passenger
+CPXM2     T536M     7.2e-06     1         0.0003167  0.0003167  Passenger
+========  ========  ==========  ========  =========  =========  ================
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 *4.3. Use mutagene rank to analyze genes in sample1.maf using genome hg19 and cohort gcb_lymphomas with a BScore threshold of 0.000009 between Driver and Potential Driver mutations*
@@ -277,14 +277,14 @@ CPXM2     T536M      7.2e-06    1         0.0003167436315779828    0.00031674363
 4.3.2. Rank Output (only 4 results around driver and potential driver are shown here)
 -------------------------------------------------------------------------------------
 
-========  =========  =======================  ========  =======================  ======================  ================
-gene      mutation   mutability               observed  bscore                   qvalue                  label
-========  =========  =======================  ========  =======================  ======================  ================
-C1orf69   E244V      1.942e-07   1         8.546e-06    5.453e-05  Driver
-PARD3B    E1055V     1.942e-07   1         8.546e-06    5.453e-05  Driver
-KIF21B    L517V      2.111e-07   1         9.287e-06     5.453e-05  Potential Driver
-KIAA1409  L2317V     2.111e-07   1         9.287e-06     5.453e-05  Potential Driver
-========  =========  =======================  ========  =======================  ======================  ================
+========  ========  ==========  ========  =========  =========  ================
+gene      mutation  mutability  observed  bscore     qvalue     label
+========  ========  ==========  ========  =========  =========  ================
+C1orf69   E244V     1.942e-07   1         8.546e-06  5.453e-05  Driver
+PARD3B    E1055V    1.942e-07   1         8.546e-06  5.453e-05  Driver
+KIF21B    L517V     2.111e-07   1         9.287e-06  5.453e-05  Potential Driver
+KIAA1409  L2317V    2.111e-07   1         9.287e-06  5.453e-05  Potential Driver
+========  ========  ==========  ========  =========  =========  ================
 
 ----------------------------------------------------------------------------------------------------------------------------
 *4.4. Use mutagene rank to analyze genes in sample1.maf using genome hg19 and cohort gcb_lymphomas with a cohort size of 20*
@@ -300,12 +300,12 @@ KIAA1409  L2317V     2.111e-07   1         9.287e-06     5.453e-05  Potential Dr
 4.4.2. Rank Output (only first 5 results are shown here)
 --------------------------------------------------------
 
-========  =========  =======================  ========  =======================  =====================  ======
-gene      mutation   mutability               observed  bscore                   qvalue                 label
-========  =========  =======================  ========  =======================  =====================  ======
-BOD1L     T2810S     1.78e-07   1         3.561e-06    5.453e-05  Driver
-TEX15     V2686E     1.879e-07   1         3.758e-06   5.453e-05  Driver
-GRINA     Y99F       1.879e-07   1         3.758e-06   5.453e-05  Driver
-N4BP2L2   K143I      2.277e-07   1         4.555e-06    5.453e-05  Driver
-ZC3H3     R59G       2.476e-07   1         4.952e-06    5.453e-05  Driver
-========  =========  =======================  ========  =======================  =====================  ======
+=======  ========  ==========  ========  =========  =========  ======
+gene     mutation  mutability  observed  bscore     qvalue     label
+=======  ========  ==========  ========  =========  =========  ======
+BOD1L    T2810S    1.78e-07    1         3.561e-06  5.453e-05  Driver
+TEX15    V2686E    1.879e-07   1         3.758e-06  5.453e-05  Driver
+GRINA    Y99F      1.879e-07   1         3.758e-06  5.453e-05  Driver
+N4BP2L2  K143I     2.277e-07   1         4.555e-06  5.453e-05  Driver
+ZC3H3    R59G      2.476e-07   1         4.952e-06  5.453e-05  Driver
+=======  ========  ==========  ========  =========  =========  ======
