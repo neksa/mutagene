@@ -71,7 +71,9 @@ python_files = ["test_*.py", "*_test.py", "*_tests.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 norecursedirs = ["venv*", ".*", "data"]
-addopts = "-v --cov=mutagene --cov-report=term-missing"
+# A floor rather than a target: coverage was measured but never enforced, so
+# it could fall without anything failing. Set just below where it stands.
+addopts = "-v --cov=mutagene --cov-report=term-missing --cov-fail-under=63"
 
 [tool.black]
 line-length = 100
