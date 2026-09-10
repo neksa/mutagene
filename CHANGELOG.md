@@ -4,6 +4,21 @@ Notable changes to MutaGene. Dates are release dates; the format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.2.1] - 2026-09-10
+
+### Fixed
+
+- Every mode of `mutagene benchmark` failed: pairwise modes looked up the
+  signature set by int against string keys, multiple modes used variables
+  assigned only in the pairwise branch, and `--root` and `--signatures` were
+  ignored in favour of a hardcoded directory.
+- `_get_stats` raised `UnboundLocalError` whenever it was given a plain vector
+  of exposures, a path its own type check exists to support.
+- The benchmark called `write_decomposition` and
+  `decompose_mutational_profile_counts` with arguments they no longer take.
+
+[1.2.1]: https://github.com/neksa/mutagene/compare/v1.2.0...v1.2.1
+
 ## [1.2.0] - 2026-09-08
 
 ### Behaviour changes
