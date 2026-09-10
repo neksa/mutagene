@@ -1,4 +1,7 @@
 import glob
+import logging
+import os
+import pathlib
 import random
 import uuid
 from multiprocessing import Pool
@@ -17,21 +20,27 @@ from mutagene.benchmark.generate_benchmark import *
 from mutagene.io.profile import read_profile_file, read_signatures, write_profile
 from mutagene.signatures.identify import NegLogLik
 
+logger = logging.getLogger(__name__)
+
 # from mutagene.identify import decompose_mutational_profile_counts
 
 
-def multiple_benchmark_helper(j):
-    dirname = "data/benchmark/multiple"
+def multiple_benchmark_helper(task):
+    """Generate one synthetic sample and decompose it.
 
-    # for i in [5, 10, 30]:
-    for i in [
-        30,
-    ]:
-        W, signature_names = read_signatures(i)
+    Takes its directory and signature set as arguments. They used to be
+    hardcoded here, so --root and --signatures were accepted by the command
+    line and then ignored.
+    """
+    j, dirname, signature_sets, run_deconstruct_sigs = task
+
+    for name in signature_sets:
+        W, signature_names = read_signatures(name)
         N = W.shape[1]
 
-        # r = random.randrange(2, i // 3 + 2)
-        r = random.randrange(2, min(i + 1, 15))
+        # How many signatures to mix. Bounded by how many the set actually has:
+        # this used the set's name, which is a string like "COSMICv3".
+        r = random.randrange(2, min(N + 1, 15))
 
         # print(np.random.choice(N, r), .05 + np.random.dirichlet(np.ones(r), 1))
         while True:
@@ -47,7 +56,7 @@ def multiple_benchmark_helper(j):
         # print(v0_counts)
 
         random_name = str(uuid.uuid4())[:4]
-        fname = dirname + f"/{i:02d}_{r}_{n_mutations}_{random_name}"
+        fname = os.path.join(dirname, f"{name}_{r}_{n_mutations}_{random_name}")
         print(fname)
         profile_fname = fname + ".profile"
         info_fname = fname + ".info"
@@ -56,26 +65,42 @@ def multiple_benchmark_helper(j):
         ds_info = fname + ".ds.info"
 
         write_profile(profile_fname, v0_counts)
-        write_decomposition(info_fname, h0, signature_names)
+        write_decomposition(info_fname, {"synthetic": h0}, signature_names)
 
-        ##################################################
-        results = deconstruct_sigs_custom(profile_fname, signatures=i)
-        write_decomposition(ds_info, results, signature_names)
-        ##################################################
+        # deconstructSigs is an R package, so this is only attempted when the
+        # caller asked for it and Rscript is actually installed.
+        if run_deconstruct_sigs:
+            results = deconstruct_sigs_custom(profile_fname, signatures=name)
+            write_decomposition(ds_info, {"synthetic": results}, signature_names)
         profile = read_profile_file(profile_fname)
         for method, method_fname in [("MLE", mle_info), ("MLEZ", mlez_info)]:
             _, _, results = decompose_mutational_profile_counts(
-                profile, (W, signature_names), method, debug=False, others_threshold=0.0
+                profile, (W, signature_names), method, others_threshold=0.0
             )
-            write_decomposition(method_fname, results, signature_names)
+            write_decomposition(method_fname, {"synthetic": results}, signature_names)
 
 
-def multiple_benchmark():
-    # pathlib.Path(dirname).mkdir(parents=True, exist_ok=True)
+def multiple_benchmark(
+    data_root="data/benchmark",
+    signature_sets=(30,),
+    replicates=100,
+    processes=10,
+    run_deconstruct_sigs=False,
+):
+    """Generate synthetic multi-signature samples under data_root/multiple."""
+    dirname = os.path.join(data_root, "multiple")
+    pathlib.Path(dirname).mkdir(parents=True, exist_ok=True)
     random.seed(13425)
 
-    with Pool(10) as p:
-        p.map(multiple_benchmark_helper, range(100))
+    tasks = [(j, dirname, list(signature_sets), run_deconstruct_sigs) for j in range(replicates)]
+    if processes == 1:
+        # A pool of one is all overhead, and it makes failures much harder to
+        # read because the traceback comes back through the parent.
+        for task in tasks:
+            multiple_benchmark_helper(task)
+    else:
+        with Pool(processes) as p:
+            p.map(multiple_benchmark_helper, tasks)
 
 
 def multiple_benchmark_run_helper(data):
@@ -94,24 +119,35 @@ def multiple_benchmark_run_helper(data):
         print(info)
 
         _, _, results = decompose_mutational_profile_counts(
-            profile, (W, signature_ids), method, debug=False, others_threshold=0.0
+            profile, (W, signature_ids), method, others_threshold=0.0
         )
         exposure_dict = {x["name"]: x["score"] for x in results}
         exposure = [exposure_dict[name] for name in signature_ids]
-        write_decomposition(info, np.array(exposure), signature_ids)
+        write_decomposition(info, {"synthetic": np.array(exposure)}, signature_ids)
 
 
-def multiple_benchmark_run(N, signature_ids, W, force=False):
-    def get_iterator():
-        for fname in glob.glob(f"data/benchmark/multiple/{N:02d}_*.profile", recursive=True):
-            yield (fname, signature_ids, W, force)
+def multiple_benchmark_run(
+    N, signature_ids, W, force=False, data_root="data/benchmark", processes=10
+):
+    """Decompose every generated profile for signature set N."""
+    pattern = os.path.join(data_root, "multiple", f"{N}_*.profile")
+    tasks = [(fname, signature_ids, W, force) for fname in sorted(glob.glob(pattern))]
+    if not tasks:
+        logger.warning(
+            f"No generated profiles found in {pattern}. Run the matching *_gen mode first"
+        )
+        return
 
     random.seed(13425)
-    with Pool(10) as p:
-        p.map(multiple_benchmark_run_helper, get_iterator(), 100)
+    if processes == 1:
+        for task in tasks:
+            multiple_benchmark_run_helper(task)
+    else:
+        with Pool(processes) as p:
+            p.map(multiple_benchmark_run_helper, tasks)
 
 
-def aggregate_multiple_benchmarks():
+def aggregate_multiple_benchmarks(data_root="data/benchmark"):
     methods = {
         "mle": ".MLE.info",
         "mlez": ".MLEZ.info",
@@ -135,11 +171,12 @@ def aggregate_multiple_benchmarks():
     # }
 
     # only report the signature 2 value (as in DeconstructSigs benchmark)
-    with open("data/benchmark/multiple/res1.txt", "w") as o:
+    multiple_dir = os.path.join(data_root, "multiple")
+    with open(os.path.join(multiple_dir, "res1.txt"), "w") as o:
         o.write(
             "file_id\tsigtype\tnsig\tnmut\tmethod\tSRMSE\tPRMSE\tSTRMSE\tLLIK\tLLIK0\tTLLIK\tTLLIK0\tprecision\trecall\taccuracy\tf1\n"
         )
-        for fname in glob.glob("data/benchmark/multiple/*.profile", recursive=True):
+        for fname in sorted(glob.glob(os.path.join(multiple_dir, "*.profile"))):
             file_id = fname.split("/")[-1].split(".")[0]
             sigtype, r, nmut, replica = fname.split("/")[-1].split(".")[0].split("_")
             sigtype = int(sigtype)

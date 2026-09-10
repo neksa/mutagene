@@ -79,8 +79,9 @@ def gen_sample_2combinations(
                 # print(v0_counts)
 
                 write_profile(profile_fname, v0_counts)
-                # write_decomposition(info_fname, h0, signature_ids)
-                write_decomposition(info_fname, h0, signature_ids, "synthetic", write_zeros=True)
+                # write_decomposition grew and lost arguments since this was
+                # written; the extra ones raised TypeError on every call.
+                write_decomposition(info_fname, {"synthetic": h0}, signature_ids)
 
 
 def run_benchmark_2combinations(data_root, N, signature_ids, W, force=False):
@@ -96,11 +97,11 @@ def run_benchmark_2combinations(data_root, N, signature_ids, W, force=False):
                 continue
 
             _, _, results = decompose_mutational_profile_counts(
-                profile, (W, signature_ids), method, debug=False, others_threshold=0.0
+                profile, (W, signature_ids), method, others_threshold=0.0
             )
             exposure_dict = {x["name"]: x["score"] for x in results}
             exposure = [exposure_dict[name] for name in signature_ids]
-            write_decomposition(info, np.array(exposure), signature_ids)
+            write_decomposition(info, {"synthetic": np.array(exposure)}, signature_ids)
 
 
 def run_benchmark_2combinations_deconstruct_sigs_helper(data):
@@ -110,7 +111,7 @@ def run_benchmark_2combinations_deconstruct_sigs_helper(data):
     # print(results)
     exposure_dict = {x["name"]: x["score"] for x in results}
     exposure = [exposure_dict[name] for name in signature_ids]
-    write_decomposition(ds_info, np.array(exposure), signature_ids)
+    write_decomposition(ds_info, {"synthetic": np.array(exposure)}, signature_ids)
 
 
 def run_benchmark_2combinations_deconstruct_sigs(data_root, N, signature_ids, W, force=False):

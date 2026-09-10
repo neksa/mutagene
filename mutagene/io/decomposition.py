@@ -6,12 +6,21 @@ import pandas as pd
 from scipy import stats
 
 
-def _get_stats(results):
+def _get_stats(results, signature_ids=None):
     """
     Convert dictionary decomposition results into a pandas dataframe compatible with bootstrap stats results
+
+    `results` may be a plain vector of exposures, in which case the signature
+    names have to be supplied: the branch that accepted one set only `h` and
+    then read `signatures` and `m`, so it raised UnboundLocalError every time.
+    A bare vector carries no mutation counts, so those are reported as zero.
     """
     if type(results) is np.ndarray:
         h = results
+        if signature_ids is None:
+            raise ValueError("signature_ids is required when results is an array of exposures")
+        signatures = list(signature_ids)
+        m = np.zeros(len(h), dtype=int)
     else:
         exposure_dict = {x["name"]: x["score"] for x in results if x["mutations"] != ""}
         mutations_dict = {x["name"]: x["mutations"] for x in results if x["mutations"] != ""}
@@ -182,7 +191,7 @@ def write_decomposition(
             else:
                 raise ValueError("Incorrect bootstrap_method value, only 't' or 'p' are recognized")
         else:
-            df_sample = _get_stats(samples_results[sample])
+            df_sample = _get_stats(samples_results[sample], signature_ids)
         df_sample.insert(0, "sample", sample)
         dfs.append(df_sample)
 
