@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 import sys
 
 # from pathlib import Path
@@ -63,39 +64,76 @@ class BenchmarkMenu:
             default=default_root,
         )
 
+        optional = parser.add_argument_group("Optional arguments")
+        optional.add_argument(
+            "--replicates",
+            type=int,
+            default=100,
+            help="Number of synthetic samples to generate (multiple_gen), default 100",
+        )
+        optional.add_argument(
+            "--processes",
+            type=int,
+            default=10,
+            help="Worker processes, default 10. Use 1 to see errors directly",
+        )
+
         # required_group.add_argument('--genome', "-g", help="Location of genome assembly file in 2bit format", type=str)
         self.parser = parser
         pass
 
     def callback(self, args):
-        if args.mode.startswith("pair"):
-            for i in args.signatures:
-                i = int(i)
-                W, signature_names = read_signatures(i)
+        # read_signatures keys on strings; int() made every pairwise mode fail
+        # with "Unknown signature set: 5" against a list that visibly contains 5.
+        signature_sets = [str(s) for s in args.signatures]
 
-                if args.mode.endswith("gen"):
+        if args.mode.endswith("_ds") and not shutil.which("Rscript"):
+            logger.error(
+                "The deconstructSigs modes need R with the deconstructSigs package, "
+                "and Rscript is not on PATH"
+            )
+            sys.exit(1)
+
+        if args.mode.startswith("pairwise"):
+            for name in signature_sets:
+                W, signature_names = read_signatures(name)
+
+                if args.mode == "pairwise_gen":
                     gen_benchmark_2combinations(args.root, signature_names, W)
-                elif args.mode.endswith("run"):
-                    run_benchmark_2combinations(args.root, i, signature_names, W, force=True)
-                elif args.mode.endswith("run_ds"):
+                elif args.mode == "pairwise_run":
+                    run_benchmark_2combinations(args.root, name, signature_names, W, force=True)
+                elif args.mode == "pairwise_run_ds":
                     run_benchmark_2combinations_deconstruct_sigs(
-                        args.root, i, signature_names, W, force=True
+                        args.root, name, signature_names, W, force=True
                     )
 
         elif args.mode.startswith("multiple"):
-            if args.mode.endswith("gen"):
-                pass
-            elif args.mode.endswith("run"):
-                multiple_benchmark_run(i, signature_names, W, force=True)
-            elif args.mode.endswith("run_ds"):
-                pass
-            multiple_benchmark()
-            aggregate_multiple_benchmarks()
+            # These used i, signature_names and W, which are only ever assigned
+            # in the pairwise branch, so every multiple mode raised NameError.
+            if args.mode == "multiple_gen":
+                multiple_benchmark(
+                    data_root=args.root,
+                    signature_sets=signature_sets,
+                    replicates=args.replicates,
+                    processes=args.processes,
+                )
+            elif args.mode in ("multiple_run", "multiple_run_ds"):
+                for name in signature_sets:
+                    W, signature_names = read_signatures(name)
+                    multiple_benchmark_run(
+                        name,
+                        signature_names,
+                        W,
+                        force=True,
+                        data_root=args.root,
+                        processes=args.processes,
+                    )
+                aggregate_multiple_benchmarks(data_root=args.root)
 
         elif args.mode == "aggregate":
             aggregate_benchmarks(args.root)
 
         else:
-            print("Unknown benchmark action mode")
+            logger.error(f"Unknown benchmark mode: {args.mode}")
             self.parser.print_usage()
             sys.exit(1)
