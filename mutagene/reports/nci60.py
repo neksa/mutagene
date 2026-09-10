@@ -1,25 +1,28 @@
-import json
-from subprocess import PIPE, Popen
-
-try:
-    from .identify_signature import *
-    from .json_structs import *
-
-    # from . import *
-    from .mutations import *
-except ImportError:
-    pass
-
 import csv
 import gzip
+import json
 import os
 from collections import defaultdict, namedtuple
 from itertools import chain, islice
+from subprocess import PIPE, Popen
+
+# These came from .identify_signature, .json_structs and .mutations, none of
+# which exist in this package. The star imports failed, the bare `except
+# ImportError: pass` hid it, and every name below was undefined at runtime.
+from mutagene.dna import complementary_nucleotide, nucleotides
+from mutagene.io.mutations_profile import get_context_batch
+from mutagene.io.profile import format_profile
+from mutagene.profiles.profile import get_mutational_profile
+from mutagene.signatures.identify import decompose_mutational_profile_counts
 
 # from .COSMIC import iter_CLP_mutations
 
 
-TWOBIT_GENOMES_PATH = "/net/pan1/mutagene/data/genomes/"
+# Genome assemblies. Defaults to where `mutagene fetch genome` puts them rather
+# than to a path on one particular cluster; override with MUTAGENE_GENOMES.
+TWOBIT_GENOMES_PATH = os.environ.get(
+    "MUTAGENE_GENOMES", os.path.join(os.path.expanduser("~"), ".mutagene", "genomes")
+)
 
 
 def make_NCI60_report(prefix, n=30, decomposition="L"):
@@ -440,7 +443,7 @@ def read_CLP_NCV(f, asm=None, ids=None):
             "skipped_nucleotide": samples_skipped_nucleotide[sample],
         }
         samples[sample] = mutations
-        samples_raw[sample] = mutations_raw
+        samples_raw[sample] = raw_mutations
 
     return samples, processing_stats, samples_raw
 
@@ -457,7 +460,8 @@ toJSON(w)
 """
     script = script.format(profile_fname, sample).encode("utf-8")
     proc = Popen(
-        ["/Users/gonceare/anaconda3/envs/mutagene/bin/Rscript", "-"],
+        # Whatever Rscript is on PATH, not one developer's conda environment.
+        ["Rscript", "-"],
         stdin=PIPE,
         stdout=PIPE,
         stderr=PIPE,
@@ -715,14 +719,5 @@ def analyze_nci60_samples(prefix):
     print(processing_stats)
 
 
-if __name__ == "__main__":
-    export_maf(
-        prefix="/Users/gonceare/projects/Mutations/data/NCI60",
-        maf_file="/Users/gonceare/projects/Mutations/data/NCI60/nci60.maf",
-    )
-
-    # analyze_nci60_samples(prefix="/Users/gonceare/projects/Mutations/data/NCI60")
-
-    # make_NCI60_report(prefix="/Users/gonceare/projects/Mutations/data/NCI60", n=30, decomposition='L')
-    # make_NCI60_report(prefix="/Users/gonceare/projects/Mutations/data/NCI60", n=10, decomposition='L')
-    # make_NCI60_report(prefix="/Users/gonceare/projects/Mutations/data/NCI60", n=5, decomposition='L')
+# No __main__ block: it hardcoded paths under a former developer's home
+# directory. The functions above take their locations as arguments.

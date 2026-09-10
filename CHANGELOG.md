@@ -4,6 +4,19 @@ Notable changes to MutaGene. Dates are release dates; the format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.2.2] - 2026-09-10
+
+### Fixed
+
+- `mutagene/reports/nci60.py` could not execute. It star-imported three modules
+  that are not in the package, inside a `try: ... except ImportError: pass`, so
+  it imported cleanly and then raised `NameError` on seven names. The imports
+  now point at the modules that hold those names, and the genome directory
+  defaults to `~/.mutagene/genomes` — overridable with `MUTAGENE_GENOMES` —
+  rather than a path on one cluster.
+
+[1.2.2]: https://github.com/neksa/mutagene/compare/v1.2.1...v1.2.2
+
 ## [1.2.1] - 2026-09-10
 
 ### Fixed
