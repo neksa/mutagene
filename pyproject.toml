@@ -72,8 +72,10 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 norecursedirs = ["venv*", ".*", "data"]
 # A floor rather than a target: coverage was measured but never enforced, so
-# it could fall without anything failing. Set just below where it stands.
-addopts = "-v --cov=mutagene --cov-report=term-missing --cov-fail-under=63"
+# it could fall without anything failing. Set below the worst case rather than
+# below the best: parts of the suite download a genome, so a runner without
+# network runs fewer tests and reaches about 60% where a local run reaches 65%.
+addopts = "-v --cov=mutagene --cov-report=term-missing --cov-fail-under=58"
 
 [tool.black]
 line-length = 100
