@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mutagene"
-version = "1.2.2"
+version = "1.2.3"
 description = "Mutational analysis with Python"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -71,11 +71,11 @@ python_files = ["test_*.py", "*_test.py", "*_tests.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 norecursedirs = ["venv*", ".*", "data"]
-# A floor rather than a target: coverage was measured but never enforced, so
-# it could fall without anything failing. Set below the worst case rather than
-# below the best: parts of the suite download a genome, so a runner without
-# network runs fewer tests and reaches about 60% where a local run reaches 65%.
-addopts = "-v --cov=mutagene --cov-report=term-missing --cov-fail-under=58"
+# A floor rather than a target: coverage was measured but never enforced, so it
+# could fall without anything failing. Set below the figure a runner without
+# network reaches (about 64%), which is close to the full 66% now that the CLI
+# tests use a committed genome rather than downloading one.
+addopts = "-v --cov=mutagene --cov-report=term-missing --cov-fail-under=63"
 
 [tool.black]
 line-length = 100

@@ -8,9 +8,10 @@ though the step had worked.
 import pytest
 
 from tests.cli import cli_test_utils
+from tests.cli.local_fixtures import LOCAL_GENOME, LOCAL_MAF
 
-GENOME = f"{cli_test_utils.TEST_DIR}/hg19.2bit"
-SAMPLE = f"{cli_test_utils.TEST_DIR}/sample1.maf"
+GENOME = LOCAL_GENOME
+SAMPLE = LOCAL_MAF
 
 
 @pytest.fixture
@@ -48,7 +49,7 @@ class TestUnreadableInput:
             ("motif", []),
         ],
     )
-    def test_exit_is_non_zero(self, command, extra, unreadable, tmp_path, test_data):
+    def test_exit_is_non_zero(self, command, extra, unreadable, tmp_path):
         code = run(
             command,
             ["-i", unreadable, "-g", GENOME, "-o", str(tmp_path / "out.tsv")] + extra,
@@ -56,9 +57,7 @@ class TestUnreadableInput:
 
         assert code not in (0, None), f"{command} reported success on an unreadable file"
 
-    def test_a_file_with_no_usable_chromosome_also_fails(
-        self, no_usable_chromosome, tmp_path, test_data
-    ):
+    def test_a_file_with_no_usable_chromosome_also_fails(self, no_usable_chromosome, tmp_path):
         code = run(
             "profile",
             ["-i", no_usable_chromosome, "-g", GENOME, "-o", str(tmp_path / "out.tsv")],
@@ -70,13 +69,13 @@ class TestUnreadableInput:
 class TestUsableInput:
     """The converse: a real file must still succeed."""
 
-    def test_profile_succeeds(self, tmp_path, test_data):
+    def test_profile_succeeds(self, tmp_path):
         out = tmp_path / "profile.tsv"
         cli_test_utils.run_with_args("profile", ["-i", SAMPLE, "-g", GENOME, "-o", str(out)])
 
         assert out.stat().st_size > 0
 
-    def test_signature_succeeds(self, tmp_path, test_data):
+    def test_signature_succeeds(self, tmp_path):
         out = tmp_path / "sig.tsv"
         cli_test_utils.run_with_args(
             "signature", ["-i", SAMPLE, "-g", GENOME, "-s", "MGA", "-o", str(out)]
