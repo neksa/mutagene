@@ -4,6 +4,18 @@ Notable changes to MutaGene. Dates are release dates; the format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.2.3] - 2026-09-11
+
+### Fixed
+
+- The CLI tests downloaded a genome from UCSC, so a runner that could not reach
+  it ran fewer tests and reported about five points less coverage for the same
+  commit, with nothing to say so. They now use a committed genome and a MAF
+  generated to match it, and the coverage floor is enforced at a figure a
+  network-less runner actually reaches.
+
+[1.2.3]: https://github.com/neksa/mutagene/compare/v1.2.2...v1.2.3
+
 ## [1.2.2] - 2026-09-10
 
 ### Fixed
