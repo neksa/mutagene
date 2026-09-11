@@ -5,7 +5,6 @@ reach it ran fewer tests and reported ~5% lower coverage for the same commit.
 These use a committed genome and a MAF generated to match it.
 """
 
-import pandas as pd
 import pytest
 
 from tests.cli import cli_test_utils
@@ -13,7 +12,6 @@ from tests.cli.local_fixtures import (
     LOCAL_GENOME,
     LOCAL_MAF,
     LOCAL_MAF_MUTATIONS,
-    LOCAL_MAF_SAMPLES,
 )
 
 
