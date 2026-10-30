@@ -10,10 +10,8 @@ import tempfile
 def open_text_input(path):
     """Return a text stream for a path or standard input."""
     if path == "-":
-        # Ranking reads the input twice; spool large streams to disk.
-        stream = tempfile.SpooledTemporaryFile(
-            max_size=8 * 1024 * 1024, mode="w+t", encoding="utf-8"
-        )
+        # Ranking reads the input twice; retain a seekable temporary stream.
+        stream = tempfile.TemporaryFile(mode="w+t", encoding="utf-8")
         shutil.copyfileobj(sys.stdin, stream)
         stream.seek(0)
         return stream
