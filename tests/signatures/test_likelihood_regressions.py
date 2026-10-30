@@ -214,7 +214,7 @@ def test_unknown_method_fails_instead_of_selecting_frobenius():
         )
 
 
-def test_python_and_cli_share_mle_default():
+def test_python_and_cli_share_sparse_default():
     parser = argparse.ArgumentParser()
     SignatureMenu(parser)
     assert parser.get_default("background_selection") == "joint"
@@ -224,7 +224,7 @@ def test_python_and_cli_share_mle_default():
         .default
         == "joint"
     )
-    assert parser.get_default("method") == DEFAULT_METHOD == "MLE"
+    assert parser.get_default("method") == DEFAULT_METHOD == "sparse-bic"
     assert (
         inspect.signature(decompose_mutational_profile_counts).parameters["func"].default
         == DEFAULT_METHOD
@@ -233,7 +233,7 @@ def test_python_and_cli_share_mle_default():
         COUNTS, (MATRIX, ["A", "B"]), enable_dummy=False
     )
     explicit, _, _ = decompose_mutational_profile_counts(
-        COUNTS, (MATRIX, ["A", "B"]), func="MLE", enable_dummy=False
+        COUNTS, (MATRIX, ["A", "B"]), func="sparse-bic", enable_dummy=False
     )
     assert np.array_equal(default, explicit)
 

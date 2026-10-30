@@ -117,7 +117,7 @@ mutagene signature -i sample1.maf -g hg19 -s COSMICv3 --bootstrap -br 1000
         advanced_group.add_argument(
             "--method",
             "-m",
-            help="Fitting objective or subset selection (default: MLE)",
+            help="Fitting objective or subset selection (default: sparse-bic)",
             type=str,
             default=DEFAULT_METHOD,
         )

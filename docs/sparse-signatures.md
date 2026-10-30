@@ -1,6 +1,6 @@
 # Select sparse signature mixtures
 
-Request `--method sparse-bic` to select signature subsets.
+Sparse BIC supplies the shared Python, CLI, and web default.
 The default background selection policy is `joint`.
 Each candidate subset receives a constrained multinomial MLE refit.
 Use `--method MLE` for full-model fitting without subset selection.
@@ -48,6 +48,10 @@ Fixed-background BIC, block selection, and AICc retain full-model initialization
 If no single component covers all observed channels, joint BIC also uses full-model initialization.
 
 This threshold follows synthetic tuning, not a biological boundary.
+Crossing the threshold can cause abrupt changes in fitted exposures.
+The [threshold assessment](../analysis/search-scenarios-2026/report.qmd) documents this limitation.
+Its gradual-transition candidate remains experimental and does not change this implementation.
+The [low-burden report](../analysis/low-burden-2026/report.html) records separate tuning, validation, and sensitivity panels.
 Inspect `search_start` in the diagnostics to identify the selected initialization.
 Direct `fit_sparse` calls accept `search_start="full"` to retain the preceding search at any burden.
 

@@ -1,6 +1,6 @@
 # Fit and validate signature likelihoods
 
-Python, CLI, and web interfaces retain full-model MLE as the default.
+Python, CLI, and web interfaces default to `sparse-bic` with `joint` background selection.
 Use `func="MLE"` or `--method MLE` for full-model likelihood fitting.
 Signature catalog choices remain separate from fitting-method choices.
 
@@ -25,6 +25,7 @@ Their diagnostic records identify any normalized-NNLS fallback.
 ## Inspect convergence
 
 Use `--diagnostics-out diagnostics.json` with the CLI.
+The web application also records pooled and per-sample optimizer diagnostics.
 
 The solver validates a feasible candidate before accepting it.
 `optimality_gap` bounds the remaining negative log likelihood improvement per mutation.
@@ -56,3 +57,4 @@ Correlated signatures and sampling noise can support multiple plausible exposure
 Sparse methods add explicit subset selection to the shared likelihood solver.
 Each sparse refit must pass the same feasibility and optimality checks.
 The [sparse-fitting guide](sparse-signatures.md) explains the default selection policy.
+The [background assessment](../analysis/signature-benchmark-2026/background-report.html) records the evidence and limitations.

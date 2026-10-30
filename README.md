@@ -127,7 +127,9 @@ The [R bridge](examples/r/README.md) exchanges labelled SBS96 matrices through t
 
 `--diagnostics-out` reports optimizer status, fallback behavior, and background-component weights.
 The [likelihood guide](docs/likelihood-fitting.md) documents convergence and compatibility changes.
-The [sparse-fitting guide](docs/sparse-signatures.md) describes optional subset selection.
+Python, CLI, and web interfaces default to `sparse-bic` with `joint` background selection.
+Use `--method MLE` or `func="MLE"` for full-model likelihood fitting.
+The [sparse-fitting guide](docs/sparse-signatures.md) describes subset selection and its limitations.
 The [release checklist](docs/release-readiness.md) separates source validation from publication.
 
 ## Research drafts
