@@ -6,7 +6,10 @@ Rank: Identifying potential driver mutations
 Description
 -----------
 
-"mutagene rank" module ranks mutations with respect to their driver statuses. The method requires three input parameters: the background mutability model for each nucleotide or codon, a number of samples where a given mutation was observed (mutational frequency) and the overall number of samples in a given cohort of patients. The background mutability model, mutational frequency and number of samples are specified and taken from the input file by default. Arguments below can overwrite the default.
+``mutagene rank`` ranks potential driver mutations against a background mutability model.
+It uses the model, observed mutation frequencies, and the cohort sample count.
+By default, the command reads these inputs from the mutation file.
+The options below override individual inputs.
 
 Please cite the MutaGene ranking method as
 Anna-Leigh Brown, Minghui Li, Alexander Goncearenco, Anna R Panchenko

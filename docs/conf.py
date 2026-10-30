@@ -54,7 +54,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "MutaGene"
-copyright = "2019, Alexander Goncearenco"
+copyright = "2019–2026, Alexander Goncearenco"
 author = "Alexander Goncearenco"
 
 # The version info for the project you're documenting, acts as replacement for
@@ -116,6 +116,7 @@ html_theme_options = {
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+html_css_files = ["readable.css"]
 
 
 # -- Options for HTMLHelp output ------------------------------------------

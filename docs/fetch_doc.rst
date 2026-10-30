@@ -1,100 +1,75 @@
-==================================
-Description
-==================================
-Use mutagene fetch to download example data files, genome assemblies, and cohorts to run mutagene commands
+Download reference data
+=======================
 
-==================================
-Fetch Subpackage Documentation
-==================================
+``mutagene fetch`` downloads example files, cohort data, and reference genome assemblies.
+Use ``--help`` with any fetch command to inspect its arguments.
 
-mutagene fetch {examples, cohorts, genome}
+Download example files
+----------------------
 
-Fetch example mutational files (automatically download to current directory)
+The examples use ``sample1.maf`` and ``sample2.vcf`` from the MutaGene server.
+The command saves both files in the current directory:
 
-    Description: This command will download sample1.maf and sample2.vcf files from the MutaGene
-    server.
+.. code-block:: bash
 
-    Command: run "mutagene fetch examples"
+   mutagene fetch examples
 
-    Arguments:
-     -h, --help  show this help message and exit
+Download cohort data
+--------------------
 
-    Usage in MutaGene: These files are only needed to reproduce examples in the manual. Files can be inputted as
-    infiles in other MutaGene subpackages.
+Cohort data supplies mutational profiles, observed mutation counts, and sample counts for ranking.
+The default source is ``COSMIC``.
 
-    Data Fetched:
-    Both sample1.maf and sample2.vcf are downloaded
+.. code-block:: text
 
+   mutagene fetch cohorts [{COSMIC,GDC,MSKCC,ICGC}] [--list | --cohort COHORT]
 
-Fetch cohorts
+``--list``, ``-l``
+    List cohorts from the selected source.
 
-    Description: This command will download mutational profiles and counts of observed
-    mutations for cohorts available in online repositories. The files are
-    downloaded in one bundle cohorts.tar.gz that will be saved in the current
-    directory. Currently, only cohorts representing cancer types in COSMIC are
-    provided.
+``--cohort COHORT``, ``-c COHORT``
+    Download one cohort by name. This option applies to ``MSKCC``.
 
+List COSMIC cohorts:
 
-    Command: "mutagene fetch cohorts [{COSMIC,GDC,MSKCC,ICGC}] [--list | --cohort COHORT]"
+.. code-block:: bash
 
-    Arguments:
-     -h, --help  show this help message and exit
-     -l, --list  List the cohorts available in the chosen source repository
-     -c, --cohort  Download a single cohort by name (MSKCC only)
+   mutagene fetch cohorts --list
 
-    The source defaults to COSMIC when it is not given.
+The command reads ``cohorts.tar.gz`` from the current directory and downloads it if necessary.
+Use the displayed cohort names with ``mutagene rank --cohort``.
 
-    Usage in MutaGene: Cohorts are required for ranking of mutations, because ranking
-    relies upon counts of observed mutations and cancer type-specific profiles.
+List cohorts from cBioPortal:
 
-    Examples:
+.. code-block:: bash
 
-    To list the COSMIC cohorts. The names printed here are the ones accepted by
-    "mutagene rank --cohort". Listing reads cohorts.tar.gz from the current
-    directory and downloads it first if it is not there yet::
+   mutagene fetch cohorts MSKCC --list
 
-      $ mutagene fetch cohorts --list
+Download a reference genome
+---------------------------
 
-    To list the cohorts available from cBioPortal instead::
+Select the assembly that matches the coordinates in your mutation file.
+MutaGene downloads UCSC reference sequences in 2bit format to ``~/.mutagene/genomes/``.
+Repeat an interrupted download command to resume it.
 
-      $ mutagene fetch cohorts MSKCC --list
+List available assemblies and local files:
 
+.. code-block:: bash
 
-Fetch genome assemblies
+   mutagene fetch genome --list
 
-    Description: This command will download reference genome assembly sequence in 2bit format
-    from the UCSC genome browser website. You need to specify the name of genome
-    assembly in --genome (-g) argument. Partial download is supported: if the
-    process is interrupted run the same command again to continue downloading. Genome files are needed for mutagene motif,
-    rank, profile, and signature commands.
+Download hg19 or hg38:
 
-    Command: "mutagene fetch genome (-g <name of genome assembly> | --list)"
+.. code-block:: bash
 
-    Arguments:
-     -h, --help         show this help message and exit
-     -g, --genome
-                        hg38, hg19, mm10, mm9 according to UCSC genome browser
-                        nomenclature
-     -l, --list         List genome assemblies available for download and show
-                        which of them are already on disk
+   mutagene fetch genome -g hg19
+   mutagene fetch genome -g hg38
 
-    Genomes are downloaded to ~/.mutagene/genomes/. The other subcommands do not
-    search that directory, so pass the full path that "--list" prints to their
-    -g argument, for example -g ~/.mutagene/genomes/hg19.2bit
+``--genome``, ``-g``
+    Select an assembly using UCSC names, such as ``hg38``, ``hg19``, ``mm10`` or ``mm9``.
 
-    Usage in MutaGene:
-    Genome assemblies required for genome argument in MutaGene subpackages.
+``--list``, ``-l``
+    List available assemblies and show which files already exist locally.
 
-    Examples:
-
-    To see which assemblies can be downloaded and which are already present:
-      $ mutagene fetch genome --list
-
-    To download hg19 file:
-      $ mutagene fetch genome -g hg19
-
-    To download hg38 file:
-     $ mutagene fetch genome -g hg38
-
-    Data Fetched:
-    Any reference genome available for download on the `UCSC Sequence and Annotation Data Webpage <http://hgdownload.soe.ucsc.edu/downloads.html>`_
+Pass the full genome path to analysis commands, for example ``-g ~/.mutagene/genomes/hg19.2bit``.
+See the `UCSC sequence downloads <http://hgdownload.soe.ucsc.edu/downloads.html>`_ for reference data.

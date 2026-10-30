@@ -1,88 +1,79 @@
-=============================================
-Serve: the local web interface
-=============================================
+Local web interface
+===================
 
------------------
-1. Description
------------------
+``mutagene serve`` starts the local analysis server.
+Upload a MAF or VCF file, follow progress, and inspect results in your browser.
+The server uses the same analysis code as the command-line subcommands.
 
-``mutagene serve`` starts a small web application on your own machine for
-running analyses interactively: upload a MAF or VCF file, watch the analysis
-progress, and browse the resulting profiles, signature decompositions,
-clustering and driver rankings in the browser.
-
-It runs the same analysis code as the command-line subcommands rather than a
-separate implementation, so results agree with what ``profile``, ``signature``
-and ``rank`` produce for the same input.
-
-The server binds to ``127.0.0.1`` by default, so it is reachable only from your
-own machine. It has no authentication; do not expose it to a network you do not
-control.
-
------------------
-2. Installation
+Install and start
 -----------------
 
-The web interface needs extra dependencies that the base package does not
-install::
+The web interface requires additional dependencies:
 
-    pip install mutagene[web]
+.. code-block:: bash
 
-Without them, ``mutagene serve`` reports what is missing and exits rather than
-failing with an import error.
+   pip install mutagene[web]
 
------------------
-3. Arguments
------------------
+Without these dependencies, ``mutagene serve`` reports the missing packages and exits.
 
-**Command:** ``mutagene serve [arguments]``
+.. warning::
 
---host HOST
-    Address to bind to. Default ``127.0.0.1``. Use ``0.0.0.0`` only if you
-    intend the server to be reachable from other machines.
+   The server has no authentication.
+   Keep the default ``127.0.0.1`` address unless you control access from other machines.
 
---port PORT
-    Port to bind to. Default ``5000``.
+Start the server:
 
---no-browser
-    Do not open a browser window on startup.
+.. code-block:: bash
 
---debug
-    Enable Flask debug mode. Development only: it exposes an interactive
-    debugger to anyone who can reach the server.
+   mutagene serve
 
---params-out FILE
-    Write the parameters of this run to FILE as JSON.
+Use another port without opening a browser:
 
---params-in FILE
-    Take parameters from a FILE written by ``--params-out``.
+.. code-block:: bash
 
-Examples::
+   mutagene serve --port 8080 --no-browser
 
-    mutagene serve
-    mutagene serve --port 8080 --no-browser
+Select the reference genome
+---------------------------
 
------------------
-4. Genomes
------------------
+Choose the assembly that matches your mutation coordinates.
+The server stores assemblies in ``~/.mutagene/genomes/`` as ``<name>.2bit``.
+Download an assembly before analysis:
 
-An analysis needs the 2bit assembly its coordinates refer to. Assemblies live in
-``~/.mutagene/genomes/`` as ``<name>.2bit`` and can be fetched in advance::
+.. code-block:: bash
 
-    mutagene fetch genome hg19
+   mutagene fetch genome hg19
 
-The web interface offers the assemblies it finds there and can download a
-missing one on request. The files are large -- roughly 800 MB each for hg19 and
-hg38 -- so the first download takes a while.
+The interface lists local assemblies and can download a missing assembly on request.
+The hg19 and hg38 files each require roughly 800 MB.
+The analysis compares input reference alleles with the assembly.
+A high mismatch rate triggers a warning on the results page.
 
-Choosing the wrong assembly is the most common cause of implausible results. The
-analysis compares each reference allele against the assembly and shows a warning
-in the results page when a large share of them disagree, naming the assembly to
-try instead.
+Server options
+--------------
 
--------------------------------
-5. Where results are stored
--------------------------------
+``--host HOST``
+    Set the listening address. The default is ``127.0.0.1``.
+    ``0.0.0.0`` allows connections from other machines.
+
+``--port PORT``
+    Set the port. The default is ``5000``.
+
+``--no-browser``
+    Start without opening a browser window.
+
+``--debug``
+    Use only during development.
+    This option exposes Flask's interactive debugger to anyone who can reach the server.
+
+``--params-out FILE``
+    Save run parameters as JSON.
+
+``--params-in FILE``
+    Read parameters from a file that ``--params-out`` creates.
+
+Find stored results
+-------------------
 
 ==========================  =================================================
 Path                        Contents
@@ -93,30 +84,11 @@ Path                        Contents
 ``~/.mutagene/genomes/``    Downloaded 2bit assemblies
 ==========================  =================================================
 
-Analyses persist across restarts and remain listed in the history page, so a
-completed analysis can be revisited without re-uploading its input.
+The history page retains analyses across server restarts.
+You can inspect completed results without uploading the input again.
 
-.. mermaid::
-
-   flowchart TD
-       START["re-run requested"] --> STAGE["write results into<br/>.id.incoming"]
-       STAGE --> OK{"analysis<br/>succeeded?"}
-       OK -- no --> DISCARD["discard staging;<br/>previous results untouched"]
-       OK -- yes --> SWAP["move previous aside to .id.previous<br/>swap staging into place"]
-       SWAP --> COMMIT{"database rows<br/>committed?"}
-       COMMIT -- no --> ROLLBACK["put the previous output back"]
-       COMMIT -- yes --> DONE["new results live;<br/>backup removed"]
-
-       classDef good fill:#e8f4ea,stroke:#4a7c59,color:#1b3a29
-       classDef safe fill:#fff4e0,stroke:#b07d2b,color:#4a3212
-       class DONE good
-       class DISCARD,ROLLBACK safe
-
-A server interrupted mid-swap reconciles the files with the database on next
-startup, using the committed status as the record of whether the swap landed.
-
-Re-running an analysis replaces its stored output only once the new run has
-succeeded: the results are written aside and swapped into place together with
-their database rows. A failed re-run therefore leaves the previous results
-intact and displayable, and a server that is interrupted mid-swap reconciles the
-files with the database on next startup.
+When you repeat an analysis, the server writes new output to a staging directory.
+It replaces the stored output only after the new run succeeds.
+A failed run preserves the previous results.
+After an interruption during replacement, the server reconciles files with the database at startup.
+The committed database status determines which output it retains.

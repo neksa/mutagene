@@ -1,12 +1,52 @@
-MutaGene Documentation
+MutaGene documentation
 ======================
 
-MutaGene is a Python package for analyzing mutations and mutational processes in cancer.
-It provides command-line tools that complement the
-`MutaGene website <https://www.ncbi.nlm.nih.gov/research/mutagene/>`_.
+MutaGene analyzes mutations and mutational processes in cancer.
+Use the command line for repeatable analyses or the local web interface to submit files and inspect results.
+The package complements the `MutaGene website <https://www.ncbi.nlm.nih.gov/research/mutagene/>`_.
 
-How the subcommands fit together
---------------------------------
+Install MutaGene
+----------------
+
+MutaGene requires Python 3.10 or higher.
+
+.. code-block:: bash
+
+   pip install mutagene
+
+For the local web interface, install the web dependencies:
+
+.. code-block:: bash
+
+   pip install mutagene[web]
+
+Choose a task
+-------------
+
+.. list-table::
+   :header-rows: 1
+   :widths: 38 62
+
+   * - Task
+     - Guide
+   * - Download reference data
+     - :doc:`fetch_doc`
+   * - Count mutations by sequence context
+     - :doc:`profile_doc`
+   * - Estimate signature exposures
+     - :doc:`signature_doc`
+   * - Rank potential driver mutations
+     - :doc:`rank_doc`
+   * - Test mutational motifs
+     - :doc:`motif_doc`
+   * - Submit files in a browser
+     - :doc:`serve_doc`
+
+Match the reference genome to your input coordinates before analysis.
+See :doc:`profile_doc` for reference-allele checks.
+
+How the commands connect
+------------------------
 
 .. mermaid::
 
@@ -29,33 +69,17 @@ How the subcommands fit together
        class P,S,R,M cmd
        class PROF,EXP,DRV,ENR out
 
-The genome assembly must match the coordinates in the input file; a mismatch is
-reported rather than left to produce quiet nonsense. See :doc:`profile_doc`.
-
-Subcommands
------------
-
 .. toctree::
-   :maxdepth: 2
+   :hidden:
+   :maxdepth: 1
 
    fetch_doc
    profile_doc
+   signature_doc
    rank_doc
    motif_doc
-   signature_doc
    serve_doc
    common_options
-
-Installation
-------------
-
-Requires Python 3.10 or higher::
-
-    pip install mutagene
-
-For the local web interface::
-
-    pip install mutagene[web]
 
 Citation
 --------
@@ -75,9 +99,9 @@ Finding driver mutations in cancer: Elucidating the role of background mutationa
 https://doi.org/10.1371/journal.pcbi.1006981
 
 
-Indices and tables
-==================
+Search and indices
+------------------
 
+* :ref:`search`
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
