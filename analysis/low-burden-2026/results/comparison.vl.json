@@ -1,0 +1,225 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": {
+    "values": [
+      {
+        "burden": 100,
+        "method": "adaptive-BIC",
+        "metric": "aggregate_null_tae",
+        "error": 0.38213756359600676
+      },
+      {
+        "burden": 100,
+        "method": "joint-BIC",
+        "metric": "aggregate_null_tae",
+        "error": 0.5572346108907514
+      },
+      {
+        "burden": 250,
+        "method": "adaptive-BIC",
+        "metric": "aggregate_null_tae",
+        "error": 0.30457301836087447
+      },
+      {
+        "burden": 250,
+        "method": "joint-BIC",
+        "metric": "aggregate_null_tae",
+        "error": 0.4229885445446266
+      },
+      {
+        "burden": 500,
+        "method": "adaptive-BIC",
+        "metric": "aggregate_null_tae",
+        "error": 0.2300072556681304
+      },
+      {
+        "burden": 500,
+        "method": "joint-BIC",
+        "metric": "aggregate_null_tae",
+        "error": 0.30562687664866506
+      },
+      {
+        "burden": 1000,
+        "method": "adaptive-BIC",
+        "metric": "aggregate_null_tae",
+        "error": 0.16864961617490432
+      },
+      {
+        "burden": 1000,
+        "method": "joint-BIC",
+        "metric": "aggregate_null_tae",
+        "error": 0.21302766593207528
+      },
+      {
+        "burden": 2000,
+        "method": "adaptive-BIC",
+        "metric": "aggregate_null_tae",
+        "error": 0.16861134877753325
+      },
+      {
+        "burden": 2000,
+        "method": "joint-BIC",
+        "metric": "aggregate_null_tae",
+        "error": 0.16861134877753325
+      },
+      {
+        "burden": 50000,
+        "method": "adaptive-BIC",
+        "metric": "aggregate_null_tae",
+        "error": 0.07757574414148166
+      },
+      {
+        "burden": 50000,
+        "method": "joint-BIC",
+        "metric": "aggregate_null_tae",
+        "error": 0.07757574414148166
+      },
+      {
+        "burden": 100,
+        "method": "adaptive-BIC",
+        "metric": "paper_tae",
+        "error": 0.33328359911241384
+      },
+      {
+        "burden": 100,
+        "method": "joint-BIC",
+        "metric": "paper_tae",
+        "error": 0.4859523401192549
+      },
+      {
+        "burden": 250,
+        "method": "adaptive-BIC",
+        "metric": "paper_tae",
+        "error": 0.26681808169723753
+      },
+      {
+        "burden": 250,
+        "method": "joint-BIC",
+        "metric": "paper_tae",
+        "error": 0.3900895844894588
+      },
+      {
+        "burden": 500,
+        "method": "adaptive-BIC",
+        "metric": "paper_tae",
+        "error": 0.19419012951281597
+      },
+      {
+        "burden": 500,
+        "method": "joint-BIC",
+        "metric": "paper_tae",
+        "error": 0.2787494845550464
+      },
+      {
+        "burden": 1000,
+        "method": "adaptive-BIC",
+        "metric": "paper_tae",
+        "error": 0.13738246876651786
+      },
+      {
+        "burden": 1000,
+        "method": "joint-BIC",
+        "metric": "paper_tae",
+        "error": 0.18930957436274146
+      },
+      {
+        "burden": 2000,
+        "method": "adaptive-BIC",
+        "metric": "paper_tae",
+        "error": 0.15086216169978564
+      },
+      {
+        "burden": 2000,
+        "method": "joint-BIC",
+        "metric": "paper_tae",
+        "error": 0.15086216169978564
+      },
+      {
+        "burden": 50000,
+        "method": "adaptive-BIC",
+        "metric": "paper_tae",
+        "error": 0.07553984296345587
+      },
+      {
+        "burden": 50000,
+        "method": "joint-BIC",
+        "metric": "paper_tae",
+        "error": 0.07553984296345587
+      }
+    ]
+  },
+  "facet": {
+    "column": {
+      "field": "metric",
+      "type": "nominal",
+      "title": null
+    }
+  },
+  "spec": {
+    "width": 360,
+    "height": 260,
+    "mark": {
+      "type": "line",
+      "point": true
+    },
+    "encoding": {
+      "x": {
+        "field": "burden",
+        "type": "quantitative",
+        "scale": {
+          "type": "log",
+          "domain": [
+            100,
+            50000
+          ]
+        },
+        "axis": {
+          "values": [
+            100,
+            250,
+            500,
+            1000,
+            2000,
+            50000
+          ]
+        },
+        "title": "Mutation burden"
+      },
+      "y": {
+        "field": "error",
+        "type": "quantitative",
+        "title": "Attribution error"
+      },
+      "color": {
+        "field": "method",
+        "type": "nominal",
+        "title": null
+      },
+      "strokeDash": {
+        "field": "method",
+        "type": "nominal",
+        "title": null
+      },
+      "tooltip": [
+        {
+          "field": "burden"
+        },
+        {
+          "field": "method"
+        },
+        {
+          "field": "error"
+        }
+      ]
+    }
+  },
+  "config": {
+    "font": "Arial",
+    "view": {
+      "stroke": null
+    },
+    "legend": {
+      "orient": "bottom"
+    }
+  }
+}

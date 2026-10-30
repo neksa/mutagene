@@ -1,0 +1,7 @@
+{
+  "profiles": 512,
+  "exact_endpoint_profiles": 192,
+  "exact_endpoint_match": true,
+  "transition_total_error_change": -0.018947724301927493,
+  "transition_thresholded_error_change": -0.022412881140030837
+}

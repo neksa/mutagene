@@ -1,0 +1,12 @@
+numpy==2.5.4
+scipy==1.18.1
+pandas==3.1.0
+scikit-learn==1.9.1
+statsmodels==0.15.0
+twobitreader==4.0.2
+requests==2.34.2
+tqdm==4.70.1
+SigProfilerAssignment==1.1.5
+sigProfilerPlotting==1.4.3
+SigProfilerMatrixGenerator==1.4.0
+vl-convert-python==1.9.0.post1

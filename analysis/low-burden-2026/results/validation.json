@@ -1,0 +1,47 @@
+{
+  "tests": {
+    "command": ".venv/bin/python -m pytest -q",
+    "status": "pass",
+    "log": "validation/tests.log",
+    "passed": 529,
+    "coverage_percent": 68.88
+  },
+  "build": {
+    "command": "uv build --out-dir /tmp/mutagene-low-burden-dist",
+    "status": "pass",
+    "log": "validation/build.log"
+  },
+  "docs": {
+    "command": "uv run --with-requirements docs/requirements.txt --no-project sphinx-build -b html docs /tmp/mutagene-low-burden-docs -W --keep-going",
+    "status": "pass",
+    "log": "validation/docs.log"
+  },
+  "wheel": {
+    "command": "Clean installed wheel: smoke_wheel.py outside the checkout; source hash and search paths match.",
+    "status": "pass",
+    "log": "validation/wheel.log"
+  },
+  "ruff": {
+    "command": ".venv/bin/ruff check mutagene tests analysis/low-burden-2026, excluding preserved source snapshots",
+    "status": "pass",
+    "log": "validation/ruff.log"
+  },
+  "black": {
+    "command": ".venv/bin/black --check mutagene tests analysis/low-burden-2026",
+    "status": "pass",
+    "log": "validation/black.log"
+  },
+  "implementation": {
+    "command": "python analysis/low-burden-2026/verify_implementation.py",
+    "status": "pass",
+    "log": "validation/implementation.log"
+  },
+  "python": "3.12.12 | packaged by conda-forge | (main, Jan 27 2026, 00:01:15) [Clang 19.1.7 ]",
+  "versions": {
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "pandas": "3.0.6",
+    "vl-convert-python": "1.9.0.post1"
+  },
+  "production_sparse_sha256": "1d74b3bafcd5ddb3648543e19af16ef689b77f25d5a9f1c7648daebf867bdc2c"
+}

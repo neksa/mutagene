@@ -101,6 +101,9 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
+# Preserve import order in immutable benchmark source snapshots.
+"analysis/low-burden-2026/pilot2/source/pilot2.py" = ["I001"]
+"analysis/signature-benchmark-2026/background-results/source/run_background_benchmark.py" = ["I001"]
 "mutagene/io/_export_cohort.py" = ["F821"]  # Legacy dead code with undefined DB refs
 "mutagene/benchmark/benchmark.py" = ["F821"]  # N defined at module level in notebook-style code
 "mutagene/io/protein_mutations_MAF.py" = ["N999"]  # Uppercase in module name is legacy convention

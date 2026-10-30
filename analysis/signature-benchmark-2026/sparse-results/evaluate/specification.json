@@ -1,0 +1,55 @@
+{
+  "phase": "evaluate",
+  "seed": 202610232,
+  "samples_per_cancer_burden_condition": 8,
+  "profiles": 768,
+  "methods": [
+    "MLE",
+    "MLE-scaled",
+    "Frobenius",
+    "FrobeniusZero",
+    "Cos",
+    "Elastic",
+    "KL",
+    "JS",
+    "AICc",
+    "BIC",
+    "Compat",
+    "sparse-aicc",
+    "sparse-bic"
+  ],
+  "background": [
+    true,
+    false
+  ],
+  "workers": 4,
+  "source_commit": "e94bac6e9b04fb13500d1904b5e0e8d58b00d8ad",
+  "source_sha256": {
+    "sparse.py": "6eefec63fcd4498fd9c1f4e588422cfed6a9f9e11edd9bd909dc8775a9e20eaf",
+    "identify.py": "734aa458ba585567fcc6f1862ee5950b6f3b466c807cbcd6ec55730ee9fd0158"
+  },
+  "runner_sha256": "13d0177d3aa0ee000e1c7fd878ac82bdb93579e116bc72cdb55cd087ddaa39a7",
+  "versions": {
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "pandas": "3.1.0",
+    "SigProfilerAssignment": "1.1.5"
+  },
+  "selection_rule": "Choose the lowest mean aggregate-null TAE across both background policies and all tuning cells; require zero failed fits.",
+  "limitations": "Fresh Monte Carlo draws share empirical exposure distributions; this is not independent patient validation.",
+  "frozen_selection": {
+    "selected": "sparse-bic",
+    "candidates": {
+      "sparse-aicc": {
+        "mean_error": 0.3270122071552683,
+        "failures": 0
+      },
+      "sparse-bic": {
+        "mean_error": 0.29216280964274477,
+        "failures": 0
+      }
+    },
+    "tuning_metrics_sha256": "ccf9492c37c95d5c2e8f5246e04a3e50dc552dd87395e8fb8286000cfb65b711",
+    "sparse_source_sha256": "6eefec63fcd4498fd9c1f4e588422cfed6a9f9e11edd9bd909dc8775a9e20eaf"
+  }
+}

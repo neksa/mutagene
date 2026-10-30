@@ -1,0 +1,66 @@
+{
+  "purpose": "Exploratory screening only; these profiles already inform earlier work.",
+  "profiles": 64,
+  "configs": [
+    [
+      "joint-BIC",
+      "bic",
+      0.0,
+      true,
+      false
+    ],
+    [
+      "EBIC-1.0",
+      "ebic",
+      1.0,
+      true,
+      false
+    ],
+    [
+      "EBIC-2.0",
+      "ebic",
+      2.0,
+      true,
+      false
+    ],
+    [
+      "EBIC-4.0",
+      "ebic",
+      4.0,
+      true,
+      false
+    ],
+    [
+      "forward-EBIC-0.0",
+      "forward",
+      0.0,
+      true,
+      false
+    ],
+    [
+      "forward-EBIC-0.5",
+      "forward",
+      0.5,
+      true,
+      false
+    ],
+    [
+      "forward-EBIC-1.0",
+      "forward",
+      1.0,
+      true,
+      false
+    ],
+    [
+      "forward-EBIC-2.0",
+      "forward",
+      2.0,
+      true,
+      false
+    ]
+  ],
+  "input_sha256": "aa190e42b8e6767b13c9246ee342fe7cd94ac4d1ae8aa8c162b5a5cd2ed0bcdf",
+  "candidate_sha256": "66fe9db4efcfe5f0d9142847ed99eb96ff226bbae5b64f26979566836ad4451f",
+  "runner_sha256": "fab503b2d08c1657c524359b3c2c854f2ddaad7f6564a399a2dab17cb1c4792e",
+  "selection": "At 100 mutations, sample_index < 2; all cancers and conditions."
+}

@@ -1,0 +1,12 @@
+{
+  "current_l1_change": 0.2672257790195296,
+  "forward_l1_change": 0.020142690284221144,
+  "same_counts_search_l1": 0.2694596501298119,
+  "error_1000": 0.18422550494292672,
+  "error_1001": 0.20301403712113933,
+  "forward_error_1001": 0.1822484561286956,
+  "profiles": 64,
+  "max_current_l1_change": 1.0509632642459277,
+  "seed": 202610298,
+  "interpretation": "Add one mutation sampled from each observed profile; compare both searches on the identical 1001-mutation counts."
+}

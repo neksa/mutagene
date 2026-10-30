@@ -1,0 +1,25 @@
+sample	multiplier	nll_per_mutation	gap_bound	exposure_l1_from_stable	optimizer_success	optimizer_message	optimizer_iterations	fallback
+evaluate_Liver-HCC_0_100_clean_0	1	4.284886036178773	8.170391191519855e-05	0.00013095459775239388	True	Optimization terminated successfully	41	
+evaluate_Liver-HCC_0_100_clean_0	20	4.284886219298324	4.5286245946130066e-05	0.0008711916941081049	True	Optimization terminated successfully	95	
+evaluate_Liver-HCC_0_100_clean_0	500	4.294261154322501	0.15279701644028743	0.5335653978977252	True	Optimization terminated successfully	5	
+evaluate_Stomach-AdenoCA_0_100_clean_0	1	3.898865603253819	0.00046789055401030843	0.00037591817296055586	True	Optimization terminated successfully	25	
+evaluate_Stomach-AdenoCA_0_100_clean_0	20	3.8988657626801926	2.7495446068170892e-05	0.00022427229726611482	True	Optimization terminated successfully	40	
+evaluate_Stomach-AdenoCA_0_100_clean_0	500	3.908879704011575	0.22724959952396662	0.43730127558952925	True	Optimization terminated successfully	5	
+evaluate_Head-SCC_0_100_clean_0	1	2.7637960551593697	0.014781956477603275	0.011465975662732027	True	Optimization terminated successfully	18	
+evaluate_Head-SCC_0_100_clean_0	20	2.7994972723107288	1.2347325240101124	0.38635015209373363	False	Positive directional derivative for linesearch	58	normalized_nnls
+evaluate_Head-SCC_0_100_clean_0	500	2.7994972723107288	1.2347325240101124	0.38635015209373363	False	Positive directional derivative for linesearch	11	normalized_nnls
+evaluate_ColoRect-AdenoCA_0_100_clean_0	1	3.801969519611201	0.034851501835636345	0.0555695889664579	True	Optimization terminated successfully	24	
+evaluate_ColoRect-AdenoCA_0_100_clean_0	20	3.8017957071427375	4.496642380757976e-05	0.00046526460314437836	True	Optimization terminated successfully	49	
+evaluate_ColoRect-AdenoCA_0_100_clean_0	500	3.8094403403592443	0.24551565741632397	0.23727187481859863	True	Optimization terminated successfully	5	
+evaluate_Lung-AdenoCA_0_100_clean_0	1	4.165697307983029	0.00481432644086599	0.010773269504841193	True	Optimization terminated successfully	27	
+evaluate_Lung-AdenoCA_0_100_clean_0	20	4.165669847434785	1.3673627476729067e-05	0.00030012378524060644	True	Optimization terminated successfully	47	
+evaluate_Lung-AdenoCA_0_100_clean_0	500	4.176811235162544	0.29967491780986766	0.4530612345613442	False	Positive directional derivative for linesearch	6	normalized_nnls
+evaluate_Skin-Melanoma_0_100_clean_0	1	2.199038474045555	3.5443015704572645e-05	0.00016762719721908598	True	Optimization terminated successfully	13	
+evaluate_Skin-Melanoma_0_100_clean_0	20	2.1990388365441564	5.9931565238313667e-05	0.0004235392605688219	True	Optimization terminated successfully	33	
+evaluate_Skin-Melanoma_0_100_clean_0	500	2.2234465249803197	0.10178234985052226	0.26920079261407814	False	Positive directional derivative for linesearch	7	normalized_nnls
+evaluate_Lymph-BNHL_0_100_clean_0	1	4.218471014713351	0.012192762337831953	0.010341633562901069	True	Optimization terminated successfully	30	
+evaluate_Lymph-BNHL_0_100_clean_0	20	4.218462557587407	0.00013906945050545794	0.000989125298061101	True	Optimization terminated successfully	82	
+evaluate_Lymph-BNHL_0_100_clean_0	500	4.232879967752462	0.37399094056312077	0.6886167385535786	True	Optimization terminated successfully	1	
+evaluate_CNS-GBM_0_100_clean_0	1	4.217013080973973	8.060275487720148e-05	0.00021814000189985315	True	Optimization terminated successfully	36	
+evaluate_CNS-GBM_0_100_clean_0	20	4.217033775974259	0.0027217716037740702	0.020152986946378213	True	Optimization terminated successfully	43	
+evaluate_CNS-GBM_0_100_clean_0	500	4.225819627271141	0.09547742211030896	0.38753126724211123	True	Optimization terminated successfully	5	

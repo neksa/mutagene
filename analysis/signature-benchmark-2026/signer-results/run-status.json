@@ -1,0 +1,17 @@
+{
+  "status": "complete",
+  "expected_fits": 216,
+  "completed_fits": 216,
+  "errors": 0,
+  "scoring": "complete",
+  "independent_chain_checks": "complete",
+  "sampling_convergence": "not established",
+  "report": "analysis/signature-benchmark-2026/signer-report.html",
+  "validation": "validation.json",
+  "remaining_research": [
+    "Convergence-controlled follow-up with declared settings",
+    "External-cohort validation",
+    "Context-independence null calibration"
+  ],
+  "publication": "Local benchmark report; manuscript integration and public release remain separate."
+}

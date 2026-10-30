@@ -1,0 +1,6 @@
+{
+  "method": "sparse-bic",
+  "background_selection": "joint",
+  "matched_benchmark_fits": 12,
+  "all_condition_burden_cells": true
+}

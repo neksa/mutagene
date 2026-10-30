@@ -1,0 +1,14 @@
+{
+  "profiles": 96,
+  "native_signeR_fits": 216,
+  "primary_signeR_fits": 192,
+  "independent_repeat_fits": 24,
+  "matched_comparison_rows": 768,
+  "errors": 0,
+  "input_hashes": "pass",
+  "signature_alignment": "pass",
+  "relative_exposure_arithmetic": "pass",
+  "raw_exposures_retained": true,
+  "baseline_rows_unchanged": true,
+  "caution": "Numerical completion does not certify MCMC convergence. Read chain-stability.tsv and per-fit diagnostics."
+}

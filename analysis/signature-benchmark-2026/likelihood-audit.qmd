@@ -1,0 +1,160 @@
+---
+title: "Audit of MutaGene MLE and likelihood"
+date: 2026-10-26
+format:
+  html:
+    toc: true
+    embed-resources: true
+---
+
+## Conclusion
+
+The current MLE implementation has numerical defects in addition to the statistical problem of over-attribution.
+The core likelihood formula is correct for normalized signature mixtures with positive probability in every observed channel.
+The surrounding optimization and reporting require corrections before we assess MLE as a default estimator.
+This audit preserves production code and the frozen benchmark.
+An isolated reference solver tests numerical corrections without introducing sparse selection.
+
+## The intended likelihood
+
+Let $n_c$ denote observed channel counts, and let each column of $S$ sum to one.
+Let $w$ contain nonnegative mixture weights with $\sum_k w_k=1$.
+Then $q=Sw$ gives channel probabilities, and the negative log likelihood is:
+
+$$
+L(w)=-\sum_c n_c\log q_c.
+$$
+
+The multinomial coefficient contributes a constant for a fixed count vector.
+Omitting that constant does not change fitted weights or comparisons between models for the same profile.
+The function describes one multinomial count distribution whose channel probabilities mix signatures.
+
+Dividing $L$ by mutation burden $N$ preserves the optimum and improves numerical scaling.
+For $p_c=n_c/N$, its gradient and Hessian are:
+
+$$
+\nabla (L/N)=-S^T(p/q),\qquad
+\nabla^2(L/N)=S^T\operatorname{diag}(p/q^2)S.
+$$
+
+The Hessian is positive semidefinite wherever observed channels have positive fitted probability.
+The fixed-reference likelihood problem is convex on the simplex.
+Correlated columns can still produce poorly determined or nonunique weights.
+A local-minimum explanation therefore does not explain the observed solver failures.
+
+## Defects in the current implementation
+
+### Burden scaling and numerical derivatives
+
+The production fitter sends the total negative log likelihood to SLSQP without an analytic gradient.
+It uses a fixed iteration limit and SciPy's default stopping tolerance.
+Its numerical scale therefore changes with mutation burden.
+[SciPy documents](https://docs.scipy.org/doc/scipy/reference/optimize.minimize-slsqp.html) tolerance checks on objective changes, steps, constraint violations, and Lagrangian gradients.
+
+At 50,000 mutations, the frozen benchmark reports fallback in 178 of 256 background-enabled MLE fits, or 69.53%.
+Without background, it reports fallback in 148 of 256 fits, or 57.81%.
+All 332 MLE failures across burdens report `Positive directional derivative for linesearch`.
+The existing `MLE-scaled` variant reports no fallback across its 1,536 fits.
+Scaling therefore materially improves numerical behavior, without changing the intended statistical model.
+
+### A kink at the simplex boundary
+
+`NegLogLik` renormalizes weights only when their sum exceeds one.
+The optimizer separately constrains that sum to at most one.
+This creates a derivative discontinuity exactly where normalized solutions lie.
+Numerical derivative probes can cross this boundary even when the current point satisfies the constraint.
+
+In the two-channel test, exact weights are `[0.75, 0.25]` and counts are `[65, 35]`.
+The first-coordinate derivative approaches −100 from below and approximately zero from above.
+This derivative discontinuity belongs to the implementation's extension outside the simplex, not the intended likelihood on the simplex.
+
+The inequality alone does not invalidate MLE when every signature column sums to one.
+Increasing all weights proportionally improves likelihood until their sum reaches one.
+An explicit equality constraint nevertheless expresses the intended probability model directly.
+
+### Fallback changes the estimator
+
+When SLSQP reports failure, the fitter discards its result and returns normalized NNLS weights.
+NNLS minimizes a different reconstruction objective.
+The output retains the requested method name, although diagnostics and logs expose the fallback.
+Consequently, an MLE-labelled row does not necessarily contain a maximum-likelihood estimate.
+Numerical repair must include explicit failure handling and estimator provenance.
+The audit reproduces all 332 failures and captures their discarded candidates.
+After normalization onto the simplex, 327 candidates have better likelihood than the returned NNLS result.
+The raw candidates violate the weight-sum constraint, so accepting them unchanged would also be incorrect.
+A valid repair must restore feasibility and verify optimality before accepting any candidate.
+
+### Likelihood reporting changes units
+
+The result field `LogLik` uses `v_target`, which contains counts for MLE but frequencies for several other objectives.
+For the same 100-mutation toy profile, MLE reports approximately −64.7447 while cosine fitting reports −0.647447.
+The fitted weights agree, but the reported likelihood differs by the mutation burden.
+`Compat` also uses frequencies because its objective does not enter the count-target branch.
+Every method should calculate its reported count log likelihood from the original counts.
+
+### Probability validation and zero channels
+
+The production function does not validate normalized signature columns before likelihood fitting.
+Bundled COSMICv3 columns sum between 0.998577814 and 1.000526.
+The frozen benchmark normalizes its reference columns, so this catalog issue does not explain its solver failures.
+Direct production use can nevertheless fit a slightly different probability model.
+Across 1,536 archived MLE outputs, 147 weight sums differ from one by more than 0.000001.
+The smallest sum is 0.97877; the largest is 1.0000097.
+
+An observed channel with zero predicted probability has infinite mathematical negative log likelihood.
+The current function instead adds a finite penalty of one million per observed mutation in that channel.
+This avoids the earlier zero-penalty behavior but does not implement the exact boundary likelihood.
+The fitter should reject references that cannot explain any observed channel.
+For feasible references, an interior initialization and domain-aware objective should prevent invalid logarithms during optimization.
+
+## Numerical experiment
+
+The audit reuses all 768 frozen evaluation profiles and both background settings.
+It fits the full reference with normalized negative log likelihood, analytic derivatives, and explicit simplex equality.
+It uses SLSQP with `ftol=1e-12` and `maxiter=2000`.
+It adds no signature-count penalty and performs no signature selection.
+
+The audit independently checks optimality using a convex first-order bound.
+For normalized weights and gradient $g=\nabla(L/N)$, the bound is $g^Tw-\min_k g_k$.
+This bounds the remaining objective improvement over the simplex, apart from floating-point error.
+It does not bound uncertainty in individual signature weights.
+The comparison normalizes archived weights before calculating likelihood gaps.
+Archived attribution and reconstruction metrics retain their original values.
+
+{{< include likelihood-audit/findings.md >}}
+
+## What to fix
+
+1. Validate nonnegative finite counts and normalized signature columns at the shared fitting boundary.
+2. Fit normalized negative log likelihood with an analytic gradient and explicit simplex equality.
+3. Remove conditional weight renormalization from the objective.
+4. Validate probability support, feasibility, and an optimality certificate after optimization.
+5. Retry failures within the likelihood model; report unresolved failure instead of returning NNLS as MLE.
+6. Calculate every reported count log likelihood from the original counts.
+7. Align Python, CLI, and web defaults in a separately documented compatibility change.
+8. Repeat attribution comparisons after numerical repair before selecting any new default.
+
+Numerical repair and signature selection answer different questions.
+The former ensures that MLE actually solves its stated objective.
+The latter controls which signatures the model includes.
+Even exact MLE cannot identify unique biological exposures when the reference and observed counts do not distinguish them.
+
+## Reproduce and inspect
+
+Use the benchmark environment and run `python audit_likelihood.py` from this directory.
+The script checks production source hashes against the frozen evaluation specification.
+It writes fit metrics, estimates, ablations, count-repetition probes, and source provenance under `likelihood-audit/`.
+Run `python audit_mle_failures.py` to capture the candidates that the production fallback discards.
+Run `python verify_likelihood_audit.py` to verify the audit's arithmetic and provenance.
+Run `quarto render likelihood-audit.qmd` to build this report.
+
+- [Audit script](audit_likelihood.py)
+- [Fit-level results](likelihood-audit/metrics.tsv)
+- [Parameterization ablations](likelihood-audit/ablations.tsv)
+- [Repeated-count controls](likelihood-audit/count-repetition.tsv)
+- [Discarded optimizer candidates](likelihood-audit/discarded-candidates.tsv)
+- [Analytic and reporting probes](likelihood-audit/probes.json)
+- [Provenance](likelihood-audit/provenance.json)
+
+The simulations share the earlier benchmark's empirical exposure distributions.
+This audit establishes numerical behavior on those profiles; it does not provide independent patient validation.

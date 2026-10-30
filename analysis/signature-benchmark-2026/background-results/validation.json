@@ -1,0 +1,52 @@
+{
+  "tests": {
+    "passed": 513,
+    "coverage_percent": 68.97,
+    "additional_cases_since_likelihood_reassessment": 16,
+    "log": "/tmp/mutagene-background-final-tests.log"
+  },
+  "benchmark": {
+    "paired": {
+      "fits": 4608,
+      "errors": 0,
+      "fallbacks": 0,
+      "independent_certificates": 3840,
+      "metric_recomputations": 200,
+      "maximum_refit_gap": 1.9982132252960305e-05
+    },
+    "fresh": {
+      "fits": 4608,
+      "errors": 0,
+      "fallbacks": 0,
+      "independent_certificates": 3840,
+      "metric_recomputations": 200,
+      "maximum_refit_gap": 1.9448144639166998e-05
+    }
+  },
+  "default_parity": {
+    "method": "sparse-bic",
+    "background_selection": "joint",
+    "matched_benchmark_fits": 12,
+    "all_condition_burden_cells": true
+  },
+  "checks": {
+    "strict_sphinx": "pass",
+    "quarto_html": "pass",
+    "wheel_build": "pass",
+    "clean_wheel_install": "pass",
+    "installed_wheel_demo": "pass",
+    "installed_wheel_web_home_and_static": "pass",
+    "installed_wheel_analytic_sparse_fit": "pass",
+    "ruff": "pass",
+    "black": "pass",
+    "git_diff_check": "pass",
+    "chart_visual_inspection": "pass",
+    "live_browser_interaction": "not tested"
+  },
+  "metrics": {
+    "primary_comparable_total": "aggregate_null_tae",
+    "thresholded_known": "paper_tae",
+    "both_reported": true
+  },
+  "source_policy": "Frozen benchmark sources retain pre-decision defaults. Explicit benchmark configurations determine the fitted models. Twelve current-default fits match benchmark estimates across all condition/burden cells."
+}

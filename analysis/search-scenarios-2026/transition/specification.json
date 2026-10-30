@@ -1,0 +1,21 @@
+{
+  "seed": 202610299,
+  "samples_per_cancer": 2,
+  "burdens": [
+    1000,
+    1001,
+    1250,
+    1500,
+    1750,
+    1999,
+    2000,
+    50000
+  ],
+  "formula": "For 1000 < N < 2000, use (1-alpha)*forward + alpha*current, alpha=(N-1000)/1000. Otherwise return current.",
+  "gate": "Both mean errors must improve within the transition range; preserve exact estimates at endpoint controls. Report condition regressions and paired intervals.",
+  "caveat": "The blended estimate is not a constrained MLE refit or a BIC-selected subset.",
+  "sources": {
+    "/Users/alex/projects/personal/mutagene/analysis/search-scenarios-2026/transition.py": "e7220b0da1d57c036d7c1577435104e9ff43a777206c39a5777e4d05381b7a33",
+    "/Users/alex/projects/personal/mutagene/analysis/search-scenarios-2026/frozen_sparse.py": "1d74b3bafcd5ddb3648543e19af16ef689b77f25d5a9f1c7648daebf867bdc2c"
+  }
+}

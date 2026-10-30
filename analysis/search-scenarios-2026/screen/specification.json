@@ -1,0 +1,38 @@
+{
+  "seed": 202610296,
+  "samples_per_cancer": 2,
+  "burdens": [
+    100,
+    250,
+    500,
+    999,
+    1000,
+    1001,
+    2000,
+    50000
+  ],
+  "sensitivity_seed": 202610297,
+  "sensitivity_samples_per_cancer": 1,
+  "sensitivity_burdens": [
+    50,
+    100,
+    1000
+  ],
+  "methods": [
+    "current",
+    "fixed-BIC",
+    "forward-all",
+    "best-start-BIC",
+    "BIC-weighted-average",
+    "swap-BIC"
+  ],
+  "swap_policy": "At most three greedy one-for-one replacement rounds; retain model size.",
+  "averaging": "Weight two distinct search results by exp(-delta_BIC/2); this is not a posterior over all models.",
+  "decision": "Screening only. Require improvement in both low-burden metrics without mean high-burden regression before independent confirmation. Retain all scenarios and failures.",
+  "sources": {
+    "/Users/alex/projects/personal/mutagene/analysis/search-scenarios-2026/run.py": "0bad21cf9989ef3ebc41744011bd290823a82e6a83455d3d6cace62462d7a24c",
+    "/Users/alex/projects/personal/mutagene/analysis/search-scenarios-2026/frozen_sparse.py": "1d74b3bafcd5ddb3648543e19af16ef689b77f25d5a9f1c7648daebf867bdc2c",
+    "/Users/alex/projects/personal/mutagene/analysis/low-burden-2026/panel.py": "c19c477ccd887f8662f8778b502326f8f3b52d70c626ca77d38446e7750d7db5",
+    "/Users/alex/projects/personal/mutagene/mutagene/signatures/likelihood.py": "66635ac489665d1179334100ed16b684d27e274769c4fc09c93d5f3d09965a22"
+  }
+}

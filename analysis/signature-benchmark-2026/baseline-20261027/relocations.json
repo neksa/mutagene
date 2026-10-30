@@ -1,0 +1,16 @@
+{
+  "README.md": "analysis/signature-benchmark-2026/baseline-20261027/README.md",
+  "analysis/signature-benchmark-2026/baseline_sources.py": "analysis/signature-benchmark-2026/baseline-20261027/analysis/signature-benchmark-2026/baseline_sources.py",
+  "analysis/signature-benchmark-2026/verify_repaired_benchmark.py": "analysis/signature-benchmark-2026/baseline-20261027/analysis/signature-benchmark-2026/verify_repaired_benchmark.py",
+  "docs/likelihood-fitting.md": "analysis/signature-benchmark-2026/baseline-20261027/docs/likelihood-fitting.md",
+  "docs/signature_doc.rst": "analysis/signature-benchmark-2026/baseline-20261027/docs/signature_doc.rst",
+  "docs/sparse-signatures.md": "analysis/signature-benchmark-2026/baseline-20261027/docs/sparse-signatures.md",
+  "mutagene/cli/signature_menu.py": "analysis/signature-benchmark-2026/baseline-20261027/mutagene/cli/signature_menu.py",
+  "mutagene/signatures/identify.py": "analysis/signature-benchmark-2026/baseline-20261027/mutagene/signatures/identify.py",
+  "mutagene/signatures/likelihood.py": "analysis/signature-benchmark-2026/baseline-20261027/mutagene/signatures/likelihood.py",
+  "mutagene/signatures/sparse.py": "analysis/signature-benchmark-2026/baseline-20261027/mutagene/signatures/sparse.py",
+  "tests/cli/cli_test.py": "analysis/signature-benchmark-2026/baseline-20261027/tests/cli/cli_test.py",
+  "tests/signatures/test_likelihood_interfaces.py": "analysis/signature-benchmark-2026/baseline-20261027/tests/signatures/test_likelihood_interfaces.py",
+  "tests/signatures/test_likelihood_regressions.py": "analysis/signature-benchmark-2026/baseline-20261027/tests/signatures/test_likelihood_regressions.py",
+  "tests/cli/test_sparse_command.py": "analysis/signature-benchmark-2026/baseline-20261027/tests/cli/test_sparse_command.py"
+}

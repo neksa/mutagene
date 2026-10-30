@@ -1,0 +1,18 @@
+{
+  "paired": {
+    "fits": 4608,
+    "errors": 0,
+    "fallbacks": 0,
+    "independent_certificates": 3840,
+    "metric_recomputations": 200,
+    "maximum_refit_gap": 1.9982132252960305e-05
+  },
+  "fresh": {
+    "fits": 4608,
+    "errors": 0,
+    "fallbacks": 0,
+    "independent_certificates": 3840,
+    "metric_recomputations": 200,
+    "maximum_refit_gap": 1.9448144639166998e-05
+  }
+}

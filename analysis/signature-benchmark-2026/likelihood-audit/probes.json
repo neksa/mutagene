@@ -1,0 +1,31 @@
+{
+  "binomial_exact_weights": [
+    0.75,
+    0.25
+  ],
+  "stable_weights": [
+    0.7499997499999999,
+    0.2500002500000001
+  ],
+  "boundary_left_derivative": -100.0000055739747,
+  "boundary_right_derivative": 4.263256414560601e-07,
+  "impossible_channel_penalty": 1000000.0,
+  "reporting": {
+    "MLE": {
+      "reported_LogLik": -64.74466390346323,
+      "count_LogLik": -64.74466390346323
+    },
+    "Frobenius": {
+      "reported_LogLik": -0.6474483087805825,
+      "count_LogLik": -64.74483087805825
+    },
+    "Cos": {
+      "reported_LogLik": -0.6474466390346323,
+      "count_LogLik": -64.74466390346323
+    },
+    "Compat": {
+      "reported_LogLik": -0.6474466390346323,
+      "count_LogLik": -64.74466390346323
+    }
+  }
+}

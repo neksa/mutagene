@@ -1,0 +1,16 @@
+{
+  "validation": {
+    "profiles": 1536,
+    "exact_estimate_matches": 1536,
+    "full_starts": 512,
+    "single_starts": 1024,
+    "maximum_refit_optimality_gap": 1.9639363819878852e-05
+  },
+  "sensitivity": {
+    "profiles": 256,
+    "exact_estimate_matches": 256,
+    "full_starts": 0,
+    "single_starts": 256,
+    "maximum_refit_optimality_gap": 8.287700071107906e-06
+  }
+}

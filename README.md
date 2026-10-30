@@ -129,3 +129,9 @@ The [R bridge](examples/r/README.md) exchanges labelled SBS96 matrices through t
 The [likelihood guide](docs/likelihood-fitting.md) documents convergence and compatibility changes.
 The [sparse-fitting guide](docs/sparse-signatures.md) describes optional subset selection.
 The [release checklist](docs/release-readiness.md) separates source validation from publication.
+
+## Research drafts
+
+The [research index](analysis/README.md) separates historical reports, current limitations, and artifact availability.
+The [SigProfilerAssignment adapter](examples/signatures/README.md) preserves explicit channel alignment.
+The [application-note draft](manuscript/README.md) requires revision before submission.

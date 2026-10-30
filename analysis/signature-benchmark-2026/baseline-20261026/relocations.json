@@ -1,0 +1,56 @@
+[
+  {
+    "manifest": "analysis/signature-benchmark-2026/artifact-manifest.json",
+    "original": "analysis/signature-benchmark-2026/.gitignore",
+    "snapshot": "analysis/signature-benchmark-2026/baseline-20261026/analysis/signature-benchmark-2026/.gitignore",
+    "sha256": "a5c5794f4a73308cb671f82d1104c92200664e0e76f1203a94a43b77b699f301"
+  },
+  {
+    "manifest": "analysis/signature-benchmark-2026/sparse-results/artifact-manifest.json",
+    "original": "analysis/signature-benchmark-2026/verify_sparse.py",
+    "snapshot": "analysis/signature-benchmark-2026/baseline-20261026/analysis/signature-benchmark-2026/verify_sparse.py",
+    "sha256": "9dbdd56c338576acf41f4102be8167c934e29c911426a8373a8607d3c4b562d4"
+  },
+  {
+    "manifest": "analysis/signature-benchmark-2026/sparse-results/artifact-manifest.json",
+    "original": "docs/sparse-signatures.md",
+    "snapshot": "analysis/signature-benchmark-2026/baseline-20261026/docs/sparse-signatures.md",
+    "sha256": "24f5881e14fa817e58c85bd4d391359eb10d1618419cab48fa7490282b8ee1a2"
+  },
+  {
+    "manifest": "analysis/signature-benchmark-2026/sparse-results/artifact-manifest.json",
+    "original": "mutagene/cli/signature_menu.py",
+    "snapshot": "analysis/signature-benchmark-2026/baseline-20261026/mutagene/cli/signature_menu.py",
+    "sha256": "1df10912989da8b34996ae9a7ecf08471060da555a657dd3b120dc119a5feaeb"
+  },
+  {
+    "manifest": "analysis/signature-benchmark-2026/sparse-results/artifact-manifest.json",
+    "original": "mutagene/signatures/identify.py",
+    "snapshot": "analysis/signature-benchmark-2026/baseline-20261026/mutagene/signatures/identify.py",
+    "sha256": "734aa458ba585567fcc6f1862ee5950b6f3b466c807cbcd6ec55730ee9fd0158"
+  },
+  {
+    "manifest": "analysis/signature-benchmark-2026/sparse-results/artifact-manifest.json",
+    "original": "mutagene/signatures/sparse.py",
+    "snapshot": "analysis/signature-benchmark-2026/baseline-20261026/mutagene/signatures/sparse.py",
+    "sha256": "6eefec63fcd4498fd9c1f4e588422cfed6a9f9e11edd9bd909dc8775a9e20eaf"
+  },
+  {
+    "manifest": "analysis/signature-benchmark-2026/sparse-results/artifact-manifest.json",
+    "original": "tests/benchmark/test_sparse_selection.py",
+    "snapshot": "analysis/signature-benchmark-2026/baseline-20261026/tests/benchmark/test_sparse_selection.py",
+    "sha256": "d44916684536c7e690cfced5e6faeb9a20fabca974f725e7a627f33815a83c2e"
+  },
+  {
+    "manifest": "analysis/signature-benchmark-2026/likelihood-audit/artifact-manifest.json",
+    "original": "analysis/signature-benchmark-2026/verify_likelihood_audit.py",
+    "snapshot": "analysis/signature-benchmark-2026/baseline-20261026/analysis/signature-benchmark-2026/verify_likelihood_audit.py",
+    "sha256": "a90395f7b33a4cf07237f61675f44732a76239bcf35aa7470586f9f3c2018f0d"
+  },
+  {
+    "manifest": "analysis/signature-benchmark-2026/artifact-manifest.json",
+    "original": "manuscript/README.md",
+    "snapshot": "analysis/signature-benchmark-2026/baseline-20261026/manuscript/README.md",
+    "sha256": "3e08ef9467062aca0ac149d7872b11e8252db99af64452d73e86170d3465896b"
+  }
+]
