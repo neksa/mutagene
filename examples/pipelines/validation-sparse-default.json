@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-30",
+  "fixture": "bundled demo: 96 channels, 3 samples, 24 mutations",
+  "method": "sparse-bic",
+  "engines": {
+    "DVC": "3.66.1",
+    "Nextflow": "26.10.3",
+    "R": "Rscript (R) version 4.6.1 (2026-06-24)",
+    "Snakemake": "9.27.1",
+    "Java": "Temurin JRE 21.0.13+9"
+  },
+  "output_sha256": {
+    "DVC": "83bcb983f8a012c59e5508d8b5c51e273e47f24ca56b074b23ffc5f0e50feffd",
+    "Snakemake": "83bcb983f8a012c59e5508d8b5c51e273e47f24ca56b074b23ffc5f0e50feffd",
+    "R": "83bcb983f8a012c59e5508d8b5c51e273e47f24ca56b074b23ffc5f0e50feffd",
+    "Nextflow": "83bcb983f8a012c59e5508d8b5c51e273e47f24ca56b074b23ffc5f0e50feffd"
+  },
+  "wheel_sha256": "865a6bd8f61a7d54531c81c8584cd4bbc1778bae808deaae259cc45cf92f2dcb",
+  "scope": "Local installed-wheel execution; no remote deployment",
+  "background_selection": "joint",
+  "code_commit": "479aebc3d24148d16aff61161889f289935ca8de"
+}

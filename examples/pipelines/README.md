@@ -86,3 +86,9 @@ No public workflow repository accompanies this draft.
 - [DVC pipeline definition](https://doc.dvc.org/user-guide/project-structure/dvcyaml-files)
 - [Nextflow processes](https://docs.seqera.io/nextflow/process)
 - [Snakemake tutorial](https://snakemake.readthedocs.io/en/stable/tutorial/basics.html)
+
+## Validation records
+
+`validation.json` records installed-wheel execution with the preceding MLE default.
+`validation-sparse-default.json` records execution with the sparse-BIC default proposal.
+Each record identifies the method, engine versions, wheel hash, and output hashes.

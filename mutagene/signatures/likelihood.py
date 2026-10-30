@@ -3,7 +3,7 @@
 import numpy as np
 from scipy.optimize import minimize, nnls
 
-DEFAULT_METHOD = "MLE"
+DEFAULT_METHOD = "sparse-bic"
 DEFAULT_BACKGROUND_SELECTION = "joint"
 OPTIMALITY_TOLERANCE = 2e-5
 

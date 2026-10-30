@@ -69,7 +69,7 @@ Argument                    Description                                         
 ==========================  ===================================================================  =========================
 --method [METHOD]           Method defines a target function minimized in the optimization
                             procedure                                                            -method frobenius
-                            (default method is MLE)\ :sup:`1`
+                            (default method is sparse-bic)\ :sup:`1`
 -m [METHOD]                 Short form of --method [METHOD] argument                             -m frobenius
 --no-unexplained-variance   not to account for unexplained variance from context-independent     --no-unexplained-variance
                             mutational processes and unknown signatures
@@ -333,7 +333,7 @@ Use ``--seed`` with bootstrap sampling for reproducible draws.
 The percentile method remains the default.
 The approximate t-based method uses bootstrap standard deviation rather than replicate SEM.
 
-Python, CLI, and web interfaces retain full-model MLE as the default.
+Python, CLI, and web interfaces default to ``sparse-bic`` with ``joint`` background selection.
 Request ``--method MLE`` or ``func="MLE"`` for full-model likelihood fitting.
 ``MLE-scaled`` and ``Compat`` use the same repaired likelihood solver.
 The solver normalizes signature columns and validates finite nonnegative inputs.
@@ -353,7 +353,7 @@ It compares all one-component additions and removals at each step.
 Above 1,000 mutations, it retains full-model initialization and the preceding search.
 Fixed-background BIC, block selection, and AICc retain full-model initialization.
 The diagnostics field ``search_start`` records the initialization.
-Sparse BIC selects known and background components.
+The default method uses BIC to select known and background components.
 
 The six null components form a context-independent background model.
 Each component covers one substitution type uniformly across sixteen flanking contexts.
