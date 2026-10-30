@@ -15,6 +15,7 @@ from mutagene.io.variant_filter import (
     passes_filter,
     report_filtered,
 )
+from mutagene.io.vcf import has_reference_genotype, validate_vcf_header
 
 logger = logging.getLogger(__name__)
 
@@ -279,12 +280,16 @@ def read_VCF_profile(muts, asm=None, keep_filtered=False):
     skipped_rows = []
     n_filtered = 0
     for i, line in enumerate(muts, start=1):
+        validate_vcf_header(line)
         if line.startswith("#"):
             continue
         if len(line) < 10:
             continue
 
         col_list = line.split()
+        if has_reference_genotype(col_list):
+            n_filtered += 1
+            continue
         # ALT is the fifth column, so five are needed to read one. The old guard
         # asked for four and then indexed the fifth, so a four-column line raised
         # IndexError out of the parser instead of being skipped.

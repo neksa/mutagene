@@ -82,3 +82,7 @@ For the driver ranking method (`mutagene rank`):
 > Finding driver mutations in cancer: Elucidating the role of background mutational processes.
 > *PLOS Computational Biology* 2019; 15(4): e1006981.
 > https://doi.org/10.1371/journal.pcbi.1006981
+
+## Sample count matrices
+
+The [matrix guide](docs/count-matrices.md) describes sample exports and compressed mutation input.
