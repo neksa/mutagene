@@ -1,26 +1,15 @@
-====================================================
-Identify: Identifying mutational profiles in samples
-====================================================
------------
-Description
------------
-Use mutagene signature to search for the presence of mutational signatures in mutational data.
+Estimate signature exposures
+============================
 
-*Note: if you installed MutaGene in a virtual environment, make sure you activate the virtual environment first.*
+``mutagene signature`` estimates mutational signature exposures from mutation data.
+If you install MutaGene in a virtual environment, activate that environment before running commands.
 
--------------------
-1. Identify command
--------------------
+Inspect command arguments:
 
-To use the identify command, type
+.. code-block:: bash
 
-``$ mutagene signature identify``
+   mutagene signature identify -h
 
-followed by the required arguments from the command line. You can always find help on the required arguments using the following command:
-
-``$ mutagene signature identify -h``
-
-------------
 2. Arguments
 ------------
 
@@ -29,7 +18,7 @@ followed by the required arguments from the command line. You can always find he
 **2.2.Required Arguments (must be specified):**
 
 
-1. The MutaGene signature package allows for the analysis of mutational processes operating in a given sample or a cohort using five different sets of mutational signatures, selected with --signatures (-s):
+Choose one of five signature collections with ``--signatures`` (``-s``):
 
 ==================  ==========  ==============================================
 Value               Alias       Collection
@@ -42,7 +31,9 @@ KUCAB               53          54 profiles of environmental mutagen exposure,
                                 including a Control profile
 ==================  ==========  ==============================================
 
-The numeric aliases are historical names and do not always match the number of signatures in the collection: -s 49 loads 67 COSMIC v3 signatures and -s 53 loads 54 KUCAB profiles.
+Numeric aliases are historical names, not signature counts.
+``-s 49`` loads 67 COSMIC v3 signatures.
+``-s 53`` loads 54 KUCAB profiles.
 
 Read more about the MutaGene signature package at https://www.ncbi.nlm.nih.gov/research/mutagene/signatures#mutational_signatures.
 Read more about Cosmic signatures at https://cancer.sanger.ac.uk/cosmic/signatures/.
@@ -79,7 +70,8 @@ Argument                    Description                                         
 -b                          Short form of --bootstrap argument                                   -b
 ==========================  ===================================================================  =========================
 
-The bootstraping is done by random sampling with replacement of mutations from each sample repeated 100 times. The bootstrap estimates of the mean and 95% confidence intervals are reported.
+Bootstrap sampling draws mutations with replacement from each sample 100 times.
+The output reports mean estimates and 95% confidence intervals.
 
 1. Available methods
 
@@ -99,17 +91,19 @@ aiccz              BIC (BIC with added context-independent signatures)
 ================= =====================================================================================
 
 
------------
 3. Examples
 -----------
-*3.1. Search for the presence of MutaGene-10 signatures in PD3851a.vcf using hg38 and explicit method mlez (method mle gives same output for this input)*
----------------------------------------------------------------------------------------------------------------------------------------------------------
+Fit MutaGene-10 signatures
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fit MutaGene-10 signatures in ``PD3851a.vcf`` with hg38 and ``mlez``.
+The ``mle`` method gives the same output for this input.
+
 3.1.1.Command
 -------------
 
 ``$ mutagene signature identify -i PD3851a.vcf -g hg38.2bit -f VCF -s10 --method mlez``
 
----------------------
 3.1.2.Identify Output
 ---------------------
 
@@ -128,14 +122,16 @@ VCF        10            0.0121      10
 =======  ============  ============  ===========
 
 
-*3.2. Calculate the mutational profile for sample1.maf using -g hg38.2bit and MutaGene-5 signature set:*
---------------------------------------------------------------------------------------------------------
+Fit MutaGene-5 signatures
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fit MutaGene-5 signatures in ``sample1.maf`` with ``hg38.2bit``.
+
 3.2.1.Command
 -------------
 
 ``$ mutagene signature identify -i sample1.maf -g hg38.2bit -s5``
 
----------------------
 3.2.2.Identify Output
 ---------------------
 
@@ -146,26 +142,31 @@ TCGA-50-6593-01A-11D-1753-08    2            0.0348      5
 TCGA-50-6593-01A-11D-1753-08    3            0.0691      11
 =============================  ===========  ==========  ===========
 
-*3.3. Calculate the mutational profile for PD3851a.vcf using -g hg38.2bit (both in samples folder) and MutaGene-10 signature set and send output to a file out.tsv in out folder:*
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Save exposures to a file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fit MutaGene-10 signatures and save exposures to ``out.tsv``.
+This example reads input and genome files from the samples directory.
+
 3.3.1.Command
 -------------
 
 ``$ mutagene signature identify -i ../../samples/PD3851a.vcf -g ../../samples/hg38.2bit -f VCF -s10 -o ../../out/out.tsv``
 
----------------------
 3.3.2.Identify Output
 ---------------------
 As for example (3.1) except sent to file out.tsv instead of screen.
 
-*3.4. Calculate the mutational profile for PD3851a.vcf using -g hg38.2bit and MutaGene-10 signature set using the bootstrap to calculate confidence intervals:*
----------------------------------------------------------------------------------------------------------------------------------------------------------------
+Estimate confidence intervals
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use bootstrap sampling to estimate confidence intervals for MutaGene-10 exposures.
+
 3.4.1.Command
 -------------
 
 ``$ mutagene signature identify -i ../../samples/PD3851a.vcf -g ../../samples/hg38.2bit -f VCF -s10 -b``
 
----------------------
 3.4.2.Identify Output
 ---------------------
 
@@ -183,14 +184,16 @@ VCF     9          0.0291    25     0.0264      0.0318       23          27
 VCF     10         0.0138    12     0.0112      0.0164       10          14
 ======  =========  =======  =====  ===========  ===========  ==========  ============
 
-*3.5. Calculate the mutational profile for PD3851a.vcf using -g hg38.2bit and MutaGene-10 signature set. Use the bootstrap to calculate confidence intervals and do not account for unexplained variance (non-context dependent mutational processes and unknown signatures):*
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Bootstrap without unexplained variance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Estimate bootstrap intervals without the unexplained-variance components.
+
 3.5.1.Command
 -------------
 
 ``$ mutagene signature identify -i ../../samples/PD3851a.vcf -g ../../samples/hg38.2bit -f VCF -s10  -U -b``
 
----------------------
 3.5.2.Identify Output
 ---------------------
 
@@ -208,14 +211,16 @@ VCF     9        0.0633     54      0.0608      0.0658       52          56
 VCF     10       0.0708     60      0.0682      0.0735       58          63
 ====== ========= =======    =====  ===========  ===========  ========== ============
 
-*3.6. Calculate the mutational profile for PD3851a.vcf using -g hg38.2bit and MutaGene-10 signature set and frobenius method:*
-------------------------------------------------------------------------------------------------------------------------------
+Use Frobenius fitting
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fit MutaGene-10 signatures with the Frobenius method.
+
 3.6.1.Command
 -------------
 
 ``$ mutagene signature identify -i PD3851a.vcf -g hg38.2bit -f VCF -s10 -m frobenius``
 
----------------------
 3.6.2.Identify Output
 ---------------------
 
@@ -225,14 +230,16 @@ sample  signature    exposure    mutations
 VCF     5            1.0000      853
 ======  ==========  ==========  ===========
 
-*3.7. Calculate the mutational profile for PD3851a.vcf using -g hg38.2bit and MutaGene-10 signature set and frobeniuszero method:*
-----------------------------------------------------------------------------------------------------------------------------------
+Use FrobeniusZero fitting
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fit MutaGene-10 signatures with the FrobeniusZero method.
+
 3.7.1.Command
 -------------
 
 ``$ mutagene signature identify -i PD3851a.vcf -g hg38.2bit -f VCF -s10 -m frobeniuszero``
 
----------------------
 3.7.2.Identify Output
 ---------------------
 
@@ -242,8 +249,11 @@ sample  signature   exposure    mutations
 VCF     5           0.7376      629
 ======  ==========  ==========  =========
 
-3.8. Calculate the mutational profile for PD3851a.vcf using -g hg38.2bit and MutaGene-10 signature set and either the js or divergencejs method:*
--------------------------------------------------------------------------------------------------------------------------------------------------
+Use Jensen–Shannon fitting
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Fit MutaGene-10 signatures with ``js`` or ``divergencejs``.
+
 3.8.1.Command
 -------------
 
@@ -252,7 +262,6 @@ VCF     5           0.7376      629
 
 ``$ mutagene signature identify -i PD3851a.vcf -g hg38.2bit -f VCF -s10 -m divergencejs``
 
----------------------
 3.8.2.Identify Output
 ---------------------
 
@@ -272,8 +281,11 @@ VCF     9           0.1020     87
 VCF     10          0.1186     101
 ======  =========  ==========  ==========
 
-3.9. Calculate the mutational profile for PD3851a.vcf using -g hg38.2bit and MutaGene-10 signature set and either the compat, aicc, bic or aiccz method:*
----------------------------------------------------------------------------------------------------------------------------------------------------------
+Compare legacy methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Compare the legacy fitting methods below.
+
 3.9.1.Command
 -------------
 
@@ -288,7 +300,6 @@ VCF     10          0.1186     101
 
 ``$ mutagene signature identify -i PD3851a.vcf -g hg38.2bit -f VCF -s10 -m aiccz``
 
----------------------
 3.9.2.Identify Output
 ---------------------
 All 4 methods generate the same output for this input
@@ -306,7 +317,6 @@ VCF     9           0.0213     18
 VCF     10          0.0034     3
 ======  =========  ==========  =========
 
-----------------
 Common arguments
 ----------------
 
@@ -315,7 +325,7 @@ Common arguments
 :doc:`common_options`.
 
 Labelled count matrices and diagnostics
-------------------------------------------
+---------------------------------------
 
 Use ``-f MATRIX`` for an SBS96 count matrix with ``Type`` and sample columns.
 The reader validates channel labels and preserves sample identity.
