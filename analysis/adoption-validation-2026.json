@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-23",
+  "branch": "feature/adoption-benchmark-2026",
+  "publication_status": "local draft",
+  "tests": {
+    "passed": 446,
+    "coverage_percent": 67.33,
+    "command": ".venv/bin/pytest tests/ -q"
+  },
+  "checks": {
+    "ruff": "pass",
+    "black": "pass",
+    "sphinx_warnings_as_errors": "pass",
+    "wheel_outside_checkout": "pass",
+    "quarto_html_build": "pass",
+    "pdf_visual_review": "all five pages",
+    "browser_preview": "Unavailable: no browser control surface"
+  },
+  "benchmark": {
+    "profiles": 4800,
+    "fits": 24000,
+    "metric_recomputations_checked": 100,
+    "current_methods_match_frozen_estimates": 16
+  },
+  "workflows": {
+    "date": "2026-10-23",
+    "fixture": "bundled demo: 96 channels, 3 samples, 24 mutations",
+    "engines": {
+      "DVC": "3.66.1",
+      "Nextflow": "26.10.3",
+      "R": "4.6.1",
+      "Snakemake": "9.27.1",
+      "Java": "21 (isolated Nextflow runtime)"
+    },
+    "output_sha256": {
+      "dvc": "9ac7dd1c596385d938fa5f61d80c84b81d00e342a3a5b72238f847dda73ee24e",
+      "snakemake": "9ac7dd1c596385d938fa5f61d80c84b81d00e342a3a5b72238f847dda73ee24e",
+      "nextflow": "9ac7dd1c596385d938fa5f61d80c84b81d00e342a3a5b72238f847dda73ee24e",
+      "R": "9ac7dd1c596385d938fa5f61d80c84b81d00e342a3a5b72238f847dda73ee24e"
+    },
+    "scope": "Local execution only; no remote pipeline deployment"
+  },
+  "alphamissense": {
+    "genome": "hg38",
+    "source_record": "https://zenodo.org/records/10813168",
+    "license": "CC-BY-4.0",
+    "size": 642961469,
+    "md5": "9fd167735f16a1b87da6eb3e4c25fcb5",
+    "sha256": "0516cfd71c0767ac8f9c469252d429000e94e02c008b6e3a46d4b4646fcd3475",
+    "index_sha256": "79e270945664a9a9b849dcca70fd3b7e31805d46fb43cc587a449821e05f958c"
+  },
+  "limitations": [
+    "Synthetic attribution benchmark, not clinical validation",
+    "AlphaMissense does not change driver scores",
+    "No external release or submission"
+  ]
+}

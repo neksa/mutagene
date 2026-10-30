@@ -1,0 +1,44 @@
+{
+  "pytest": {
+    "command": ".venv/bin/python -m pytest -q",
+    "status": "pass",
+    "log": "validation/pytest.log",
+    "passed": 518,
+    "coverage_percent": 68.97
+  },
+  "build": {
+    "command": "uv build --out-dir /tmp/mutagene-final-dist",
+    "status": "pass",
+    "log": "validation/build.log"
+  },
+  "docs": {
+    "command": "uv run --with-requirements docs/requirements.txt --no-project sphinx-build -b html docs /tmp/mutagene-final-docs -W --keep-going",
+    "status": "pass",
+    "log": "validation/docs.log"
+  },
+  "wheel": {
+    "command": "Run tests/packaging/smoke_wheel.py outside the checkout with the clean installed wheel and web extra.",
+    "status": "pass",
+    "log": "validation/wheel.log"
+  },
+  "ruff": {
+    "command": ".venv/bin/ruff check mutagene tests",
+    "status": "pass",
+    "log": "validation/ruff.log"
+  },
+  "black": {
+    "command": ".venv/bin/black --check mutagene tests",
+    "status": "pass",
+    "log": "validation/black.log"
+  },
+  "signeR": {
+    "fits": 216,
+    "errors": 0,
+    "profiles": 96,
+    "independent_chain_pairs": 24,
+    "sampling_convergence": "not established",
+    "active_pairs": 20,
+    "active_pairs_rhat_above_1_01": 19,
+    "active_pairs_ess_below_100": 18
+  }
+}

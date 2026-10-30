@@ -1,0 +1,7 @@
+{
+  "source_and_input_hashes": "pass",
+  "stable_simplex_constraints": "pass",
+  "independent_nll_attribution_and_optimality_checks": 1536,
+  "reproduced_optimizer_failures": 332,
+  "normalized_candidates_better_than_fallback": 327
+}

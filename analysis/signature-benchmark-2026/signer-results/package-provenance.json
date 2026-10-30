@@ -1,0 +1,14 @@
+{
+  "upstream_repository": "https://git.bioconductor.org/packages/signeR",
+  "upstream_commit": "9a035cd1b9eb57eaf275392e58a71b695ca9bdd3",
+  "installed_files": {
+    "/tmp/mutagene-signer-library/signeR/DESCRIPTION": {
+      "sha256": "04cb39afb8008dea6260cad83070cfd15d0d647208861049f31906849b623119",
+      "bytes": 2031
+    },
+    "/tmp/mutagene-signer-library/signeR/libs/signeR.so": {
+      "sha256": "e7630db64256bf6f6f85e0a1a24b655ab56f764f476b88622d00db93101bce0a",
+      "bytes": 228952
+    }
+  }
+}

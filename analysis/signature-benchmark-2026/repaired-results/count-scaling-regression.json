@@ -1,0 +1,26 @@
+[
+  {
+    "multiplier": 1,
+    "nll_per_mutation": 4.28488603455279,
+    "optimality_gap": 2.8729825096718287e-07,
+    "weight_sum": 1.0,
+    "fallback": null,
+    "exposure_l1_from_first": 0.0
+  },
+  {
+    "multiplier": 20,
+    "nll_per_mutation": 4.28488603455279,
+    "optimality_gap": 2.8729825096718287e-07,
+    "weight_sum": 1.0,
+    "fallback": null,
+    "exposure_l1_from_first": 0.0
+  },
+  {
+    "multiplier": 500,
+    "nll_per_mutation": 4.28488603455279,
+    "optimality_gap": 2.8729825096718287e-07,
+    "weight_sum": 1.0,
+    "fallback": null,
+    "exposure_l1_from_first": 0.0
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "status": "complete",
+  "screen_profiles": 608,
+  "screen_estimates": 3648,
+  "boundary_profiles": 64,
+  "transition_profiles": 512,
+  "transition_estimates": 1536,
+  "production_default_changed": false,
+  "decision": "Retain the current default. The gradual-transition candidate improves mean transition-region accuracy but remains experimental."
+}

@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-23",
+  "full_suite": {
+    "passed": 454,
+    "coverage_percent": 67.83
+  },
+  "additional_cli_test": {
+    "passed": 1,
+    "test": "tests/cli/test_sparse_command.py"
+  },
+  "checks": {
+    "ruff": "pass",
+    "black": "pass",
+    "git_diff_check": "pass",
+    "strict_sphinx": "pass",
+    "installed_wheel_smoke": "pass",
+    "installed_wheel_sparse_background_only": "pass",
+    "original_bundle_hashes_and_100_metric_recomputations": "pass",
+    "sparse_source_hashes_pairings_simplex_and_200_metric_recomputations": "pass",
+    "quarto_original_and_sparse_reports": "pass",
+    "static_chart_visual_inspection": "pass"
+  },
+  "evaluation_profiles": 768,
+  "evaluation_fits": 20736,
+  "unresolved_evaluation_errors": 0,
+  "tuning_profiles": 192,
+  "tuning_fits": 768,
+  "limitations": [
+    "Browser interaction receives no live browser verification.",
+    "The application-note PDF covers the initial benchmark only."
+  ]
+}

@@ -1,0 +1,10 @@
+results/spa/
+results/spa_corrected/
+results-reproduced/
+.quarto/
+
+sparse-results/evaluate/spa/
+
+repaired-results/*/spa/
+
+background-results/*/spa/

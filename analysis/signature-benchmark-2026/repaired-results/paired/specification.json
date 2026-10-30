@@ -1,0 +1,64 @@
+{
+  "phase": "paired",
+  "seed": 202610232,
+  "profiles": 768,
+  "methods": [
+    "MLE",
+    "MLE-scaled",
+    "Frobenius",
+    "FrobeniusZero",
+    "Cos",
+    "Elastic",
+    "KL",
+    "JS",
+    "AICc",
+    "BIC",
+    "Compat",
+    "sparse-aicc",
+    "sparse-bic",
+    "SigProfilerAssignment"
+  ],
+  "source_commit": "e94bac6e9b04fb13500d1904b5e0e8d58b00d8ad",
+  "upstream_input_hashes": {
+    "input/COSMIC_v3_SBS_GRCh38.txt": "46a06034c705c828cbfaaefad1764dd1c6f1bbbf5444664dca851c7e7a0984e8",
+    "input/COSMIC_v3.3.1_SBS_GRCh38.txt": "1907ded7e70d01f14d29b297b40024b0b1def6b047f89f3d7aac6ad749ca7cb4",
+    "cosmic tissue data/signature_contributions_WGS_Liver-HCC.dat": "a9e9c7580b23ad9c947ed2bc9930b47a5e6d2239af9e11045afcf0ab93cf2e22",
+    "cosmic tissue data/signature_contributions_WGS_Stomach-AdenoCA.dat": "2f2ec6fb2de65c349dbb6324049b705fcd6300e8d1131b26e062bcb931d10546",
+    "cosmic tissue data/signature_contributions_WGS_Head-SCC.dat": "9e497f683d34049808a4d162f8c8ad0bdabdc39d93b3b077684032f5eac37ec7",
+    "cosmic tissue data/signature_contributions_WGS_ColoRect-AdenoCA.dat": "a761db7a32ead7617d74d011bf855989fd5f3a93b911fe7ab82530c55ce8216a",
+    "cosmic tissue data/signature_contributions_WGS_Lung-AdenoCA.dat": "daac200cbb71073d0b0b623641e2444a2ce806335bc90de6a28b5a3baecdf722",
+    "cosmic tissue data/signature_contributions_WGS_Skin-Melanoma.dat": "1bed12c59943500b7e29527de113199be90297672e938f497484153ca65ca2a3",
+    "cosmic tissue data/signature_contributions_WGS_Lymph-BNHL.dat": "10c5557b25b6625ccd29d272e30c78b8a3774f95868bcc9d3b0af6feaae7f20b",
+    "cosmic tissue data/signature_contributions_WGS_CNS-GBM.dat": "32480dc6b7ede49fbadace61e844d602b7eec3896bfdb2b22e0d98ca54cd6821"
+  },
+  "source_sha256": {
+    "likelihood.py": "fcbb845373bf43f104d9caee9ba38599a3804ff7360da6fa5b2407eb75e54fd4",
+    "identify.py": "efb85df9a5de5cefaa51b8778b61eb6d268811287bdf81a143d50e14ddea53d3",
+    "sparse.py": "3d58d777cb2a2c85a3af4f5a3971b88ff7eaf5a2363eb0015460dfa63f035afd"
+  },
+  "baseline_source_sha256": "734aa458ba585567fcc6f1862ee5950b6f3b466c807cbcd6ec55730ee9fd0158",
+  "runner_sha256": "3f3da08a9a9b8bb53407fde20347546b366477f611baddcf61bce978b690b8e7",
+  "versions": {
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "pandas": "3.1.0",
+    "SigProfilerAssignment": "1.1.5"
+  },
+  "frozen_sparse_criterion": {
+    "selected": "sparse-bic",
+    "candidates": {
+      "sparse-aicc": {
+        "mean_error": 0.3270122071552683,
+        "failures": 0
+      },
+      "sparse-bic": {
+        "mean_error": 0.29216280964274477,
+        "failures": 0
+      }
+    },
+    "tuning_metrics_sha256": "ccf9492c37c95d5c2e8f5246e04a3e50dc552dd87395e8fb8286000cfb65b711",
+    "sparse_source_sha256": "6eefec63fcd4498fd9c1f4e588422cfed6a9f9e11edd9bd909dc8775a9e20eaf"
+  },
+  "prespecified_assessment": "No retuning. Report all conditions and burdens. Primary comparisons: repaired MLE, archived MLE, sparse BIC, SPA.",
+  "limitations": "Paired profiles inform the repair. Fresh draws share empirical exposure distributions and are not independent patient data."
+}

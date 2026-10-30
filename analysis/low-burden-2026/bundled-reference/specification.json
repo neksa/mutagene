@@ -1,0 +1,5 @@
+{
+  "profiles": 128,
+  "selection": "sample_index == 0 across every cancer, condition, and low burden; no further tuning",
+  "reference": "Bundled COSMICv3"
+}

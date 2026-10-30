@@ -1,0 +1,52 @@
+{
+  "seed": 202610293,
+  "samples_per_cancer": 4,
+  "burdens": [
+    50,
+    100
+  ],
+  "truth_cutoff": false,
+  "selection_sha256": "49c0708e9a50b048c655940c9d6a0d412e102a59f1b212c85a29f494f5f0d617",
+  "selection": {
+    "config": [
+      "forward-BIC",
+      "forward",
+      0.0,
+      true,
+      false
+    ],
+    "maximum_burden": 1000,
+    "applies_to": "Joint-background BIC; fixed and block policies retain their current search.",
+    "tuning_metrics_sha256": "aac8c3881a7885e2d68292b3e0cfa1f6973548113c969df6a87e267064680029",
+    "rationale": "Forward BIC improves both mean error metrics in all four conditions at 100, 250, 500, and 1000 mutations. Higher burdens show condition-specific regressions.",
+    "validation_gate": {
+      "low_burdens": [
+        100,
+        250,
+        500,
+        1000
+      ],
+      "metrics": [
+        "aggregate_null_tae",
+        "paper_tae"
+      ],
+      "requirement": "Both metrics decrease at each low burden; the paired 95% interval upper bound is below zero for each burden. Report each condition and cancer.",
+      "high_burden_requirement": "All weights match the existing search exactly above 1000 mutations.",
+      "sensitivity": "Repeat at 50 and 100 mutations without the ten-mutation generating-truth cutoff.",
+      "no_retuning": "Keep this policy fixed during validation; retain any failing result."
+    },
+    "limitations": [
+      "The policy threshold follows synthetic tuning, not a biological boundary.",
+      "Fresh draws share empirical exposure distributions; no patient-level generalization claim."
+    ]
+  },
+  "source_sha256": {
+    "validate.py": "5cfb10799c530afa75dbff0561b05d590562976299509bcafe95f1f1630c8c11",
+    "panel.py": "c19c477ccd887f8662f8778b502326f8f3b52d70c626ca77d38446e7750d7db5",
+    "candidates.py": "66fe9db4efcfe5f0d9142847ed99eb96ff226bbae5b64f26979566836ad4451f"
+  },
+  "package_source_sha256": {
+    "sparse.py": "cba346005a0ad0c135fa15d7a83cd6e67dfd1ea3324f9cf8bc2a453d51e59fd1",
+    "likelihood.py": "66635ac489665d1179334100ed16b684d27e274769c4fc09c93d5f3d09965a22"
+  }
+}

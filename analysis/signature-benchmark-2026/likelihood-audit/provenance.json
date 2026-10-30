@@ -1,0 +1,18 @@
+{
+  "numpy": "2.5.4",
+  "scipy": "1.18.1",
+  "source_hashes": {
+    "sparse.py": "6eefec63fcd4498fd9c1f4e588422cfed6a9f9e11edd9bd909dc8775a9e20eaf",
+    "identify.py": "734aa458ba585567fcc6f1862ee5950b6f3b466c807cbcd6ec55730ee9fd0158"
+  },
+  "audit_script_sha256": "8e3183e619126d36d4690aa66d2efe515a66344d40e8b97b5c64411d51f38322",
+  "input_hashes": {
+    "inputs.npz": "2a143013ea3285c8f67e49edc7562eb52c70c348fc8fbeb388697b2305e5765a",
+    "estimates.npz": "c29638e0a120cbd2e229ce3aa82e815b43bda5cd6ac426694c8934a0e224e751",
+    "metrics.tsv": "2e763c23159b2fe8defbe5cbbd7a413571bf4c62ca5193dee239111877c8571b",
+    "samples.tsv": "d4338dcbc6e3c4b18b49bc03095568165f6d457cfd9f7d85fac3530bc5fbb4cc"
+  },
+  "stable_fits": 1536,
+  "stable_successes": 1536,
+  "maximum_stable_gap_bound": 1.5639392326738388e-05
+}

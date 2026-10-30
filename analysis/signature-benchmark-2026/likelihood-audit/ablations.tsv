@@ -1,0 +1,97 @@
+sample	burden	background	variant	success	message	iterations	nll_per_mutation	gap_bound
+evaluate_Liver-HCC_0_100_clean_0	100	False	stable	True	Optimization terminated successfully	30	4.292479424558237	2.409620221133224e-07
+evaluate_Liver-HCC_0_100_clean_0	100	False	raw-equality-gradient	False	Positive directional derivative for linesearch	48	4.292479424558482	7.920290243657035e-07
+evaluate_Liver-HCC_0_100_clean_0	100	False	scaled-equality-finite-difference	True	Optimization terminated successfully	30	4.292479424558239	2.0956697488472287e-07
+evaluate_Liver-HCC_0_100_clean_0	100	False	scaled-inequality-gradient	True	Optimization terminated successfully	31	4.292479424558183	5.1336725981343534e-08
+evaluate_Liver-HCC_0_100_clean_0	100	True	stable	True	Optimization terminated successfully	31	4.284886034552786	2.8729823675632815e-07
+evaluate_Liver-HCC_0_100_clean_0	100	True	raw-equality-gradient	False	Positive directional derivative for linesearch	50	4.2848860345823265	5.154845794663743e-08
+evaluate_Liver-HCC_0_100_clean_0	100	True	scaled-equality-finite-difference	True	Optimization terminated successfully	31	4.284886034552793	4.942776254956982e-07
+evaluate_Liver-HCC_0_100_clean_0	100	True	scaled-inequality-gradient	True	Optimization terminated successfully	31	4.28488603455271	7.606904106616241e-08
+evaluate_Liver-HCC_0_100_out_of_reference_20_0	100	False	stable	True	Optimization terminated successfully	28	4.153164384509129	2.8782306182861817e-07
+evaluate_Liver-HCC_0_100_out_of_reference_20_0	100	False	raw-equality-gradient	False	Positive directional derivative for linesearch	50	4.153164384517102	3.765259014576472e-07
+evaluate_Liver-HCC_0_100_out_of_reference_20_0	100	False	scaled-equality-finite-difference	True	Optimization terminated successfully	28	4.153164384509126	2.8509893645889406e-07
+evaluate_Liver-HCC_0_100_out_of_reference_20_0	100	False	scaled-inequality-gradient	True	Optimization terminated successfully	27	4.153164384509129	2.878282763241202e-07
+evaluate_Liver-HCC_0_100_out_of_reference_20_0	100	True	stable	True	Optimization terminated successfully	29	4.14695532060778	1.117340016065782e-06
+evaluate_Liver-HCC_0_100_out_of_reference_20_0	100	True	raw-equality-gradient	False	Positive directional derivative for linesearch	61	4.146955320649583	1.0272409096678814e-06
+evaluate_Liver-HCC_0_100_out_of_reference_20_0	100	True	scaled-equality-finite-difference	True	Optimization terminated successfully	29	4.1469553206077725	1.1055502713297471e-06
+evaluate_Liver-HCC_0_100_out_of_reference_20_0	100	True	scaled-inequality-gradient	True	Optimization terminated successfully	29	4.146955320607779	1.117340281409085e-06
+evaluate_Liver-HCC_0_100_uniform_20_0	100	False	stable	True	Optimization terminated successfully	20	4.379766014318816	1.8635358256524626e-07
+evaluate_Liver-HCC_0_100_uniform_20_0	100	False	raw-equality-gradient	False	Positive directional derivative for linesearch	47	4.379766014778349	1.9790849186129833e-06
+evaluate_Liver-HCC_0_100_uniform_20_0	100	False	scaled-equality-finite-difference	True	Optimization terminated successfully	20	4.379766014318822	4.4523977305033213e-07
+evaluate_Liver-HCC_0_100_uniform_20_0	100	False	scaled-inequality-gradient	True	Optimization terminated successfully	21	4.379766014318852	6.599498725279318e-09
+evaluate_Liver-HCC_0_100_uniform_20_0	100	True	stable	True	Optimization terminated successfully	23	4.3499075762762365	1.575401324949155e-07
+evaluate_Liver-HCC_0_100_uniform_20_0	100	True	raw-equality-gradient	False	Positive directional derivative for linesearch	31	4.3499075762875945	7.599803075741818e-08
+evaluate_Liver-HCC_0_100_uniform_20_0	100	True	scaled-equality-finite-difference	True	Optimization terminated successfully	23	4.349907576276248	1.5277146681036413e-07
+evaluate_Liver-HCC_0_100_uniform_20_0	100	True	scaled-inequality-gradient	True	Optimization terminated successfully	23	4.349907576276236	1.5754112236976425e-07
+evaluate_Liver-HCC_0_100_substitution_noise_20_0	100	False	stable	True	Optimization terminated successfully	22	4.389637613498792	6.591882888429268e-07
+evaluate_Liver-HCC_0_100_substitution_noise_20_0	100	False	raw-equality-gradient	False	Positive directional derivative for linesearch	40	4.389637613607669	7.413914171472413e-07
+evaluate_Liver-HCC_0_100_substitution_noise_20_0	100	False	scaled-equality-finite-difference	True	Optimization terminated successfully	22	4.389637613498811	8.287990311828253e-07
+evaluate_Liver-HCC_0_100_substitution_noise_20_0	100	False	scaled-inequality-gradient	True	Optimization terminated successfully	22	4.389637613498809	2.2493075246821093e-07
+evaluate_Liver-HCC_0_100_substitution_noise_20_0	100	True	stable	True	Optimization terminated successfully	27	4.361624890466619	7.996831885570543e-07
+evaluate_Liver-HCC_0_100_substitution_noise_20_0	100	True	raw-equality-gradient	False	Positive directional derivative for linesearch	67	4.36162489060996	2.2622034148156445e-06
+evaluate_Liver-HCC_0_100_substitution_noise_20_0	100	True	scaled-equality-finite-difference	True	Optimization terminated successfully	27	4.361624890466658	8.189590929852386e-07
+evaluate_Liver-HCC_0_100_substitution_noise_20_0	100	True	scaled-inequality-gradient	True	Optimization terminated successfully	27	4.361624890466285	1.883523381707164e-07
+evaluate_Liver-HCC_0_2000_clean_0	2000	False	stable	True	Optimization terminated successfully	35	4.381732770829889	2.396200018406347e-07
+evaluate_Liver-HCC_0_2000_clean_0	2000	False	raw-equality-gradient	True	Optimization terminated successfully	260	4.38173277082978	2.0549117962787022e-12
+evaluate_Liver-HCC_0_2000_clean_0	2000	False	scaled-equality-finite-difference	True	Optimization terminated successfully	35	4.381732770829945	6.015457589825246e-07
+evaluate_Liver-HCC_0_2000_clean_0	2000	False	scaled-inequality-gradient	True	Optimization terminated successfully	35	4.381732770829785	7.306382143745793e-08
+evaluate_Liver-HCC_0_2000_clean_0	2000	True	stable	True	Optimization terminated successfully	38	4.381594898686586	2.1151103046790354e-07
+evaluate_Liver-HCC_0_2000_clean_0	2000	True	raw-equality-gradient	True	Optimization terminated successfully	302	4.3815948986864495	6.166511745675507e-12
+evaluate_Liver-HCC_0_2000_clean_0	2000	True	scaled-equality-finite-difference	True	Optimization terminated successfully	38	4.381594898686763	4.327646780932781e-07
+evaluate_Liver-HCC_0_2000_clean_0	2000	True	scaled-inequality-gradient	True	Optimization terminated successfully	37	4.381594898686587	2.1129976834899367e-07
+evaluate_Liver-HCC_0_2000_out_of_reference_20_0	2000	False	stable	True	Optimization terminated successfully	39	4.387677773673618	1.3183602578514808e-06
+evaluate_Liver-HCC_0_2000_out_of_reference_20_0	2000	False	raw-equality-gradient	True	Optimization terminated successfully	373	4.38767777367356	1.7412293829011105e-11
+evaluate_Liver-HCC_0_2000_out_of_reference_20_0	2000	False	scaled-equality-finite-difference	True	Optimization terminated successfully	39	4.387677773673707	2.5142711967962583e-06
+evaluate_Liver-HCC_0_2000_out_of_reference_20_0	2000	False	scaled-inequality-gradient	True	Optimization terminated successfully	45	4.38767777367363	1.552851160990798e-07
+evaluate_Liver-HCC_0_2000_out_of_reference_20_0	2000	True	stable	True	Optimization terminated successfully	40	4.387672733812637	3.161823265429575e-07
+evaluate_Liver-HCC_0_2000_out_of_reference_20_0	2000	True	raw-equality-gradient	True	Optimization terminated successfully	546	4.387672733812575	2.304378909911975e-12
+evaluate_Liver-HCC_0_2000_out_of_reference_20_0	2000	True	scaled-equality-finite-difference	True	Optimization terminated successfully	40	4.38767273381273	1.5309674663566142e-06
+evaluate_Liver-HCC_0_2000_out_of_reference_20_0	2000	True	scaled-inequality-gradient	True	Optimization terminated successfully	42	4.387672733812695	1.6608712405385972e-07
+evaluate_Liver-HCC_0_2000_uniform_20_0	2000	False	stable	True	Optimization terminated successfully	31	4.43602119312906	1.9709452603322575e-07
+evaluate_Liver-HCC_0_2000_uniform_20_0	2000	False	raw-equality-gradient	True	Optimization terminated successfully	472	4.436021193128944	8.972822485020515e-13
+evaluate_Liver-HCC_0_2000_uniform_20_0	2000	False	scaled-equality-finite-difference	True	Optimization terminated successfully	31	4.4360211931292195	3.2680520845040917e-07
+evaluate_Liver-HCC_0_2000_uniform_20_0	2000	False	scaled-inequality-gradient	True	Optimization terminated successfully	31	4.436021193128923	2.747549621151535e-08
+evaluate_Liver-HCC_0_2000_uniform_20_0	2000	True	stable	True	Optimization terminated successfully	35	4.432355227398601	2.9342267038323655e-07
+evaluate_Liver-HCC_0_2000_uniform_20_0	2000	True	raw-equality-gradient	True	Optimization terminated successfully	199	4.432355227398503	7.207567875866516e-13
+evaluate_Liver-HCC_0_2000_uniform_20_0	2000	True	scaled-equality-finite-difference	True	Optimization terminated successfully	35	4.432355227398644	4.2447686809943264e-07
+evaluate_Liver-HCC_0_2000_uniform_20_0	2000	True	scaled-inequality-gradient	True	Optimization terminated successfully	34	4.4323552273986095	2.9342218410555176e-07
+evaluate_Liver-HCC_0_2000_substitution_noise_20_0	2000	False	stable	True	Optimization terminated successfully	31	4.422428791652921	9.383285981545697e-08
+evaluate_Liver-HCC_0_2000_substitution_noise_20_0	2000	False	raw-equality-gradient	True	Optimization terminated successfully	519	4.4224287916529015	8.298917109073045e-13
+evaluate_Liver-HCC_0_2000_substitution_noise_20_0	2000	False	scaled-equality-finite-difference	True	Optimization terminated successfully	31	4.422428791653003	2.399075582637522e-07
+evaluate_Liver-HCC_0_2000_substitution_noise_20_0	2000	False	scaled-inequality-gradient	True	Optimization terminated successfully	30	4.42242879165399	5.107393044045949e-07
+evaluate_Liver-HCC_0_2000_substitution_noise_20_0	2000	True	stable	True	Optimization terminated successfully	35	4.411735581479947	2.0301992642579592e-07
+evaluate_Liver-HCC_0_2000_substitution_noise_20_0	2000	True	raw-equality-gradient	True	Optimization terminated successfully	533	4.41173558147963	5.728750807065808e-13
+evaluate_Liver-HCC_0_2000_substitution_noise_20_0	2000	True	scaled-equality-finite-difference	True	Optimization terminated successfully	35	4.41173558147998	2.141897761376299e-07
+evaluate_Liver-HCC_0_2000_substitution_noise_20_0	2000	True	scaled-inequality-gradient	True	Optimization terminated successfully	43	4.411735581479867	7.421682239883154e-07
+evaluate_Liver-HCC_0_50000_clean_0	50000	False	stable	True	Optimization terminated successfully	33	4.389255385067547	3.797304324315576e-07
+evaluate_Liver-HCC_0_50000_clean_0	50000	False	raw-equality-gradient	False	Iteration limit reached	2000	4.389255385067484	1.4204193377054253e-12
+evaluate_Liver-HCC_0_50000_clean_0	50000	False	scaled-equality-finite-difference	True	Optimization terminated successfully	33	4.389255385067663	1.4483577768231726e-06
+evaluate_Liver-HCC_0_50000_clean_0	50000	False	scaled-inequality-gradient	True	Optimization terminated successfully	32	4.389255385067548	3.7972993927049004e-07
+evaluate_Liver-HCC_0_50000_clean_0	50000	True	stable	True	Optimization terminated successfully	34	4.3892488090975466	5.780166900670736e-08
+evaluate_Liver-HCC_0_50000_clean_0	50000	True	raw-equality-gradient	False	Iteration limit reached	2000	4.389248809098248	5.1367021747239505e-11
+evaluate_Liver-HCC_0_50000_clean_0	50000	True	scaled-equality-finite-difference	True	Optimization terminated successfully	34	4.3892488090978805	1.1924319621714474e-06
+evaluate_Liver-HCC_0_50000_clean_0	50000	True	scaled-inequality-gradient	True	Optimization terminated successfully	33	4.389248809097547	5.778728129346433e-08
+evaluate_Liver-HCC_0_50000_out_of_reference_20_0	50000	False	stable	True	Optimization terminated successfully	43	4.355197697696179	4.1953415608197986e-07
+evaluate_Liver-HCC_0_50000_out_of_reference_20_0	50000	False	raw-equality-gradient	False	Iteration limit reached	2000	4.355197697726053	4.72625272252003e-10
+evaluate_Liver-HCC_0_50000_out_of_reference_20_0	50000	False	scaled-equality-finite-difference	True	Optimization terminated successfully	42	4.355197697696003	3.4599025866555166e-07
+evaluate_Liver-HCC_0_50000_out_of_reference_20_0	50000	False	scaled-inequality-gradient	True	Optimization terminated successfully	44	4.355197697695752	2.0947103474000528e-07
+evaluate_Liver-HCC_0_50000_out_of_reference_20_0	50000	True	stable	True	Optimization terminated successfully	41	4.35511297465812	7.058816930971545e-08
+evaluate_Liver-HCC_0_50000_out_of_reference_20_0	50000	True	raw-equality-gradient	False	Iteration limit reached	2000	4.3551129746651505	3.036129125888465e-10
+evaluate_Liver-HCC_0_50000_out_of_reference_20_0	50000	True	scaled-equality-finite-difference	True	Optimization terminated successfully	41	4.355112974658168	2.055037663373227e-07
+evaluate_Liver-HCC_0_50000_out_of_reference_20_0	50000	True	scaled-inequality-gradient	True	Optimization terminated successfully	41	4.35511297465812	7.058857409703023e-08
+evaluate_Liver-HCC_0_50000_uniform_20_0	50000	False	stable	True	Optimization terminated successfully	31	4.459407158558125	8.292287205780013e-07
+evaluate_Liver-HCC_0_50000_uniform_20_0	50000	False	raw-equality-gradient	False	Iteration limit reached	2000	4.459407158558176	2.8563151843741252e-11
+evaluate_Liver-HCC_0_50000_uniform_20_0	50000	False	scaled-equality-finite-difference	True	Optimization terminated successfully	31	4.459407158558155	1.1331030371763973e-06
+evaluate_Liver-HCC_0_50000_uniform_20_0	50000	False	scaled-inequality-gradient	True	Optimization terminated successfully	42	4.459407158557947	6.285161235908276e-08
+evaluate_Liver-HCC_0_50000_uniform_20_0	50000	True	stable	True	Optimization terminated successfully	39	4.455493724253823	9.829382909831708e-07
+evaluate_Liver-HCC_0_50000_uniform_20_0	50000	True	raw-equality-gradient	False	Iteration limit reached	2000	4.455493724253486	1.654709702592072e-11
+evaluate_Liver-HCC_0_50000_uniform_20_0	50000	True	scaled-equality-finite-difference	True	Optimization terminated successfully	39	4.45549372425335	2.644702292720069e-07
+evaluate_Liver-HCC_0_50000_uniform_20_0	50000	True	scaled-inequality-gradient	True	Optimization terminated successfully	39	4.455493724253327	2.3361606782401623e-07
+evaluate_Liver-HCC_0_50000_substitution_noise_20_0	50000	False	stable	True	Optimization terminated successfully	32	4.446352345077827	4.29832764048399e-07
+evaluate_Liver-HCC_0_50000_substitution_noise_20_0	50000	False	raw-equality-gradient	False	Iteration limit reached	2000	4.4463523450836755	1.1639855745926297e-10
+evaluate_Liver-HCC_0_50000_substitution_noise_20_0	50000	False	scaled-equality-finite-difference	True	Optimization terminated successfully	32	4.446352345077406	3.8971729310333103e-07
+evaluate_Liver-HCC_0_50000_substitution_noise_20_0	50000	False	scaled-inequality-gradient	True	Optimization terminated successfully	38	4.446352345077393	1.2285967398995012e-07
+evaluate_Liver-HCC_0_50000_substitution_noise_20_0	50000	True	stable	True	Optimization terminated successfully	37	4.436907164339697	7.632462017959085e-08
+evaluate_Liver-HCC_0_50000_substitution_noise_20_0	50000	True	raw-equality-gradient	False	Iteration limit reached	2000	4.436907164340695	2.583628866403842e-10
+evaluate_Liver-HCC_0_50000_substitution_noise_20_0	50000	True	scaled-equality-finite-difference	True	Optimization terminated successfully	37	4.436907164339738	1.123487091692077e-06
+evaluate_Liver-HCC_0_50000_substitution_noise_20_0	50000	True	scaled-inequality-gradient	True	Optimization terminated successfully	38	4.436907164339697	7.632531973111867e-08

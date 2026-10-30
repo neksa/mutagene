@@ -1,0 +1,43 @@
+{
+  "purpose": "Compare native fixed-catalog signeR inference on the same profiles as all existing comparators.",
+  "profiles": 96,
+  "primary_fits": 192,
+  "independent_repeat_fits": 24,
+  "selection": "sample_index == 0 in every cancer/condition/burden cell; no selection by fit accuracy",
+  "phase": "subset of background-results/fresh, seed 202610273",
+  "methods": [
+    "signeR",
+    "signeR+background"
+  ],
+  "package": "signeR",
+  "version": "2.14.0",
+  "upstream_commit": "9a035cd1b9eb57eaf275392e58a71b695ca9bdd3",
+  "settings": {
+    "fixedP": true,
+    "main_burn": 10000,
+    "main_eval": 2000,
+    "estimate_hyper": false,
+    "opportunities": "ones; benchmark reference already represents channel probabilities",
+    "parallelization": "sequential within fit; eight independent workers"
+  },
+  "prior": "Native 2.14.0 defaults; no hyperparameter tuning on benchmark truth.",
+  "estimator": "Native Median_exp, then divide by its total to compare relative attribution. Preserve raw median counts and raw total/burden.",
+  "background_variant": "Append the same six context-independent components. This is a configured reference extension, not a native signeR null-test feature.",
+  "diagnostics": "Single-chain split Rhat and ESS for every fit; independent second chains for both variants in all 12 Liver-HCC condition/burden cells. Do not equate numerical completion with convergence.",
+  "ranking": "Primary: aggregate_null_tae. Also report paper_tae, background mass, cosine, active known count, runtime, raw-scale sensitivity, and chain stability.",
+  "input_sha256": {
+    "inputs.npz": "01e33e363f1c2f67e2df27eafad10e23b5c5af03dfedc56dd75b07d1a5f726df",
+    "samples.tsv": "5c2e17bb090275b43e2f25034c7ac86948d88efbbd946a21025201879ca1acc0",
+    "reference.tsv": "8bb65b11873699d97cd47dea1efcb6b1c181889d26189ded7080ff5bf48730a8",
+    "metrics.tsv": "fc6ccfe9af84865e6849d33ce8d8519cd88d31487b04b0f794fb4973e63b7bc4",
+    "estimates.npz": "d94ad64c950a5127e48f76a1a315d867cd2e0ec387dc500ce707fb7c60d38a03"
+  },
+  "adapter_sha256": "952cb5af7213c28dac1a74abf037fa10b0a80c2995aa04f5fdd5d296c2712a72",
+  "preparation_sha256": "1aed3916167fd45258d597593e9601e685f9725caca08c459b6304fc84d114ff",
+  "limitations": [
+    "A 96-profile stratified subset, not the full 768-profile panel.",
+    "Fixed-catalog attribution does not benchmark de novo discovery.",
+    "Single-profile fits use native fixed hyperparameters; they do not borrow information across profiles.",
+    "Existing synthetic opportunities do not validate opportunity correction on real genomic targets."
+  ]
+}

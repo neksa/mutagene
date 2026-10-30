@@ -1,0 +1,11 @@
+{
+  "status": "complete",
+  "goal": "Improve low-mutation-burden attribution without high-burden regression",
+  "validation_profiles": 1536,
+  "sensitivity_profiles": 256,
+  "bundled_reference_profiles": 128,
+  "production_exact_matches": 1792,
+  "high_burden_exact_matches": 512,
+  "test_count": 529,
+  "scope": "Local implementation and synthetic validation; no public release or patient-level validation."
+}

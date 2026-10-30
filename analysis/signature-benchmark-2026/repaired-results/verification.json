@@ -1,0 +1,22 @@
+{
+  "paired": {
+    "profiles": 768,
+    "fits": 20736,
+    "errors": 0,
+    "certified_full_mle_fits": 4608,
+    "certified_sparse_fits": 3072,
+    "metric_recomputations": 200,
+    "maximum_mle_gap": 1.563939360993416e-05,
+    "maximum_sparse_refit_gap": 1.999429971066835e-05
+  },
+  "fresh": {
+    "profiles": 768,
+    "fits": 22272,
+    "errors": 0,
+    "certified_full_mle_fits": 4608,
+    "certified_sparse_fits": 3072,
+    "metric_recomputations": 200,
+    "maximum_mle_gap": 1.08309244701843e-05,
+    "maximum_sparse_refit_gap": 1.998213223730616e-05
+  }
+}

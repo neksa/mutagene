@@ -1,0 +1,15 @@
+{
+  "selected": "sparse-bic",
+  "candidates": {
+    "sparse-aicc": {
+      "mean_error": 0.3270122071552683,
+      "failures": 0
+    },
+    "sparse-bic": {
+      "mean_error": 0.29216280964274477,
+      "failures": 0
+    }
+  },
+  "tuning_metrics_sha256": "ccf9492c37c95d5c2e8f5246e04a3e50dc552dd87395e8fb8286000cfb65b711",
+  "sparse_source_sha256": "6eefec63fcd4498fd9c1f4e588422cfed6a9f9e11edd9bd909dc8775a9e20eaf"
+}

@@ -1,0 +1,13 @@
+{
+  "method": "sparse-bic",
+  "background_selection": "joint",
+  "benchmark_label": "joint-BIC",
+  "basis": "Joint background selection reduces spurious clean background mass and improves unthresholded total attribution error over MLE in all 12 condition/burden cells in both panels.",
+  "tradeoffs": [
+    "Fixed-background BIC has lower mean total attribution error across the balanced four-condition panel.",
+    "Joint selection worsens thresholded known-signature error versus MLE in the fresh 100-mutation cells.",
+    "SigProfilerAssignment performs better at low burden.",
+    "Subset searches require more computation than full-model MLE."
+  ],
+  "scope": "A pragmatic shared default for the requested sparse fitting behavior; no claim of universal superiority or independent patient validation."
+}

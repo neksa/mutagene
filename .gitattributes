@@ -1,0 +1,12 @@
+
+# Collapse generated research artifacts during source review.
+analysis/**/*.html linguist-generated=true
+analysis/**/*.svg linguist-generated=true
+analysis/**/*.vl.json linguist-generated=true
+analysis/**/source/*.py linguist-generated=true
+analysis/**/baseline*/** linguist-generated=true
+# Preserve empty TSV fields and byte-identical generated HTML.
+analysis/**/*.tsv -whitespace
+analysis/**/*.html -whitespace
+# Historical RST headings contain seven equals signs.
+analysis/**/baseline*/**/*.rst conflict-marker-size=1000

@@ -1,0 +1,54 @@
+{
+  "source_url": "https://github.com/8medom/SigFitTest",
+  "source_commit": "e94bac6e9b04fb13500d1904b5e0e8d58b00d8ad",
+  "mutagene_base_commit": "357fedb986c2cf5e06f5ff4e9523b60aa7503482",
+  "fitter_sha256": "5242d3245ae855375866ab3c954288b232a0aed5c2675d05a9aac3134c317cdb",
+  "runner_sha256": "6a0ec0afe842fd0f1b3886c0e858f4b55f21c8fa9582c1c6d799afca179869f9",
+  "seed": 20261023,
+  "samples_per_cell": 25,
+  "replicates": 2,
+  "python": "3.12.12",
+  "platform": "macOS-15.5-arm64-arm-64bit",
+  "versions": {
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "pandas": "3.1.0",
+    "SigProfilerAssignment": "1.1.5"
+  },
+  "input_hashes": {
+    "input/COSMIC_v3_SBS_GRCh38.txt": "46a06034c705c828cbfaaefad1764dd1c6f1bbbf5444664dca851c7e7a0984e8",
+    "input/COSMIC_v3.3.1_SBS_GRCh38.txt": "1907ded7e70d01f14d29b297b40024b0b1def6b047f89f3d7aac6ad749ca7cb4",
+    "cosmic tissue data/signature_contributions_WGS_Liver-HCC.dat": "a9e9c7580b23ad9c947ed2bc9930b47a5e6d2239af9e11045afcf0ab93cf2e22",
+    "cosmic tissue data/signature_contributions_WGS_Stomach-AdenoCA.dat": "2f2ec6fb2de65c349dbb6324049b705fcd6300e8d1131b26e062bcb931d10546",
+    "cosmic tissue data/signature_contributions_WGS_Head-SCC.dat": "9e497f683d34049808a4d162f8c8ad0bdabdc39d93b3b077684032f5eac37ec7",
+    "cosmic tissue data/signature_contributions_WGS_ColoRect-AdenoCA.dat": "a761db7a32ead7617d74d011bf855989fd5f3a93b911fe7ab82530c55ce8216a",
+    "cosmic tissue data/signature_contributions_WGS_Lung-AdenoCA.dat": "daac200cbb71073d0b0b623641e2444a2ce806335bc90de6a28b5a3baecdf722",
+    "cosmic tissue data/signature_contributions_WGS_Skin-Melanoma.dat": "1bed12c59943500b7e29527de113199be90297672e938f497484153ca65ca2a3",
+    "cosmic tissue data/signature_contributions_WGS_Lymph-BNHL.dat": "10c5557b25b6625ccd29d272e30c78b8a3774f95868bcc9d3b0af6feaae7f20b",
+    "cosmic tissue data/signature_contributions_WGS_CNS-GBM.dat": "32480dc6b7ede49fbadace61e844d602b7eec3896bfdb2b22e0d98ca54cd6821"
+  },
+  "notes": [
+    "Reduced replication of the 2024 design, not an exact full-paper reproduction.",
+    "Uniform and substitution-specific noise are additional controls.",
+    "Scaled MLE is an experimental objective-rescaling ablation.",
+    "No exposure renormalization follows fitting or the ten-mutation reporting cutoff.",
+    "SPA repeats with its canonical reference channel order; frozen MutaGene fits remain identical."
+  ],
+  "elapsed_seconds": 715.7694237499963,
+  "output_hashes": {
+    "reference.tsv": "8bb65b11873699d97cd47dea1efcb6b1c181889d26189ded7080ff5bf48730a8",
+    "inputs.npz": "807330c33ac2313f4564b583a5ec7a66c1b5cfb445ac594d96dfe51692407066",
+    "spa_reference.tsv": "626d12a1ad97f94d20d62aaf0462d4160191c17e5a91bef9ad4aefb9245ca93a",
+    "samples.tsv": "ddee064c46421ef175517ba14b04b32e9ecc946d2de16b88696ff9870a69d80b",
+    "metrics.tsv": "e363528ed178760948e6e8caad9a56ca69602c4bf2f70b573d6b2bc3848f420f",
+    "estimates.npz": "ee6f1ae5e6cabf495b3cd44d3fd066f3c8b641ca75a4440e1be7475f66c05a5c",
+    "catalogs.tsv": "2f654c47b97c486989a451758f6938683dc1fdb6829b0f9a9034ed60ee466609",
+    "summary.tsv": "4bfca42471aa4df7b3418562ce80e997315ba2e7af9dcc392f5990ebdff5ef19"
+  },
+  "initial_runner_sha256": "577c03da9db5551b54228e318430b8de882b2e8bfa5cc144f518bf815cf7305d",
+  "comparator_rerun_sha256": "93389e186eabd00ce5d9b6dce9be9c389a39b1be8d664783b50ef1d7197dd508",
+  "comparator_elapsed_seconds": 160.13357158307917,
+  "current_reproduction_runner_sha256": "c98fe158816e11a7474df9b326d3c6a055fb26660e03006f2552f166c4c5aaca",
+  "current_comparator_rerun_sha256": "316db725e2054b6a43501ea0542a7e28b5f03160988587dd583630e557784149",
+  "current_summary_script_sha256": "2b4e40e0ff3e3d9fd26b33a57116b38b45114068f4b1d829949aaaba29e18f12"
+}

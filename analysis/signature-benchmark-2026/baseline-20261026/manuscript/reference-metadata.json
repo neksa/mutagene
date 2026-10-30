@@ -1,0 +1,833 @@
+[
+  {
+    "id": "41632843",
+    "source": "MED",
+    "pmid": "41632843",
+    "pmcid": "PMC12890849",
+    "fullTextIdList": {
+      "fullTextId": [
+        "PMC12890849"
+      ]
+    },
+    "doi": "10.1073/pnas.2524289123",
+    "title": "An interpretable molecular framework for predicting cancer driver missense mutations.",
+    "authorString": "Yang Y, Sun W, Liu Y, Zhang J, Li M.",
+    "authorList": {
+      "author": [
+        {
+          "fullName": "Yang Y",
+          "lastName": "Yang",
+          "firstName": "Yan",
+          "initials": "Y",
+          "authorId": {
+            "type": "ORCID",
+            "value": "0009-0006-7248-1837"
+          },
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "Jiangsu Key Laboratory of Drug Discovery and Translational Research for Brain Diseases, School of Basic Medical Sciences, Soochow University, Suzhou, Jiangsu 215123, China."
+              },
+              {
+                "affiliation": "Key Laboratory of Geriatric Diseases and Immunology, Ministry of Education, School of Basic Medical Sciences, Suzhou Medical College of Soochow University, Suzhou, Jiangsu 215123, China."
+              }
+            ]
+          }
+        },
+        {
+          "fullName": "Sun W",
+          "lastName": "Sun",
+          "firstName": "Weikang",
+          "initials": "W",
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "Jiangsu Key Laboratory of Drug Discovery and Translational Research for Brain Diseases, School of Basic Medical Sciences, Soochow University, Suzhou, Jiangsu 215123, China."
+              },
+              {
+                "affiliation": "Key Laboratory of Geriatric Diseases and Immunology, Ministry of Education, School of Basic Medical Sciences, Suzhou Medical College of Soochow University, Suzhou, Jiangsu 215123, China."
+              }
+            ]
+          }
+        },
+        {
+          "fullName": "Liu Y",
+          "lastName": "Liu",
+          "firstName": "Yang",
+          "initials": "Y",
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "Jiangsu Key Laboratory of Drug Discovery and Translational Research for Brain Diseases, School of Basic Medical Sciences, Soochow University, Suzhou, Jiangsu 215123, China."
+              },
+              {
+                "affiliation": "Key Laboratory of Geriatric Diseases and Immunology, Ministry of Education, School of Basic Medical Sciences, Suzhou Medical College of Soochow University, Suzhou, Jiangsu 215123, China."
+              }
+            ]
+          }
+        },
+        {
+          "fullName": "Zhang J",
+          "lastName": "Zhang",
+          "firstName": "Jian",
+          "initials": "J",
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "Jiangsu Key Laboratory of Drug Discovery and Translational Research for Brain Diseases, School of Basic Medical Sciences, Soochow University, Suzhou, Jiangsu 215123, China."
+              },
+              {
+                "affiliation": "Key Laboratory of Geriatric Diseases and Immunology, Ministry of Education, School of Basic Medical Sciences, Suzhou Medical College of Soochow University, Suzhou, Jiangsu 215123, China."
+              }
+            ]
+          }
+        },
+        {
+          "fullName": "Li M",
+          "lastName": "Li",
+          "firstName": "Minghui",
+          "initials": "M",
+          "authorId": {
+            "type": "ORCID",
+            "value": "0000-0002-7657-6589"
+          },
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "Jiangsu Key Laboratory of Drug Discovery and Translational Research for Brain Diseases, School of Basic Medical Sciences, Soochow University, Suzhou, Jiangsu 215123, China."
+              },
+              {
+                "affiliation": "Key Laboratory of Geriatric Diseases and Immunology, Ministry of Education, School of Basic Medical Sciences, Suzhou Medical College of Soochow University, Suzhou, Jiangsu 215123, China."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "authorIdList": {
+      "authorId": [
+        {
+          "type": "ORCID",
+          "value": "0000-0002-7657-6589"
+        },
+        {
+          "type": "ORCID",
+          "value": "0009-0006-7248-1837"
+        }
+      ]
+    },
+    "dataLinksTagsList": {
+      "dataLinkstag": [
+        "supporting_data"
+      ]
+    },
+    "journalInfo": {
+      "issue": "6",
+      "volume": "123",
+      "journalIssueId": 4101589,
+      "dateOfPublication": "2026 Feb",
+      "monthOfPublication": 2,
+      "yearOfPublication": 2026,
+      "journal": {
+        "medlineAbbreviation": "Proc Natl Acad Sci U S A",
+        "title": "Proceedings of the National Academy of Sciences of the United States of America",
+        "essn": "1091-6490",
+        "issn": "0027-8424",
+        "isoabbreviation": "Proc Natl Acad Sci U S A",
+        "nlmid": "7505876"
+      },
+      "printPublicationDate": "2026-02-01"
+    },
+    "pubYear": "2026",
+    "pageInfo": "e2524289123",
+    "abstractText": "Missense mutations play a critical role in human disease, contributing to both inherited disorders and cancer. However, accurately predicting their functional impact-particularly for cancer driver mutations-remains a major challenge due to limited validated labels and the complex molecular basis of oncogenesis. Here, we systematically characterized over 120,000 missense variants across pathogenic, benign, driver, passenger, recurrent somatic, and common population classes, using a comprehensive set of mechanistically grounded molecular features. By assessing the statistical burden of variations, we demonstrated that these features effectively discriminate among diverse variant classes and reveal a consistent enrichment of functional sites, structural integrity, and biophysical changes in pathogenic and driver mutations. Building on these insights, we developed MutaPheno, an interpretable framework for predicting the functional consequences of missense mutations. The model integrates 34 molecular-level features, encompassing structural, functional, physicochemical, and contextual descriptors, using a random forest algorithm. Trained exclusively on pathogenic and benign variants, MutaPheno achieved strong accuracy in predicting cancer driver mutations, outperforming both cancer-specific and general pathogenicity tools, while also demonstrating superior robustness when tested on unseen proteins. Our findings highlight the shared mechanisms between pathogenic and driver mutations and emphasize the role of molecular features in improving variant interpretation. MutaPheno provides a transparent and generalizable tool that can facilitate driver discovery and the development of targeted therapies.",
+    "affiliation": "Jiangsu Key Laboratory of Drug Discovery and Translational Research for Brain Diseases, School of Basic Medical Sciences, Soochow University, Suzhou, Jiangsu 215123, China.",
+    "publicationStatus": "ppublish",
+    "language": "eng",
+    "pubModel": "Print-Electronic",
+    "pubTypeList": {
+      "pubType": [
+        "research-article",
+        "Journal Article"
+      ]
+    },
+    "meshHeadingList": {
+      "meshHeading": [
+        {
+          "majorTopic_YN": "N",
+          "descriptorName": "Humans"
+        },
+        {
+          "majorTopic_YN": "Y",
+          "descriptorName": "Neoplasms",
+          "meshQualifierList": {
+            "meshQualifier": [
+              {
+                "majorTopic_YN": "N",
+                "abbreviation": "GE",
+                "qualifierName": "genetics"
+              }
+            ]
+          }
+        },
+        {
+          "majorTopic_YN": "Y",
+          "descriptorName": "Computational Biology",
+          "meshQualifierList": {
+            "meshQualifier": [
+              {
+                "majorTopic_YN": "N",
+                "abbreviation": "MT",
+                "qualifierName": "methods"
+              }
+            ]
+          }
+        },
+        {
+          "majorTopic_YN": "Y",
+          "descriptorName": "Mutation, Missense",
+          "meshQualifierList": {
+            "meshQualifier": [
+              {
+                "majorTopic_YN": "N",
+                "abbreviation": "GE",
+                "qualifierName": "genetics"
+              }
+            ]
+          }
+        },
+        {
+          "majorTopic_YN": "N",
+          "descriptorName": "Algorithms"
+        }
+      ]
+    },
+    "subsetList": {
+      "subset": [
+        {
+          "code": "IM",
+          "name": "Index Medicus"
+        }
+      ]
+    },
+    "fullTextUrlList": {
+      "fullTextUrl": [
+        {
+          "availability": "Subscription required",
+          "availabilityCode": "S",
+          "documentStyle": "doi",
+          "site": "DOI",
+          "url": "https://doi.org/10.1073/pnas.2524289123"
+        },
+        {
+          "availability": "Open access",
+          "availabilityCode": "OA",
+          "documentStyle": "html",
+          "site": "Europe_PMC",
+          "url": "https://europepmc.org/articles/PMC12890849"
+        },
+        {
+          "availability": "Open access",
+          "availabilityCode": "OA",
+          "documentStyle": "pdf",
+          "site": "Europe_PMC",
+          "url": "https://europepmc.org/articles/PMC12890849?pdf=render"
+        }
+      ]
+    },
+    "commentCorrectionList": {
+      "commentCorrection": [
+        {
+          "source": "PPR",
+          "id": "PPR1080443",
+          "type": "Preprint in",
+          "note": "CrossRef Pre-print loader",
+          "orderIn": 10002
+        }
+      ]
+    },
+    "isOpenAccess": "Y",
+    "inEPMC": "Y",
+    "inPMC": "Y",
+    "citedByCount": 5,
+    "hasReferences": "Y",
+    "hasTextMinedTerms": "Y",
+    "hasDbCrossReferences": "N",
+    "hasPDF": "Y",
+    "hasBook": "N",
+    "hasSuppl": "Y",
+    "hasLabsLinks": "N",
+    "hasData": "Y",
+    "license": "cc by-nc-nd",
+    "authMan": "N",
+    "epmcAuthMan": "N",
+    "nihAuthMan": "N",
+    "hasTMAccessionNumbers": "Y",
+    "tmAccessionTypeList": {
+      "accessionType": [
+        "pdb"
+      ]
+    },
+    "dateOfCompletion": "2026-07-06",
+    "dateOfCreation": "2026-02-03",
+    "dateOfRevision": "2026-08-13",
+    "electronicPublicationDate": "2026-02-03",
+    "firstPublicationDate": "2026-02-03",
+    "firstIndexDate": "2026-02-09",
+    "fullTextReceivedDate": "2026-09-04",
+    "hasEvaluations": "N"
+  },
+  {
+    "id": "39487150",
+    "source": "MED",
+    "pmid": "39487150",
+    "pmcid": "PMC11530434",
+    "fullTextIdList": {
+      "fullTextId": [
+        "PMC11530434"
+      ]
+    },
+    "doi": "10.1038/s41467-024-53711-6",
+    "title": "A comprehensive comparison of tools for fitting mutational signatures.",
+    "authorString": "Medo M, Ng CKY, Medov\u00e1 M.",
+    "authorList": {
+      "author": [
+        {
+          "fullName": "Medo M",
+          "lastName": "Medo",
+          "firstName": "Mat\u00fa\u0161",
+          "initials": "M",
+          "authorId": {
+            "type": "ORCID",
+            "value": "0000-0001-8865-9085"
+          },
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "Department of Radiation Oncology, Inselspital, Bern University Hospital, University of Bern, Bern, Switzerland. matus.medo@unibe.ch."
+              },
+              {
+                "affiliation": "Department for BioMedical Research, Inselspital, Bern University Hospital, University of Bern, Bern, Switzerland. matus.medo@unibe.ch."
+              }
+            ]
+          }
+        },
+        {
+          "fullName": "Ng CKY",
+          "lastName": "Ng",
+          "firstName": "Charlotte K Y",
+          "initials": "CKY",
+          "authorId": {
+            "type": "ORCID",
+            "value": "0000-0002-6100-0026"
+          },
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "Department for BioMedical Research, Inselspital, Bern University Hospital, University of Bern, Bern, Switzerland."
+              },
+              {
+                "affiliation": "IRCCS Humanitas Research Hospital, Rozzano, Milan, Italy."
+              }
+            ]
+          }
+        },
+        {
+          "fullName": "Medov\u00e1 M",
+          "lastName": "Medov\u00e1",
+          "firstName": "Michaela",
+          "initials": "M",
+          "authorId": {
+            "type": "ORCID",
+            "value": "0000-0003-0649-469X"
+          },
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "Department of Radiation Oncology, Inselspital, Bern University Hospital, University of Bern, Bern, Switzerland."
+              },
+              {
+                "affiliation": "Department for BioMedical Research, Inselspital, Bern University Hospital, University of Bern, Bern, Switzerland."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "authorIdList": {
+      "authorId": [
+        {
+          "type": "ORCID",
+          "value": "0000-0001-8865-9085"
+        },
+        {
+          "type": "ORCID",
+          "value": "0000-0002-6100-0026"
+        },
+        {
+          "type": "ORCID",
+          "value": "0000-0003-0649-469X"
+        }
+      ]
+    },
+    "dataLinksTagsList": {
+      "dataLinkstag": [
+        "supporting_data"
+      ]
+    },
+    "journalInfo": {
+      "issue": "1",
+      "volume": "15",
+      "journalIssueId": 3845334,
+      "dateOfPublication": "2024 Nov",
+      "monthOfPublication": 11,
+      "yearOfPublication": 2024,
+      "journal": {
+        "medlineAbbreviation": "Nat Commun",
+        "title": "Nature communications",
+        "essn": "2041-1723",
+        "issn": "2041-1723",
+        "isoabbreviation": "Nat Commun",
+        "nlmid": "101528555"
+      },
+      "printPublicationDate": "2024-11-01"
+    },
+    "pubYear": "2024",
+    "pageInfo": "9467",
+    "abstractText": "Mutational signatures connect characteristic mutational patterns in the genome with biological or chemical processes that take place in cancers. Analysis of mutational signatures can help elucidate tumor evolution, prognosis, and therapeutic strategies. Although tools for extracting mutational signatures de novo have been extensively benchmarked, a similar effort is lacking for tools that fit known mutational signatures to a given catalog of mutations. We fill this gap by comprehensively evaluating twelve signature fitting tools on synthetic mutational catalogs with empirically driven signature weights corresponding to eight cancer types. On average, SigProfilerSingleSample and SigProfilerAssignment/MuSiCal perform best for small and large numbers of mutations per sample, respectively. We further show that ad hoc constraining the list of reference signatures is likely to produce inferior results. Evaluation of real mutational catalogs suggests that the activity of signatures that are absent in the reference catalog poses considerable problems to all evaluated tools.",
+    "affiliation": "Department of Radiation Oncology, Inselspital, Bern University Hospital, University of Bern, Bern, Switzerland. matus.medo@unibe.ch.",
+    "publicationStatus": "epublish",
+    "language": "eng",
+    "pubModel": "Electronic",
+    "pubTypeList": {
+      "pubType": [
+        "Comparative Study",
+        "research-article",
+        "Journal Article"
+      ]
+    },
+    "meshHeadingList": {
+      "meshHeading": [
+        {
+          "majorTopic_YN": "N",
+          "descriptorName": "Humans"
+        },
+        {
+          "majorTopic_YN": "Y",
+          "descriptorName": "Neoplasms",
+          "meshQualifierList": {
+            "meshQualifier": [
+              {
+                "majorTopic_YN": "N",
+                "abbreviation": "GE",
+                "qualifierName": "genetics"
+              }
+            ]
+          }
+        },
+        {
+          "majorTopic_YN": "N",
+          "descriptorName": "DNA Mutational Analysis",
+          "meshQualifierList": {
+            "meshQualifier": [
+              {
+                "majorTopic_YN": "N",
+                "abbreviation": "MT",
+                "qualifierName": "methods"
+              }
+            ]
+          }
+        },
+        {
+          "majorTopic_YN": "N",
+          "descriptorName": "Computational Biology",
+          "meshQualifierList": {
+            "meshQualifier": [
+              {
+                "majorTopic_YN": "N",
+                "abbreviation": "MT",
+                "qualifierName": "methods"
+              }
+            ]
+          }
+        },
+        {
+          "majorTopic_YN": "Y",
+          "descriptorName": "Mutation"
+        },
+        {
+          "majorTopic_YN": "N",
+          "descriptorName": "Algorithms"
+        },
+        {
+          "majorTopic_YN": "N",
+          "descriptorName": "Software"
+        }
+      ]
+    },
+    "subsetList": {
+      "subset": [
+        {
+          "code": "IM",
+          "name": "Index Medicus"
+        }
+      ]
+    },
+    "fullTextUrlList": {
+      "fullTextUrl": [
+        {
+          "availability": "Open access",
+          "availabilityCode": "OA",
+          "documentStyle": "doi",
+          "site": "Unpaywall",
+          "url": "https://doi.org/10.1038/s41467-024-53711-6"
+        },
+        {
+          "availability": "Subscription required",
+          "availabilityCode": "S",
+          "documentStyle": "doi",
+          "site": "DOI",
+          "url": "https://doi.org/10.1038/s41467-024-53711-6"
+        },
+        {
+          "availability": "Open access",
+          "availabilityCode": "OA",
+          "documentStyle": "html",
+          "site": "Europe_PMC",
+          "url": "https://europepmc.org/articles/PMC11530434"
+        },
+        {
+          "availability": "Open access",
+          "availabilityCode": "OA",
+          "documentStyle": "pdf",
+          "site": "Europe_PMC",
+          "url": "https://europepmc.org/articles/PMC11530434?pdf=render"
+        }
+      ]
+    },
+    "commentCorrectionList": {
+      "commentCorrection": [
+        {
+          "source": "PPR",
+          "id": "PPR765519",
+          "type": "Preprint in",
+          "note": "CrossRef Pre-print loader",
+          "orderIn": 10002
+        }
+      ]
+    },
+    "isOpenAccess": "Y",
+    "inEPMC": "Y",
+    "inPMC": "Y",
+    "citedByCount": 22,
+    "hasReferences": "Y",
+    "hasTextMinedTerms": "Y",
+    "hasDbCrossReferences": "N",
+    "hasPDF": "Y",
+    "hasBook": "N",
+    "hasSuppl": "Y",
+    "hasLabsLinks": "Y",
+    "hasData": "Y",
+    "license": "cc by",
+    "authMan": "N",
+    "epmcAuthMan": "N",
+    "nihAuthMan": "N",
+    "hasTMAccessionNumbers": "N",
+    "dateOfCompletion": "2024-11-02",
+    "dateOfCreation": "2024-11-02",
+    "dateOfRevision": "2026-09-23",
+    "electronicPublicationDate": "2024-11-02",
+    "firstPublicationDate": "2024-11-02",
+    "firstIndexDate": "2024-11-03",
+    "fullTextReceivedDate": "2025-02-05",
+    "hasEvaluations": "N"
+  },
+  {
+    "id": "39910776",
+    "source": "MED",
+    "pmid": "39910776",
+    "pmcid": "PMC11798676",
+    "fullTextIdList": {
+      "fullTextId": [
+        "PMC11798676"
+      ]
+    },
+    "doi": "10.1093/bib/bbaf042",
+    "title": "Benchmarking 13 tools for mutational signature attribution, including a new and improved algorithm.",
+    "authorString": "Jiang N, Wu Y, Rozen SG.",
+    "authorList": {
+      "author": [
+        {
+          "fullName": "Jiang N",
+          "lastName": "Jiang",
+          "firstName": "Nanhai",
+          "initials": "N",
+          "authorId": {
+            "type": "ORCID",
+            "value": "0000-0003-4974-2753"
+          },
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "Centre for Computational Biology, Duke-NUS Medical School, 8 College Road, Singapore 169857, Singapore."
+              },
+              {
+                "affiliation": "Programme in Cancer and Stem Cell Biology, Duke-NUS Medical School, 8 College Road, Singapore 169857, Singapore."
+              }
+            ]
+          }
+        },
+        {
+          "fullName": "Wu Y",
+          "lastName": "Wu",
+          "firstName": "Yang",
+          "initials": "Y",
+          "authorId": {
+            "type": "ORCID",
+            "value": "0000-0002-1837-8330"
+          },
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "Centre for Computational Biology, Duke-NUS Medical School, 8 College Road, Singapore 169857, Singapore."
+              },
+              {
+                "affiliation": "Programme in Cancer and Stem Cell Biology, Duke-NUS Medical School, 8 College Road, Singapore 169857, Singapore."
+              }
+            ]
+          }
+        },
+        {
+          "fullName": "Rozen SG",
+          "lastName": "Rozen",
+          "firstName": "Steven G",
+          "initials": "SG",
+          "authorId": {
+            "type": "ORCID",
+            "value": "0000-0002-4288-0056"
+          },
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "Centre for Computational Biology, Duke-NUS Medical School, 8 College Road, Singapore 169857, Singapore."
+              },
+              {
+                "affiliation": "Programme in Cancer and Stem Cell Biology, Duke-NUS Medical School, 8 College Road, Singapore 169857, Singapore."
+              },
+              {
+                "affiliation": "Department of Biostatistics and Bioinformatics, Duke University School of Medicine, 2424 Erwin Road, Durham, NC 27710, United States."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "authorIdList": {
+      "authorId": [
+        {
+          "type": "ORCID",
+          "value": "0000-0002-1837-8330"
+        },
+        {
+          "type": "ORCID",
+          "value": "0000-0002-4288-0056"
+        },
+        {
+          "type": "ORCID",
+          "value": "0000-0003-4974-2753"
+        }
+      ]
+    },
+    "dataLinksTagsList": {
+      "dataLinkstag": [
+        "supporting_data"
+      ]
+    },
+    "journalInfo": {
+      "issue": "1",
+      "volume": "26",
+      "journalIssueId": 3858464,
+      "dateOfPublication": "2024 Nov",
+      "monthOfPublication": 11,
+      "yearOfPublication": 2024,
+      "journal": {
+        "medlineAbbreviation": "Brief Bioinform",
+        "title": "Briefings in bioinformatics",
+        "essn": "1477-4054",
+        "issn": "1467-5463",
+        "isoabbreviation": "Brief Bioinform",
+        "nlmid": "100912837"
+      },
+      "printPublicationDate": "2024-11-01"
+    },
+    "pubYear": "2024",
+    "pageInfo": "bbaf042",
+    "abstractText": "Mutational signatures are characteristic patterns of mutations caused by endogenous mutational processes or by exogenous mutational exposures. There has been little benchmarking of approaches for determining which signatures are present in a sample and estimating the number of mutations due to each signature. This problem is referred to as \"signature attribution.\" We show that there are often many combinations of signatures that can reconstruct the patterns of mutations in a sample reasonably well, even after encouraging sparse solutions. We benchmarked 13 approaches to signature attribution, including a new approach called Presence Attribute Signature Activity (PASA), on large synthetic data sets (2700 synthetic samples in total). These data sets recapitulated the single-base, insertion-deletion, and doublet-base mutational signature repertoires of nine cancer types. For single-base substitution mutations, PASA and MuSiCal outperformed other approaches on all the cancer types combined. However, the ranking of approaches varied by cancer type. For doublet-base substitutions and small insertions and deletions, while PASA outperformed the other approaches in most of the nine cancer types, the ranking of approaches again varied by cancer type. We believe that this variation reflects inherent difficulties in signature attribution. These difficulties stem from the fact that there are often many attributions that can reasonably explain the pattern of mutations in a sample and from the combinatorial search space due to the need to impose sparsity. Tables herein can provide guidance on the selection of mutational signature attribution approaches that are best suited to particular cancer types and study objectives.",
+    "affiliation": "Centre for Computational Biology, Duke-NUS Medical School, 8 College Road, Singapore 169857, Singapore.",
+    "publicationStatus": "ppublish",
+    "language": "eng",
+    "pubModel": "Print",
+    "pubTypeList": {
+      "pubType": [
+        "research-article",
+        "Journal Article"
+      ]
+    },
+    "grantsList": {
+      "grant": [
+        {
+          "agency": "National Medical Research Council, Singapore",
+          "grantId": "NMRC/CIRG/1422/2015",
+          "orderIn": 0
+        },
+        {
+          "agency": "National Medical Research Council, Singapore",
+          "grantId": "MOH-000032/MOH-CIRG18may-0004",
+          "orderIn": 0
+        }
+      ]
+    },
+    "meshHeadingList": {
+      "meshHeading": [
+        {
+          "majorTopic_YN": "N",
+          "descriptorName": "Humans"
+        },
+        {
+          "majorTopic_YN": "Y",
+          "descriptorName": "Neoplasms",
+          "meshQualifierList": {
+            "meshQualifier": [
+              {
+                "majorTopic_YN": "N",
+                "abbreviation": "GE",
+                "qualifierName": "genetics"
+              }
+            ]
+          }
+        },
+        {
+          "majorTopic_YN": "N",
+          "descriptorName": "DNA Mutational Analysis",
+          "meshQualifierList": {
+            "meshQualifier": [
+              {
+                "majorTopic_YN": "N",
+                "abbreviation": "MT",
+                "qualifierName": "methods"
+              }
+            ]
+          }
+        },
+        {
+          "majorTopic_YN": "N",
+          "descriptorName": "Computational Biology",
+          "meshQualifierList": {
+            "meshQualifier": [
+              {
+                "majorTopic_YN": "N",
+                "abbreviation": "MT",
+                "qualifierName": "methods"
+              }
+            ]
+          }
+        },
+        {
+          "majorTopic_YN": "Y",
+          "descriptorName": "Mutation"
+        },
+        {
+          "majorTopic_YN": "Y",
+          "descriptorName": "Algorithms"
+        },
+        {
+          "majorTopic_YN": "Y",
+          "descriptorName": "Benchmarking"
+        }
+      ]
+    },
+    "keywordList": {
+      "keyword": [
+        "Software Benchmarking",
+        "Mutational Signature Analysis",
+        "Mutational Signature Exposure",
+        "Msigact",
+        "Mutational Signature Activity",
+        "Mutational Signature Attribution"
+      ]
+    },
+    "subsetList": {
+      "subset": [
+        {
+          "code": "IM",
+          "name": "Index Medicus"
+        }
+      ]
+    },
+    "fullTextUrlList": {
+      "fullTextUrl": [
+        {
+          "availability": "Subscription required",
+          "availabilityCode": "S",
+          "documentStyle": "doi",
+          "site": "DOI",
+          "url": "https://doi.org/10.1093/bib/bbaf042"
+        },
+        {
+          "availability": "Open access",
+          "availabilityCode": "OA",
+          "documentStyle": "html",
+          "site": "Europe_PMC",
+          "url": "https://europepmc.org/articles/PMC11798676"
+        },
+        {
+          "availability": "Open access",
+          "availabilityCode": "OA",
+          "documentStyle": "pdf",
+          "site": "Europe_PMC",
+          "url": "https://europepmc.org/articles/PMC11798676?pdf=render"
+        }
+      ]
+    },
+    "commentCorrectionList": {
+      "commentCorrection": [
+        {
+          "source": "PPR",
+          "id": "PPR856290",
+          "type": "Preprint in",
+          "note": "CrossRef Pre-print loader",
+          "orderIn": 10002
+        }
+      ]
+    },
+    "isOpenAccess": "Y",
+    "inEPMC": "Y",
+    "inPMC": "Y",
+    "citedByCount": 2,
+    "hasReferences": "Y",
+    "hasTextMinedTerms": "Y",
+    "hasDbCrossReferences": "N",
+    "hasPDF": "Y",
+    "hasBook": "N",
+    "hasSuppl": "Y",
+    "hasLabsLinks": "Y",
+    "hasData": "Y",
+    "license": "cc by",
+    "authMan": "N",
+    "epmcAuthMan": "N",
+    "nihAuthMan": "N",
+    "hasTMAccessionNumbers": "Y",
+    "tmAccessionTypeList": {
+      "accessionType": [
+        "doi"
+      ]
+    },
+    "dateOfCompletion": "2025-05-06",
+    "dateOfCreation": "2025-02-06",
+    "dateOfRevision": "2025-05-26",
+    "firstPublicationDate": "2024-11-01",
+    "firstIndexDate": "2025-02-06",
+    "fullTextReceivedDate": "2025-11-29",
+    "hasEvaluations": "N"
+  }
+]

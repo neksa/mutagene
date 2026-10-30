@@ -1,0 +1,27 @@
+{
+  "BIC-weighted-average": {
+    "low_mean_improves_both": true,
+    "low_intervals_below_zero": false,
+    "high_mean_no_regression": true
+  },
+  "best-start-BIC": {
+    "low_mean_improves_both": false,
+    "low_intervals_below_zero": false,
+    "high_mean_no_regression": true
+  },
+  "fixed-BIC": {
+    "low_mean_improves_both": false,
+    "low_intervals_below_zero": false,
+    "high_mean_no_regression": true
+  },
+  "forward-all": {
+    "low_mean_improves_both": false,
+    "low_intervals_below_zero": false,
+    "high_mean_no_regression": true
+  },
+  "swap-BIC": {
+    "low_mean_improves_both": false,
+    "low_intervals_below_zero": false,
+    "high_mean_no_regression": true
+  }
+}

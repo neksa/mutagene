@@ -1,0 +1,62 @@
+{
+  "analysis/signature-benchmark-2026/audit_likelihood.py": {
+    "sha256": "8e3183e619126d36d4690aa66d2efe515a66344d40e8b97b5c64411d51f38322",
+    "bytes": 11577
+  },
+  "analysis/signature-benchmark-2026/audit_mle_failures.py": {
+    "sha256": "efebb59b3a7b1e270bd5d9cd211d484a340c39bc4037b84f6add1a5bbe37e399",
+    "bytes": 2928
+  },
+  "analysis/signature-benchmark-2026/likelihood-audit/ablations.tsv": {
+    "sha256": "d39b641787a45fa636f65ea8bc381135fbe7a3e7db2de75222c85ab7852abe3f",
+    "bytes": 15573
+  },
+  "analysis/signature-benchmark-2026/likelihood-audit/count-repetition.tsv": {
+    "sha256": "746d3480f23b0f57776c62a0c5265302d6b203dff3dc48b7557bf3ca9201b64a",
+    "bytes": 3710
+  },
+  "analysis/signature-benchmark-2026/likelihood-audit/discarded-candidates.tsv": {
+    "sha256": "773ff72cdc7f6fe6ad9afc8280c519d4780cdd8141c494ce726fcc1c8551779a",
+    "bytes": 68495
+  },
+  "analysis/signature-benchmark-2026/likelihood-audit/findings.md": {
+    "sha256": "ebe98dcb0d68e1dcd91bf16cb5d09ea0eff00b1925f72ad682d6b4a4460512b4",
+    "bytes": 3609
+  },
+  "analysis/signature-benchmark-2026/likelihood-audit/metrics.tsv": {
+    "sha256": "e75d24ae9db9fbf9eb641f2f425aa86153a560485c6fac597261b9d457561d07",
+    "bytes": 1753629
+  },
+  "analysis/signature-benchmark-2026/likelihood-audit/probes.json": {
+    "sha256": "27850813e2c10ac2ed19b3e501895d457b266f65c2b32a7bc85f1f47d445be94",
+    "bytes": 735
+  },
+  "analysis/signature-benchmark-2026/likelihood-audit/provenance.json": {
+    "sha256": "4400dba00cfcbc8500930364ebfb10b17fe0cc7c4e071661258d4a31caf4e491",
+    "bytes": 812
+  },
+  "analysis/signature-benchmark-2026/likelihood-audit/stable-estimates.npz": {
+    "sha256": "cd10cc282b5ba6a54976dc5f06da07f204e59cf65a46d3f8ccb664570327eaf1",
+    "bytes": 597600
+  },
+  "analysis/signature-benchmark-2026/likelihood-audit/summary.tsv": {
+    "sha256": "ef58e42db60170dfa6195b4d7f598497d1549ecde54749620e1a88c0d7e9e796",
+    "bytes": 22167
+  },
+  "analysis/signature-benchmark-2026/likelihood-audit/validation.json": {
+    "sha256": "afaf8a96baa2136118e3ca1e2652cc7610567bd217248feba80a768d52c7fa66",
+    "bytes": 234
+  },
+  "analysis/signature-benchmark-2026/likelihood-audit.html": {
+    "sha256": "b2c75c7d485d61b86869744a8e291466218b76b1ce489331acde1e837b6f7f4a",
+    "bytes": 1291697
+  },
+  "analysis/signature-benchmark-2026/likelihood-audit.qmd": {
+    "sha256": "6d1ce8fe85b67c991fb60da552c260c07deb04735bd74df362d280db9343b7cc",
+    "bytes": 9257
+  },
+  "analysis/signature-benchmark-2026/verify_likelihood_audit.py": {
+    "sha256": "a90395f7b33a4cf07237f61675f44732a76239bcf35aa7470586f9f3c2018f0d",
+    "bytes": 2991
+  }
+}

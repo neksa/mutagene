@@ -1,0 +1,10 @@
+{
+  "profiles": 1536,
+  "primary_fits": 3072,
+  "sensitivity_profiles": 256,
+  "low_burden_intervals_pass": true,
+  "high_burden_exact_match": true,
+  "high_burden_profiles": 512,
+  "validation_seed": 202610292,
+  "statement": "Synthetic validation with the frozen policy; patient-level generalization remains untested."
+}

@@ -1,0 +1,42 @@
+{
+  "seed": 202610291,
+  "samples_per_cancer": 4,
+  "burdens": [
+    100,
+    250,
+    500,
+    1000,
+    2000,
+    50000
+  ],
+  "configs": [
+    [
+      "joint-BIC",
+      "bic",
+      0.0,
+      true,
+      false
+    ],
+    [
+      "forward-BIC",
+      "forward",
+      0.0,
+      true,
+      false
+    ],
+    [
+      "forward-EBIC-0.5",
+      "forward",
+      0.5,
+      true,
+      false
+    ]
+  ],
+  "purpose": "Select search initialization and any burden boundary before fresh validation.",
+  "source_sha256": {
+    "tune.py": "b2f21c242e0f7563b3c464dc43d8753e34ceee482f23c116b26ca69f3d137a31",
+    "panel.py": "c19c477ccd887f8662f8778b502326f8f3b52d70c626ca77d38446e7750d7db5",
+    "candidates.py": "66fe9db4efcfe5f0d9142847ed99eb96ff226bbae5b64f26979566836ad4451f"
+  },
+  "selection": "Require improvement in both low-burden errors; report every condition and high-burden regression."
+}

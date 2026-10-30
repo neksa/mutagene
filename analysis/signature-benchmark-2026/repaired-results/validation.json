@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-27",
+  "full_suite": {
+    "passed": 497,
+    "coverage_percent": 68.87,
+    "warnings": 4,
+    "warning_scope": "Legacy non-MLE numerical differentiation"
+  },
+  "new_regression_cases": 42,
+  "checks": {
+    "ruff": "pass",
+    "black": "pass",
+    "git_diff_check": "pass",
+    "strict_sphinx": "pass",
+    "wheel_build": "pass",
+    "installed_wheel_offline_demo_homepage_static_asset": "pass",
+    "installed_wheel_analytic_optimum_count_scaling_and_certification": "pass",
+    "benchmark_verification": "pass",
+    "original_artifact_manifests": "pass",
+    "quarto_render_and_includes": "pass",
+    "static_vega_lite_chart_visual_inspection": "pass"
+  },
+  "benchmark": {
+    "paired": {
+      "profiles": 768,
+      "fits": 20736,
+      "errors": 0,
+      "certified_full_mle_fits": 4608,
+      "certified_sparse_fits": 3072,
+      "metric_recomputations": 200,
+      "maximum_mle_gap": 1.563939360993416e-05,
+      "maximum_sparse_refit_gap": 1.999429971066835e-05
+    },
+    "fresh": {
+      "profiles": 768,
+      "fits": 22272,
+      "errors": 0,
+      "certified_full_mle_fits": 4608,
+      "certified_sparse_fits": 3072,
+      "metric_recomputations": 200,
+      "maximum_mle_gap": 1.08309244701843e-05,
+      "maximum_sparse_refit_gap": 1.998213223730616e-05
+    }
+  },
+  "limitations": [
+    "Browser interaction receives no live browser verification.",
+    "The manuscript PDF still covers the initial benchmark.",
+    "Fresh simulations share empirical exposure distributions with earlier panels."
+  ]
+}

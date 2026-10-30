@@ -1,0 +1,33 @@
+{
+  "config": [
+    "forward-BIC",
+    "forward",
+    0.0,
+    true,
+    false
+  ],
+  "maximum_burden": 1000,
+  "applies_to": "Joint-background BIC; fixed and block policies retain their current search.",
+  "tuning_metrics_sha256": "aac8c3881a7885e2d68292b3e0cfa1f6973548113c969df6a87e267064680029",
+  "rationale": "Forward BIC improves both mean error metrics in all four conditions at 100, 250, 500, and 1000 mutations. Higher burdens show condition-specific regressions.",
+  "validation_gate": {
+    "low_burdens": [
+      100,
+      250,
+      500,
+      1000
+    ],
+    "metrics": [
+      "aggregate_null_tae",
+      "paper_tae"
+    ],
+    "requirement": "Both metrics decrease at each low burden; the paired 95% interval upper bound is below zero for each burden. Report each condition and cancer.",
+    "high_burden_requirement": "All weights match the existing search exactly above 1000 mutations.",
+    "sensitivity": "Repeat at 50 and 100 mutations without the ten-mutation generating-truth cutoff.",
+    "no_retuning": "Keep this policy fixed during validation; retain any failing result."
+  },
+  "limitations": [
+    "The policy threshold follows synthetic tuning, not a biological boundary.",
+    "Fresh draws share empirical exposure distributions; no patient-level generalization claim."
+  ]
+}

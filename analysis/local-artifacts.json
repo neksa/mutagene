@@ -1,0 +1,3245 @@
+{
+  "scope": "Local artifacts outside the source-and-summary PR",
+  "files": {
+    "analysis/low-burden-2026/bundled-reference/metrics.tsv": {
+      "sha256": "678a35694f7cc25d87190981625bfaa3c9db465340718276af22986382d34e6b",
+      "bytes": 71760
+    },
+    "analysis/low-burden-2026/pilot/metrics.tsv": {
+      "sha256": "b0fc31b464a92382a4b2fa5fce37c4d4dea3b0ca57c20547a2c73522ba886c3b",
+      "bytes": 283825
+    },
+    "analysis/low-burden-2026/pilot2/metrics.tsv": {
+      "sha256": "1cb55513bfab6d67cd03abb508c9f023d4d7be7fbdd6a58272edf01dedfbcd54",
+      "bytes": 148129
+    },
+    "analysis/low-burden-2026/results/sensitivity.tsv": {
+      "sha256": "f5bf899da6f062382b63a52cce4b813f18736d450dcbb8659a2b042a42141857",
+      "bytes": 255
+    },
+    "analysis/low-burden-2026/sensitivity/estimates.npz": {
+      "sha256": "3b48e88d95962b38b99eb6df5874909c78f1d3a284f5097a937120ead7ba6fd3",
+      "bytes": 22984
+    },
+    "analysis/low-burden-2026/sensitivity/inputs.npz": {
+      "sha256": "e84467a82f9ce240aa0a4c12c942fbd3b659c570b845bd36cdf2a0a9e26c54a5",
+      "bytes": 65367
+    },
+    "analysis/low-burden-2026/sensitivity/metrics.tsv": {
+      "sha256": "d8a2c1057cb9b57a2429ae2e792f1bd085439e58694d02f4a5f25db3219066ad",
+      "bytes": 155592
+    },
+    "analysis/low-burden-2026/sensitivity/samples.tsv": {
+      "sha256": "121302b385e8f15de3b770fad4f67e85a4d0a5e9a605b15041c9bd71c59ddf2d",
+      "bytes": 21087
+    },
+    "analysis/low-burden-2026/tuning/estimates.npz": {
+      "sha256": "929c6d9997507f450c53e9cdef72dfa33146e20594685dd8985fb12e8d33db56",
+      "bytes": 95683
+    },
+    "analysis/low-burden-2026/tuning/inputs.npz": {
+      "sha256": "c244e3df5549be209864a8acbfbc182de4868e014a9f3f8c5d08ab8625aaf232",
+      "bytes": 145812
+    },
+    "analysis/low-burden-2026/tuning/metrics.tsv": {
+      "sha256": "aac8c3881a7885e2d68292b3e0cfa1f6973548113c969df6a87e267064680029",
+      "bytes": 733978
+    },
+    "analysis/low-burden-2026/tuning/samples.tsv": {
+      "sha256": "08314ecfcd749d8c3f69b3f46609e4f18a910152ecbba597547f75cd0d2096af",
+      "bytes": 64935
+    },
+    "analysis/low-burden-2026/validation/estimates.npz": {
+      "sha256": "d8b27cff93d2a7eb4d555b2513e9dc57fa33d12f318cab05301ca585eea43246",
+      "bytes": 135481
+    },
+    "analysis/low-burden-2026/validation/inputs.npz": {
+      "sha256": "59558bac21b9e4e150ee01182fd4e853629d65d0c72d02f740c98b8571325861",
+      "bytes": 241641
+    },
+    "analysis/low-burden-2026/validation/metrics.tsv": {
+      "sha256": "f66ad4eed2e817f3a624d91d39775bc7c0b72c2d4c499e4efeee75129891b4af",
+      "bytes": 945599
+    },
+    "analysis/low-burden-2026/validation/samples.tsv": {
+      "sha256": "ccff057374b1f426c8ddb1baa537f5a8b36e2de26c4efe9eb41522fd562807df",
+      "bytes": 129775
+    },
+    "analysis/search-scenarios-2026/boundary/metrics.tsv": {
+      "sha256": "2e18ce0551ac3b489bb28a12635a7dffda7e2cdabb828d68b3ad75f04c713a4c",
+      "bytes": 12116
+    },
+    "analysis/search-scenarios-2026/screen/estimates.npz": {
+      "sha256": "ce5495408467fa9fd2374e3252d323e2939e8c289f9560be13df9b9fb6ae390d",
+      "bytes": 139889
+    },
+    "analysis/search-scenarios-2026/screen/inputs.npz": {
+      "sha256": "4312ae7045bff41fc3848f0152bae973167dd80293b5c9e95f0a0f7f4b1c7705",
+      "bytes": 120532
+    },
+    "analysis/search-scenarios-2026/screen/metrics.tsv": {
+      "sha256": "c82378dfe26ba6910a758ae8cf87de2de200c5883f409dd8f9df27722ea5a385",
+      "bytes": 1228952
+    },
+    "analysis/search-scenarios-2026/screen/samples.tsv": {
+      "sha256": "7bdcc0582ae0f46bcd9cbf25fe52f4368f7127b2a401c3bf59a5916e17715853",
+      "bytes": 56901
+    },
+    "analysis/search-scenarios-2026/transition/estimates.npz": {
+      "sha256": "3cf120b703187166db26d2d7630aa0a62309355815398a63ffe640881364d308",
+      "bytes": 63219
+    },
+    "analysis/search-scenarios-2026/transition/inputs.npz": {
+      "sha256": "c651835054359fdca07eb057dbd4f2f813005e8cc11c03151d06d9193c60b5f4",
+      "bytes": 119026
+    },
+    "analysis/search-scenarios-2026/transition/metrics.tsv": {
+      "sha256": "a6061c848accd648f939e833867614f1aed89aa4d63b6b5f6a837aa2404f178a",
+      "bytes": 441702
+    },
+    "analysis/search-scenarios-2026/transition/samples.tsv": {
+      "sha256": "d3478b8bda57cc053b0690192740886ae224595196fe4f2ebc763626c7c5cee8",
+      "bytes": 43719
+    },
+    "analysis/signature-benchmark-2026/background-results/fresh/catalogs.tsv": {
+      "sha256": "9ba47434231b10347a2d5dfcdde6f3988dda792bca813c5d8e92f75f7f996998",
+      "bytes": 246351
+    },
+    "analysis/signature-benchmark-2026/background-results/fresh/estimates.npz": {
+      "sha256": "d94ad64c950a5127e48f76a1a315d867cd2e0ec387dc500ce707fb7c60d38a03",
+      "bytes": 513712
+    },
+    "analysis/signature-benchmark-2026/background-results/fresh/inputs.npz": {
+      "sha256": "01e33e363f1c2f67e2df27eafad10e23b5c5af03dfedc56dd75b07d1a5f726df",
+      "bytes": 161837
+    },
+    "analysis/signature-benchmark-2026/background-results/fresh/metrics.tsv": {
+      "sha256": "fc6ccfe9af84865e6849d33ce8d8519cd88d31487b04b0f794fb4973e63b7bc4",
+      "bytes": 9333874
+    },
+    "analysis/signature-benchmark-2026/background-results/fresh/reference.tsv": {
+      "sha256": "8bb65b11873699d97cd47dea1efcb6b1c181889d26189ded7080ff5bf48730a8",
+      "bytes": 137688
+    },
+    "analysis/signature-benchmark-2026/background-results/fresh/samples.tsv": {
+      "sha256": "5c2e17bb090275b43e2f25034c7ac86948d88efbbd946a21025201879ca1acc0",
+      "bytes": 66005
+    },
+    "analysis/signature-benchmark-2026/background-results/fresh/spa_reference.tsv": {
+      "sha256": "626d12a1ad97f94d20d62aaf0462d4160191c17e5a91bef9ad4aefb9245ca93a",
+      "bytes": 137696
+    },
+    "analysis/signature-benchmark-2026/background-results/paired/catalogs.tsv": {
+      "sha256": "759ee3809366cd0abf1034e1c271dbd1d5380bef0c941f58f273bb29ee5bfa63",
+      "bytes": 246316
+    },
+    "analysis/signature-benchmark-2026/background-results/paired/estimates.npz": {
+      "sha256": "7c64bbdd07ce5df679b5b0f8c9384c16eaead108de96c7cd6152fd863b7eec65",
+      "bytes": 514330
+    },
+    "analysis/signature-benchmark-2026/background-results/paired/inputs.npz": {
+      "sha256": "aa190e42b8e6767b13c9246ee342fe7cd94ac4d1ae8aa8c162b5a5cd2ed0bcdf",
+      "bytes": 161731
+    },
+    "analysis/signature-benchmark-2026/background-results/paired/metrics.tsv": {
+      "sha256": "cb44f8018b9faee1fbead0afc5644b7201fb8dc9ae58c8b3157bfc34edda70c5",
+      "bytes": 9251849
+    },
+    "analysis/signature-benchmark-2026/background-results/paired/reference.tsv": {
+      "sha256": "3d27204ede386d8d5befa1c1d00632f6f954b54bd8e870138bdfdd2788ca5c94",
+      "bytes": 137684
+    },
+    "analysis/signature-benchmark-2026/background-results/paired/samples.tsv": {
+      "sha256": "b77c6b4931ae5d658581d7b03cfe63d8c6f0d29689ac2be21e95aa3d3a9a3488",
+      "bytes": 66002
+    },
+    "analysis/signature-benchmark-2026/background-results/paired/spa_reference.tsv": {
+      "sha256": "626d12a1ad97f94d20d62aaf0462d4160191c17e5a91bef9ad4aefb9245ca93a",
+      "bytes": 137696
+    },
+    "analysis/signature-benchmark-2026/baseline-20261026/manuscript/application-note.tex": {
+      "sha256": "5bf49481ab0009cc8502886fbe653b64069716e2ee9de24c359a0afe10dd2925",
+      "bytes": 16838
+    },
+    "analysis/signature-benchmark-2026/likelihood-audit/metrics.tsv": {
+      "sha256": "e75d24ae9db9fbf9eb641f2f425aa86153a560485c6fac597261b9d457561d07",
+      "bytes": 1753629
+    },
+    "analysis/signature-benchmark-2026/likelihood-audit/stable-estimates.npz": {
+      "sha256": "cd10cc282b5ba6a54976dc5f06da07f204e59cf65a46d3f8ccb664570327eaf1",
+      "bytes": 597600
+    },
+    "analysis/signature-benchmark-2026/repaired-results/fresh/catalogs.tsv": {
+      "sha256": "759ee3809366cd0abf1034e1c271dbd1d5380bef0c941f58f273bb29ee5bfa63",
+      "bytes": 246316
+    },
+    "analysis/signature-benchmark-2026/repaired-results/fresh/estimates.npz": {
+      "sha256": "ae0ce400ba56f04428886dc02d58d4b4aa2dc3e9be8bdd879de4cd53c8564b65",
+      "bytes": 5808662
+    },
+    "analysis/signature-benchmark-2026/repaired-results/fresh/inputs.npz": {
+      "sha256": "aa190e42b8e6767b13c9246ee342fe7cd94ac4d1ae8aa8c162b5a5cd2ed0bcdf",
+      "bytes": 161731
+    },
+    "analysis/signature-benchmark-2026/repaired-results/fresh/metrics.tsv": {
+      "sha256": "2ad7138989f3a60a58d93f5b6b2f2bafb128124b4b36519bba25d57e79d8cc5f",
+      "bytes": 15695646
+    },
+    "analysis/signature-benchmark-2026/repaired-results/fresh/reference.tsv": {
+      "sha256": "8bb65b11873699d97cd47dea1efcb6b1c181889d26189ded7080ff5bf48730a8",
+      "bytes": 137688
+    },
+    "analysis/signature-benchmark-2026/repaired-results/fresh/samples.tsv": {
+      "sha256": "b77c6b4931ae5d658581d7b03cfe63d8c6f0d29689ac2be21e95aa3d3a9a3488",
+      "bytes": 66002
+    },
+    "analysis/signature-benchmark-2026/repaired-results/fresh/spa_reference.tsv": {
+      "sha256": "626d12a1ad97f94d20d62aaf0462d4160191c17e5a91bef9ad4aefb9245ca93a",
+      "bytes": 137696
+    },
+    "analysis/signature-benchmark-2026/repaired-results/paired/catalogs.tsv": {
+      "sha256": "c8d98e6f1e5853e4a783dd6f8b845620bece61ac0e26925c9b7f272a921f9cad",
+      "bytes": 248313
+    },
+    "analysis/signature-benchmark-2026/repaired-results/paired/estimates.npz": {
+      "sha256": "c7d042f2fd5bd8428eaf5fe258f2222c07bc39dff52eec3829d364d2da0614ec",
+      "bytes": 5157441
+    },
+    "analysis/signature-benchmark-2026/repaired-results/paired/inputs.npz": {
+      "sha256": "2a143013ea3285c8f67e49edc7562eb52c70c348fc8fbeb388697b2305e5765a",
+      "bytes": 161350
+    },
+    "analysis/signature-benchmark-2026/repaired-results/paired/metrics.tsv": {
+      "sha256": "17c615f1514db53a2557978d3895d404742691989b21f25748550de65abadbe2",
+      "bytes": 15069615
+    },
+    "analysis/signature-benchmark-2026/repaired-results/paired/reference.tsv": {
+      "sha256": "3d27204ede386d8d5befa1c1d00632f6f954b54bd8e870138bdfdd2788ca5c94",
+      "bytes": 137684
+    },
+    "analysis/signature-benchmark-2026/repaired-results/paired/samples.tsv": {
+      "sha256": "d4338dcbc6e3c4b18b49bc03095568165f6d457cfd9f7d85fac3530bc5fbb4cc",
+      "bytes": 68299
+    },
+    "analysis/signature-benchmark-2026/repaired-results/paired/spa_reference.tsv": {
+      "sha256": "626d12a1ad97f94d20d62aaf0462d4160191c17e5a91bef9ad4aefb9245ca93a",
+      "bytes": 137696
+    },
+    "analysis/signature-benchmark-2026/results/catalogs.tsv": {
+      "sha256": "2f654c47b97c486989a451758f6938683dc1fdb6829b0f9a9034ed60ee466609",
+      "bytes": 1514271
+    },
+    "analysis/signature-benchmark-2026/results/estimates.npz": {
+      "sha256": "ee6f1ae5e6cabf495b3cd44d3fd066f3c8b641ca75a4440e1be7475f66c05a5c",
+      "bytes": 7753143
+    },
+    "analysis/signature-benchmark-2026/results/inputs.npz": {
+      "sha256": "807330c33ac2313f4564b583a5ec7a66c1b5cfb445ac594d96dfe51692407066",
+      "bytes": 797273
+    },
+    "analysis/signature-benchmark-2026/results/metrics.tsv": {
+      "sha256": "e363528ed178760948e6e8caad9a56ca69602c4bf2f70b573d6b2bc3848f420f",
+      "bytes": 8057167
+    },
+    "analysis/signature-benchmark-2026/results/reference.tsv": {
+      "sha256": "8bb65b11873699d97cd47dea1efcb6b1c181889d26189ded7080ff5bf48730a8",
+      "bytes": 137688
+    },
+    "analysis/signature-benchmark-2026/results/samples.tsv": {
+      "sha256": "ddee064c46421ef175517ba14b04b32e9ecc946d2de16b88696ff9870a69d80b",
+      "bytes": 389010
+    },
+    "analysis/signature-benchmark-2026/results/spa_reference.tsv": {
+      "sha256": "626d12a1ad97f94d20d62aaf0462d4160191c17e5a91bef9ad4aefb9245ca93a",
+      "bytes": 137696
+    },
+    "analysis/signature-benchmark-2026/signer-results/background.tsv": {
+      "sha256": "b5099e53c101a218e2c458d2e10388bc7f3c33c8f3a957488208476e89d5a979",
+      "bytes": 3473
+    },
+    "analysis/signature-benchmark-2026/signer-results/catalogs.tsv": {
+      "sha256": "76ef662762cd2aec2c027fd40d5f7d8ce03caf72bd10a327dcdb7bae3b750786",
+      "bytes": 31604
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0001.tsv": {
+      "sha256": "03882bc1cfa4b96e4ffa88f0c2c3de2e72a2277cd1f0f1f651a4221d589bdc99",
+      "bytes": 5223
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0003.tsv": {
+      "sha256": "9a2bbd38fa0b4570c0095158d1f9b8fc0e0d8c93f0eb1af11aa9f3b1718113a1",
+      "bytes": 5758
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0005.tsv": {
+      "sha256": "2f6b3fca10d85c64f22e5afe373d9b8122707a99b50d5bb11b51d20c4fb039af",
+      "bytes": 5209
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0007.tsv": {
+      "sha256": "5c5748d354ca7964a5803fa5dd60274c969ff559d779738aedfa9ab7bd4b46b3",
+      "bytes": 5753
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0009.tsv": {
+      "sha256": "54dc4f4b405656c9297c8713e39dd6e58c296fbeeb229a2b7b61ad8fd85dc1a7",
+      "bytes": 5216
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0011.tsv": {
+      "sha256": "4c1dea892e448abb6e63075f77c27e2ab449cbf2b0c58ecc5515e312c597f6bf",
+      "bytes": 5760
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0013.tsv": {
+      "sha256": "57b79afc55fd81a6a6dfddcd556b0043da394624166126d5690eda6b1e074e43",
+      "bytes": 5216
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0015.tsv": {
+      "sha256": "01c4bde9b6eccc9a2464d2aa79165efc7dccd6ba7256f1aa6864ab2031df323c",
+      "bytes": 5753
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0017.tsv": {
+      "sha256": "9b61f3e7a2be60ac0a5809fc6077ca9a6a80e0162b4fbdae1f93d4ae34b6a840",
+      "bytes": 5224
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0019.tsv": {
+      "sha256": "f14ddbd664779c60243ee6fa24f849ba30f6d7875823359994a632ffe7a2e4c8",
+      "bytes": 5771
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0021.tsv": {
+      "sha256": "0daa86771a372aba17bd9fdda55b7936090a3a945e7f7975f6edcf2102c8774f",
+      "bytes": 5220
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0023.tsv": {
+      "sha256": "317d2d7ee595d32a77fd2fafd97cef0c550a343931101bfee3fe625cb3588040",
+      "bytes": 5763
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0025.tsv": {
+      "sha256": "d5a90a74643c52a4255e5268e3b28162cd754c9e3fdfffed50946e38c1c4f477",
+      "bytes": 5214
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0027.tsv": {
+      "sha256": "3b169332504c4cad274fa4a8edcff2c720d15e71cef2f102948d0ac8d0e21e58",
+      "bytes": 5756
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0029.tsv": {
+      "sha256": "de363f0a5807bd0896253a2584fd78b2b72275e939d6d38c5c9ea37cf0742a8d",
+      "bytes": 5224
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0031.tsv": {
+      "sha256": "ee7fdc2d56be76c36ad8a1f329077ed62c88b575bd51f8363f659f7c4ac53b9a",
+      "bytes": 5761
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0033.tsv": {
+      "sha256": "468b088c74b46381107096b59fe7cee16615dd1a571ab1c36943d529c1d26b9c",
+      "bytes": 5227
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0035.tsv": {
+      "sha256": "70b4004ef4f3b1cdd9de17aa2c998daab2835a39cfc779ea2f2ce213099136ac",
+      "bytes": 5768
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0037.tsv": {
+      "sha256": "5a5fbc8b9d99f425bf7f0643c5217d7e18eecce06c30d6a22055f4d25f04a39b",
+      "bytes": 5228
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0039.tsv": {
+      "sha256": "49f16bb5ab7bc72b15fed19341726a23c8393e449fa8f1b8ad2b3cca9828cd62",
+      "bytes": 5762
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0041.tsv": {
+      "sha256": "07ab87be18c661de16b62f501d00034d747ec497591468bdf63b2b33fef92635",
+      "bytes": 5218
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0043.tsv": {
+      "sha256": "1c1e67d0f2ccd0e75367006b9ae0cd8ff14eea92f0ccb4dbd42ca6d844238db9",
+      "bytes": 5767
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0045.tsv": {
+      "sha256": "aac9f0790ffda19fb13c24ca49febd2b4d447828486c6d1ef61ba5cc176083cb",
+      "bytes": 5230
+    },
+    "analysis/signature-benchmark-2026/signer-results/chain-diagnostics-0047.tsv": {
+      "sha256": "4a42698d502ec691061ce9a741e4621db7e3482f4ebff75e8523b14a5be6e637",
+      "bytes": 5766
+    },
+    "analysis/signature-benchmark-2026/signer-results/estimates.npz": {
+      "sha256": "e07971020e777378ed23e4adf2fee5e37863033d2f12eaacc77b580e56da6088",
+      "bytes": 103273
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0001.diagnostics.tsv": {
+      "sha256": "138d191830fdb3fd3921140aa508a9fed4d9fd84da983fecb31075a16cf99c48",
+      "bytes": 5198
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0001.draws.rds": {
+      "sha256": "b54af2b973e4c9991907c8ead308448de4f345b5d4f0a727df0f33e279c5a8fb",
+      "bytes": 991076
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0001.estimates.tsv": {
+      "sha256": "1e5ce4b1e8606ac7bea2930f4136b4d8284212ecd11c0410f158be9e2c21300d",
+      "bytes": 2878
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0001.json": {
+      "sha256": "527bedc730b6780bff15dd96cbe1e46f6e6b7c91346652d7c2b2bcd0850fd665",
+      "bytes": 1990
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0002.diagnostics.tsv": {
+      "sha256": "e4d673670a3a1f74625e8ef0352e19c83cc2b10c24a6ed1df8a16ee20ae498a5",
+      "bytes": 5191
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0002.draws.rds": {
+      "sha256": "7f305fd6ace019aeb24f22acb90c5301ddbb5c4c08ac850e6fe459f63447227a",
+      "bytes": 994136
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0002.estimates.tsv": {
+      "sha256": "4ced9c9515950f2794da5f2e7f6800f8f084c672d52da4566de36c989c24763e",
+      "bytes": 2883
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0002.json": {
+      "sha256": "dd7aed5275defedb9edb178733b8bc4432ecf3e5310796c7a60631bb4a51d01c",
+      "bytes": 2006
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0003.diagnostics.tsv": {
+      "sha256": "3a5fd0bf3c94e7ce374c4028e84c6ad28f1ee6c6b4005e6dfec6a1db23cce3e1",
+      "bytes": 5755
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0003.draws.rds": {
+      "sha256": "7c2fdd65df2590017a14ab3aace137b8f0db807c4ddbe4bd3b394d71071f124f",
+      "bytes": 1100420
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0003.estimates.tsv": {
+      "sha256": "d6aa8097712cbafe792def62b3c640a8ba657f2bfe9047748cf2a4c6998ac680",
+      "bytes": 3251
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0003.json": {
+      "sha256": "6f3e5c4e9b7a3856881e5a24623c5f4ec65c6bdc713908e6d59287c195c0bad9",
+      "bytes": 2149
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0004.diagnostics.tsv": {
+      "sha256": "860d6e7bbc3fe27bfe53a711a3360761b01f664ab6b23d798c4056113d0879de",
+      "bytes": 5762
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0004.draws.rds": {
+      "sha256": "35ae4e661112940bcbc4f6e58c3bd7841a60e8bb0d5f330b91694e11d6e5c034",
+      "bytes": 1073164
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0004.estimates.tsv": {
+      "sha256": "bd838ada4141cd7a2a8cb7d88275bb07b2c4a1dc543673e581ab7fcd1368858e",
+      "bytes": 3222
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0004.json": {
+      "sha256": "0e35b0285ddd77ff174f408c4e867d11b727bd70fabb5bfcf00af049dc12f9a8",
+      "bytes": 2109
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0005.diagnostics.tsv": {
+      "sha256": "74f34ba35a52cf24b2f2b06c779e212801263abdd2022bfdc837f87266e38811",
+      "bytes": 5215
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0005.draws.rds": {
+      "sha256": "ad4ffa398e6bd397199e2799ca953f2375eac3698b144d6783b353eb005a9bf9",
+      "bytes": 979824
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0005.estimates.tsv": {
+      "sha256": "bb3a5fb114b1426de51d00a3b26c03bb91d8ced0dea12d9dc365092f3b6451e8",
+      "bytes": 2886
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0005.json": {
+      "sha256": "d76ad5ca8ff821ffcf0d935d4a302683e90d565ffbd201af15a3f432f9a31230",
+      "bytes": 1990
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0006.diagnostics.tsv": {
+      "sha256": "7e74a7ecceff1002748386129d6711388d2d8f060c0ec98d9707e1e0d793a24a",
+      "bytes": 5207
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0006.draws.rds": {
+      "sha256": "9c995aa57d8f3b82c68969399e87e3d688ca03ac16e4223f234963f5d10d9876",
+      "bytes": 990664
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0006.estimates.tsv": {
+      "sha256": "0a58456cdfaad433fa50434e7fdca41d5802f91d2c4c2acacdcd70c6dd2afed8",
+      "bytes": 2912
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0006.json": {
+      "sha256": "e6f27c331801413f83f17d26c40f9ff56a12ac205b5fb6b8603eb3169dbca765",
+      "bytes": 1996
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0007.diagnostics.tsv": {
+      "sha256": "f34835dbe07627bb6fbfb94ccfe1bac3f69f3ae41926ebe85b130ead039e9b13",
+      "bytes": 5747
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0007.draws.rds": {
+      "sha256": "22dd27e96b5eb4514bb6f301fd3606d75f97ce33895382d8d2930796d06c1a3a",
+      "bytes": 1080776
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0007.estimates.tsv": {
+      "sha256": "77dee18a6c6b52ec989cc3be03237d7ac524ed7355102b41889b686f9cf97058",
+      "bytes": 3234
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0007.json": {
+      "sha256": "edfa343d1bcdc57f633b94e40da98f88b44a24102833c18d70f8e9e209057a2f",
+      "bytes": 2132
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0008.diagnostics.tsv": {
+      "sha256": "8acfc57422970d59d522200b6b9211eedbe0b873a3f4887ea598280275d9e5ca",
+      "bytes": 5768
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0008.draws.rds": {
+      "sha256": "9a5195db238acd8de61d88d021b1dfcc854d834dbf699174c5856f854e48c438",
+      "bytes": 1087044
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0008.estimates.tsv": {
+      "sha256": "6efe199dcfe363f2f047eecdfabd5e82948e86a86be53da3fe2bc8bf3e74b0eb",
+      "bytes": 3234
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0008.json": {
+      "sha256": "9841352c818222549850dfabf85119366219ae02e85472ab76ca69327d6bae10",
+      "bytes": 2124
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0009.diagnostics.tsv": {
+      "sha256": "4d424a25e693e8cedd89f0768664e2b0ac0dfa1136b38f49b8a395ecd44d7377",
+      "bytes": 5212
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0009.draws.rds": {
+      "sha256": "b72a4f03a5a37be200655531ad22f70cbc80a17885c5985dcb5c64e6b6b9cd9b",
+      "bytes": 989208
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0009.estimates.tsv": {
+      "sha256": "fc3c419a9b53c96cddb3d4b731e79d26dc8c600806bddb0321cb904215bc0a97",
+      "bytes": 2883
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0009.json": {
+      "sha256": "cf9cd6c0f60d5762bf64a939cac1dcb048fadc0405b481d807e58d2dbbad925e",
+      "bytes": 1972
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0010.diagnostics.tsv": {
+      "sha256": "c013840a7ec2d3b89d62c37a7d94f804df77b355994aa40f4ce6b870fe287c23",
+      "bytes": 5207
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0010.draws.rds": {
+      "sha256": "65b46a76f8c829c8149ce2889798a2e70373f2d4b26bd0b1bef610e5ef50a9de",
+      "bytes": 987320
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0010.estimates.tsv": {
+      "sha256": "ce7d56dd90ee5fc092ce15e6abcfa86d2aa15ba4ecd07f97e85e4a37d8483608",
+      "bytes": 2890
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0010.json": {
+      "sha256": "bd8f7473d721851794564c1f819c5b28e01b69f82d70badecad599fbeafcc7ed",
+      "bytes": 1975
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0011.diagnostics.tsv": {
+      "sha256": "2ba9b52508e2503c6b55cd0adcd6a56426d5c5b23cadeac96ab2ba7783bb0ea7",
+      "bytes": 5744
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0011.draws.rds": {
+      "sha256": "6f4291191331adc327d9335e9c8c242d90b68639def29b4be6946bb2558c41e2",
+      "bytes": 1075840
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0011.estimates.tsv": {
+      "sha256": "d600fe3be6ca4de0f87a990948721360d43420989669f6d063b85091440a2f5a",
+      "bytes": 3212
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0011.json": {
+      "sha256": "b170b3bf452930b4655e2cd12cbed33d5acfd9662359e7c21232f4c207e460f7",
+      "bytes": 2113
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0012.diagnostics.tsv": {
+      "sha256": "6b12b1841cf75cc83b966e3504a607be5548dfc7aae3d4a3e74a2be7fcb8b27f",
+      "bytes": 5741
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0012.draws.rds": {
+      "sha256": "e40d26d677258c1c1a83192095f3cb416c6c6cb739d6308cd9fd2d5b0b1cfa75",
+      "bytes": 1071728
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0012.estimates.tsv": {
+      "sha256": "7c3a25bcd32993a9d93c068bdf691f61ba9f71dbd2f512a5c45d830db519c918",
+      "bytes": 3207
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0012.json": {
+      "sha256": "6464b4c2437bf794f8ebdb8b06a48580fcb7f9714f30c477cca38d1ceb32d072",
+      "bytes": 2111
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0013.diagnostics.tsv": {
+      "sha256": "dec31ac69f27fc361fd9149b0eb1f61cfd381420aa612f77e2a1af2a13dda241",
+      "bytes": 5218
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0013.draws.rds": {
+      "sha256": "91dbdf2949cd3dd6002f2ae8f486b360b995b90681323df610d867c42ba4d272",
+      "bytes": 988276
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0013.estimates.tsv": {
+      "sha256": "acfc572a9cd295acf0637f17759aa5165204f8e33ec9b256359b773547b0eeb2",
+      "bytes": 2915
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0013.json": {
+      "sha256": "0520ce6592cce7b05d7b04530f2f3020284b606a229201b3f360f3be992c5744",
+      "bytes": 2044
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0014.diagnostics.tsv": {
+      "sha256": "83505404bde2c95511550c494fd55c802d25c47c64426c768b7834814741a114",
+      "bytes": 5216
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0014.draws.rds": {
+      "sha256": "76e3a204c611d63856555fd373cf2e6ccad62ba776e848f25e1f1a5ed9a8351a",
+      "bytes": 991076
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0014.estimates.tsv": {
+      "sha256": "21038198b1cabf67fe4346a9c022900848a9f3870df4605ff9fefced6547465a",
+      "bytes": 2894
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0014.json": {
+      "sha256": "51f2a386ed8fc26111608fb9367bc61d1d2b70ea459cfdbcc1e221f17f51f957",
+      "bytes": 2030
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0015.diagnostics.tsv": {
+      "sha256": "ab38fdbbc78540396fb92dbd9b1ec9a78bf5b1c060b92488df95c54fda0a674f",
+      "bytes": 5766
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0015.draws.rds": {
+      "sha256": "f1985b6f95f48ae79ae7e00bd0a0adb7e518ff8fe2647ad5a80820f9ebe81e87",
+      "bytes": 1077232
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0015.estimates.tsv": {
+      "sha256": "3c5acd268db4596b111af1051e5115ec838fe71c84f9d6340942dfa7569aa6ee",
+      "bytes": 3243
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0015.json": {
+      "sha256": "4384f83ac7d2f53553fda1c4b55d0916c50f239cdf25603c8b33d83254e43963",
+      "bytes": 2172
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0016.diagnostics.tsv": {
+      "sha256": "8e3abddab6ede33846a3bd9b7a7d315ade9b8380b1a1b63b63a2811693725c6f",
+      "bytes": 5750
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0016.draws.rds": {
+      "sha256": "671419a8ef2bcfeff30ecd03d10a50cc8a5c25f6ca79823b63c01655f3acd5b8",
+      "bytes": 1082896
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0016.estimates.tsv": {
+      "sha256": "d6ba5a1b54bd873a2857e848010b22c389eb47c525111f9f14722d1ebadf4122",
+      "bytes": 3218
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0016.json": {
+      "sha256": "98f713be87a2c3168dbfa80e107e175a84677b3e5a063b62be6314683a2c6faf",
+      "bytes": 2158
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0017.diagnostics.tsv": {
+      "sha256": "76dcab5664bd9067bc6f18cfcbe68a6053f4e01fa8b41c3da887fd19646ef14a",
+      "bytes": 5224
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0017.draws.rds": {
+      "sha256": "f06eb94b0cf9bba9ecf59285291e74244bb4cc12106ae0d15c352521f1cf0db8",
+      "bytes": 977536
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0017.estimates.tsv": {
+      "sha256": "84c148740205db630590eac3a803a71cfe6da06c2522667a9cff1f2a55da3951",
+      "bytes": 2984
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0017.json": {
+      "sha256": "466630a70cd287e733cb06e9d644d3843446990a203f061640d06ff0a38f6bee",
+      "bytes": 2104
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0018.diagnostics.tsv": {
+      "sha256": "c2bda715191193f6bb0607739a94b6b75f7e844024de1de854c503aa3ec64b76",
+      "bytes": 5226
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0018.draws.rds": {
+      "sha256": "7964e018f146ea10a2c18ce33d5ce22f1fbfb09b0a8d94af614b2b762145e6b0",
+      "bytes": 976336
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0018.estimates.tsv": {
+      "sha256": "e566e17f736cc4502b8347702af8252092cd223924bb1e56d27703f5b64a72a5",
+      "bytes": 2986
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0018.json": {
+      "sha256": "66267ee8c10ad71ea39c60ebd2b8fd5b87cb7d839c9e693b799fa4f925ea9074",
+      "bytes": 2099
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0019.diagnostics.tsv": {
+      "sha256": "e62f3489799a01f8a3a4986151d250b9788b077f96d45a60b461456a515d199f",
+      "bytes": 5764
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0019.draws.rds": {
+      "sha256": "969f4b33b981fdb5565ae3fb4488f8a7c83e8307bf9d279b891fa9186dbc675b",
+      "bytes": 1064612
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0019.estimates.tsv": {
+      "sha256": "fa936640c927c2540d11939a14bd38e268065d9a7f918223c082ea9df710e579",
+      "bytes": 3317
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0019.json": {
+      "sha256": "743068af7bfe2bef34f3b6275afdb5231dc3894569d5ab3f3019ff3384a56df2",
+      "bytes": 2250
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0020.diagnostics.tsv": {
+      "sha256": "906917e95223211e2d2c6e63800bfbae98292736f88651cebafff927952a929e",
+      "bytes": 5773
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0020.draws.rds": {
+      "sha256": "910ab2ebc1fa04e20df802d745d30f79d215c16781df00eeb23c0cf13c0b1fdd",
+      "bytes": 1056900
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0020.estimates.tsv": {
+      "sha256": "11ddcc2cca7245be5ba3666ef3469679c797e7960357809f13c5d686a6722adf",
+      "bytes": 3316
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0020.json": {
+      "sha256": "7782c47551a277716652d33b03b8bf3a30924e1347bc04011f276e0817a719d9",
+      "bytes": 2244
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0021.diagnostics.tsv": {
+      "sha256": "858ef8f4c2976561c656a2294ffb6149cf32bd271173809ab7bbb0572bede220",
+      "bytes": 5228
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0021.draws.rds": {
+      "sha256": "873936e1374214ddcddae9341f163966df4552f331dc37afc8e8db29c1115de2",
+      "bytes": 980616
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0021.estimates.tsv": {
+      "sha256": "ed27b2b2341cc067c4e5b49ce413fe50b0d6b103b8535346b406e7df175c8694",
+      "bytes": 2964
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0021.json": {
+      "sha256": "88b2730bf1ecff99df96a5b9f6dd742dc0e9884cd72d279a3b704b46ecbc1ae1",
+      "bytes": 2117
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0022.diagnostics.tsv": {
+      "sha256": "4d51da82f99b00cfe2ecf4fa5b765ea65af8a827968a3e25779f25cb993e3eff",
+      "bytes": 5224
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0022.draws.rds": {
+      "sha256": "97f22e8a6e3a1dec6900ad9f8cf8cd221634b868b7461c5e06a9427432be9b05",
+      "bytes": 988216
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0022.estimates.tsv": {
+      "sha256": "7a01869c505132455be710e1d5891e5583e61a588524a9c9ad09c0ac612b2c2d",
+      "bytes": 2966
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0022.json": {
+      "sha256": "707c348d34277bc7890e81c63deb66de0b656db93e7b4ab04e64727d79d230a6",
+      "bytes": 2119
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0023.diagnostics.tsv": {
+      "sha256": "2be2887016bb268a994095026b20eca2dcfd40d7bd21d3d426cbdc5e7da8627c",
+      "bytes": 5766
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0023.draws.rds": {
+      "sha256": "30dcde33f2fa0f3ecc78f81a9af40246a425aca42869595047e671ae0da0e580",
+      "bytes": 1060476
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0023.estimates.tsv": {
+      "sha256": "7887527c452055d726afb8e03e6340275055b8b5d896841bebf2fb9510351149",
+      "bytes": 3311
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0023.json": {
+      "sha256": "5bb10a7aaf9e082593d2f587675fd8d810f95d91bda9c755c293133e8655d295",
+      "bytes": 2259
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0024.diagnostics.tsv": {
+      "sha256": "905742c06b54a53a917ac4baa1285825ef94a004704b2c3b5acc9a32d39829ca",
+      "bytes": 5773
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0024.draws.rds": {
+      "sha256": "be48451ccd1ea91a6db93482f0229802dfd46d9b8fdbb408cf7850680a4ab1f1",
+      "bytes": 1072412
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0024.estimates.tsv": {
+      "sha256": "c3c04a94ae3b35aeaa0440662e75232ab8a8cf2a09f7546ad68054ca199daf4d",
+      "bytes": 3307
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0024.json": {
+      "sha256": "d11d742ef96c5cd5de5391023678eadf279cb39c89fe7ddda0ba71ebea970319",
+      "bytes": 2269
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0025.diagnostics.tsv": {
+      "sha256": "b8c2f83326cac937b3899539166167f6669e697725d59190ba7fc32be611a5c4",
+      "bytes": 5207
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0025.draws.rds": {
+      "sha256": "bc9e1760bacc5fb47a8d74c3be5fd74003ffe8424be611b9f937222b7ac89997",
+      "bytes": 983192
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0025.estimates.tsv": {
+      "sha256": "653677968070eb65adf28188a99189b0f8d3f0b5c551e7be0be77af044ef221e",
+      "bytes": 2969
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0025.json": {
+      "sha256": "16531c1aa001b94a4fd3dd30cd75253de473e011c42c8009dfe99692945c1c15",
+      "bytes": 2105
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0026.diagnostics.tsv": {
+      "sha256": "4c92e21e96473a8de54173433b1fce519172c8da10f7783eb4ab37ba7272043b",
+      "bytes": 5220
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0026.draws.rds": {
+      "sha256": "b4a0ecdca6569987ebc6587ad005274bebffac2d7e5def92bbd22c9f321f0fac",
+      "bytes": 973652
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0026.estimates.tsv": {
+      "sha256": "946693b579553c34003dffeefcd21989e50c6536c44f637df29bb18da5dd9411",
+      "bytes": 2958
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0026.json": {
+      "sha256": "a67f2502c2b7b740977e462e62c4444922c2093fc6487cb9aa788f567f7e9c5f",
+      "bytes": 2102
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0027.diagnostics.tsv": {
+      "sha256": "98e695edde254e255ee42d64d7512f1bce1766c12189a8f593f29bdec69753d1",
+      "bytes": 5753
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0027.draws.rds": {
+      "sha256": "af7ccd4b61a63279ec379bd6207b789335da81e1d2b671471d2d7d7d3017753f",
+      "bytes": 1058916
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0027.estimates.tsv": {
+      "sha256": "71706211793f531c0aae6a7f2b68b4de6174cb775635486a616dd4a71fe4a562",
+      "bytes": 3295
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0027.json": {
+      "sha256": "256bc21d07386e28a793faf241dd369d72d9ded6adbb4689614bc64c78ec7581",
+      "bytes": 2246
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0028.diagnostics.tsv": {
+      "sha256": "4ae0de5cc67bd4cd363b16ae8c79300ee91e150782af606db8ece410210ef9d5",
+      "bytes": 5756
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0028.draws.rds": {
+      "sha256": "b426342e6a6bc2b710641902b1ac44d17207bb66e2f04fe91555f12d939d07d5",
+      "bytes": 1077580
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0028.estimates.tsv": {
+      "sha256": "453f95b30e76fa7ce9e4b0007d37eca54e39ab1cb4de08665278131c79d74f56",
+      "bytes": 3292
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0028.json": {
+      "sha256": "bfd5e65497eff55cdfff19ce86a6b3f72e6261d0b2e704adfd93f125e78c6360",
+      "bytes": 2248
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0029.diagnostics.tsv": {
+      "sha256": "81b65cb433ade350c58ef1ab6f1f3258dc54970348c477bca1e515b3c421e2a9",
+      "bytes": 5222
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0029.draws.rds": {
+      "sha256": "8545640c035d6283ef1bcd930fcceb2fea4981157be1ff7a52c7568437f4b57d",
+      "bytes": 969164
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0029.estimates.tsv": {
+      "sha256": "d04060cae6c7e4e79921cb9b23b734e080e8cb89296b828ebb509f5f84f8e95a",
+      "bytes": 2964
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0029.json": {
+      "sha256": "a5d271237b4090708a929b4a0815526f88a2eda2c8ddfba9950fff8ab57e3c7e",
+      "bytes": 2115
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0030.diagnostics.tsv": {
+      "sha256": "1cfa3e897633e8a34201f6b5dda8c824fcd999db296b17dc69eaa54e3d14fad4",
+      "bytes": 5222
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0030.draws.rds": {
+      "sha256": "0aa785d0920fdecd45cceb9fe09d78085fce0f5fc805346fd6347fe9ef444fa6",
+      "bytes": 976416
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0030.estimates.tsv": {
+      "sha256": "c08cf65b8e272be900fe1c7b056db3f561ef33581be80cf54e9f625c205ed984",
+      "bytes": 2983
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0030.json": {
+      "sha256": "71fd9e4bd3aeef22010f84d7b5a1df9427625cac9935b2dea42eb7889d9f72f6",
+      "bytes": 2120
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0031.diagnostics.tsv": {
+      "sha256": "8496ee4e58fd02af9564d8809d585e39c7e841ad11c552340239518ef931cc98",
+      "bytes": 5763
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0031.draws.rds": {
+      "sha256": "b9b5e5f84a16ca5b264e6f8b9baf282800bd9157011cf01a790f87e21a2a0262",
+      "bytes": 1070140
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0031.estimates.tsv": {
+      "sha256": "6219a0f6bf40ceec1fd321741e486d72c8f055d117d50dd3c4ba2bf8836b3a2e",
+      "bytes": 3320
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0031.json": {
+      "sha256": "643d07c5a4aff420a457b83293db959115037232df47ba08f52d56a4f8c53fbd",
+      "bytes": 2267
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0032.diagnostics.tsv": {
+      "sha256": "edb70c5e611e2dff94672a6de5f3f93d07e627704c93c029ed62c4e2bbccf117",
+      "bytes": 5772
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0032.draws.rds": {
+      "sha256": "eef86252da83ce7d80e7607dc9240f6f3732282d4dc3c8cb12501e2216663430",
+      "bytes": 1075016
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0032.estimates.tsv": {
+      "sha256": "f660b8116f378a84b474603a2ec1fcaa1c8e514f15ce257832a9b0ac1bdd586f",
+      "bytes": 3304
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0032.json": {
+      "sha256": "25e304ae8648f89fb39458608bf17ef69a643cc8e3a251b67f66896276f8b34f",
+      "bytes": 2266
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0033.diagnostics.tsv": {
+      "sha256": "7410bda2e39acffc51959ab3da27808b681a04dd2faf26548bb71601cef38e1c",
+      "bytes": 5254
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0033.draws.rds": {
+      "sha256": "4b71b9eaff3005116b0398825f9247489836b2a3a373599b7928a09ac03d0590",
+      "bytes": 987148
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0033.estimates.tsv": {
+      "sha256": "f56fae75130e6d66c619c9d7dbbd98b51823666fc120035f0b78ab3be8d9ef71",
+      "bytes": 2974
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0033.json": {
+      "sha256": "49b5ae04e7d08a9974dcb4fb6e4a28b8e7d0e3a0c85ea918047cff7c59bae134",
+      "bytes": 2108
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0034.diagnostics.tsv": {
+      "sha256": "ce3d03d807ab21026d704acf5b6d77a86b215179e2213a1368b3a43d6aaf8720",
+      "bytes": 5237
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0034.draws.rds": {
+      "sha256": "e02028f20fbf1e97ccc5df69415cfd0b293412ab94aed548f3ef238c7a722fdb",
+      "bytes": 981680
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0034.estimates.tsv": {
+      "sha256": "c8cbe545544fd71eb07a212d3bc9ec0a7f3f1bfd5813e4505fefe1e55da51607",
+      "bytes": 2966
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0034.json": {
+      "sha256": "a7664b28e3591c8fcc8f3c8c9bdae57b4a2ed9864910b156d41b23de4716bf78",
+      "bytes": 2107
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0035.diagnostics.tsv": {
+      "sha256": "b94e4b08c4025a1a06b1ae1d2d0517ef95e09cbdb9754e18feb963e074a91dde",
+      "bytes": 5775
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0035.draws.rds": {
+      "sha256": "6a9b4e5d8bf9a608bff35bd487ff79cc25fffb33745794d2969af0751d40482d",
+      "bytes": 1078164
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0035.estimates.tsv": {
+      "sha256": "1d31f7b0f86e1a5821613000b6b52e8a9c8c4ce6f3a5a92bbff8d7013e9ef7e3",
+      "bytes": 3319
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0035.json": {
+      "sha256": "76f53c9d41d248b8555438caba081b6c90a422d6b4776cc3fb61db63525c1d9c",
+      "bytes": 2248
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0036.diagnostics.tsv": {
+      "sha256": "db6bc3b10bcaaa2252a55d7b9f0218efc3088859e0716411db64f31a55128c27",
+      "bytes": 5764
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0036.draws.rds": {
+      "sha256": "13641a2a8ed31574d68889c247237f073b16b7a26d852cefa592b90772940311",
+      "bytes": 1070212
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0036.estimates.tsv": {
+      "sha256": "d417f52888d0f8736af807d6d4be9ace7a1600ee51573777d6eb8134ea7b374c",
+      "bytes": 3308
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0036.json": {
+      "sha256": "c6888cc0542847b22d59c1ee43690159c651695c1952e65c46c07d244877c898",
+      "bytes": 2251
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0037.diagnostics.tsv": {
+      "sha256": "404b989f80c8d79edc06716835bd1904e233f655e587b647edb1223d640be996",
+      "bytes": 5238
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0037.draws.rds": {
+      "sha256": "c1f95f7d05e57568ab5a35dee56366c3cfc2e95eab3bb4c0298e073154554829",
+      "bytes": 975172
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0037.estimates.tsv": {
+      "sha256": "fc81944513531029f09383f28908e54e8ec6fc493011d0957c1304507f276010",
+      "bytes": 2969
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0037.json": {
+      "sha256": "842c0f92f6c47f88f13a2de541ff5770080b0cad0a72cc43fe05ccb0501331f3",
+      "bytes": 2107
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0038.diagnostics.tsv": {
+      "sha256": "01d7c7d59f224886bc3e7f516ad8cc4bef201bbe88aa04f4617d537c1ba5558a",
+      "bytes": 5228
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0038.draws.rds": {
+      "sha256": "1f4cba5300a72d06dc37af8a08bcc8da7b04cc68fecfc1a609960aa2a3b01fdf",
+      "bytes": 975120
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0038.estimates.tsv": {
+      "sha256": "f4a4c21c7d14e5fd73bc940a29297348c407b7db6cf2af5e602d2674e87bb179",
+      "bytes": 2968
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0038.json": {
+      "sha256": "5920e0f21063abc00d6bbbbe42e7876d86ca7b2a23849b2bc191ec5ba73033fd",
+      "bytes": 2112
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0039.diagnostics.tsv": {
+      "sha256": "eedc7cd9bf0f8416a7b0892b347f94242aa1ca2ff9d9bc191bd511d8cbfb8bc1",
+      "bytes": 5769
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0039.draws.rds": {
+      "sha256": "a11520e95570d1838351981f1117d9649f14bcf1db82911c157ae19c2625bb45",
+      "bytes": 1062460
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0039.estimates.tsv": {
+      "sha256": "80c01e0342aa6964979bbc6be945444f4362bc09c7a7a180cbc876e692eb3b92",
+      "bytes": 3299
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0039.json": {
+      "sha256": "4e300f528815284b96a099ec008a299ca24093766b6383072e9be5d3b7ca0dbf",
+      "bytes": 2252
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0040.diagnostics.tsv": {
+      "sha256": "acf384fc8ba32076ee5328192ac40d0f215fb13dd47f529a25ee60188bc12a7d",
+      "bytes": 5770
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0040.draws.rds": {
+      "sha256": "a77da7d515801686e4c4dc00ed061caeaa28a6dc14a98eaf33b0411df0f9463b",
+      "bytes": 1069380
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0040.estimates.tsv": {
+      "sha256": "a198b18d371c5f9716505909a11ffc1be1542136353032130e868061da906925",
+      "bytes": 3319
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0040.json": {
+      "sha256": "23da6d55eae5a434b42bc5cab4aad24fce27bf6856b6202f1dcaa439c85fbe14",
+      "bytes": 2261
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0041.diagnostics.tsv": {
+      "sha256": "b3d87f29978bd4891b4d1e0f873d70bacdca94b17bd06cb4d545f077d55cba5c",
+      "bytes": 5231
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0041.draws.rds": {
+      "sha256": "ab13bcd58031dd957048aaa8656ccc17fb13037ecab607212c8fd16f3b6c14ed",
+      "bytes": 971608
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0041.estimates.tsv": {
+      "sha256": "97df0df8dc10c81a11b3a18ac7de453c54026076c69d59d251a99ff454b0fa27",
+      "bytes": 2966
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0041.json": {
+      "sha256": "9a3cebe66d41b79175331fadf1810c0f5619c9479d36da0dec3886a897769b1a",
+      "bytes": 2103
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0042.diagnostics.tsv": {
+      "sha256": "83772d7eb3b4fdf44aa0d2d4c717ce5879c2651e22cb31393fa238775d9b97ed",
+      "bytes": 5243
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0042.draws.rds": {
+      "sha256": "992eea81cd8a08d7b465b303c23c5e6624d9eafc7582e8ebc998a225e9da5ac0",
+      "bytes": 975780
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0042.estimates.tsv": {
+      "sha256": "26a4cdd9bbea96693aaf7f9ca922a7dd3cd3484c6f9673d3b99ad0c1f8b834a8",
+      "bytes": 2968
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0042.json": {
+      "sha256": "5104b956c287ffca9d1e2a42171aaae9c2a00f976d6b19cf27d0046a705cb8e7",
+      "bytes": 2099
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0043.diagnostics.tsv": {
+      "sha256": "3d5be059012d7af68f383295e4263b043d188a3f2dbfbcf3715eb6ce81e7f848",
+      "bytes": 5780
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0043.draws.rds": {
+      "sha256": "9d243f67be796303f1405a1ab93d965d44df0ff609ea4c0b700e380eeb0bfb83",
+      "bytes": 1057004
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0043.estimates.tsv": {
+      "sha256": "eb73764f498ee191337ff4b4805ae0967cf0f56bccfb6cc31a3703e7c88f7554",
+      "bytes": 3286
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0043.json": {
+      "sha256": "74daf167c514a7dd54c2107261355812ba62a57a2a26c98523898bc52c6dba4e",
+      "bytes": 2249
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0044.diagnostics.tsv": {
+      "sha256": "fb875608b1ea84dbbbcd695b8104ec90d3c735a7e7e7df7937b6bfe0997c3c94",
+      "bytes": 5782
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0044.draws.rds": {
+      "sha256": "76b939adb0fc27e5e7d4c17383eabcc72080f8597a4b8640d921828bf275ce01",
+      "bytes": 1067116
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0044.estimates.tsv": {
+      "sha256": "c2542be22af3270f3815b333917b32681067619cd763ed0fdd7f0afb522f08c1",
+      "bytes": 3308
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0044.json": {
+      "sha256": "bb28568ff12f9bc01d470d27ccb00014922a385b96535f20886673efce4ac01e",
+      "bytes": 2244
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0045.diagnostics.tsv": {
+      "sha256": "30e107559a876850abf87c70fba3dd0e1526d30a5eb6c4c8a3cfab46a1f1db20",
+      "bytes": 5234
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0045.draws.rds": {
+      "sha256": "4bbe373e19e6dc53e94bb6dbf5a5af302e6cf83260f982e154188ccdf84c0360",
+      "bytes": 986000
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0045.estimates.tsv": {
+      "sha256": "8070603e7b2afc1e7532ae43d6ae6cd9db42c6e215f695ef6eafd23d33d8a796",
+      "bytes": 2968
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0045.json": {
+      "sha256": "eb04ce92da1e91ca408bf7db24166052e5a41fcc1aae96f1f4676934dde1886a",
+      "bytes": 2118
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0046.diagnostics.tsv": {
+      "sha256": "a42f642400bee8899676a1f66a5325a1eb33bbac4e777e252240172f5a9e9d31",
+      "bytes": 5234
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0046.draws.rds": {
+      "sha256": "dc7b5ed360a9b801d17e9bf90d43c355cc1aa82842b4c99bc5069eedd471bda0",
+      "bytes": 976936
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0046.estimates.tsv": {
+      "sha256": "57c010dfa2d47e6bb60e68c2d78902a1d7d2bd9880d00141ff9581d82e7e6f8f",
+      "bytes": 2969
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0046.json": {
+      "sha256": "86fff2c3aa6725bf69a8ea633f587dfc91927ebc43f6fa1f06b7ef3846bbb18a",
+      "bytes": 2119
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0047.diagnostics.tsv": {
+      "sha256": "7ebf88e84f1f494c92a46eee3bb8470d501723fa35ccc539be0bdbebc1cf883f",
+      "bytes": 5777
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0047.draws.rds": {
+      "sha256": "5d630fc6754f5cd041a6c7d6da3326421d9db3d52b0da11d0272a37f430947d0",
+      "bytes": 1071564
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0047.estimates.tsv": {
+      "sha256": "c773f0e015848911a2ab18b6c2d080e2377bd1407337b084ec5c4ca6089ed581",
+      "bytes": 3316
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0047.json": {
+      "sha256": "494635efd4d037ae60ff00501dfe5205a415f87abf0d2b8261d2ca751d03497f",
+      "bytes": 2261
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0048.diagnostics.tsv": {
+      "sha256": "9e8ed5c50d7f838044d236051a5e2ace84340f0608fc7e181fed75c6d6f93eef",
+      "bytes": 5778
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0048.draws.rds": {
+      "sha256": "628daca4896157b00c942e0813a6aa72e5a4b2f0fff7bac5f1695955bdb80374",
+      "bytes": 1063160
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0048.estimates.tsv": {
+      "sha256": "a47994919224867c7c3ae875b04ff0410d7db96aec8980489a992615144e8c06",
+      "bytes": 3300
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0048.json": {
+      "sha256": "caa0794306544e625722e3bfcc6b39d8322ba7b3822d0cdfbbda287425171221",
+      "bytes": 2259
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0049.diagnostics.tsv": {
+      "sha256": "f40379786745125faa61da281f15eb8b0cb668270e24eea14492de582650a44c",
+      "bytes": 5216
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0049.estimates.tsv": {
+      "sha256": "31476c4caaf31cc4b12bcfbad1a616c94c77bb9d6966157cc4b24dd2947609f8",
+      "bytes": 2916
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0049.json": {
+      "sha256": "d340be8bb98d7558832d82d7f756a3fb14d6c839cb12a4845a422e7750fab2cf",
+      "bytes": 2021
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0050.diagnostics.tsv": {
+      "sha256": "be839e25fb051e94726083ce752994a1228ca12308cb426593eddbf8852164a5",
+      "bytes": 5767
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0050.estimates.tsv": {
+      "sha256": "6a045f3b07f9b0d4793ee6a460595101bac3753ccf9d9d28321616f6e567dadc",
+      "bytes": 3267
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0050.json": {
+      "sha256": "baac732eae3928264614b3cd522e0f773030710ab82cccd48b7655eaa53a48b2",
+      "bytes": 2175
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0051.diagnostics.tsv": {
+      "sha256": "63084fec93347b66300223a428dfd4864ebd53c33d24a0523d5ea3efa7838f5c",
+      "bytes": 5215
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0051.estimates.tsv": {
+      "sha256": "f2873d4d9a71f82dafe2ea4d81fed04f6c43a3756dc3af1b5407c2d84296556a",
+      "bytes": 2908
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0051.json": {
+      "sha256": "0f30effd3071606573bd26ed305fc31c95801170cff8d957a52923a3c6be8b0d",
+      "bytes": 2033
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0052.diagnostics.tsv": {
+      "sha256": "91558c61a3c98f0c58d19cc64e68dea1885e181d9bc9e2cf16ab32c091b6ccad",
+      "bytes": 5733
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0052.estimates.tsv": {
+      "sha256": "5ca36d862c577ed95eea936a396ea8e92a217cd45a615e83db1512f214ac9a68",
+      "bytes": 3229
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0052.json": {
+      "sha256": "66ca06b00e35c18b611672fd85b94c7e716ce2abea24ac2b85a7648314be726a",
+      "bytes": 2127
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0053.diagnostics.tsv": {
+      "sha256": "c153281691aa3c0a86d498922876c3a5f22be2cd841651e2714c85d77216f402",
+      "bytes": 5219
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0053.estimates.tsv": {
+      "sha256": "b300028ac733261fb1bcc0ef4c7161e2e1f2a3d469f62af7a270a4c14f18ff6f",
+      "bytes": 2896
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0053.json": {
+      "sha256": "8066a6d82abcd404e92ee46e96e8fb697cbb414668347d8f36816a9db33e7a51",
+      "bytes": 2019
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0054.diagnostics.tsv": {
+      "sha256": "395d98e7ee2d3e67b857ade3066ddbc784c4c9b8803954cc640427c7050cae66",
+      "bytes": 5766
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0054.estimates.tsv": {
+      "sha256": "5491ea7fd02aab341f099e8b05657a033e081cf32f02b15bda7f7414b8b51696",
+      "bytes": 3231
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0054.json": {
+      "sha256": "adeb85bee0529d340305159660f07d8b5daaeac09cf47ce7e0ca0557adc88325",
+      "bytes": 2160
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0055.diagnostics.tsv": {
+      "sha256": "8d262c321046e2fe62ffa6930125bc3218cdf5e6d513eb3f6330949c0cbf23fb",
+      "bytes": 5226
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0055.estimates.tsv": {
+      "sha256": "5f7dca0ad746bb6d244550e5b1f3eb3d91fab9b62cd7bfe7bff4365c1a728e4e",
+      "bytes": 2937
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0055.json": {
+      "sha256": "b89a023aaf61ab3e74af8eb8054686966c4e8978897c534d49ee0661f58ab510",
+      "bytes": 2053
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0056.diagnostics.tsv": {
+      "sha256": "6fa4febc023e0ca5a85d8980f91d244679035e40a84f518a363f7f90d9eb5768",
+      "bytes": 5769
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0056.estimates.tsv": {
+      "sha256": "e947acb30a9d37031608a138f412bcdfa0b1700b631377021a13e2b77ea99f15",
+      "bytes": 3268
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0056.json": {
+      "sha256": "dd8bd8354b482427f69fb0fb2415d2c5919ad0ef6e2b3f1ccbfee3baa2a618e0",
+      "bytes": 2192
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0057.diagnostics.tsv": {
+      "sha256": "943c7dfbc75c475ffc112c915a9bb478d8b7fab29be6e64c69967cfa23cc3125",
+      "bytes": 5231
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0057.estimates.tsv": {
+      "sha256": "6c943a653b6099ea55dd272454c877be4fe398f7f161d057e874b25164cbacb0",
+      "bytes": 2976
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0057.json": {
+      "sha256": "eaa364e5d8016eefbff450344dd9218b7438d33cfbef2562c548511854588c06",
+      "bytes": 2116
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0058.diagnostics.tsv": {
+      "sha256": "c3071935001d1b4be330eb51f3431c0313967ab7b90b1991b11e1587e1e5e614",
+      "bytes": 5774
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0058.estimates.tsv": {
+      "sha256": "45e03f5e2f404579f40cc6998895bb47cb730f6b1890cb334ff6ad5a313509f2",
+      "bytes": 3310
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0058.json": {
+      "sha256": "55d0f860d6ff88e1221bb55ec2f03de2e33be8caaac0142d0f133bbca7aea5a3",
+      "bytes": 2251
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0059.diagnostics.tsv": {
+      "sha256": "005a5025e3a7691b1a6305d24c22936b463dd218d71e97217a2f5d5c29f1e908",
+      "bytes": 5236
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0059.estimates.tsv": {
+      "sha256": "3af0142c2ce550821aa9a947273422ebd71febd4a9240cbb5a89441eef8a58af",
+      "bytes": 2968
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0059.json": {
+      "sha256": "be4b7a930c3a5b4e598b3ddead39325262aeb7cd52f981b153a385620a8a1153",
+      "bytes": 2119
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0060.diagnostics.tsv": {
+      "sha256": "6e4e7f0944df6677d30d7ab3b57faab1711d101e8bafc1e66ee9d177bbbb325c",
+      "bytes": 5770
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0060.estimates.tsv": {
+      "sha256": "02a89ed9d62c4871aa84b92725aadf45b4fe1a10fae41ef11072940872d1959b",
+      "bytes": 3314
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0060.json": {
+      "sha256": "a6268c56944678daf6f12ddd2244b76c2af3c1216d09173f6bb53368835821f6",
+      "bytes": 2269
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0061.diagnostics.tsv": {
+      "sha256": "3fed33232324898f7d45e6ca53eff9586119c591bbb39c7e07197cb684cd65bd",
+      "bytes": 5243
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0061.estimates.tsv": {
+      "sha256": "1b5c842312829f36a96e9bea9f8e501b893c72670404ca000a1a7348dff73410",
+      "bytes": 2960
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0061.json": {
+      "sha256": "d6a27769b4bb34ec7d6aec52d7d6815206104948ff0e533268da4a9fe9c760ef",
+      "bytes": 2119
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0062.diagnostics.tsv": {
+      "sha256": "7a5f8975312ba983b8710530be48898b99d5a356d7e164c45a809621d2f6956b",
+      "bytes": 5760
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0062.estimates.tsv": {
+      "sha256": "e9525a098e27057aec027ad8b3f594ddbd429489eafae2ad520712add0d68701",
+      "bytes": 3308
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0062.json": {
+      "sha256": "de5f0473cae7fff95d73d6b16ffc05b0e96971a64480f59d434f6056e5c5caa4",
+      "bytes": 2256
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0063.diagnostics.tsv": {
+      "sha256": "8a3ece48cb665dc4dbbd3b8513b639979ef1776adc71d56ad21423ad92d9b5d1",
+      "bytes": 5234
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0063.estimates.tsv": {
+      "sha256": "ac19ffbc13f3bde0c6ac51428cda126cfad9beb8828ca69a4496b18b757ad768",
+      "bytes": 2980
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0063.json": {
+      "sha256": "e27c4a9306e2f05ae09f1f50514048044c1ba1f215eefbcc197c5b2e9de405a8",
+      "bytes": 2125
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0064.diagnostics.tsv": {
+      "sha256": "d4446ff6e74e5b05b34337a71b3b765e389049b28b540c0d3d5d922852c027eb",
+      "bytes": 5778
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0064.estimates.tsv": {
+      "sha256": "ada45697fb046a63da958b37df2c66a2c175b08e9ad6541f8c12642e5ef04a6e",
+      "bytes": 3317
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0064.json": {
+      "sha256": "74a73619a40d41ef2d05c0773ea7b590674f4176350daa2406dd3243b41bc296",
+      "bytes": 2267
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0065.diagnostics.tsv": {
+      "sha256": "e8e63faa2ffa8cba25be44d432c8deeb80ed6d48e94318386ccdaea5ebe4c504",
+      "bytes": 5245
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0065.estimates.tsv": {
+      "sha256": "d15f332024501abbd677d00f36dfdba90e2226b509f055eafc45f870c91b810c",
+      "bytes": 2971
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0065.json": {
+      "sha256": "0c7e491645e48be951fb8d9a0021c47a036398080b5d2e63047c63eb5104613a",
+      "bytes": 2118
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0066.diagnostics.tsv": {
+      "sha256": "a7a580c6a8a9d63987b645eefbe24267ab3176b270cfe9a461fe96afb9b51f7e",
+      "bytes": 5775
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0066.estimates.tsv": {
+      "sha256": "d61d59524426034e22d46ebabc3d07d11a8da8b4b3e7c7adbb8d3592170c0466",
+      "bytes": 3309
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0066.json": {
+      "sha256": "86a694ffb0b2b75e610ac236db24b649ab78fac4f5621e7e157704cdfce5bbfe",
+      "bytes": 2256
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0067.diagnostics.tsv": {
+      "sha256": "7133ec606c61a6f0b866f2a0b6c9c5ed01b2c626fe6270819c56097189e1399d",
+      "bytes": 5227
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0067.estimates.tsv": {
+      "sha256": "38b50ea7d76bd626673731996762b071203140354d419093ebacee9f104ad298",
+      "bytes": 2959
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0067.json": {
+      "sha256": "189cc9398d4e05c2af5a7550e7b1443367598ad653a42d3c3c0b64a2a581e15b",
+      "bytes": 2115
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0068.diagnostics.tsv": {
+      "sha256": "4ad59c0167b44d93b634f2487f8d7746838ab788d0486a68fdbb91c86e6cae65",
+      "bytes": 5778
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0068.estimates.tsv": {
+      "sha256": "91f0a555d0fcd102828e6b9c2d78feb43a5620c4db9698627f31ddce2f770f24",
+      "bytes": 3314
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0068.json": {
+      "sha256": "c6692d479dfe826640ace1e0137f99737256078329859bd166fab66e2b52cf19",
+      "bytes": 2255
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0069.diagnostics.tsv": {
+      "sha256": "632030582e870dfc8dc7dffafc5008e4dccee0d121537f6418b89850fffb8cd9",
+      "bytes": 5246
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0069.estimates.tsv": {
+      "sha256": "45c5592c7f755e66b24762e827c02484f6755d8f74b84b073b499bccec73c50b",
+      "bytes": 2966
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0069.json": {
+      "sha256": "b897bc19f4906576b975925fecc4e11bc4d0dcacab75c66d20bbf06382bfc837",
+      "bytes": 2109
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0070.diagnostics.tsv": {
+      "sha256": "9fcd68b0b910eb5e481185b565576b32a943bf4cea555a137277a5272978fa5b",
+      "bytes": 5782
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0070.estimates.tsv": {
+      "sha256": "4f730a907852d18f3b8e19f7c3a0b1f242e703b792fde9061372ba034a83685a",
+      "bytes": 3302
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0070.json": {
+      "sha256": "1f907cbfc61f5580ae1017234310115780db665c9a49ed5dcea6a495392fdece",
+      "bytes": 2252
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0071.diagnostics.tsv": {
+      "sha256": "d1a8b92dbaf2b3d7f9698dcf6df603e77e00f7990345824dd7a7aefe489f2ee9",
+      "bytes": 5230
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0071.estimates.tsv": {
+      "sha256": "ec947c81064b238abea57e7b53200214d47bad3c3efdb48f99e53b538d1e7b1d",
+      "bytes": 2965
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0071.json": {
+      "sha256": "5c8e30ace80a39023b55079d1be64f9ca41def819ddc23a6b934779378fa9372",
+      "bytes": 2131
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0072.diagnostics.tsv": {
+      "sha256": "fa511893ce1759b28d92a65e1a477b63408cd9fc99a751deeab57af93e14c56b",
+      "bytes": 5783
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0072.estimates.tsv": {
+      "sha256": "63fa9f702936e89bda194c3caf86846b7c414609f2e1611dce0eee37586b9d5f",
+      "bytes": 3303
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0072.json": {
+      "sha256": "aff3a710158ddbc4eb23d56d552ff9ec1b5d7bed9f9274e8c51bf1725179cd50",
+      "bytes": 2267
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0073.diagnostics.tsv": {
+      "sha256": "9ab835001eb69e17f99eca3fe422afe59f62528f32fe2b73461279b3f3af54b8",
+      "bytes": 5239
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0073.estimates.tsv": {
+      "sha256": "d7d861d3e25bd5dce787b1122ce5d6fa6fed651b60b0317a6fbcd91c01c21018",
+      "bytes": 2947
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0073.json": {
+      "sha256": "bf605d2e6f8b9dacc0ec1ca35c1bb394da6962161318207896f644ee49a23b63",
+      "bytes": 2046
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0074.diagnostics.tsv": {
+      "sha256": "2ab52e25e304309e3fc083e2898c06e87c103ec037ae68d6c5eb3ae32f9da5b9",
+      "bytes": 5781
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0074.estimates.tsv": {
+      "sha256": "6c9a21a86589189239faa390dfdea6a5aadddf7882c5e6de29eca83452c93752",
+      "bytes": 3287
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0074.json": {
+      "sha256": "70d70cca5885f8b928d11bc4fb63af542a9b270182ac69f0042d44c8cf3983dc",
+      "bytes": 2177
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0075.diagnostics.tsv": {
+      "sha256": "29034b30f2168dc734016befbee722a42ad4f90e0b3540d74885cc04a33b9df7",
+      "bytes": 5236
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0075.estimates.tsv": {
+      "sha256": "c4dc41cf98129fd0aa0c802be2c61d4d78861195b6d2ae9225f71414706d7adf",
+      "bytes": 2936
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0075.json": {
+      "sha256": "1baad0260e5483b7b168113eab66bb9ba8899b65304af9b4dfc1b953709ba2e2",
+      "bytes": 2062
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0076.diagnostics.tsv": {
+      "sha256": "b704dd68324a937f5ad978035e54faf40aae3d27f59eaef2a22e7378e3b31e13",
+      "bytes": 5777
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0076.estimates.tsv": {
+      "sha256": "27a2aa73d8f25a85c313db5193950c021c31acd555088b5c09aba317d950f341",
+      "bytes": 3280
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0076.json": {
+      "sha256": "033f6838286bdf2506a536b9021cfc7cca598058dacfe0407d9225f93d4ef12c",
+      "bytes": 2189
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0077.diagnostics.tsv": {
+      "sha256": "b555bd1089095fb02d7697e21e6b09739a1492512096696b9fa2b51f6bcc930d",
+      "bytes": 5225
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0077.estimates.tsv": {
+      "sha256": "2925468219cf07b2caca76c851366a51b02a7ef11ed6002ba031c2e86b35ced8",
+      "bytes": 2935
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0077.json": {
+      "sha256": "71dc4ef6b957d69112c37785aafd346c1d5df09b8ac1207dffe91e40b0bf427a",
+      "bytes": 2046
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0078.diagnostics.tsv": {
+      "sha256": "de84b82c8bdd8e3b49dc62b272bafe73a4c197f19a719909ce160981c56e7556",
+      "bytes": 5776
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0078.estimates.tsv": {
+      "sha256": "4b7264ea8e3eba4ef497b12393986319a28f97e74232259c7a7fccdaaed74c06",
+      "bytes": 3279
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0078.json": {
+      "sha256": "afc9b44a6a323e9fe687e517bb0434cf42d33308469f833fa7804586150d6b0a",
+      "bytes": 2178
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0079.diagnostics.tsv": {
+      "sha256": "457b6d615bf330c37c3b04abf29484e00042542cca78c097805ef0f51ec3405f",
+      "bytes": 5243
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0079.estimates.tsv": {
+      "sha256": "015dc9e9448c6903f9c77fc9de488cf7a4f07b4a793814879fbb05d26cee1ab1",
+      "bytes": 2940
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0079.json": {
+      "sha256": "5ca130f6478e821e75c0f389148cc9ae8f750fcf6804abe14043b2e15fd76770",
+      "bytes": 2057
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0080.diagnostics.tsv": {
+      "sha256": "9aa1a08e8cfb83b044243c6dc9010bb47a7a8c580631bdf9c2eb17ff1066ec3b",
+      "bytes": 5773
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0080.estimates.tsv": {
+      "sha256": "61a14cbca7edf0ef9bca5010996796465f5c935780cc1b050b4d60487d2088e3",
+      "bytes": 3267
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0080.json": {
+      "sha256": "0cd90adf297f2627ecedb81f0455371df3ea8d0733bd2cbb3f39f05f207a3714",
+      "bytes": 2190
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0081.diagnostics.tsv": {
+      "sha256": "baccc978e747cddb8fc19029f71553fc7612abe2592b1238f2602c7b3dd038aa",
+      "bytes": 5237
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0081.estimates.tsv": {
+      "sha256": "fbd053bfa8c7ffd4a0ac99e54ca2db75fecfc16bcffdbeca253bc8301df93893",
+      "bytes": 2988
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0081.json": {
+      "sha256": "9936336030b3e8be040be5e7fa376690cc499c7b644f4728d6c5a379ebb3d608",
+      "bytes": 2108
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0082.diagnostics.tsv": {
+      "sha256": "1ae0019ec261c3ce2db8ae0e865dbae43a2d34ed2a4140b4326bd028b19f140b",
+      "bytes": 5784
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0082.estimates.tsv": {
+      "sha256": "b3fb13b930adcd74eb59e112a779c03ffeac357ba469013ab31f559d13f2a083",
+      "bytes": 3328
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0082.json": {
+      "sha256": "0d54061e8479fd5da311aee72c05a55589718c70904c1a85f3f65a168c9afa94",
+      "bytes": 2248
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0083.diagnostics.tsv": {
+      "sha256": "be4ac51e9ec53c28b23ccf2c71a6d0fdc32d9360f20ff28d6e74ae2c61b42b0b",
+      "bytes": 5230
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0083.estimates.tsv": {
+      "sha256": "39b1292bff966fbbca891817bb9cb04279f3d3af3bd1d1c78c2382dd4040f8e6",
+      "bytes": 2956
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0083.json": {
+      "sha256": "9c398ef2b617237922c2ef23482ce5a7a805ac0fb60cb8ddc97109ce87dc8536",
+      "bytes": 2099
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0084.diagnostics.tsv": {
+      "sha256": "fbe77d44a0311b7c726282cf50151a0882d75114021b772f8eddcd51859a7c16",
+      "bytes": 5772
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0084.estimates.tsv": {
+      "sha256": "a9f61185a56c52f71a10854f0e6530a5e1979c3d3f582597889b8393aaf8b5b9",
+      "bytes": 3319
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0084.json": {
+      "sha256": "53f5250662ce59aea30ae0c62aaf09f6e67a98fa058ac25ed2dce226635a2747",
+      "bytes": 2256
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0085.diagnostics.tsv": {
+      "sha256": "6dfa36ec7d57fa7d8d96277fff393a8be75383f8f4bb242294b5a01c0d0617b4",
+      "bytes": 5235
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0085.estimates.tsv": {
+      "sha256": "aac8735cc250f0a9b4b91812237562bb446eb28ec62f41a9009e2209707e667c",
+      "bytes": 2983
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0085.json": {
+      "sha256": "aa292cd42ab130c93591c7debab393efb4b3d6705ecded3bad3a61d5e2f36e3c",
+      "bytes": 2107
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0086.diagnostics.tsv": {
+      "sha256": "5c7ff7b472fdaae0c138857da9aa7a3f85e25a5ca2e2dfe491c0bb95fadcf5c7",
+      "bytes": 5768
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0086.estimates.tsv": {
+      "sha256": "1a2bd0c708b9487dfd6ed5a858c99017c4c98444e36a4fb9c46e962a6e9bf6ef",
+      "bytes": 3299
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0086.json": {
+      "sha256": "856c33dbf1907081cde7d12404ee07736c6c0cbc13d219ca7d8be35481231f17",
+      "bytes": 2253
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0087.diagnostics.tsv": {
+      "sha256": "c15632b40f1bf510c2910ad38acb99a332fadf052903745399a848ab77163e42",
+      "bytes": 5233
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0087.estimates.tsv": {
+      "sha256": "33d5cb4319001089ce40c684096f0b1fd796e3fbadc3aff1da84775b0c012551",
+      "bytes": 2983
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0087.json": {
+      "sha256": "ceb6e4621f1a156d97219f45c4c1e12382008f909ec846870509fd2a48f66f27",
+      "bytes": 2124
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0088.diagnostics.tsv": {
+      "sha256": "c6d2615cd0cb8dc6d6fd8bae981a91437a312f4569a44151dc3bdd71714bc5cc",
+      "bytes": 5770
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0088.estimates.tsv": {
+      "sha256": "725775a7c1f016aeff3d418d688621f1466f35ad7474d31ac977432fa83f4610",
+      "bytes": 3327
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0088.json": {
+      "sha256": "375745a13dde43a39f7fd23817a80543127c4ae9d8578d717edc4d3a3bad439a",
+      "bytes": 2263
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0089.diagnostics.tsv": {
+      "sha256": "fca6ff364c959d478520c2ff80435593eead2889bfe055b68b91600d2e0f3e58",
+      "bytes": 5235
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0089.estimates.tsv": {
+      "sha256": "68d26028493bd9f0e8311d424835b16db7768b903688d687812764040718a86d",
+      "bytes": 2990
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0089.json": {
+      "sha256": "fd49586ee6027eef7e3d525c64bdb945755c4f82eb6384a3c50a576c4ce9a0b2",
+      "bytes": 2111
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0090.diagnostics.tsv": {
+      "sha256": "e611740978dca9b427c1aabd582b35f2229cd552dcc9e4e24367a8f58f2fb81f",
+      "bytes": 5779
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0090.estimates.tsv": {
+      "sha256": "1400104315e1ab995bbda4e1e7268dbca5bb3a52934c439d5ef4a50a7ac8501f",
+      "bytes": 3309
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0090.json": {
+      "sha256": "5efcfbdb3c561b44e5257f1dedaf3129d9ced2974654a2cd81474c31f1880a4c",
+      "bytes": 2253
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0091.diagnostics.tsv": {
+      "sha256": "53e3176a9ae1ab4a29a7ea2e0dc8fe03eae7389523d516ebd6798a413a9414d3",
+      "bytes": 5222
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0091.estimates.tsv": {
+      "sha256": "cb5a5ac205dcf4d3259c7e7572d6c01d3725be94967372bc0f1cdbd69b09ac9c",
+      "bytes": 2951
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0091.json": {
+      "sha256": "3d8244140fc415e02fa3cdf3fc938327be3c74dca5df32a653b40c2a54dc036c",
+      "bytes": 2111
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0092.diagnostics.tsv": {
+      "sha256": "20c1a4d4b0c38f820035867ea76e3c06a1d27193174f79adec56dba3ef195a98",
+      "bytes": 5771
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0092.estimates.tsv": {
+      "sha256": "9d52cce25db579649c9c9d4dbeec61c7287c20d09a812a4ebe58f8aaae177a53",
+      "bytes": 3303
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0092.json": {
+      "sha256": "5c629d91a5b0960208bd420873adbbe8e66023a2c56c664bcbf15abf137991c7",
+      "bytes": 2247
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0093.diagnostics.tsv": {
+      "sha256": "64ee90976930f98ab2eaac65064e816bf2395ea4aa18a893cbd9a3d4c02ab84e",
+      "bytes": 5233
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0093.estimates.tsv": {
+      "sha256": "a5ad75b3811add81dffee617259d319c26b1dca40b8c2e0ad6c7119808dc66f6",
+      "bytes": 2956
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0093.json": {
+      "sha256": "c0f08d87b70d0fbf68c3471d3210ebba14152eb778b9079c409a751e9549bff4",
+      "bytes": 2100
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0094.diagnostics.tsv": {
+      "sha256": "b5a80ea935d80d473667a3cecf894c922d551d8bad20fb368f32d94adaa706c1",
+      "bytes": 5785
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0094.estimates.tsv": {
+      "sha256": "3f2917387d36ee7ae2d92d69d0b2f34d13b790d9ef44db4c617094f9ed1fad8c",
+      "bytes": 3311
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0094.json": {
+      "sha256": "2b875bb9c29383d46c475c566d4520454cde1555d23c40e69ab781f4c779ef50",
+      "bytes": 2251
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0095.diagnostics.tsv": {
+      "sha256": "9e9f42754f13dbb8e6be08740a69251bd170edaae9a1eb521edd6fe180640378",
+      "bytes": 5228
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0095.estimates.tsv": {
+      "sha256": "ff0c5e59b362cd2d36edfc36554aa3144f06f660aae1220592e85630810e043b",
+      "bytes": 2966
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0095.json": {
+      "sha256": "0dd6d7ca2f9aff86979178c741fe615b4528f70e13c3d5d0f4443a298dc30653",
+      "bytes": 2118
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0096.diagnostics.tsv": {
+      "sha256": "9ac52ae06abd3870ab8276030f4fabb7030d81d905a20b993df732f9b119126d",
+      "bytes": 5781
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0096.estimates.tsv": {
+      "sha256": "5b1b3d5595459cf689d08207492e5a6710ec8ec9a1b320f1fb88262316b3cbf3",
+      "bytes": 3317
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0096.json": {
+      "sha256": "d1630948bdaf06ed32621a52922883245fcab0eb56830e28559e9fed9bc5512e",
+      "bytes": 2262
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0097.diagnostics.tsv": {
+      "sha256": "17a18e68e7ce368e65d30d47ca92867441d9680988b03ca4ab48bfde0140b124",
+      "bytes": 5224
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0097.estimates.tsv": {
+      "sha256": "11c5f1c464dc6f92cf96a6b689cdfd6a423e1117cf62217bc80cc5158dfc242a",
+      "bytes": 2927
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0097.json": {
+      "sha256": "ea495145d61048dd93f45690a361618db08fe55af677a31eb32522fe8b784b91",
+      "bytes": 2042
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0098.diagnostics.tsv": {
+      "sha256": "9ef0ef326477d81702335ae59cba290983023060a8d24bb61a2111c4030524d1",
+      "bytes": 5768
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0098.estimates.tsv": {
+      "sha256": "014d58ece55d2b9a4b1db896c50a9e1665292cbd4fbe8e47ff9a39dfe05f1ddf",
+      "bytes": 3260
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0098.json": {
+      "sha256": "3ec8556bed0822cefb2593b649a0d3a8547d92e59c6061646395e5db08a8b6a1",
+      "bytes": 2174
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0099.diagnostics.tsv": {
+      "sha256": "59966cafd7311212e2c52cfd2b3739905cbd93988952a3ad88042d0c7ee03410",
+      "bytes": 5227
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0099.estimates.tsv": {
+      "sha256": "6d37ef42cc74b22e164486cfcdc7d67bfcbdd369ba2e9c0106b896e81cef07e0",
+      "bytes": 2908
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0099.json": {
+      "sha256": "9280b036b7b4782bf2555cff2ae0d131c8187a4f5d51b2b7c8561d26d798aa7f",
+      "bytes": 2037
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0100.diagnostics.tsv": {
+      "sha256": "4e9a49ba86d58cebc49d935bb1d2e5f27c68cd8f84b6cd6fad22cde2234729b0",
+      "bytes": 5755
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0100.estimates.tsv": {
+      "sha256": "74f98ea47ffaa291aa2fe402df2e790b3017cfa68626e7a108fee4ec6b3a2b79",
+      "bytes": 3229
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0100.json": {
+      "sha256": "f71dcf4d091064c3e1e786ce0822a43a4835e49c4e92f12a0a7de4cd4480a6ed",
+      "bytes": 2167
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0101.diagnostics.tsv": {
+      "sha256": "b08205ab5ee9481b938b6b10ea5913d59bdff0f509a5b6b8d1d503a1b0868971",
+      "bytes": 5229
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0101.estimates.tsv": {
+      "sha256": "908a806fa7fe9f30e9e6f189841568ff5cbe3f3ca427f7fd2f73c4c9a8b0a7e9",
+      "bytes": 2906
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0101.json": {
+      "sha256": "0369a0cdf19bdaff0e0e79b44e85973c11ab041a937043e041c1731ce1839070",
+      "bytes": 2036
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0102.diagnostics.tsv": {
+      "sha256": "63d94088ed781cb54ebdff0cd28e1ed96b284be5e00e2c0b0573a271f18a5eac",
+      "bytes": 5763
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0102.estimates.tsv": {
+      "sha256": "38bdbfcbaf2b71135e3e1bca7954ebfefd132d7fbc5642b08ff85983de3af654",
+      "bytes": 3262
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0102.json": {
+      "sha256": "e8fa168e814fe9ff172b0e348679fc911237a4732475d910f9d95ec350570785",
+      "bytes": 2178
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0103.diagnostics.tsv": {
+      "sha256": "228aae8ce0b69c9a131372857a96475effbc0d3eeb92dd18ec70cbe587d694f9",
+      "bytes": 5237
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0103.estimates.tsv": {
+      "sha256": "77f1a3db7cd183de04a667921129e9223ac12feb9454be0fd151fa74147b3c6f",
+      "bytes": 2928
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0103.json": {
+      "sha256": "ab04cca832b0a60619adaf03cd48c94c6e2e58259e04663ccf2fab3993427e04",
+      "bytes": 2053
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0104.diagnostics.tsv": {
+      "sha256": "14989520e438151f71de5c485606f081fbb0460f6624f3b5699ee64f5f937950",
+      "bytes": 5747
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0104.estimates.tsv": {
+      "sha256": "fbbfccd74114b96a1a31cc764602402b7b179ff74f42823e52563474a0972800",
+      "bytes": 3270
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0104.json": {
+      "sha256": "a11b508a21ba0f1eec5eb5bf6a8c806e2b713f1fd4105dadd9c3f5f65b1a9f80",
+      "bytes": 2186
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0105.diagnostics.tsv": {
+      "sha256": "9f80f059d2103502e9aadf40f38b041faad074cd652c901ab7358b8390de8e9c",
+      "bytes": 5245
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0105.estimates.tsv": {
+      "sha256": "31b75dfab82a0aa087c8f8d03f7aab928e732447de80e4acb7cfd627c33ecc3a",
+      "bytes": 3003
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0105.json": {
+      "sha256": "75594987bf0706d761c80e6342f01a5e94ce2f527e96c62b353f136a52241590",
+      "bytes": 2122
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0106.diagnostics.tsv": {
+      "sha256": "7db979ac503be78bf595c57351ad1f7bccb53f0317f7649ed8fb0d7141114953",
+      "bytes": 5761
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0106.estimates.tsv": {
+      "sha256": "5ac081ddb91e21889e7ab88b85280d0b6d079e1df686a66c51197d9379a95cce",
+      "bytes": 3322
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0106.json": {
+      "sha256": "c2f41f2330bdf679eff7e6b0545f015bf5f1a1eb0f88f4f10f9f634c6a428205",
+      "bytes": 2258
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0107.diagnostics.tsv": {
+      "sha256": "5d6785edb1fc0580d57ee9d8a4bbad52048894e84039140e22e042152d6260ca",
+      "bytes": 5227
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0107.estimates.tsv": {
+      "sha256": "d62c256f05653c8be2cc81a158fcad1cec106ecd634562b262c1e4d732081070",
+      "bytes": 2978
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0107.json": {
+      "sha256": "1acf514e25e267c4c7e9e268486f4a819ac767263e100c272af289676a162757",
+      "bytes": 2122
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0108.diagnostics.tsv": {
+      "sha256": "6dc3932cc078a98394e01891726cc41125a52420374fbbcbb38598864336faab",
+      "bytes": 5762
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0108.estimates.tsv": {
+      "sha256": "9604ab1b75124acbced51cfb9476238f4eef20987a2e3c34fea2c559a44528c0",
+      "bytes": 3315
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0108.json": {
+      "sha256": "7dc754ac0b072b3f6e36194fb4d8cd31f6a27fa4f410ed7990f46a906f581ae0",
+      "bytes": 2267
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0109.diagnostics.tsv": {
+      "sha256": "fe8742fff108fe0c0fa11ccbc21d9704236f1718fcbd28223859be7967b33fee",
+      "bytes": 5235
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0109.estimates.tsv": {
+      "sha256": "e14310db694e11d9fb11d870eb8290b014d5f32b310517e23cd1ef7317182852",
+      "bytes": 2986
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0109.json": {
+      "sha256": "3b8b70fb3b729dc86cb8df280b876f46c582b6316f779dfc3c4f1243c3d59130",
+      "bytes": 2122
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0110.diagnostics.tsv": {
+      "sha256": "3bf895d64561770161bd8bd7a3f1188e7a1f009f691a7822f5a908350e59e73e",
+      "bytes": 5763
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0110.estimates.tsv": {
+      "sha256": "60e5f5068b71055def79dbf9fdf7bd9a60a80b4de523725536d1c1e9e91088ce",
+      "bytes": 3316
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0110.json": {
+      "sha256": "09bfbc1d3856f244aa04f04f930ccb9689c118eaaf1d7fbafaa71175bea28e10",
+      "bytes": 2253
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0111.diagnostics.tsv": {
+      "sha256": "27859cf8d3ec3d6ff1332b1442235c886d6bb0cc1e8f906c9a2d99e1fe134e3a",
+      "bytes": 5248
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0111.estimates.tsv": {
+      "sha256": "0430afa6242314fe06d4a9f383fad54fc63a6d7c5e8fc186388372f67f933870",
+      "bytes": 2992
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0111.json": {
+      "sha256": "2fd5487004eaf4e3c4771d7fd24e151b0efdf46612c8de9eaf157d854df759a9",
+      "bytes": 2127
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0112.diagnostics.tsv": {
+      "sha256": "008ca69140d7e89b045ee1176eafd248406dd6c095e14c46a89b27f4f5818267",
+      "bytes": 5766
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0112.estimates.tsv": {
+      "sha256": "dee1c2dc469fb7d51d15baedc5496797104b689c5a07e56c8139158c7587bb36",
+      "bytes": 3312
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0112.json": {
+      "sha256": "24f9ad37121a92e68c613106d5de9d45216ca7b6b8e7b6399980628bfb7b209b",
+      "bytes": 2272
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0113.diagnostics.tsv": {
+      "sha256": "bef31c48eb6876646983290a6a8b234429c37595049478e63ec5d6df07eeddc8",
+      "bytes": 5234
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0113.estimates.tsv": {
+      "sha256": "02ab0a76cd6c74503392c3da4b54a7de559d190227c4e0119ecbf40cc4da756d",
+      "bytes": 2977
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0113.json": {
+      "sha256": "bea73e5d02e8381e0fee48ced58256ec3c05510a19251fdd44c2ee59ecb82929",
+      "bytes": 2121
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0114.diagnostics.tsv": {
+      "sha256": "a60e619e13cdc262de6b817638afbf29ef9a4902ca539ae088e174cd550942e9",
+      "bytes": 5776
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0114.estimates.tsv": {
+      "sha256": "1139d03f2a7b66432af328e4f67a2f7bf974b7bc269b0b0812c6a66ec6fd2f14",
+      "bytes": 3324
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0114.json": {
+      "sha256": "23573e02680c248e710a548ab4ca275e808490655a6ed30835f34297e6e6cc23",
+      "bytes": 2264
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0115.diagnostics.tsv": {
+      "sha256": "11bf2dbfb371e3c9a3b3dbc6efd8ecbc4ae2fc7c9cdbe24bc539fbb4eb9b32ad",
+      "bytes": 5239
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0115.estimates.tsv": {
+      "sha256": "12a9ce4aa5934d1b445248f749bbdfe0eac6eb8159acab9bce59492b43f4f8a6",
+      "bytes": 2988
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0115.json": {
+      "sha256": "e41e3183de7e5ce80ef84e8d80dd52579d2f8c450dfc587664a1471ba84dc6cc",
+      "bytes": 2127
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0116.diagnostics.tsv": {
+      "sha256": "ca746b8806e2343f8af7f73391e24569a49663a746ba6df5adbf30bbddc31608",
+      "bytes": 5774
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0116.estimates.tsv": {
+      "sha256": "3e6b374d652c599f347ddcad338897c8185ee1270b13abc8126f2df8129ae367",
+      "bytes": 3316
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0116.json": {
+      "sha256": "7dfde481f26895ed8536fba5a5328b1166fdfbd38e5a6c02123b2ff1cc9c00aa",
+      "bytes": 2271
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0117.diagnostics.tsv": {
+      "sha256": "3863f547ce9d519719ff0addc8643e21216ecddb5f264c9f81b48dbea6ac72ec",
+      "bytes": 5233
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0117.estimates.tsv": {
+      "sha256": "ee9cd5094f402d745230b75678c84d250fec024107a76219189e0973b773b5cf",
+      "bytes": 2971
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0117.json": {
+      "sha256": "c76e96f2e5d2b8d6f354fbd9012cca893bc3899f41c2e8f8489bb269c29bdcf1",
+      "bytes": 2113
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0118.diagnostics.tsv": {
+      "sha256": "0650f560910de54b254b636658ca11eb6e49451fd2241ed35b841eabe5ffd8c0",
+      "bytes": 5775
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0118.estimates.tsv": {
+      "sha256": "44bbd2d0545337d1dd9944eda5b3fb9b0a44befb0655ee672d5e768e616a5ff1",
+      "bytes": 3293
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0118.json": {
+      "sha256": "e415376e2f1bfbc60ed66ece8df1733affa60ffdea700a5391e07bf436b13c58",
+      "bytes": 2253
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0119.diagnostics.tsv": {
+      "sha256": "4f50e5ec9e65cbc4e7817342f399f7701d696bf7ac16aa757f4d9b8518ee8541",
+      "bytes": 5228
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0119.estimates.tsv": {
+      "sha256": "5b2aac58f3e62947f118424164793e703c5a5596186070da2ec84e88945ab379",
+      "bytes": 2975
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0119.json": {
+      "sha256": "abeea990f7371f546fc7522605d06c16d5bb36c2640974968574ec59b32a40f2",
+      "bytes": 2129
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0120.diagnostics.tsv": {
+      "sha256": "c70c56a947c0daec3e397f06afbc8daa9ed6c7201328f8bb932c480e086e2cda",
+      "bytes": 5769
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0120.estimates.tsv": {
+      "sha256": "56afffc06965bd79cb4b5a15090e95eb586fbf006371626d1e4e503f1b9d9ec9",
+      "bytes": 3313
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0120.json": {
+      "sha256": "656ac980973b2fe0ec6d024c853bdca2fc8bc45f12d1e864d53a57bfa86b6df7",
+      "bytes": 2262
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0121.diagnostics.tsv": {
+      "sha256": "a9411af6104ff154f2053b664ea0bc6304a98bfb1a1c061128e9582d617f3f8c",
+      "bytes": 5207
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0121.estimates.tsv": {
+      "sha256": "696d23361b0929b50767623bb97aa2c5a63fd4e363fb3bb50c8f2456c9e9553a",
+      "bytes": 2913
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0121.json": {
+      "sha256": "87e97e4b16aef1948a87f4418e495d7468d6045f9a9aa8a3f0c9ca1c3b50f426",
+      "bytes": 2026
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0122.diagnostics.tsv": {
+      "sha256": "db7eaeabbab54cdc15254c68bacff356f7b31afa402b63538279aca56a57a5a6",
+      "bytes": 5759
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0122.estimates.tsv": {
+      "sha256": "d78640f36eaed064348813daf64751b564e5a3a26487e73903704ebba87e23ab",
+      "bytes": 3250
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0122.json": {
+      "sha256": "45305a3915d22d0f58c96f3d884aa6285892e0adae811cae0574d6022c24d2cb",
+      "bytes": 2157
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0123.diagnostics.tsv": {
+      "sha256": "8a4996c572162bd62bfec67365d77de874ceb4b04bdb24b91fd2ef9fbfc869ce",
+      "bytes": 5215
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0123.estimates.tsv": {
+      "sha256": "f4a5ef6331a49e96e68580075a53ed4fff2d3c09d042dfa10bd5226287b92de3",
+      "bytes": 2917
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0123.json": {
+      "sha256": "ae782e403f8efef5f60d40a826320866c456c93148ed6526e0e483a678e19104",
+      "bytes": 2036
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0124.diagnostics.tsv": {
+      "sha256": "a52e7629d4b328658b7569390cb790cab7243657e567b3ad6e0c5cae91c3a85e",
+      "bytes": 5765
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0124.estimates.tsv": {
+      "sha256": "55d61ca3e915651fa59d8a9e979edbc11d3090ae2b7151ec79a325792810e18d",
+      "bytes": 3255
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0124.json": {
+      "sha256": "34c00ba1cc243037a8f1d75aaac94d2a04d6334d148715a5be941d6c11950e3d",
+      "bytes": 2179
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0125.diagnostics.tsv": {
+      "sha256": "8277f72952996b03ad55790d9a913425bc5ac429c8697e539f419316f7187684",
+      "bytes": 5219
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0125.estimates.tsv": {
+      "sha256": "6de98d575bb35fb09810d56a4e7e3fb3cfe6ab55870b42fc123646a7e4b74d6c",
+      "bytes": 2926
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0125.json": {
+      "sha256": "0132f2c01872311e6ca6c42b0773d802c0485642485c388ba91a4578a220e9c8",
+      "bytes": 2036
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0126.diagnostics.tsv": {
+      "sha256": "597c16d72cd631ff8b1853bc8d433e2d7cfe4ef31289df311343ed1e19984069",
+      "bytes": 5750
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0126.estimates.tsv": {
+      "sha256": "74f8e91acd643ff40464a0e842e8c8cc3994a92d926e1acb0b145d676c7189a1",
+      "bytes": 3228
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0126.json": {
+      "sha256": "28e3556f2e0297a998d4fce61534ebd77d4880fa34e1b412809b3929344a50b0",
+      "bytes": 2130
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0127.diagnostics.tsv": {
+      "sha256": "ff233cf51e31f5fcc8349c8257d242f85c4b2307949d10eb78729f477bc28aee",
+      "bytes": 5228
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0127.estimates.tsv": {
+      "sha256": "d6db6a195fe47c8735ad6d197b8bf4d475323919cf4ac7111bc9adc9cb03c604",
+      "bytes": 2943
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0127.json": {
+      "sha256": "08bf8c7cd07629115be547b16ed99ae188b597f1b330354b776fea682003e9c0",
+      "bytes": 2060
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0128.diagnostics.tsv": {
+      "sha256": "e921460926557d8a85a61a2dd8012c6af318654a28f5071ce2fa932354e706a2",
+      "bytes": 5760
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0128.estimates.tsv": {
+      "sha256": "33a85144f72e13b1d5cf19f3aaa6a0b658a7cc208fd17d44c4635d9f9ad76cf2",
+      "bytes": 3256
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0128.json": {
+      "sha256": "b06f6008d527e2a8d1a618c92cf47301fc61b539fb3bd4b4abeda7866a88414e",
+      "bytes": 2180
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0129.diagnostics.tsv": {
+      "sha256": "e014e2d9c8b4e4abad9a0476e2428d366c51887b50f0b04a5414914bcd4168e8",
+      "bytes": 5249
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0129.estimates.tsv": {
+      "sha256": "69ec4a380b8f4bd322dbb3fd6253c6c20fbbd835626f27afd41875777e8a53c2",
+      "bytes": 3005
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0129.json": {
+      "sha256": "78311f3c0ec2f19db341a75d80dbcb632bb83e08adcb5b6e5e40bc2b0becdaaa",
+      "bytes": 2114
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0130.diagnostics.tsv": {
+      "sha256": "4c951b5a4c0d64cdd2098367e7222da15ed80d1171b044555edc08374c1c5534",
+      "bytes": 5783
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0130.estimates.tsv": {
+      "sha256": "17184d59d21f3d3e4be7f341b58fd7357dcdcae0d4a0950faafe0c55494a3eff",
+      "bytes": 3344
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0130.json": {
+      "sha256": "428d612133659a351d60b54bfba33697f2ec513bc34481c34d120328efc3b594",
+      "bytes": 2264
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0131.diagnostics.tsv": {
+      "sha256": "033ad6e82d88b02e2a3dd66827989a1e52a1119b8abe6bb8f468014d6d0c0919",
+      "bytes": 5230
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0131.estimates.tsv": {
+      "sha256": "8cc26c84fc27e56ef48ae60abf723be810fc1f3458ae73aaaff0a929c8e58c71",
+      "bytes": 2988
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0131.json": {
+      "sha256": "30aca923c5abde9539c9be9d10576996381f9a0ad04ddf54763df78ad7c0c64a",
+      "bytes": 2122
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0132.diagnostics.tsv": {
+      "sha256": "658861d589b1c01e63f0c921b46ce1ed50362ef869b4dff54c50b39bc53417fd",
+      "bytes": 5761
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0132.estimates.tsv": {
+      "sha256": "3fa25a05e044fe6b30095347e5e88f96a5f86f484079ad534ec44fffb0e75787",
+      "bytes": 3309
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0132.json": {
+      "sha256": "730cdb52c48e1705c96db7e8a8cc53eee49c947ecf4ab54a7fd1deab33d567c5",
+      "bytes": 2269
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0133.diagnostics.tsv": {
+      "sha256": "b743e75951f1007da3945441c8e4aaa51d10183dc2ff49293632e3c2b3280027",
+      "bytes": 5239
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0133.estimates.tsv": {
+      "sha256": "639826ca4ade2d5de9f22090d551995a95662052dfeb11580f348f25070787a4",
+      "bytes": 2979
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0133.json": {
+      "sha256": "76661b47601714a6cd479de5ac4d7c624d3377dbb90c3d3785795fe8d5748f7a",
+      "bytes": 2115
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0134.diagnostics.tsv": {
+      "sha256": "6491a6af758f822c1a3bec5fdb5a309f5bb0dbcc18145e3478ab744a55d6cd7e",
+      "bytes": 5776
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0134.estimates.tsv": {
+      "sha256": "0f0c7821940865e8fd2edafd1baf6acc6efe77716c5c42992c2ea2b0f53bc24b",
+      "bytes": 3305
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0134.json": {
+      "sha256": "9aafd516686853aab94e084de3c8319238f0cfa11ae8ff06049d2386e30aafdb",
+      "bytes": 2258
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0135.diagnostics.tsv": {
+      "sha256": "44abadbd925f19fcf268a59d41fd5fe4793c2b8be58ab1cc0df3458fd59184ef",
+      "bytes": 5237
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0135.estimates.tsv": {
+      "sha256": "ed9a81265accb35a514d4db10d8379a654a0ca1430d3a144c36e9a2f38abc2bf",
+      "bytes": 2974
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0135.json": {
+      "sha256": "9a180d07d7cecb209810c8caae7ea4eb3116c42cec15ca6cd0667d5157b0ad86",
+      "bytes": 2128
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0136.diagnostics.tsv": {
+      "sha256": "2a9775ada92f95e6d2c3347874ed2481fbb2517341dc6afe34913ffa67410e8a",
+      "bytes": 5768
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0136.estimates.tsv": {
+      "sha256": "3b853f15587a226bad451f205032abc46254cb1b57939f7eb6f186a82c1a3089",
+      "bytes": 3330
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0136.json": {
+      "sha256": "596328db078d10a2ec9b96a6370b47659d9b4c9c5eb94995c9f986f07c3ddc4f",
+      "bytes": 2273
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0137.diagnostics.tsv": {
+      "sha256": "08ce2e38ab825508e6a8108238bb2afb9b9526c82f376896f8cf637c3eb1538c",
+      "bytes": 5228
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0137.estimates.tsv": {
+      "sha256": "2a77f6291563c5b10ee25b52bd09acd41648a2e8156ec143211d17941b80631a",
+      "bytes": 3000
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0137.json": {
+      "sha256": "4328a422b820ba6d744d6618a4adbe79be70228936a5c443b70ffb2013948ecc",
+      "bytes": 2116
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0138.diagnostics.tsv": {
+      "sha256": "70f241272a8919c2ebfbbe8aa26c0c6055f047bee4f6e62348d9ffb2c10650da",
+      "bytes": 5779
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0138.estimates.tsv": {
+      "sha256": "77066220aaae041dd96f8a0f95810cc8e4b6aa5b05b0f37287bd8cd47dfd7767",
+      "bytes": 3315
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0138.json": {
+      "sha256": "f1814e7f62e7d969a6676ce1984771c05922d85ac1fb99870f1742809ad0fd63",
+      "bytes": 2261
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0139.diagnostics.tsv": {
+      "sha256": "3f2bf1c2496614e1daa2ce84cfed3eaa9a4f5bbca319614982eee77367ceec39",
+      "bytes": 5233
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0139.estimates.tsv": {
+      "sha256": "330b03e2b07523d62cd9b77dcee1ccbfb9b3a441c2c34009348a23199b9ab148",
+      "bytes": 2955
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0139.json": {
+      "sha256": "2ad6887b7b9795b70427bb2f51d0c3d6ed75099b3245e4cfbabc83b83c01184c",
+      "bytes": 2114
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0140.diagnostics.tsv": {
+      "sha256": "3d0e0b8a53d855654a17c3003a79174cea3df470e7c25521377448951f2031eb",
+      "bytes": 5777
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0140.estimates.tsv": {
+      "sha256": "8024a896c926f152d85488d693e681706db703cc8d9c5010dc83c36056d7ac02",
+      "bytes": 3298
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0140.json": {
+      "sha256": "3cdf793132f5ba33fb478de39db2a1c99309edcd61b5c0e2b60ac461531f6fbb",
+      "bytes": 2255
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0141.diagnostics.tsv": {
+      "sha256": "8cca471342e88c4c462d6f2b1f0286bf10f9390f392108a35355f4dbc64f00f1",
+      "bytes": 5236
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0141.estimates.tsv": {
+      "sha256": "be9a6e477b7e232879ed7be6f08d9d1962293cfd65ceed1ed49f0acb94bb820b",
+      "bytes": 2983
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0141.json": {
+      "sha256": "f4dee695e0d029fc2e4e9158abb275ffbcf00efc5dabd3d377bc469147fa60cd",
+      "bytes": 2113
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0142.diagnostics.tsv": {
+      "sha256": "6e8ef9c16e8e0d37d5fb4bd49cd0f631b96405bee96511c4e040425eda853287",
+      "bytes": 5767
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0142.estimates.tsv": {
+      "sha256": "7945b6409b6465f9e642af39e28c4ffb3c7e817d17b240ee7eb60281a10357e5",
+      "bytes": 3308
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0142.json": {
+      "sha256": "05e72ad91ef6a30f51e5ae2cd4595fdaf251f6d7b2ee8c8b581e455a4e89e736",
+      "bytes": 2255
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0143.diagnostics.tsv": {
+      "sha256": "0400d12d7bcc31b1fcc1fbbdfc0db5b6af87d9770feb5eb6622494bf15328066",
+      "bytes": 5236
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0143.estimates.tsv": {
+      "sha256": "92912c4b421b85c9bf57a0a22f53977170be342162bc52be305c5a81c9c0ed5c",
+      "bytes": 2972
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0143.json": {
+      "sha256": "ad70c611438ccc4c5b9615973e60ec39afb6ab1f1f13a87171d816fd44682c25",
+      "bytes": 2128
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0144.diagnostics.tsv": {
+      "sha256": "bf90074df294bbbf5ea52c61076402653662b856197a3e6c6336f3d38f5ed954",
+      "bytes": 5772
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0144.estimates.tsv": {
+      "sha256": "c80f4f1ad3e30c1cf1a6a9d3a4dc63986d75897085b6b53c429321519a5069b5",
+      "bytes": 3321
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0144.json": {
+      "sha256": "36e3aac7455cad8d3e805106deaf19171dfc6281534bf65e2b5293246021c69d",
+      "bytes": 2268
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0145.diagnostics.tsv": {
+      "sha256": "0f4f809c701a35b1e25fc0a67530574190fe6a7463374d93d69b174cd2215ece",
+      "bytes": 5219
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0145.estimates.tsv": {
+      "sha256": "7aacf32e418893196c5dc18bb4726f3081768afa70f56d20626676b82b27fcba",
+      "bytes": 2919
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0145.json": {
+      "sha256": "c1905e6dc4f151a1f37104078c1547ba062226cc36d8c4e4bbe332a7021b168f",
+      "bytes": 2030
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0146.diagnostics.tsv": {
+      "sha256": "1979a5769bb1fc70a93fdb899413b70c9463806c15ffadb5356cdb3f14fbc1b7",
+      "bytes": 5743
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0146.estimates.tsv": {
+      "sha256": "395ec8c8ef0efdbe704385a2a221464c673305791ee1806af96d1f1be6794d0c",
+      "bytes": 3232
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0146.json": {
+      "sha256": "1bf4d8d5846eefda97f291e484e202c127eca7bd3dc3d604771d01ce2baf7a47",
+      "bytes": 2118
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0147.diagnostics.tsv": {
+      "sha256": "d9b3939b0aac864dde9f604cbf5b0e87eaa66626d3ac221325099ccb1f391205",
+      "bytes": 5220
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0147.estimates.tsv": {
+      "sha256": "594d99f7ce5807aefe8fc5b85d751c6b827c93d1acd23be58dd7f28dcf6f64ba",
+      "bytes": 2889
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0147.json": {
+      "sha256": "6e5c78261d9037e5fe901bf47e81d9e48a5ed33a244b53965667510d61878a39",
+      "bytes": 2024
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0148.diagnostics.tsv": {
+      "sha256": "f4639186d4d49a263db0824bbe3e5e03dcc0c36be18c6521d0415b4a3825489d",
+      "bytes": 5756
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0148.estimates.tsv": {
+      "sha256": "77a23ef0d23d75ffaa88e4d6cbeaddd633d3eaf012899119d06c3e6abcb82ac0",
+      "bytes": 3262
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0148.json": {
+      "sha256": "1f68ec14b2224b51deb80ff5dcb1eb7b1c1ec4bff7b666eaa0ceb5e0a45f6199",
+      "bytes": 2183
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0149.diagnostics.tsv": {
+      "sha256": "654202ebd0954061135b3a95080bed55a34ae80d140e766d475157c4ce405945",
+      "bytes": 5208
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0149.estimates.tsv": {
+      "sha256": "aa42a2d1dd8f28e5cf9da343064f8f33607b3c1107f23e598d5e9e620f5ba519",
+      "bytes": 2897
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0149.json": {
+      "sha256": "54f06d074e14355cb3b01dc5e76ebcfcc0aee648439466b8d31eaa4c79354e93",
+      "bytes": 2006
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0150.diagnostics.tsv": {
+      "sha256": "a9b2ea41d1a0a5b7001030166ec218e9a4a9258cc05a51b5821bff75d7fe2f29",
+      "bytes": 5758
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0150.estimates.tsv": {
+      "sha256": "bc15f8f15d3e058a6822d131ff453382998db8a5523afb54c6c6071f207bb258",
+      "bytes": 3256
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0150.json": {
+      "sha256": "e997455b1f4bd960bb394f00624c4df6745065eafaa11660c2417547d61f0c48",
+      "bytes": 2174
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0151.diagnostics.tsv": {
+      "sha256": "e08a2c526a3cc6b0bf8442701922520f4020d291868fe0c51ad4ad98ffffe6c0",
+      "bytes": 5212
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0151.estimates.tsv": {
+      "sha256": "27c604184fc4980069e65293c5a94362a6f22535fe834a878771c55ed7086abc",
+      "bytes": 2907
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0151.json": {
+      "sha256": "59b278e49581783e8e0aa5be56957250f79796dbebcdee3e712049fda95ae11e",
+      "bytes": 2038
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0152.diagnostics.tsv": {
+      "sha256": "c0d2950741c5ed9f9e3c2dbab8e7b75f773d5ada44f799fc6dd22b7b14b60da7",
+      "bytes": 5751
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0152.estimates.tsv": {
+      "sha256": "23e70c00f6a9df0c387f57e10f65e91a0b6c971a8627989214659919ab7554cf",
+      "bytes": 3243
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0152.json": {
+      "sha256": "41cab923d1449969770548c362614cb9d7a06d4c9fe634148a83d5123caee437",
+      "bytes": 2189
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0153.diagnostics.tsv": {
+      "sha256": "87cb43d5c98af65be1e9851d49af52a42bf81c4bca2164967db7c35ad27bb7d4",
+      "bytes": 5239
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0153.estimates.tsv": {
+      "sha256": "344fc2a486cbf985088c8a90eceb98956ffa257c290c498d1774faa1097358c8",
+      "bytes": 2976
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0153.json": {
+      "sha256": "90f64a52ef708da462bfd174b7d8e456ac65a5f6a8be2cecc79bdd875c7f8a5d",
+      "bytes": 2118
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0154.diagnostics.tsv": {
+      "sha256": "838adfdcb8df3c91c18d70db47bcd058ba2bc946ec21e4ee027e99e415564af2",
+      "bytes": 5768
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0154.estimates.tsv": {
+      "sha256": "247f6642136fc4ac274533b33df8fa9683c75abbfdf04a4cd2247b8f06b9b6c8",
+      "bytes": 3315
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0154.json": {
+      "sha256": "78d7e1d88cbd30cd5e509ee0bb053924c378750b92376c8eee868f144d105902",
+      "bytes": 2251
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0155.diagnostics.tsv": {
+      "sha256": "4b0136d6ca418259a2ab5364fd0cd0e1cf901668b4fe8056f190fb28568ca0ae",
+      "bytes": 5233
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0155.estimates.tsv": {
+      "sha256": "281f71901261a3cada7f586bed9fdbb91efa03b62e787d76c113d0c5cde8a998",
+      "bytes": 2988
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0155.json": {
+      "sha256": "0209ed5c1e8dc213a77f557be636391ac88234fdcf5c45f6b50da8b34a9b125a",
+      "bytes": 2126
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0156.diagnostics.tsv": {
+      "sha256": "492b9ba3bbcbb7b08189adb7ff08d4743957e93983ed5b816ac90db1698dce4a",
+      "bytes": 5768
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0156.estimates.tsv": {
+      "sha256": "11ffcda66032ebeb36686525e47ec06d2840893829df70d80810a09ed195e2fc",
+      "bytes": 3330
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0156.json": {
+      "sha256": "357b362ce9ceb6c44fa7626937de5ed21adace8708fd0a8380f3bcad94ce4cb8",
+      "bytes": 2273
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0157.diagnostics.tsv": {
+      "sha256": "825f211be74dfd6af27fb059a3c231654da04cd057103cc59963192c23c096b1",
+      "bytes": 5223
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0157.estimates.tsv": {
+      "sha256": "714970ea4a15a5c081285bc70a1227ef6ccac22afdfcb08e8754fcc8e36b16e1",
+      "bytes": 2970
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0157.json": {
+      "sha256": "93c72ec15b9d7cdfc0e72aeff6c20b4384b6552afbd69a372ac359abcff2bfce",
+      "bytes": 2114
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0158.diagnostics.tsv": {
+      "sha256": "b000690b2e5a8c795cea016edd69e4381c25eada78baf34f3321458f7ea58ebe",
+      "bytes": 5761
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0158.estimates.tsv": {
+      "sha256": "d210e08835955f56b41c5d2f52b37691377ebd80557c01b047b1b6eca0e15cbd",
+      "bytes": 3315
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0158.json": {
+      "sha256": "8425b46ad0ade503915af22ef64f4d95f0ad78e57515fc883672e3805f9dfcb5",
+      "bytes": 2261
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0159.diagnostics.tsv": {
+      "sha256": "98c99047df30499f8fa1375eff449231ddefda58f0883aadc90978c5dfa05084",
+      "bytes": 5235
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0159.estimates.tsv": {
+      "sha256": "e761986cbb49da0ac347c1f9b5680c2c4200a2c34e3425699c7b38d024ad66aa",
+      "bytes": 2976
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0159.json": {
+      "sha256": "e10a032c292867efa97bfed1809d27fc8c5860ecbce99d43ccafd7f44bde32c3",
+      "bytes": 2131
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0160.diagnostics.tsv": {
+      "sha256": "c34edfefdc0e60b69cbd18e58d9107efc7cffe48bf17abbda6998cfe2741ab8c",
+      "bytes": 5772
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0160.estimates.tsv": {
+      "sha256": "c9e8cbc1b5426e71923507902c084ed5e2429c039c41fbb4d697dc4e422fe4e9",
+      "bytes": 3335
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0160.json": {
+      "sha256": "d7276c955d6ae9638582c600e214573237bfc6e8007e06ea1dfdd902aafd7443",
+      "bytes": 2273
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0161.diagnostics.tsv": {
+      "sha256": "2e255f858cdf05d4d0d54d40d847801aca410ba97217dd5bb2c271e9c3d77454",
+      "bytes": 5237
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0161.estimates.tsv": {
+      "sha256": "4de3d2ed89567ff2829538cabd0d570d44b4bee4c51082c19dd3d7daa0a77cec",
+      "bytes": 2998
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0161.json": {
+      "sha256": "4a0def41d90878ffa8228d6a533fe9851658fc6bcf8112310c7b53c9bd6f65b8",
+      "bytes": 2109
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0162.diagnostics.tsv": {
+      "sha256": "932b58628919dac21934d48caac3d6ba1430840844f13965b552bd919c7c0ce0",
+      "bytes": 5772
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0162.estimates.tsv": {
+      "sha256": "6698845e94a94b8ff8354558307d11fa0a537240577aa15945a5a2a346959a08",
+      "bytes": 3297
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0162.json": {
+      "sha256": "e2ed3a58c82c02113e311d3061ddd94e2d9ac6cfc67b79c9099af5f3cb9699f3",
+      "bytes": 2251
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0163.diagnostics.tsv": {
+      "sha256": "64966271081e02ca6032451351c721efea77662baf5a121a255e606856419673",
+      "bytes": 5248
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0163.estimates.tsv": {
+      "sha256": "013f26014ce6ebff34330dcdfcefafe5d60006d04eb4daf385b7a8fb4578cabb",
+      "bytes": 2951
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0163.json": {
+      "sha256": "397a58b084b48a6fa22cc8d8298591fa561562057151b15a4080dab6f1562b2c",
+      "bytes": 2116
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0164.diagnostics.tsv": {
+      "sha256": "2317bc0556ba267e883202351ec545c4ec68ffad9460f9a08558c231a03ad467",
+      "bytes": 5766
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0164.estimates.tsv": {
+      "sha256": "402149bac2506f8542e6c381aa16bbf4ed3de358f24bc3c6f82028095dee04ba",
+      "bytes": 3301
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0164.json": {
+      "sha256": "9494dd0bb3850d530b76227ba123867b11624c1af9d1e7c9cc31c7b01441c5ea",
+      "bytes": 2255
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0165.diagnostics.tsv": {
+      "sha256": "83f1a790034959068db819f6ddc0f22117e98c7808b3b3b05aac06d222737f0e",
+      "bytes": 5232
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0165.estimates.tsv": {
+      "sha256": "8c3f1dd47e2e44bbffc67057df32088ea43a5bba8a381af67c00a41be2abf76e",
+      "bytes": 2964
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0165.json": {
+      "sha256": "2929528a39df63471213b042c06213a41319ebe47d26912ec62a4dee213d6b45",
+      "bytes": 2104
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0166.diagnostics.tsv": {
+      "sha256": "902c1ca17e7acd43317e3db3c30222dc3fa3a9d54838bf10ec31f3384f22c4d0",
+      "bytes": 5775
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0166.estimates.tsv": {
+      "sha256": "ac516e34408467e9adf77b9ba8d68d8d3220956c3877291cfd2befaa003aab79",
+      "bytes": 3300
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0166.json": {
+      "sha256": "47215062172ecbe5a8a516784e414110b0ecd874b6f4c66dc533ec601af7f76f",
+      "bytes": 2247
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0167.diagnostics.tsv": {
+      "sha256": "d910abc06f980a00f9c69ce4786aeb66679b0096381122ada2c696ecb8e170c7",
+      "bytes": 5243
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0167.estimates.tsv": {
+      "sha256": "05e7c2d27fe9d490925803ff821cbcfd05af3c97fc64a79c0cabccbd97d73937",
+      "bytes": 2965
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0167.json": {
+      "sha256": "b10673a13932f79cd0a50e637d3130c7e8c45ee960bd61b6d93175fff8813ae1",
+      "bytes": 2123
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0168.diagnostics.tsv": {
+      "sha256": "0072f9bc39b0cb1f2f7b2d21e59a423b046fcdfee4f21d4d078ae75a218affd0",
+      "bytes": 5772
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0168.estimates.tsv": {
+      "sha256": "a3ceafbfb4c9215df922b26e291b66e18e3b5f09ab1c66a8fe5258b0512ea75d",
+      "bytes": 3310
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0168.json": {
+      "sha256": "9fc4f6b9d1dfa084b688ad90530c800fc7713afc9b4a749c80f9088f7b1f7ca4",
+      "bytes": 2260
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0169.diagnostics.tsv": {
+      "sha256": "5d5fd9a8ab00024b0e901bfae4df2232245cb2d3910bec42915d052d1a5f11c0",
+      "bytes": 5223
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0169.estimates.tsv": {
+      "sha256": "0ff6127998735efed770f268ea49c4e49052fe6b0c6c154fdab97778516f83ec",
+      "bytes": 2900
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0169.json": {
+      "sha256": "ef1d8715c8fcae33ca1c27745c00a489b03d4356e6245a10be69dd549ede0632",
+      "bytes": 2011
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0170.diagnostics.tsv": {
+      "sha256": "3b6cc4639d566d75cd37cbd80f0b14911e083e49c2c76e845da04363fd371a05",
+      "bytes": 5755
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0170.estimates.tsv": {
+      "sha256": "0663741b21d8adc8a59e1e14439a59891e777a46fc11e6b2c7a1a5e852ec5e92",
+      "bytes": 3227
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0170.json": {
+      "sha256": "79bedd18e004e452abe98e98eb723535378f1dab6c52f2093ee51de58d01d14d",
+      "bytes": 2142
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0171.diagnostics.tsv": {
+      "sha256": "a91022d49528823803a1a9c77c93ef025520f80689d15cf58d6d69db37de6be3",
+      "bytes": 5211
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0171.estimates.tsv": {
+      "sha256": "f55e97a04ace4cb29040cb8edb1cb82ceee5d00e0550cd72c2507aa1af5709e0",
+      "bytes": 2894
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0171.json": {
+      "sha256": "cf8df53444a78bdaa96e087fe033d53d7445cf9fd3b4814b27cb4c34032cf1e7",
+      "bytes": 2001
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0172.diagnostics.tsv": {
+      "sha256": "9939cf5b51d6a0b60907713f702b0ea3dd58e29b82b24b25277a1cd9039daeed",
+      "bytes": 5759
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0172.estimates.tsv": {
+      "sha256": "34aef845e40094c2a0888418fc952ba86f45163a1e06e3d5571073ba32d15c89",
+      "bytes": 3236
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0172.json": {
+      "sha256": "c9b724feb48c0511df6060b6899403785123b3d53bcaefd677371879859038c2",
+      "bytes": 2132
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0173.diagnostics.tsv": {
+      "sha256": "48297e0c72eeb20afa16b46f3b2415e818a3e8e76e5d007284bdad26639bda7e",
+      "bytes": 5214
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0173.estimates.tsv": {
+      "sha256": "89019ae358e210d0fa341de76ebae394637ecfa375c06ed0702790619ad88738",
+      "bytes": 2889
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0173.json": {
+      "sha256": "317a265e12c5e004231937497aeb73896b524c05cdfa6c862633a77c05e06e5b",
+      "bytes": 2014
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0174.diagnostics.tsv": {
+      "sha256": "a58a294560cbce3e0dda65dc416d7345b3235c00d3d5663be0626d57c2cac996",
+      "bytes": 5742
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0174.estimates.tsv": {
+      "sha256": "c32710f5fe323f5e0b41e1b5038c1940cee75743966c8db8f0527a7a8a12e62b",
+      "bytes": 3224
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0174.json": {
+      "sha256": "12565ebee39763e6145eb3754515219ede9fce307b2141bf8ca5f5e289a3190d",
+      "bytes": 2117
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0175.diagnostics.tsv": {
+      "sha256": "a688f16b1078af6729086d0a41b43d490d5a8be221533be0f479efb40edc783c",
+      "bytes": 5220
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0175.estimates.tsv": {
+      "sha256": "a3432eee4a39d767a830245aa3d23bea18bafc2268b1d677d241469ac1c00e91",
+      "bytes": 2897
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0175.json": {
+      "sha256": "d4ac3a9082f14baec4e555c2cd7d849916ba31ff22920447ea17d7ff556f5b20",
+      "bytes": 2032
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0176.diagnostics.tsv": {
+      "sha256": "d68df81c988477aa645ad8313c190daf42a3a6b58eb93cc949cd67bb04d70022",
+      "bytes": 5748
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0176.estimates.tsv": {
+      "sha256": "83c56651dac52fbd0afba7561e4d37997c2242c3019161620eb648fc5a8457cb",
+      "bytes": 3208
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0176.json": {
+      "sha256": "1382e5c2f4571d3fee71510bccb7d6cac998d2e8a024c91989d580178204fd11",
+      "bytes": 2154
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0177.diagnostics.tsv": {
+      "sha256": "6231db78a4663f40b0bf275bbe1d2fa851b1f44513ac5d78f4a2ce46713bd4fc",
+      "bytes": 5232
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0177.estimates.tsv": {
+      "sha256": "04f8c4d05976b418fdbf1ff302f89eeda35610fd43e6e2a2c5065a131ec83718",
+      "bytes": 2979
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0177.json": {
+      "sha256": "ac5f71469cc98b8e41bfde5069704e84229c6818e3d284af8f66dabf291cdd93",
+      "bytes": 2115
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0178.diagnostics.tsv": {
+      "sha256": "fd7fdd39f5f156fadd5b5ad6fdba72fb4f44d18b47ed6dc2af895a0a90a1e7b0",
+      "bytes": 5767
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0178.estimates.tsv": {
+      "sha256": "0015fed3dab4dc5ce25784a601296fe89181f1428ea75dccfd90a781445ade67",
+      "bytes": 3322
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0178.json": {
+      "sha256": "e29a600e45f5906dba82e8a935c19adb6b0e1c5626a2921954dbc253469713d4",
+      "bytes": 2255
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0179.diagnostics.tsv": {
+      "sha256": "e13a6d7ca826610b7cc9bba4dfc9d7a628291d166370854380c19c94249f0c7d",
+      "bytes": 5230
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0179.estimates.tsv": {
+      "sha256": "5d97370e6f92d9a910e320dd2f6338211fa90007406770011d44a9b528ad2121",
+      "bytes": 2966
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0179.json": {
+      "sha256": "3bd87f9ae785ed9e54bd6e9663f555408a12392a3a5f1161565a9a2d99cefb60",
+      "bytes": 2119
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0180.diagnostics.tsv": {
+      "sha256": "37ce01ebf9391d216b45e692a7a5f22f3b2aaccbc97c10f7ff77d83d7e982152",
+      "bytes": 5766
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0180.estimates.tsv": {
+      "sha256": "85724ebc3c19699c454368feeafa576b0bce58d1e7585b89151989892a5519ce",
+      "bytes": 3299
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0180.json": {
+      "sha256": "394ea11846f36b93a021171fb3536f7bcd1921b6504ebbbdac81d4e60477885c",
+      "bytes": 2263
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0181.diagnostics.tsv": {
+      "sha256": "bda9abca247b51914c6c6c0d6dab3d8afaa7b98240a98d2a52e8135073f4bc75",
+      "bytes": 5223
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0181.estimates.tsv": {
+      "sha256": "609b089b24e114bac3f691e3e88f05c5b2b986c3d9599bfd2d445d6f266ca605",
+      "bytes": 2977
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0181.json": {
+      "sha256": "e7eab45ab3e8d19cfebf84cf6acdea54a20de7c54b0dfd010bbf8112566016f5",
+      "bytes": 2114
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0182.diagnostics.tsv": {
+      "sha256": "472819498c56710b903451ca7402c359b99836fe830453065d29cdc0116ffdc0",
+      "bytes": 5763
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0182.estimates.tsv": {
+      "sha256": "28dd3e2e6178ab99c95037c53a439891389eee30e63d8258c0b222cb4867e4dd",
+      "bytes": 3308
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0182.json": {
+      "sha256": "b6d9ce8da1e44daddedb2c6a2b6620160e999266810ab725e770c8687e29e701",
+      "bytes": 2252
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0183.diagnostics.tsv": {
+      "sha256": "eada0e0da20c4a3357f7e2c8b269f71c49005a8f53c1a3e59d0f56588d4b2080",
+      "bytes": 5228
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0183.estimates.tsv": {
+      "sha256": "ac3c43bd3349c8d92646a695493a0637e75204c1671b2d91eabfe48e5d96584f",
+      "bytes": 2991
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0183.json": {
+      "sha256": "106865503f89a82a5a76c9f7a9c0b603b71fd54742028b56ab45c25a5820615d",
+      "bytes": 2123
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0184.diagnostics.tsv": {
+      "sha256": "a2dd31607321979d36570b3d94f8d338c94782090762cf1ca24c7bf1670a22ce",
+      "bytes": 5772
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0184.estimates.tsv": {
+      "sha256": "26851f4eabde949a6e1c12b6d8892f90e6ed2d25c7a32c6a50dc9f6034a751fd",
+      "bytes": 3321
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0184.json": {
+      "sha256": "683c93ee2bf630f2aa6635b8b07315b59ddc7443ad19aeec9e1b8f8bc79a00e4",
+      "bytes": 2268
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0185.diagnostics.tsv": {
+      "sha256": "5038d583200634f60f1a341a1e214a40698e841c524fd96e681011b13a0ca763",
+      "bytes": 5222
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0185.estimates.tsv": {
+      "sha256": "a58a1c78e4f279ba709b383ddfa8b376cce73d86a5de5f0b3668fc5ba120565d",
+      "bytes": 2972
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0185.json": {
+      "sha256": "df5baa7cf966170127be0d0890777bae602ab5cba2d19609efb21afce2db7506",
+      "bytes": 2103
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0186.diagnostics.tsv": {
+      "sha256": "2bacb291465ca51896193530ca38321033da93c5b6a8aa73790bec1ec09938cf",
+      "bytes": 5774
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0186.estimates.tsv": {
+      "sha256": "7bcfa9451ff4d6d1efa15ba5eceae2a0845852d72c58264d8acf853dd8a51da5",
+      "bytes": 3327
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0186.json": {
+      "sha256": "d96319e0f08eeb8c682a54405fe8ee008c5ba70d9dba7177f913a62650b29c3a",
+      "bytes": 2246
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0187.diagnostics.tsv": {
+      "sha256": "986000df7a94fa820dc17c5a75cd23667a1e800ee30607c5e6017718d61c3fa1",
+      "bytes": 5234
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0187.estimates.tsv": {
+      "sha256": "a872afb22fbd306a3b3ca1cd3ab723817693f25b0363071ba4e480e228bb23bd",
+      "bytes": 2960
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0187.json": {
+      "sha256": "43709185faea439a6bccda651b4d6cb2404ca07e9eaa37ee4dbf82aead18b09e",
+      "bytes": 2111
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0188.diagnostics.tsv": {
+      "sha256": "5d016c37d93c8a7a2b01fe83094578a9e2045bf0cf9fa081c83edd7b5aa23e65",
+      "bytes": 5778
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0188.estimates.tsv": {
+      "sha256": "5ad145f8c0b1381f6f4e4f4ff148207c04363f71ce000c29a7172a984fcdec5d",
+      "bytes": 3298
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0188.json": {
+      "sha256": "d151acf9ea6ce19f0d374c6cb5f5124f19587b047d083419f72a3fb627dd5535",
+      "bytes": 2254
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0189.diagnostics.tsv": {
+      "sha256": "9becc5cf21397a7897b65421fee79ff9cab8b8481e0221a9958eed22aec247f5",
+      "bytes": 5234
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0189.estimates.tsv": {
+      "sha256": "92f72d3a4ad5493c758ef86dc6e7490a93d62833e2add518adfd7d3c07c5874e",
+      "bytes": 2973
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0189.json": {
+      "sha256": "4313633cd6ed647a515e4cbedc074ac71cfa0582bafbf136be6944350e824526",
+      "bytes": 2108
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0190.diagnostics.tsv": {
+      "sha256": "f04133a0de1416df265737424a6c7cd727f34f2bdf206a56de91139e1c493db1",
+      "bytes": 5776
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0190.estimates.tsv": {
+      "sha256": "abf4c021d701747e348bbdeb68fd7073b65cd80f3b0be90845156cdb2cb30d2a",
+      "bytes": 3298
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0190.json": {
+      "sha256": "945431b5c364fdd241f4df6abb04197995239c304d5b3cbd763233eef30824ab",
+      "bytes": 2249
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0191.diagnostics.tsv": {
+      "sha256": "55d9636b3d560d42fd5f3ae11c2ffbcf0167af05f82a169c1ec4e15724bb9cc3",
+      "bytes": 5235
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0191.estimates.tsv": {
+      "sha256": "859873fb805648e9f8a5b1ba9e6a5c41f6c7487f894ef90ca8714d65a6e5f8a7",
+      "bytes": 2972
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0191.json": {
+      "sha256": "15adada43ccdfd55279318dbf4ee4c13a2d5f39dc5e4a9879cb49ecf732c3785",
+      "bytes": 2125
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0192.diagnostics.tsv": {
+      "sha256": "11d11388438c7d8981014976cb76887c5f898ee8ffb21f421fed75308ba38275",
+      "bytes": 5768
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0192.estimates.tsv": {
+      "sha256": "3ab287c58b232388365ae2f42a580fedc61fa55ad4787fe27140e413592e5f46",
+      "bytes": 3304
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0192.json": {
+      "sha256": "72f36cd14b1575cac7907abbb981aa7670aea0fcfa09c2d6d3e428aa22d1cc95",
+      "bytes": 2260
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0193.diagnostics.tsv": {
+      "sha256": "173779eed23e9cc1f228ac25bfd29bccbe92436e93333624abc967b38e60de51",
+      "bytes": 5221
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0193.estimates.tsv": {
+      "sha256": "70f5bd22f9957c29f27f51db361731db2ae45eb8f3c292ce7c57c807c6956a7a",
+      "bytes": 2905
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0193.json": {
+      "sha256": "ee163ccfa6511c3baa1c4facf8af1bd8e64d01c9d70aca1133c79e7d851a6423",
+      "bytes": 2020
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0194.diagnostics.tsv": {
+      "sha256": "1aab7011d148cf8f225c8f8f760eb1887429693d38d5ab38b6b8e7f708d1d736",
+      "bytes": 5762
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0194.estimates.tsv": {
+      "sha256": "a37bd4c6fbae4a6b85be67bc9642ee26ea006507cda7f39edd5e08c4f8496f27",
+      "bytes": 3254
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0194.json": {
+      "sha256": "131889caf89258dccbfb42dd31a2e39764d3d8795ab558d18ecce0889b1b1a33",
+      "bytes": 2165
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0195.diagnostics.tsv": {
+      "sha256": "7b26c7b0e2a3c67daf810a2e9b73454e1b97873d09953d59aaef4ff9480b0040",
+      "bytes": 5212
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0195.estimates.tsv": {
+      "sha256": "25b75c261be06976ad34c3786ba4b20d36bb2d056066f874ec1f98e7db447995",
+      "bytes": 2901
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0195.json": {
+      "sha256": "ffdffd16eb92521c9f95254b0b7f23d684086d5f2a13681c621187f3e9325263",
+      "bytes": 2031
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0196.diagnostics.tsv": {
+      "sha256": "81c9069fd4a993f3fe42287bd3584eea5e18448075390a64fda01ce3ce77d92a",
+      "bytes": 5765
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0196.estimates.tsv": {
+      "sha256": "748ae0200960629c94f81e5fffcab8e173bb619ffd4462be01f68504a0e2c9fd",
+      "bytes": 3241
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0196.json": {
+      "sha256": "316ca26f18ce51ae33c51455751d5b56c660a5555359b515ccc5da419b31110b",
+      "bytes": 2176
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0197.diagnostics.tsv": {
+      "sha256": "98cce6bb7136d730c96a7f703c86b112b566215447d1d7b07a20beba5272ba7d",
+      "bytes": 5222
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0197.estimates.tsv": {
+      "sha256": "a5585b95cd3b2285fc925cd45614ed900121aa2a9d156a7709c6acc2f3711ec8",
+      "bytes": 2904
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0197.json": {
+      "sha256": "a0ffce202adc501b0c4f96b328f2e9bb9559db877469617d6f1e5914c620840d",
+      "bytes": 2021
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0198.diagnostics.tsv": {
+      "sha256": "5cae0412d9bfc0658c537c1c2fb7d8fc98e1895b5ce84e2e512abb1cb07a1080",
+      "bytes": 5753
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0198.estimates.tsv": {
+      "sha256": "0c94b800215fa90c639651db458b25bf20e02f276cca003c3ff3b976aab2d294",
+      "bytes": 3251
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0198.json": {
+      "sha256": "bce68ad975d60b71c6da0e6b5eea3c5cf92a9670d85b4f61c37c115bf96cffe1",
+      "bytes": 2167
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0199.diagnostics.tsv": {
+      "sha256": "445899db8a64c29fd10726c972011cb2755c2760f71875fe71a521a89e9c92c2",
+      "bytes": 5230
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0199.estimates.tsv": {
+      "sha256": "2358f411965b0135f1d9272548a47d4929030f598d0e7452aa2f1ca75d04ae8a",
+      "bytes": 2933
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0199.json": {
+      "sha256": "0876bc734672bb7e10af27329d58fc1360e5be362ffc9961ef3359d1eeee9ea1",
+      "bytes": 2053
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0200.diagnostics.tsv": {
+      "sha256": "8138f5117d346a0c867fe181f456fa1c95f30d999741e59b47d665d806fb0521",
+      "bytes": 5767
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0200.estimates.tsv": {
+      "sha256": "725c7a54bc113838b73d2112dda6d5e0ceb2b60f5f857e5df30dbc7b9dac587f",
+      "bytes": 3262
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0200.json": {
+      "sha256": "1c84da6ddceb83d0baf0970b17e43120d6b604c22d62726f0747af3dfb1b915c",
+      "bytes": 2184
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0201.diagnostics.tsv": {
+      "sha256": "02110cd87a42e01f831f8b42a95027a4d307e4d2b67c914375af9e0b814b61b1",
+      "bytes": 5232
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0201.estimates.tsv": {
+      "sha256": "0927179d6019a0d75e945a3db68432bb17f3edc78ca4609c4d36e2f8287ac8f9",
+      "bytes": 2980
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0201.json": {
+      "sha256": "7d9fcefcc68df48e1254305b9ec2401623a8dce5daef367b6ae7c467c896fa65",
+      "bytes": 2114
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0202.diagnostics.tsv": {
+      "sha256": "e7dd740612b50600cb18b52960413d7fb525d8c980ec10f1f0915d7dcbbdd58c",
+      "bytes": 5773
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0202.estimates.tsv": {
+      "sha256": "a92e526f6e6d61c7e7f3978aa8fff28c045588488d07776f3c70a0ad19de6397",
+      "bytes": 3329
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0202.json": {
+      "sha256": "660d308d243c396229e1ad5c441323a1d832b75dc260c3e8b619cd5028ea4a5a",
+      "bytes": 2252
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0203.diagnostics.tsv": {
+      "sha256": "5b4843c36df71d7755305e6c0c6adb7aba7ac2b7e158ca1ad769623ccd588f93",
+      "bytes": 5231
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0203.estimates.tsv": {
+      "sha256": "bebff0449259e4289b683c024a332aaaa3c8e4c18cb5b324dcc801d063d2797b",
+      "bytes": 2977
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0203.json": {
+      "sha256": "88c1d37a5e6f3a8c384755f10a9c066ff72501c2733eba9136d178b3c4c60c5c",
+      "bytes": 2119
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0204.diagnostics.tsv": {
+      "sha256": "9de838b9e81bade8f989a401baeca8a7304b625a8d3561553d560faf93ae302d",
+      "bytes": 5767
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0204.estimates.tsv": {
+      "sha256": "bf7613039484f5842963f8bce543f88163540e5fc85074c4dfae09f84fb4f4ae",
+      "bytes": 3312
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0204.json": {
+      "sha256": "e9e79a1fd8fe361024caf5748958199a5fb12195211a51352aa8374d680022ee",
+      "bytes": 2258
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0205.diagnostics.tsv": {
+      "sha256": "2987a37e4c96f761cc498a4717be03236b9294d42bd58d65f5ba3269f800f063",
+      "bytes": 5241
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0205.estimates.tsv": {
+      "sha256": "312498c492322fd7ccb08b649e7f52d8f2c3b4a3ca66261f68cd64b6fd1d23fb",
+      "bytes": 2983
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0205.json": {
+      "sha256": "6b7ecbe194130424046224e66b2c3c771e778e237bbf2849f5a64743504fe2b6",
+      "bytes": 2108
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0206.diagnostics.tsv": {
+      "sha256": "67057e620263c03bcae02d3ac3c4b31c932ebdfd152242cfb31decbbc5d1327c",
+      "bytes": 5766
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0206.estimates.tsv": {
+      "sha256": "e6afbdf747200f18d8fa94493e40b17c5bf871e60b4c997c0e7cfee85a598614",
+      "bytes": 3296
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0206.json": {
+      "sha256": "6821f05fee13016a5b7c1537175bc08fb699723147aa338b7ca489537196167e",
+      "bytes": 2253
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0207.diagnostics.tsv": {
+      "sha256": "0ebbf5347e338fbc46d6f6107175a22a3eb1bb3fbe660b841c871e3e28ed9215",
+      "bytes": 5236
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0207.estimates.tsv": {
+      "sha256": "f3fdd09fff2ab72f040f6cc6bd47267940a1c9cf321aeadb1d02832dd2e8e711",
+      "bytes": 2988
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0207.json": {
+      "sha256": "ac1407fe676f0812d4bad15410a2d78d075700e11f8f8113dce3944ce5cd4eff",
+      "bytes": 2124
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0208.diagnostics.tsv": {
+      "sha256": "ddbd1018b9a013dfacd52a9b4e7fdbacfd2063e0d7bda123a80373ed204768ab",
+      "bytes": 5785
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0208.estimates.tsv": {
+      "sha256": "5f748858ef8f1e20d9dc8d806b147167b1d2a89d2dfe3815d1ab43d9610bfbd8",
+      "bytes": 3336
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0208.json": {
+      "sha256": "1850bc8c036dbacc1299036f98187ec36a7fb681a4a27713dbd12e7d0c3f2e9a",
+      "bytes": 2268
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0209.diagnostics.tsv": {
+      "sha256": "27628310a95d63ef0dc28aa3e68b887b4c22fa1e43b6d69b4464a536e729bedd",
+      "bytes": 5239
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0209.estimates.tsv": {
+      "sha256": "56798b0f43b64d2ab73e8c9eeae1192b1742e8d1cc8a52121a12b0e0469bbf8c",
+      "bytes": 2978
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0209.json": {
+      "sha256": "7a4aeaf1a1ed7fdb332529d80cd22dd99ff5cba5af9bfb27dcda22065da6579e",
+      "bytes": 2113
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0210.diagnostics.tsv": {
+      "sha256": "f670c1c711502968d84699d28aedbfeaa404ce30b3b9fdb026d3323272dcc192",
+      "bytes": 5793
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0210.estimates.tsv": {
+      "sha256": "0261decd23e521e2e3404de4b3a8536bba3f22bc716a1f5d5622d0a53fec4d8b",
+      "bytes": 3327
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0210.json": {
+      "sha256": "f84bd6c2a139cf08e6efb3d5be240a484c68397cad66701f7ddb1fea7fed9b17",
+      "bytes": 2249
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0211.diagnostics.tsv": {
+      "sha256": "7eccbedd47891073e871fdfe3c5e4124b4d557ad630606b9270a29002ddc3c1d",
+      "bytes": 5235
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0211.estimates.tsv": {
+      "sha256": "095b0677ff498b031f0be268986f261845807cd9f2a2c36a57899dabb366c0c9",
+      "bytes": 2977
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0211.json": {
+      "sha256": "ebd6f1955f7d9a151a8fc11cf443361f44c76f4a12b147f9c44de6848db3b751",
+      "bytes": 2115
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0212.diagnostics.tsv": {
+      "sha256": "1c808da879b97f3da91d2070217ca49dc773ebdac8bd5c834ae2ebee7d1f0397",
+      "bytes": 5770
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0212.estimates.tsv": {
+      "sha256": "9079ec7b19cf14a87cc10206346892d176e0c917592171b7ef8bbc41c045432e",
+      "bytes": 3318
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0212.json": {
+      "sha256": "5bf499b3182c9fa3b4c5334a00a9043b9500006d7eae6553bb9e022d1ad58d98",
+      "bytes": 2253
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0213.diagnostics.tsv": {
+      "sha256": "eab1eaf47715bf9508361fef56db06abd466b4d87e0bbadcfddff9bf729d31b3",
+      "bytes": 5232
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0213.estimates.tsv": {
+      "sha256": "dfeda5dd078446ca080fb13184dc80fa502da4159232d290c60ba55a0227d8c5",
+      "bytes": 2968
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0213.json": {
+      "sha256": "e249e77901a5fb1c478767eaa2ac076b27f15e8a630d1dffb18f168b214f137d",
+      "bytes": 2105
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0214.diagnostics.tsv": {
+      "sha256": "4d6872ddda605b0a94c9103c4d72260bdfd4d112a587dc8d46dc9e41b35d1f11",
+      "bytes": 5780
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0214.estimates.tsv": {
+      "sha256": "695b5e87b3dd498eea903e74546a02ad976956d118bf68f35945ecb677f3a90b",
+      "bytes": 3305
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0214.json": {
+      "sha256": "dcb4a260697c35345234b6c99fa5a6cd3215a5b40aedd1db4d24e53c3d32ed2f",
+      "bytes": 2244
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0215.diagnostics.tsv": {
+      "sha256": "33a0ffb618ec53d9d0df9e1be82e3d61cc0456279b4293301f1525f227b3738c",
+      "bytes": 5232
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0215.estimates.tsv": {
+      "sha256": "91d17e199cc87e2f4ccefbf92dc76fb647e8855b82f03c1665f8058e839dfa12",
+      "bytes": 2972
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0215.json": {
+      "sha256": "d4ddb5bfa93b86afc4e9b6d4343261fed9e8221ff5b8d503a5efddf680164ef4",
+      "bytes": 2125
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0216.diagnostics.tsv": {
+      "sha256": "3587481f1e2ed3d114b48700ecbb10b30fedebc2fb90b8df958cb604afe5dcce",
+      "bytes": 5783
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0216.estimates.tsv": {
+      "sha256": "8507f26c7ad574458db223ef6b290cfd02989487baf5356bd5fbdd47fc2cd7d0",
+      "bytes": 3301
+    },
+    "analysis/signature-benchmark-2026/signer-results/fits/0216.json": {
+      "sha256": "3e301adce9bbf3fcc930ba19a7ee83fa8a932f909f5e8e1c9abb4ae4850ed41a",
+      "bytes": 2260
+    },
+    "analysis/signature-benchmark-2026/signer-results/metrics.tsv": {
+      "sha256": "b5ed4a3b5129b495088a15143b89a329005966efa4b3f2ea451013d423d4449c",
+      "bytes": 1258209
+    },
+    "analysis/signature-benchmark-2026/signer-results/r-packages.csv": {
+      "sha256": "14e22aa7eeccfd85d10b46e26339b63f941f4b0b458e9b88b866c5361d2ee9b5",
+      "bytes": 15419
+    },
+    "analysis/signature-benchmark-2026/signer-results/reference.tsv": {
+      "sha256": "8e864bd2985a9a1b4fef5957c3b55ff00f36c219b613482d0e411faaddaf9575",
+      "bytes": 124509
+    },
+    "analysis/signature-benchmark-2026/signer-results/repeat-metrics.tsv": {
+      "sha256": "8749eb01a89bede72f4fd2061177ba6769abf998f361e048912225ba769085c9",
+      "bytes": 10719
+    },
+    "analysis/signature-benchmark-2026/signer-results/samples.tsv": {
+      "sha256": "9876100a7e7eb1e53a1cc4aa9a11ba1f51be081ab9fbe155b52359d36158ea63",
+      "bytes": 8701
+    },
+    "analysis/signature-benchmark-2026/signer-results/session-info.txt": {
+      "sha256": "793b5bfd2b9dcb186b091578301d6a24df8290ba476eb903ae19e5810f877966",
+      "bytes": 5778
+    },
+    "analysis/signature-benchmark-2026/signer-results/signeR-DESCRIPTION.txt": {
+      "sha256": "04cb39afb8008dea6260cad83070cfd15d0d647208861049f31906849b623119",
+      "bytes": 2031
+    },
+    "analysis/signature-benchmark-2026/signer-results/signeR-defaults.txt": {
+      "sha256": "622b05a2a3bf884f8440fb5ec566745fa40fc946cda3ab0541f6ca8c64724f3f",
+      "bytes": 473
+    },
+    "analysis/signature-benchmark-2026/signer-results/signer-metrics.tsv": {
+      "sha256": "21cc74254368492e6712ac1566ce4158d2e435c417a68157202718f1c4aaf159",
+      "bytes": 84869
+    },
+    "analysis/signature-benchmark-2026/signer-results/tasks.tsv": {
+      "sha256": "503c17dd023c10df99cc12b96e57d916bac58b45a9668038426ca9bf5eb10fba",
+      "bytes": 14850
+    },
+    "analysis/signature-benchmark-2026/sparse-results/evaluate/catalogs.tsv": {
+      "sha256": "c8d98e6f1e5853e4a783dd6f8b845620bece61ac0e26925c9b7f272a921f9cad",
+      "bytes": 248313
+    },
+    "analysis/signature-benchmark-2026/sparse-results/evaluate/estimates.npz": {
+      "sha256": "c29638e0a120cbd2e229ce3aa82e815b43bda5cd6ac426694c8934a0e224e751",
+      "bytes": 6076401
+    },
+    "analysis/signature-benchmark-2026/sparse-results/evaluate/inputs.npz": {
+      "sha256": "2a143013ea3285c8f67e49edc7562eb52c70c348fc8fbeb388697b2305e5765a",
+      "bytes": 161350
+    },
+    "analysis/signature-benchmark-2026/sparse-results/evaluate/metrics.tsv": {
+      "sha256": "2e763c23159b2fe8defbe5cbbd7a413571bf4c62ca5193dee239111877c8571b",
+      "bytes": 8209417
+    },
+    "analysis/signature-benchmark-2026/sparse-results/evaluate/reference.tsv": {
+      "sha256": "8bb65b11873699d97cd47dea1efcb6b1c181889d26189ded7080ff5bf48730a8",
+      "bytes": 137688
+    },
+    "analysis/signature-benchmark-2026/sparse-results/evaluate/samples.tsv": {
+      "sha256": "d4338dcbc6e3c4b18b49bc03095568165f6d457cfd9f7d85fac3530bc5fbb4cc",
+      "bytes": 68299
+    },
+    "analysis/signature-benchmark-2026/sparse-results/evaluate/spa_reference.tsv": {
+      "sha256": "626d12a1ad97f94d20d62aaf0462d4160191c17e5a91bef9ad4aefb9245ca93a",
+      "bytes": 137696
+    },
+    "analysis/signature-benchmark-2026/sparse-results/tune/catalogs.tsv": {
+      "sha256": "a77c9fb535fdb13d7f596768ae72867368d2ea0b70df1e5a0a09bdb95a41c2de",
+      "bytes": 62038
+    },
+    "analysis/signature-benchmark-2026/sparse-results/tune/estimates.npz": {
+      "sha256": "a84f58300d3f5641c32143fb964a09a877e4fb7dff6a3dae269be7103ef86dc5",
+      "bytes": 70270
+    },
+    "analysis/signature-benchmark-2026/sparse-results/tune/inputs.npz": {
+      "sha256": "206ce519d3d16eec9d7c00a252c95c7c77ef9fa01918260e97254c47276f2bcf",
+      "bytes": 78868
+    },
+    "analysis/signature-benchmark-2026/sparse-results/tune/metrics.tsv": {
+      "sha256": "ccf9492c37c95d5c2e8f5246e04a3e50dc552dd87395e8fb8286000cfb65b711",
+      "bytes": 343821
+    },
+    "analysis/signature-benchmark-2026/sparse-results/tune/reference.tsv": {
+      "sha256": "8bb65b11873699d97cd47dea1efcb6b1c181889d26189ded7080ff5bf48730a8",
+      "bytes": 137688
+    },
+    "analysis/signature-benchmark-2026/sparse-results/tune/samples.tsv": {
+      "sha256": "a040981dfe3ce109a83a19155250a2e7e9afa02ba468b2ccc6209b6d700ae7ef",
+      "bytes": 16368
+    },
+    "analysis/signature-benchmark-2026/signer-results/signeR-body.R": {
+      "sha256": "b0e5e5e85bf7c630b5677382e90454e51b69d214a9791f53636f7871f27a66fc",
+      "bytes": 5850
+    }
+  }
+}
