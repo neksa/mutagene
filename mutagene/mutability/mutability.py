@@ -157,6 +157,7 @@ def rank(
     threshold_driver,
     threshold_passenger,
     provenance=None,
+    annotations=None,
 ):
     # profile_dict = profile_to_dict(profile)
     mutation_model = calculate_base_substitution_mutability(profile, cohort_size)
@@ -208,6 +209,11 @@ def rank(
                 "label": label,
             }
         )
+        if annotations is not None:
+            annotation = annotations.get(mutation_key, {})
+            if results[-1].keys() & annotation.keys():
+                raise ValueError("Annotation columns must not replace ranking columns")
+            results[-1].update(annotation)
     pvalues = [result["bscore"] for result in results]
     qvalues = []
     if len(pvalues):
@@ -226,7 +232,7 @@ def rank(
             "(a transcript column with cDNA and protein changes) for rank to use"
         )
         return
-    df = pd.DataFrame(results, columns=results[0].keys())
+    df = pd.DataFrame(results)
     df.drop(df[df.mutability == 0].index, inplace=True)
     try:
         if provenance:

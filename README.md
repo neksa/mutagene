@@ -86,3 +86,7 @@ For the driver ranking method (`mutagene rank`):
 ## Sample count matrices
 
 The [matrix guide](docs/count-matrices.md) describes sample exports and compressed mutation input.
+
+## AlphaMissense annotations
+
+The [annotation guide](docs/alphamissense.md) describes optional functional evidence that preserves existing driver scores.
