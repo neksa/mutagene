@@ -70,7 +70,7 @@ class TestRankWithoutCohort:
         import logging
 
         out = tmp_path / "rank.tsv"
-        with caplog.at_level(logging.WARNING):
+        with caplog.at_level(logging.WARNING), pytest.raises(SystemExit):
             run("rank", ["-i", LOCAL_MAF, "-g", LOCAL_GENOME, "-o", str(out)])
 
         assert any("could be ranked" in r.message for r in caplog.records)

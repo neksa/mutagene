@@ -12,7 +12,7 @@ import twobitreader as tbr
 from tqdm import tqdm
 
 from mutagene.dna import codon_table, complementary_nucleotide, nucleotides
-from mutagene.io.maf_columns import report_malformed_rows
+from mutagene.io.maf_columns import report_malformed_rows, resolve_alleles
 from mutagene.io.variant_filter import (
     DEFAULT_FILTER_COLUMN,
     check_filter_column,
@@ -253,6 +253,14 @@ def read_protein_mutations_MAF(
                 break
 
             chromosome = chrom if chrom.startswith("chr") else "chr" + chrom
+            genomic_variant = None
+            try:
+                reference, alternate = resolve_alleles(data)
+                if reference and alternate:
+                    genomic_variant = (chromosome, start, reference, alternate)
+            except ValueError:
+                # Protein-only annotations remain valid without genomic alleles.
+                pass
 
             if not motifs and hasattr(data, "ref_context"):
                 # context bundled in MAF file
@@ -304,7 +312,12 @@ def read_protein_mutations_MAF(
                 )
                 continue
 
-            mutations[sample][(data.hugo_symbol, transcript, protein_mutation)] = {"seq5": seq5}
+            key = (data.hugo_symbol, transcript, protein_mutation)
+            previous = mutations[sample].get(key, {})
+            genomic_variants = previous.get("genomic_variants", set())
+            if genomic_variant is not None:
+                genomic_variants.add(genomic_variant)
+            mutations[sample][key] = {"seq5": seq5, "genomic_variants": genomic_variants}
 
             length = transcript_length(data)
             if length is not None:
@@ -345,11 +358,15 @@ def read_protein_mutations_MAF(
                 flat_mutations[(gene, protein_mutation)] = {
                     "seq5": {props["seq5"]: 1},
                     "transcript": transcript,
+                    "genomic_variants": set(props["genomic_variants"]),
                 }
             else:
                 if props["seq5"] not in flat_mutations[(gene, protein_mutation)]["seq5"]:
                     flat_mutations[(gene, protein_mutation)]["seq5"][props["seq5"]] = 0
                 flat_mutations[(gene, protein_mutation)]["seq5"][props["seq5"]] += 1
+                flat_mutations[(gene, protein_mutation)]["genomic_variants"].update(
+                    props["genomic_variants"]
+                )
 
     if dropped:
         logger.info(

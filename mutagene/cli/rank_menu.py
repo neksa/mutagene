@@ -12,6 +12,7 @@ from mutagene.io.cohorts import (
 from mutagene.io.context_window import read_mutations
 from mutagene.io.profile import read_profile_file
 from mutagene.io.protein_mutations_MAF import read_protein_mutations_MAF
+from mutagene.io.text import open_text_input
 from mutagene.io.variant_filter import add_filter_argument
 from mutagene.mutability.mutability import THRESHOLD_DRIVER, THRESHOLD_PASSENGER, rank
 from mutagene.profiles.profile import get_pooled_multisample_mutational_profile
@@ -26,7 +27,7 @@ class RankMenu:
     def __init__(self, parser):
         required_group = parser.add_argument_group("Required arguments")
         required_group.add_argument(
-            "--infile", "-i", help="Input file in MAF format", type=argparse.FileType("r")
+            "--infile", "-i", help="Input file in MAF format", type=open_text_input
         )
         required_group.add_argument(
             "--genome",
@@ -67,6 +68,16 @@ class RankMenu:
         )
 
         add_filter_argument(optional_group)
+        optional_group.add_argument(
+            "--alphamissense",
+            type=str,
+            help="Optional indexed AlphaMissense TSV.gz; retain B-scores and labels",
+        )
+        optional_group.add_argument(
+            "--alphamissense-genome",
+            choices=("hg19", "hg38"),
+            help="Assembly for AlphaMissense when the reference filename does not identify it",
+        )
 
         advanced_group = parser.add_argument_group("Advanced arguments")
         advanced_group.add_argument(
@@ -97,8 +108,8 @@ class RankMenu:
         # no need to read mutations if there is a simple bail out
         if args.cohort is not None:
             if not Path(args.cohorts_file).is_file():
-                logger.warning('Cohorts file missing. Download with "mutagene fetch_cohorts"')
-                return
+                logger.error('Cohorts file missing. Download with "mutagene fetch cohorts"')
+                sys.exit(1)
             if len(args.cohort) == 0:
                 logger.warning(
                     "List of available cohorts:\n" + list_cohorts_in_tar(args.cohorts_file)
@@ -159,6 +170,11 @@ class RankMenu:
             keep_filtered=args.keep_filtered,
             filter_column=args.filter_column,
         )
+        if not protein_mutations:
+            logger.error(
+                "No mutations could be ranked. Supply transcript, cDNA, and protein annotations."
+            )
+            sys.exit(1)
         msg = "Loaded {} protein mutations in {} samples".format(
             processing_stats["loaded"], processing_stats["nsamples"]
         )
@@ -229,6 +245,21 @@ class RankMenu:
 
         # ranking:
         try:
+            annotations = None
+            if args.alphamissense:
+                from mutagene.io.alphamissense import (
+                    AlphaMissenseLookup,
+                    annotate_protein_mutations,
+                )
+                from mutagene.io.context_stats import assembly_name
+
+                assembly = args.alphamissense_genome or assembly_name(args.genome)
+                inferred = assembly_name(args.genome)
+                if inferred in ("hg19", "hg38") and assembly != inferred:
+                    raise ValueError("AlphaMissense assembly differs from the reference genome")
+                with AlphaMissenseLookup(args.alphamissense, assembly) as lookup:
+                    annotations = annotate_protein_mutations(protein_mutations, lookup)
+                    provenance["alphamissense"] = lookup.metadata
             rank(
                 protein_mutations,
                 args.outfile,
@@ -238,6 +269,8 @@ class RankMenu:
                 args.threshold_driver,
                 args.threshold_passenger,
                 provenance=provenance,
+                annotations=annotations,
             )
         except ValueError as e:
             logger.error(str(e))
+            sys.exit(1)

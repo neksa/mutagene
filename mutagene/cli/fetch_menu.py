@@ -33,6 +33,12 @@ class FetchMenu:
         )
         subparsers.required = True
 
+        alphamissense_parser = subparsers.add_parser(
+            "alphamissense", help="Download and tabix-index canonical AlphaMissense scores"
+        )
+        alphamissense_parser.add_argument("--genome", "-g", required=True, choices=("hg19", "hg38"))
+        alphamissense_parser.add_argument("--cache-dir", type=Path)
+
         subparsers.add_parser(
             "examples",
             description="""
@@ -237,3 +243,13 @@ Partial download is supported: if the process is interrupted run the same comman
             sys.exit(1)
 
         getattr(self, args.resource)(args)
+
+    @classmethod
+    def alphamissense(cls, args):
+        from mutagene.io.alphamissense import fetch_alphamissense
+
+        try:
+            print(fetch_alphamissense(args.genome, args.cache_dir))
+        except (ValueError, OSError, ConnectionError) as error:
+            logger.error(str(error))
+            sys.exit(1)
