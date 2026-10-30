@@ -370,3 +370,61 @@ class TestInputFormatDetection:
 
         assert results["mutations"] > 0, "the VCF produced no mutations"
         assert results["samples"] >= 1
+
+
+@pytest.mark.parametrize("motif_result,status", [([], "no significant results"), (None, "failed")])
+def test_optional_analysis_status_is_explicit(tmp_path, monkeypatch, motif_result, status):
+    from pathlib import Path
+
+    from mutagene.webapp import analysis as module
+    from tests.cli.local_fixtures import LOCAL_GENOME, LOCAL_MAF
+
+    monkeypatch.setattr(
+        module.GenomeManager, "get_genome_path", lambda self, genome: Path(LOCAL_GENOME)
+    )
+
+    def identify(*args, **kwargs):
+        if motif_result is None:
+            raise ValueError("Deliberate motif failure")
+        return motif_result
+
+    monkeypatch.setattr("mutagene.motifs.identify_motifs", identify)
+    result = module.run_cohort_analysis(
+        Path(LOCAL_MAF),
+        tmp_path / "out",
+        config={"classify": True, "motifs": True},
+    )
+    assert result["analysis_status"]["classification"] == "unsupported"
+    assert "prediction" not in result["classification"]
+    assert result["analysis_status"]["motifs"] == status
+
+
+def test_motif_matches_preserve_numpy_counts_in_json(tmp_path, monkeypatch):
+    import json
+    from pathlib import Path
+
+    import numpy as np
+
+    from mutagene.webapp import analysis as module
+    from tests.cli.local_fixtures import LOCAL_GENOME, LOCAL_MAF
+
+    monkeypatch.setattr(
+        module.GenomeManager, "get_genome_path", lambda self, genome: Path(LOCAL_GENOME)
+    )
+    monkeypatch.setattr(
+        "mutagene.motifs.identify_motifs",
+        lambda *args, **kwargs: [
+            {
+                "sample": "SAMPLE1",
+                "motif": "TCW",
+                "mut_min": np.int64(3),
+                "enrichment": np.float64(2),
+                "qvalue": np.float64(0.01),
+            }
+        ],
+    )
+    output = tmp_path / "out"
+    result = module.run_cohort_analysis(Path(LOCAL_MAF), output, config={"motifs": True})
+    saved = json.loads((output / "motifs.json").read_text())
+    assert result["analysis_status"]["motifs"] == saved["status"] == "complete"
+    assert saved["motifs"][0]["mut_min"] == 3

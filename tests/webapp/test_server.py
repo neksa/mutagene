@@ -290,3 +290,27 @@ class TestStartServerGuards:
 
         # Origins must track the actual port, not a hardcoded 5000.
         assert "http://127.0.0.1:8080" in called["config"]["ALLOWED_ORIGINS"]
+
+
+def test_results_show_failure_details_and_motif_matches(client, db):
+    aid = db.create_analysis("test.maf", "hg19")
+    db.update_analysis_status(aid, "complete")
+    db.store_result(aid, "analysis_status", {"signatures": "failed", "motifs": "complete"})
+    db.store_result(
+        aid,
+        "signatures",
+        {"method": "MLE", "error": "Likelihood optimization fails certification", "signatures": {}},
+    )
+    db.store_result(
+        aid,
+        "motifs",
+        {
+            "status": "complete",
+            "motifs": [{"sample": "SAMPLE1", "motif": "TCW", "enrichment": 2.0, "qvalue": 0.01}],
+        },
+    )
+    response = client.get(f"/results/{aid}")
+    assert response.status_code == 200
+    assert b"Likelihood optimization fails certification" in response.data
+    assert b"SAMPLE1" in response.data and b"TCW" in response.data
+    assert b"Analysis completed successfully" not in response.data

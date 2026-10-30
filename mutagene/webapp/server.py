@@ -628,6 +628,8 @@ def run_analysis(analysis_id, db, socketio, results_folder=None):
                 ("drivers", "drivers"),
                 ("clustering", "clustering"),
                 ("genome_warning", "genome_warning"),
+                ("analysis_status", "analysis_status"),
+                ("motifs", "motifs"),
             )
             if results.get(result_type_key)
         ]
