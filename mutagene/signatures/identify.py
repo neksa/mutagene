@@ -11,13 +11,16 @@ from scipy.spatial.distance import cosine
 from scipy.stats import entropy
 
 from mutagene.signatures import get_dummy_signatures_lists
+from mutagene.signatures.likelihood import (
+    DEFAULT_BACKGROUND_SELECTION,
+    DEFAULT_METHOD,
+    fit_likelihood,
+    negative_log_likelihood,
+    validate_inputs,
+)
+from mutagene.signatures.sparse import SPARSE_METHODS, fit_sparse
 
 logger = logging.getLogger(__name__)
-
-# Per observed mutation in a channel the mixture rules out. Large enough to
-# dominate any achievable log-likelihood, finite so the optimizer keeps a
-# usable gradient rather than meeting a wall of infinities.
-LARGE_PENALTY = 1e6
 
 
 def multi_kl(p, q):
@@ -90,55 +93,18 @@ def FrobeniusZero(x, A, b):
 
 
 def NegLogLik(x, A, b):
-    """
-    Log Likelihood of a mixture of multinomials
-    x = parameters of the mixture
-    A = signature x 96 channels
-    b = the observed profile (includes counts for 96 channels)
-    """
+    """Return count negative log likelihood without implicit weight normalization."""
+    return negative_log_likelihood(x, A, b)
 
-    # if x.sum() - 0.00011 > 1.0:
-    #     return 1e6
 
-    if x.sum() > 1.0:
-        x = x / x.sum()
-
-    predicted = A.dot(x)
-    # Filling a masked log with 0.0 charged nothing for a channel the mixture
-    # says is impossible but which was actually observed, so the optimizer saw
-    # no reason to avoid such a mixture. Charge the observed count instead, and
-    # only where something was observed: an impossible channel with no
-    # observations is not evidence against anything.
-    impossible = (predicted <= 0) & (b > 0)
-    LL = np.sum(b * np.ma.log(predicted).filled(0.0))
-    if np.any(impossible):
-        LL -= LARGE_PENALTY * np.sum(b[impossible])
-
-    return -LL
+def NegLogLikScaled(x, A, b):
+    """Return negative log likelihood per mutation."""
+    return NegLogLik(x, A, b) / np.sum(b)
 
 
 def NegLogLikOld(x, A, b):
-    """
-    Log Likelihood of a mixture of multinomials
-    x = parameters of the mixture
-    A = signature x 96 channels
-    b = the observed profile (includes counts for 96 channels)
-    """
-
-    # if x.sum() - 0.00011 > 1.0:
-    #     return 1e6
-
-    # if x.sum() > 1.0:
-    #     x /= x.sum()
-
-    # Compatibility mode with the website:
-    if np.sum(x) > 1.0:
-        return 1000
-
-    LL = np.sum(b * np.ma.log(A.dot(x)).filled(0))
-
-    # print("LOG\t{}\t{}\t{}".format(len(x), "\t".join(map(lambda a: "{:.2f}".format(a), x)), LL))
-    return -LL
+    """Preserve the compatibility name with the same count likelihood definition."""
+    return NegLogLik(x, A, b)
 
 
 def count_threshold(x, threshold=10e-6):
@@ -186,6 +152,9 @@ IDENTIFY_MIN_FUNCTIONS = {
     "divergencekl": DivergenceKL,
     "js": DivergenceJS,
     "divergencejs": DivergenceJS,
+    "sparse-aicc": NegLogLik,
+    "sparse-bic": NegLogLik,
+    "mle-scaled": NegLogLikScaled,
     "mle": NegLogLik,  # MLE maximizes LogLik or minimizes NegLogLik
     "compat": NegLogLikOld,  # MLE with added context-independent signatures (old compatibility mode)
     "aicc": AICc,  # AIC corrected for small samples
@@ -204,10 +173,12 @@ def get_fingerprint_url(a):
 def decompose_mutational_profile_counts(
     profile,
     signatures,
-    func="Frobenius",
+    func=DEFAULT_METHOD,
     others_threshold=0.05,
     global_optimization=None,
     enable_dummy=None,
+    diagnostics=None,
+    background_selection=DEFAULT_BACKGROUND_SELECTION,
 ):
 
     config = {
@@ -230,7 +201,20 @@ def decompose_mutational_profile_counts(
     results = []
 
     W, signature_names = list(signatures)
-    signature_names = signature_names[:]  # make a copy
+    signature_names = list(signature_names)
+    original_totals = np.asarray(W, dtype=float).sum(axis=0)
+    W, v = validate_inputs(W, np.asarray(profile, dtype=float))
+    if len(signature_names) != W.shape[1]:
+        raise ValueError("Signature names and matrix columns differ")
+    if func.lower() not in IDENTIFY_MIN_FUNCTIONS:
+        raise ValueError(f"Unknown fitting method: {func}")
+    if diagnostics is not None:
+        diagnostics.update(
+            requested_method=func,
+            reference_normalized=True,
+            reference_column_sum_min=float(original_totals.min()),
+            reference_column_sum_max=float(original_totals.max()),
+        )
     for name in signature_names:
         results.append(
             {
@@ -244,7 +228,9 @@ def decompose_mutational_profile_counts(
             }
         )
 
-    # add dummy signatures
+    # Background components use the fixed SBS96 channel order.
+    if config["enable_dummy"] and W.shape[0] != 96:
+        raise ValueError("Context-independent background requires 96 channels")
     if config["enable_dummy"]:
         for i, (name, values) in enumerate(get_dummy_signatures_lists()):
             dummy = "d" + str(i)
@@ -273,108 +259,22 @@ def decompose_mutational_profile_counts(
     # print(W)
     # print(signature_names)
 
-    v = np.array([profile]).ravel()
     v_sum = v.sum()
-    if v_sum == 0:
-        raise ValueError("Profile is all zeros — cannot decompose an empty mutational profile")
     v_freq = v / v_sum
+    if np.any((W.sum(axis=1) == 0) & (v > 0)):
+        raise ValueError("The signature reference cannot explain an observed channel")
 
-    # Initial guess with NNLS:
-    # DATA, residuals = nnls(W.T, X.T.ravel())
-    h0, rnorm = nnls(W, v_freq)
-    if h0.sum() > 1.0:
-        h0 = h0.ravel() / h0.sum()
-
-    # not sure if we need this failsafe option:
-    # if np.isnan(h0.sum()):
-    #     h0 = np.ones(h0.shape[0]) / h0.shape[0]
-
-    logger.debug(f"h0 {h0}")
-
-    min_func = IDENTIFY_MIN_FUNCTIONS.get(func.lower(), Frobenius)
-
-    # if debug:
-    #     np.set_printoptions(precision=4)
-    #     print("--------------------------------------\n")
-    #     print("Signature", signatures)
-    #     print("NNLS", h0)
-    #     print("FRO", round(Frobenius(h0, W, v), 4), "DIV", round(DivergenceKL(h0, W, v), 4))
-
-    # Define constraints and bounds
-    # constraints = {'type': 'eq', 'fun': lambda x: np.sum(x) - 1}
-    constraints = {"type": "ineq", "fun": lambda x: 1.0 - np.sum(x)}
-    # bounds = [[0., None],[0., None],[0., None]]
-
-    # bounds = [[0., 1.0] for _ in range(h0.shape[0])]
-    bounds = [[0.0, 1.0] for _ in range(h0.shape[0])]
+    min_func = IDENTIFY_MIN_FUNCTIONS[func.lower()]
+    constraints = {"type": "eq", "fun": lambda x: np.sum(x) - 1.0}
+    bounds = [[0.0, 1.0] for _ in range(W.shape[1])]
 
     # v == counts
     # v_freq == frequency (normalized counts)
-    if min_func in (NegLogLik, AIC, AICc, BIC):
+    if min_func in (NegLogLik, NegLogLikScaled, NegLogLikOld, AIC, AICc, BIC):
         v_target = v
     else:
         v_target = v_freq
 
-    def print_fun(x, f, accepted):
-        print(f"{x} at minimum {f} accepted {accepted}")
-
-    class RandomDisplacementBounds:
-        """random displacement with bounds"""
-
-        def __init__(self, xmin=0.0, xmax=1.0, stepsize=0.3):
-            self.xmin = xmin
-            self.xmax = xmax
-            self.stepsize = stepsize
-
-        def __call__(self, x):
-            """take a random step but ensure the new position is within the bounds"""
-            if np.any(np.isnan(x)):
-                return x
-            while True:
-                xnew = x + np.random.uniform(-self.stepsize, self.stepsize, x.shape)
-                xnew = np.where(xnew < 0.0, 0.0, xnew)
-                if xnew.sum() > 1.0:
-                    xnew += 1.0 - xnew.sum()
-                xnew = np.abs(xnew)
-                if np.all(xnew <= self.xmax) and np.all(xnew >= self.xmin):
-                    break
-            return xnew
-
-    def accept_test(f_new, x_new, f_old, x_old):
-        if np.any(np.isnan(x_new)):
-            return False
-        if x_new.sum() > 1.0:
-            return False
-        if np.any(x_new > 1.0) or np.any(x_new < 0.0) or np.any(np.isnan(x_new)):
-            return False
-        return True
-
-    def get_constraint(i, upper=True):
-        def a(x):
-            return 1.0 - x[i]
-
-        def b(x):
-            return x[i] - 0.0
-
-        return a if upper else b
-
-    cobyla_constraints = [{"type": "ineq", "fun": lambda x: 1.0 - np.sum(x)}]  # total upper
-    for i in range(h0.shape[0]):
-        cobyla_constraints.append(
-            {
-                "type": "ineq",
-                "fun": get_constraint(i, True),
-            }  # , 'jac': get_constraint(i, True)}  # upper
-        )
-        cobyla_constraints.append(
-            {
-                "type": "ineq",
-                "fun": get_constraint(i, False),
-            }  # , 'jac': get_constraint(i, False)}  # lower
-        )
-
-    ##############################################################################
-    # debug = True
     if config["global_optimization"]:
         # Nothing was ever wired up for this branch, so the exposures stayed
         # unassigned and the call died with NameError several screens further
@@ -383,26 +283,50 @@ def decompose_mutational_profile_counts(
             "global_optimization is not implemented; omit it to use local minimization"
         )
 
-    minout = minimize(
-        min_func,
-        h0,
-        args=(W, v_target),
-        method="SLSQP",
-        bounds=bounds,
-        constraints=constraints,
-        options={"maxiter": 500},
-    )
-
-    if minout.success:
-        logger.debug(f"MINIMIZATION: {minout.message} {minout.nit}")
-        h = minout.x
-        logger.debug(f"MAX LIK {h} {round(-NegLogLik(h, W, v_target), 4)}")
-        # print("LIK", round(-NegLogLik(h, W, v), 4), "DIV", round(DivergenceKL(h, W, v), 4))
+    if func.lower() in SPARSE_METHODS:
+        h = fit_sparse(
+            W,
+            v,
+            len(signatures[1]),
+            SPARSE_METHODS[func.lower()],
+            diagnostics,
+            background_selection,
+        )
+    elif func.lower() in ("mle", "mle-scaled", "mlez", "compat"):
+        h = fit_likelihood(W, v, diagnostics)
     else:
-        logger.debug(f"MINIMIZATION FAILED:{minout.message} {minout.nit}")
-        # Minimization did not converge
-        # Use our initial guess, but normalize it:
-        h = h0.ravel() / h0.sum()
+        h0, _ = nnls(W, v_freq)
+        h0 = h0 / h0.sum()
+        minout = minimize(
+            min_func,
+            h0,
+            args=(W, v_target),
+            method="SLSQP",
+            bounds=bounds,
+            constraints=constraints,
+            options={"maxiter": 500},
+        )
+
+        if diagnostics is not None:
+            diagnostics.update(
+                optimizer_success=bool(minout.success),
+                optimizer_message=str(minout.message),
+                optimizer_iterations=int(minout.nit),
+                fallback=None if minout.success else "normalized_nnls",
+                estimator=func if minout.success else "normalized_nnls",
+            )
+        if minout.success:
+            logger.debug(f"MINIMIZATION: {minout.message} {minout.nit}")
+            h = np.maximum(minout.x, 0)
+            h /= h.sum()
+            logger.debug(f"MAX LIK {h} {round(-NegLogLik(h, W, v_target), 4)}")
+        else:
+            logger.warning(
+                f"Optimization fails: {minout.message}. Using normalized NNLS estimates."
+            )
+            # Minimization did not converge
+            # Use our initial guess, but normalize it:
+            h = h0.ravel() / h0.sum()
 
     ##############################################################################
     N_mutations = int(math.ceil(v.sum()))
@@ -464,7 +388,7 @@ def decompose_mutational_profile_counts(
                 r["pid"] = 100
                 results.append(r)
 
-    ll = -NegLogLik(h, W, v_target)
+    ll = -NegLogLik(h, W, v)
     results.append(
         {
             "accession": 0,

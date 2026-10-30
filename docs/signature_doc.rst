@@ -69,7 +69,7 @@ Argument                    Description                                         
 ==========================  ===================================================================  =========================
 --method [METHOD]           Method defines a target function minimized in the optimization
                             procedure                                                            -method frobenius
-                            (default method is mlez)\ :sup:`1`
+                            (default method is MLE)\ :sup:`1`
 -m [METHOD]                 Short form of --method [METHOD] argument                             -m frobenius
 --no-unexplained-variance   not to account for unexplained variance from context-independent     --no-unexplained-variance
                             mutational processes and unknown signatures
@@ -92,7 +92,7 @@ js                 js
 divergencejs       divergencejs
 mle                NegLogLik (Maxiumum Likelihood Estimation maximizes LogLik or minimizes NegLogLik)
 mlez               NegLogLik (MLE with added context-independent signatures)
-compat             MegLogLikOld (MLE with added context-independent signatures (old compatability mode))
+compat             NegLogLik (compatibility alias for repaired MLE)
 aicc               AICc (AIC corrected for small samples)
 bic                BIC
 aiccz              BIC (BIC with added context-independent signatures)
@@ -102,12 +102,12 @@ aiccz              BIC (BIC with added context-independent signatures)
 -----------
 3. Examples
 -----------
-*3.1. Search for the presence of MutaGene-10 signatures in PD3851a.vcf using hg38 and default method mlez (method mle gives same output for this input)*
---------------------------------------------------------------------------------------------------------------------------------------------------------
+*3.1. Search for the presence of MutaGene-10 signatures in PD3851a.vcf using hg38 and explicit method mlez (method mle gives same output for this input)*
+---------------------------------------------------------------------------------------------------------------------------------------------------------
 3.1.1.Command
 -------------
 
-``$ mutagene signature identify -i PD3851a.vcf -g hg38.2bit -f VCF -s10``
+``$ mutagene signature identify -i PD3851a.vcf -g hg38.2bit -f VCF -s10 --method mlez``
 
 ---------------------
 3.1.2.Identify Output
@@ -313,3 +313,55 @@ Common arguments
 ``--keep-filtered`` and ``--filter-column`` control which variants are read, and
 ``--params-out`` and ``--params-in`` record and replay a run. See
 :doc:`common_options`.
+
+Labelled count matrices and diagnostics
+------------------------------------------
+
+Use ``-f MATRIX`` for an SBS96 count matrix with ``Type`` and sample columns.
+The reader validates channel labels and preserves sample identity.
+Matrix input does not require a genome file.
+
+.. code-block:: bash
+
+   mutagene signature -f MATRIX -i matrix.tsv -o signatures.tsv --diagnostics-out diagnostics.json
+
+Diagnostics include optimizer status, likelihood optimality bounds, and six null-component weights.
+MLE never replaces a failed likelihood fit with normalized NNLS.
+Null components represent context-independent substitution patterns, not arbitrary unknown processes.
+
+Use ``--seed`` with bootstrap sampling for reproducible draws.
+The percentile method remains the default.
+The approximate t-based method uses bootstrap standard deviation rather than replicate SEM.
+
+Python, CLI, and web interfaces retain full-model MLE as the default.
+Request ``--method MLE`` or ``func="MLE"`` for full-model likelihood fitting.
+``MLE-scaled`` and ``Compat`` use the same repaired likelihood solver.
+The solver normalizes signature columns and validates finite nonnegative inputs.
+It uses per-mutation likelihood, analytic derivatives, and an explicit simplex constraint.
+Each accepted fit has an optimality bound below ``2e-5`` nats per mutation.
+After three unsuccessful certification attempts, fitting raises ``RuntimeError``.
+Every method reports ``LogLik`` from original counts, omitting the constant multinomial coefficient.
+
+Sparse subset selection
+-----------------------
+
+``--method sparse-bic`` and ``--method sparse-aicc`` search known-signature subsets.
+Each candidate subset receives a constrained multinomial likelihood refit.
+Backward removals and forward additions stop at a local information-criterion optimum.
+Joint-background BIC starts from the best feasible single component through 1,000 mutations.
+It compares all one-component additions and removals at each step.
+Above 1,000 mutations, it retains full-model initialization and the preceding search.
+Fixed-background BIC, block selection, and AICc retain full-model initialization.
+The diagnostics field ``search_start`` records the initialization.
+Sparse BIC selects known and background components.
+
+The six null components form a context-independent background model.
+Each component covers one substitution type uniformly across sixteen flanking contexts.
+Use ``--background-selection joint`` to select background components individually.
+Use ``--background-selection block`` to compare complete models with and without background.
+Use ``--background-selection fixed`` to retain all six components as nuisance parameters.
+Joint selection counts retained known and background components minus one for the simplex constraint.
+Their fitted weights do not constitute a Bayesian prior or prove technical noise.
+
+Use ``--no-unexplained-variance`` to compare a fit without these components.
+Inspect ``--diagnostics-out`` for the selected subset, search trace, and optimizer status.

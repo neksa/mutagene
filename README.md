@@ -90,3 +90,8 @@ The [matrix guide](docs/count-matrices.md) describes sample exports and compress
 ## AlphaMissense annotations
 
 The [annotation guide](docs/alphamissense.md) describes optional functional evidence that preserves existing driver scores.
+
+## Signature fitting
+
+The [likelihood guide](docs/likelihood-fitting.md) describes convergence checks and optimizer diagnostics.
+The [sparse guide](docs/sparse-signatures.md) describes optional subset selection.

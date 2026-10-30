@@ -38,7 +38,7 @@ def _get_stats(results, signature_ids=None):
 
 def _get_bootstrap_stats_percentile(bootstrap_results, level):
     """
-    level is converted to percentile: level 90 means an interval 9% - 95%
+    Level 90 gives the 5th and 95th percentiles.
 
     Quantile-based bootstrap intervals
     Returns pandas data frame - each row is a signature, zeros not removed
@@ -130,17 +130,18 @@ def _get_bootstrap_stats_t(sample_results, bootstrap_results, n, level):
 
     # h: exposures, float [0..1]
     h = np.array([2 * exposure[name] - np.nanmean(exposures_lists[name]) for name in signatures])
-    h_sem = np.array([stats.sem(exposures_lists[name]) for name in signatures])
-    h_ci_low = np.clip(h - t * h_sem, a_min=0.0, a_max=None)
-    h_ci_high = np.clip(h + t * h_sem, a_min=None, a_max=1.0)
-    h = np.clip(h, a_min=0.0, a_max=None)
+    # Bootstrap spread estimates sampling uncertainty; SEM estimates Monte Carlo error.
+    h_sd = np.array([np.std(exposures_lists[name], ddof=1) for name in signatures])
+    h_ci_low = np.clip(h - t * h_sd, a_min=0.0, a_max=1.0)
+    h_ci_high = np.clip(h + t * h_sd, a_min=0.0, a_max=1.0)
+    h = np.clip(h, a_min=0.0, a_max=1.0)
 
     # m: mutations, integer [0, 1, 2...]
     m = np.array([2 * mutations[name] - np.nanmean(mutations_lists[name]) for name in signatures])
-    m_sem = np.array([stats.sem(mutations_lists[name]) for name in signatures])
-    m_ci_low = np.clip(m - t * m_sem, a_min=0, a_max=None)
-    m_ci_high = m + t * m_sem
-    m = np.clip(m, a_min=0, a_max=None)
+    m_sd = np.array([np.std(mutations_lists[name], ddof=1) for name in signatures])
+    m_ci_low = np.clip(m - t * m_sd, a_min=0, a_max=n)
+    m_ci_high = np.clip(m + t * m_sd, a_min=0, a_max=n)
+    m = np.clip(m, a_min=0, a_max=n)
 
     df = pd.DataFrame(
         dict(
