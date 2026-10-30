@@ -5,6 +5,7 @@ import sys
 from mutagene.cli.genome_resolver import GenomeNotFoundError, resolve_genome
 from mutagene.io.context_window import read_MAF_with_context_window, read_VCF_with_context_window
 from mutagene.io.motifs import get_known_motifs, write_motif_matches
+from mutagene.io.text import open_text_input
 from mutagene.io.variant_filter import add_filter_argument
 from mutagene.motifs import identify_motifs
 
@@ -50,7 +51,7 @@ mutagene motif --infile sample1.maf --input-format MAF --genome hg19 --motif 'C[
             "--infile",
             "-i",
             help="Input file in MAF or VCF format with one or multiple samples",
-            type=argparse.FileType("r"),
+            type=open_text_input,
         )
         required_group.add_argument(
             "--genome", "-g", help="Location of genome assembly file in 2bit format", type=str

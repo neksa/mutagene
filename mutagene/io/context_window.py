@@ -457,6 +457,8 @@ def read_VCF_with_context_window(
     ignored: a VCF's FILTER is the seventh column by specification, so there is
     no name to configure.
     """
+    from mutagene.io.vcf import has_reference_genotype, validate_vcf_header
+
     raw_mutations = defaultdict(list)
 
     N_skipped = 0
@@ -466,13 +468,21 @@ def read_VCF_with_context_window(
     sample = "VCF"
 
     for line in infile:
+        validate_vcf_header(line)
+        if line.startswith("#CHROM"):
+            fields = line.rstrip("\r\n").split("\t")
+            if len(fields) == 10:
+                sample = fields[9]
         if line.startswith("#"):
             continue
         if len(line) < 10:
             continue
 
         col_list = line.split()
-        if len(col_list) < 4:
+        if has_reference_genotype(col_list):
+            n_filtered += 1
+            continue
+        if len(col_list) < 5:
             continue
 
         # ID = col_list[2]

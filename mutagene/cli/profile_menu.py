@@ -3,6 +3,7 @@ import logging
 import sys
 
 from mutagene.cli.genome_resolver import GenomeNotFoundError, resolve_genome
+from mutagene.io.text import open_text_input
 from mutagene.io.variant_filter import add_filter_argument
 from mutagene.profiles.profile import calc_profile
 
@@ -14,7 +15,7 @@ genome_error_message = """requires genome name argument -g hg19, hg38, mm10, see
 class ProfileMenu:
     def __init__(self, parser):
         parser.add_argument(
-            "--infile", "-i", nargs="*", help="Input file format", type=argparse.FileType("r")
+            "--infile", "-i", nargs="*", help="Input file format", type=open_text_input
         )
         parser.add_argument(
             "--outfile",
@@ -27,6 +28,11 @@ class ProfileMenu:
         parser.add_argument("--genome", "-g", help="Location of genome assembly file", type=str)
         parser.add_argument(
             "--input-format", "-f", help="Input format: auto, MAF, VCF", type=str, default="auto"
+        )
+        parser.add_argument(
+            "--per-sample",
+            action="store_true",
+            help="Write a labelled SBS96 count matrix with one column per sample",
         )
 
         # for backwards compatibility with 0.8.X add a hidden action that would just take anything as a valid input
@@ -44,10 +50,10 @@ class ProfileMenu:
             logger.warning(
                 "Provide input file in VCF or MAF format (-i) and a corresponding genome assembly (-g)"
             )
-            return
+            sys.exit(1)
         if not args.genome:
             logger.warning(genome_error_message)
-            return
+            sys.exit(1)
         try:
             args.genome = resolve_genome(args.genome)
         except GenomeNotFoundError as e:
@@ -55,6 +61,35 @@ class ProfileMenu:
             sys.exit(1)
 
         try:
+            if args.per_sample:
+                from mutagene.io.context_window import read_mutations
+                from mutagene.io.matrix import write_count_matrix
+                from mutagene.io.text import detect_mutation_format
+                from mutagene.profiles.profile import get_multisample_mutational_profile
+
+                profiles = {}
+                for stream in args.infile:
+                    fmt = args.input_format.upper()
+                    if fmt == "AUTO":
+                        fmt = detect_mutation_format(stream)
+                    mutations, _, _ = read_mutations(
+                        fmt,
+                        stream,
+                        args.genome,
+                        window_size=1,
+                        keep_filtered=args.keep_filtered,
+                        filter_column=args.filter_column,
+                    )
+                    current = get_multisample_mutational_profile(mutations, counts=True)
+                    if profiles.keys() & current.keys():
+                        raise ValueError(
+                            "Sample names repeat across input files; supply unique sample names"
+                        )
+                    profiles.update(current)
+                if not profiles:
+                    raise ValueError("No mutations could be read for the sample matrix")
+                write_count_matrix(args.outfile, profiles)
+                return
             stats = calc_profile(
                 args.infile,
                 args.outfile,
@@ -63,7 +98,7 @@ class ProfileMenu:
                 keep_filtered=args.keep_filtered,
                 filter_column=args.filter_column,
             )
-        except (ValueError, OSError) as e:
+        except (ValueError, OSError, EOFError) as e:
             # An unreadable input is the user's problem to fix, not a defect to
             # report, so say what is wrong instead of printing a traceback.
             # rank and signature already did this; profile did not.
