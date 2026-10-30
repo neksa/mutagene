@@ -9,13 +9,16 @@ MutaGene is a Python package for analyzing mutations and mutational processes in
 
 Requires Python 3.10+.
 
+Install this source checkout to use the unreleased workflows.
+Until the next package release, install this checkout with `pip install ".[web]"`.
+
 ```bash
 pip install mutagene
 ```
 
 For the local web interface:
 ```bash
-pip install mutagene[web]
+pip install "mutagene[web]"
 ```
 
 ## Subcommands
@@ -33,23 +36,35 @@ Use `mutagene <command> --help` for detailed usage of each subcommand.
 
 ## Quick Start
 
+Try the bundled synthetic example without network access:
+
+```bash
+mutagene demo --output-dir mutagene-demo
+```
+
+The expected result contains 3 samples, 24 mutations, and 96 channels.
+This small example demonstrates execution, not biological inference.
+
+For real mutation files, use a matching reference assembly:
+
 ```bash
 # Download a genome assembly and the precalculated cohorts
-mutagene fetch genome hg19
+mutagene fetch genome -g hg19
 mutagene fetch cohorts
+mutagene fetch examples
 
 # Create a mutational profile
-mutagene profile -i sample.maf -g hg19 -o profile.tsv
+mutagene profile -i sample1.maf -g hg19 -o profile.tsv
 
 # List the available cohorts, then rank driver mutations against one
 mutagene rank -c
-mutagene rank -i sample.maf -g hg19 --cohort Lung_Adenocarcinoma
+mutagene rank -i sample1.maf -g hg19 --cohort pancancer
 
 # Search for mutational motifs
-mutagene motif -i sample.maf -g hg19 --motif 'C[C>T]G'
+mutagene motif -i sample1.maf -g hg19 --motif 'C[C>T]G'
 
 # Decompose into COSMIC signatures
-mutagene signature -i sample.maf -g hg19 -s COSMICv2
+mutagene signature -i sample1.maf -g hg19 -s COSMICv2
 
 # Start the web interface
 mutagene serve
@@ -59,13 +74,30 @@ Every subcommand accepts `--params-out FILE` to record the parameters of a run,
 and `--params-in FILE` to replay it:
 
 ```bash
-mutagene profile -i sample.maf -g hg19 -o profile.tsv --params-out run.json
+mutagene profile -i sample1.maf -g hg19 -o profile.tsv --params-out run.json
 mutagene profile --params-in run.json -o rerun.tsv
 ```
 
 The genome assembly must match the coordinates in your input file. Run with `-v`
 to see how many reference alleles disagree with the assembly; a large share
 means the wrong one was chosen.
+
+## Pipeline and R interchange
+
+Export one sample per column, then fit the labelled SBS96 count matrix:
+
+```bash
+mutagene profile -i sample1.maf -g hg19 --per-sample -o matrix.tsv
+mutagene signature -i matrix.tsv -f MATRIX -o signatures.tsv --diagnostics-out diagnostics.json
+```
+
+Matrix fitting needs no reference genome download.
+The first column must contain `Type` and all 96 channel labels.
+Remaining columns contain nonnegative integer counts for uniquely named samples.
+
+VCF input supports at most one sample column.
+Select the tumor sample and retain its variant calls before analysis.
+MutaGene rejects multisample VCFs instead of pooling their records.
 
 ## Citation
 
@@ -83,15 +115,17 @@ For the driver ranking method (`mutagene rank`):
 > *PLOS Computational Biology* 2019; 15(4): e1006981.
 > https://doi.org/10.1371/journal.pcbi.1006981
 
-## Sample count matrices
+### Optional annotations and workflow integrations
 
-The [matrix guide](docs/count-matrices.md) describes sample exports and compressed mutation input.
+Install the `annotations` extra before fetching an indexed AlphaMissense table.
+Run `mutagene fetch alphamissense -g hg38`.
+The [annotation guide](docs/alphamissense.md) explains mapping requirements and the planned driver-model evaluation.
+AlphaMissense annotations preserve existing B-scores and driver labels.
 
-## AlphaMissense annotations
+The [pipeline examples](examples/pipelines/README.md) cover DVC, Nextflow, and Snakemake.
+The [R bridge](examples/r/README.md) exchanges labelled SBS96 matrices through the CLI.
 
-The [annotation guide](docs/alphamissense.md) describes optional functional evidence that preserves existing driver scores.
-
-## Signature fitting
-
-The [likelihood guide](docs/likelihood-fitting.md) describes convergence checks and optimizer diagnostics.
-The [sparse guide](docs/sparse-signatures.md) describes optional subset selection.
+`--diagnostics-out` reports optimizer status, fallback behavior, and background-component weights.
+The [likelihood guide](docs/likelihood-fitting.md) documents convergence and compatibility changes.
+The [sparse-fitting guide](docs/sparse-signatures.md) describes optional subset selection.
+The [release checklist](docs/release-readiness.md) separates source validation from publication.

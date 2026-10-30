@@ -7,8 +7,26 @@ on:
     branches: [main, master, "feature/review-*"]
 
 jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: astral-sh/setup-uv@v5
+    - run: uv python install 3.12
+    - name: Build distributions
+      run: uv build
+    - name: Test the installed wheel outside the checkout
+      run: |
+        uv venv "$RUNNER_TEMP/wheel-env" --python 3.12
+        WHEEL=$(find "$GITHUB_WORKSPACE/dist" -name '*.whl' -print -quit)
+        uv pip install --python "$RUNNER_TEMP/wheel-env/bin/python" "${WHEEL}[web]"
+        cd "$RUNNER_TEMP"
+        "$RUNNER_TEMP/wheel-env/bin/python" "$GITHUB_WORKSPACE/tests/packaging/smoke_wheel.py"
+
   test:
     runs-on: ${{ matrix.os }}
+    env:
+      UV_PYTHON: ${{ matrix.python-version }}
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]

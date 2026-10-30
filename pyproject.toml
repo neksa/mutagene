@@ -61,10 +61,10 @@ Repository = "https://github.com/neksa/mutagene"
 mutagene = "mutagene.__main__:main"
 
 [tool.setuptools]
-packages = {find = {exclude = ["tests*", "docs*", "contrib*"]}}
+packages = {find = {exclude = ["tests*", "docs*", "contrib*", "analysis*", "examples*", "manuscript*"]}}
 
 [tool.setuptools.package-data]
-mutagene = ["data/**/*"]
+mutagene = ["data/**/*", "webapp/templates/*.html", "webapp/static/**/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

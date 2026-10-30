@@ -5,6 +5,7 @@ import sys
 
 import mutagene
 from mutagene.cli.benchmark_menu import BenchmarkMenu
+from mutagene.cli.demo_menu import DemoMenu
 
 # from mutagene.io.profile import format_profile
 # from mutagene.io.mutations_profile import read_VCF_profile
@@ -70,14 +71,15 @@ class MutaGeneApp:
 
         subparsers = parser.add_subparsers(
             help="",
-            metavar="{fetch, profile, rank, motif, signature, serve}",
+            metavar="{fetch, profile, rank, motif, signature, serve, demo}",
             description="""\
         fetch - Load data such as genomes and cancer datasets from remote sources (alias: download)
         profile - Create a mutational profile given a sample with mutations
         rank - Predict driver mutations by ranking observed mutations with respect to their expected mutability
         motif - Test samples for presence of mutational motifs
         signature - Identify activity of existing mutational signatures in samples or derive new signatures (aliases: identify, decompose)
-        serve - Start local web server for interactive analysis\
+        serve - Start local web server for interactive analysis
+        demo - Run an offline synthetic demonstration\
             """,
             dest="command",
             title="Choose MutaGene subpackage",
@@ -91,6 +93,7 @@ class MutaGeneApp:
             "signature": {"class": SignatureMenu, "aliases": ["identify", "decompose"]},
             "benchmark": {"class": BenchmarkMenu, "aliases": []},
             "serve": {"class": ServeMenu, "aliases": []},
+            "demo": {"class": DemoMenu, "aliases": []},
         }
 
         for command, menu in parser_mapping.items():

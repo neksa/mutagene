@@ -1,0 +1,12 @@
+stages:
+  demo:
+    cmd: mutagene demo --output-dir demo
+    outs:
+      - demo
+  signature:
+    cmd: mutagene signature -f MATRIX -i demo/matrix.tsv -s COSMICv2 -o signatures.tsv --diagnostics-out diagnostics.json
+    deps:
+      - demo/matrix.tsv
+    outs:
+      - signatures.tsv
+      - diagnostics.json

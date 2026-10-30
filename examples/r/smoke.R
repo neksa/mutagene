@@ -1,0 +1,7 @@
+args <- commandArgs(trailingOnly=TRUE)
+source(args[1])
+frame <- read.delim(args[2], row.names=1, check.names=FALSE)
+counts <- as.matrix(frame)
+fit <- fit_mutagene(counts, args[3])
+stopifnot(nrow(counts) == 96L, sum(counts) == 24L, length(unique(fit$sample)) == 3L)
+cat("R bridge: 96 channels, 3 samples, 24 mutations; fitting succeeds\n")
