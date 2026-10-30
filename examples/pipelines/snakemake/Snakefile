@@ -1,0 +1,20 @@
+rule all:
+    input:
+        "signatures.tsv",
+        "diagnostics.json"
+
+rule demo:
+    output:
+        directory("demo")
+    shell:
+        "mutagene demo --output-dir {output:q}"
+
+rule signature:
+    input:
+        "demo"
+    output:
+        table="signatures.tsv",
+        diagnostics="diagnostics.json"
+    shell:
+        "mutagene signature -f MATRIX -i {input:q}/matrix.tsv -s COSMICv2 "
+        "-o {output.table:q} --diagnostics-out {output.diagnostics:q}"

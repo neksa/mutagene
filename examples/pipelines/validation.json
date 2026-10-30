@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-30",
+  "fixture": "bundled demo: 96 channels, 3 samples, 24 mutations",
+  "method": "MLE",
+  "engines": {
+    "DVC": "3.66.1",
+    "Nextflow": "26.10.3",
+    "R": "Rscript (R) version 4.6.1 (2026-06-24)",
+    "Snakemake": "9.27.1",
+    "Java": "Temurin JRE 21.0.13+9"
+  },
+  "output_sha256": {
+    "DVC": "8df02f28baf3144c1dff830aa0946d512c75d773deea05dba7a639b49cb7ba6b",
+    "Snakemake": "8df02f28baf3144c1dff830aa0946d512c75d773deea05dba7a639b49cb7ba6b",
+    "R": "8df02f28baf3144c1dff830aa0946d512c75d773deea05dba7a639b49cb7ba6b",
+    "Nextflow": "8df02f28baf3144c1dff830aa0946d512c75d773deea05dba7a639b49cb7ba6b"
+  },
+  "wheel_sha256": "a813298a96280d3fd5d4afb7cea5797ae53f2dc7658239100c8dd47f776f1491",
+  "scope": "Local installed-wheel execution; no remote deployment"
+}
