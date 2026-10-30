@@ -18,9 +18,18 @@
     </div>
 </div>
 
-<div class="alert alert-success">
-    ✅ Analysis completed successfully!
+<div class="alert alert-info">
+    Analysis run finished. Check each analysis status below.
 </div>
+
+{% set statuses = results | selectattr('result_type', 'equalto', 'analysis_status') | list %}
+{% if statuses %}
+<ul>
+    {% for name, status in statuses[0].data.items() %}
+    <li><strong>{{ name }}:</strong> {{ status }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
 
 {% set genome_warning = results | selectattr('result_type', 'equalto', 'genome_warning') | list %}
 {% if genome_warning %}
@@ -199,11 +208,15 @@
     {% set sig_results = results | selectattr('result_type', 'equalto', 'signatures') | list %}
     {% if sig_results %}
         {% set sig_data = sig_results[0].data %}
+        {% if sig_data.error %}<p class="alert alert-danger">{{ sig_data.error }}</p>{% endif %}
         <div style="margin-top: 20px;">
             <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
                 <h4 style="margin-top: 0;">Decomposition Summary</h4>
                 <p style="color: #666;">
                     <strong>Method:</strong> {{ sig_data.method or 'NNLS' }}<br>
+                    {% if sig_data.diagnostics and sig_data.diagnostics.background_selection %}
+                    <strong>Background selection:</strong> {{ sig_data.diagnostics.background_selection }}<br>
+                    {% endif %}
                     <strong>Total Mutations:</strong> {{ "{:,}".format(sig_data.total_mutations | default(0) | int) }}<br>
                     <strong>Signature Set:</strong> {{ analysis.signatures or 'COSMICv3' }}
                 </p>
@@ -266,23 +279,7 @@
 
 <div id="classification" class="tab-content">
     <h3>Cancer Type Classification</h3>
-    <div style="padding: 30px; text-align: center; background: #f8f9fa; border-radius: 8px; margin-top: 20px;">
-        <div style="font-size: 48px; margin-bottom: 15px;">🔬</div>
-        <h4>ML-Based Classification</h4>
-        <p style="color: #666; max-width: 600px; margin: 15px auto;">
-            This feature uses machine learning to predict cancer type based on mutational signatures.
-            Enable this analysis in the upload form to see predictions here.
-        </p>
-        <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 4px; display: inline-block;">
-            <strong>What you'll see:</strong>
-            <ul style="text-align: left; margin: 10px 0 0 0; padding-left: 20px;">
-                <li>Predicted cancer type</li>
-                <li>Confidence scores</li>
-                <li>Top matching cancer types</li>
-                <li>Feature importance</li>
-            </ul>
-        </div>
-    </div>
+    <p>This release does not implement cancer type classification.</p>
 </div>
 
 <div id="clustering" class="tab-content">
@@ -329,23 +326,25 @@
 
 <div id="motifs" class="tab-content">
     <h3>Motif Enrichment</h3>
-    <div style="padding: 30px; text-align: center; background: #f8f9fa; border-radius: 8px; margin-top: 20px;">
-        <div style="font-size: 48px; margin-bottom: 15px;">🧬</div>
-        <h4>Sequence Motif Analysis</h4>
-        <p style="color: #666; max-width: 600px; margin: 15px auto;">
-            Motif enrichment identifies specific DNA sequence patterns that are preferentially mutated,
-            revealing mechanistic insights into mutagenesis.
-        </p>
-        <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 4px; display: inline-block;">
-            <strong>What you'll see:</strong>
-            <ul style="text-align: left; margin: 10px 0 0 0; padding-left: 20px;">
-                <li>Enriched sequence motifs</li>
-                <li>Statistical significance (p-values, FDR)</li>
-                <li>Motif logos and patterns</li>
-                <li>Association with known processes</li>
-            </ul>
-        </div>
-    </div>
+    {% set motif_results = results | selectattr('result_type', 'equalto', 'motifs') | list %}
+    {% if motif_results %}
+    {% set motif_data = motif_results[0].data %}
+    <p>Status: {{ motif_data.status }}</p>
+    {% if motif_data.error %}<p>{{ motif_data.error }}</p>{% endif %}
+    {% if motif_data.motifs %}
+    <table class="table">
+        <thead><tr><th>Sample</th><th>Motif</th><th>Enrichment</th><th>q-value</th></tr></thead>
+        <tbody>
+        {% for match in motif_data.motifs %}
+        <tr><td>{{ match.sample }}</td><td>{{ match.motif }}</td>
+            <td>{{ '%.4g'|format(match.enrichment) }}</td><td>{{ '%.4g'|format(match.qvalue) }}</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% elif motif_data.status == 'no significant results' %}
+    <p>No tested motif meets the significance threshold. This result does not establish absence of a mutational process.</p>
+    {% endif %}
+    {% else %}<p>This run contains no motif analysis result.</p>{% endif %}
 </div>
 
 <div id="files" class="tab-content">

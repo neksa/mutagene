@@ -8,6 +8,7 @@ from typing import Any
 
 from mutagene.io.context_stats import assembly_mismatch_warning
 from mutagene.profiles.profile import calc_profile
+from mutagene.signatures.likelihood import DEFAULT_METHOD
 from mutagene.version import __version__
 
 from .genome_manager import GenomeManager
@@ -271,7 +272,7 @@ def run_cohort_analysis(
     if not genome_path.exists():
         raise FileNotFoundError(
             f"Genome {genome} not found at {genome_path}. "
-            f"Download it with: mutagene fetch genome {genome}"
+            f"Download it with: mutagene fetch genome -g {genome}"
         )
 
     results: dict[str, Any] = {
@@ -280,6 +281,7 @@ def run_cohort_analysis(
         "profiles": {},
         "signatures": {},
         "classification": {},
+        "analysis_status": {},
         "files": [],
     }
 
@@ -376,20 +378,23 @@ def run_cohort_analysis(
             logger.info(f"Profile array shape: {profile_array.shape}, sum: {profile_array.sum()}")
 
             # Decompose the pooled profile
+            optimizer = {}
             _, _, decomp_results = decompose_mutational_profile_counts(
                 profile_array,
                 (W, signature_names),
-                func="MLE",
+                func=DEFAULT_METHOD,
                 others_threshold=0.0,
                 enable_dummy=True,
+                diagnostics=optimizer,
             )
 
             logger.info(f"Decomposition returned {len(decomp_results)} results")
 
             # Format results for display
             signature_summary: dict[str, Any] = {
-                "method": "MLE",
+                "method": DEFAULT_METHOD,
                 "signatures": {},
+                "diagnostics": optimizer,
                 "total_mutations": int(sum(profile_data.values())),
                 "per_sample": {},
             }
@@ -425,12 +430,14 @@ def run_cohort_analysis(
                     sample_array = np.array(sample_profile, dtype=float)
 
                     # Decompose this sample
+                    sample_optimizer = {}
                     _, _, sample_decomp = decompose_mutational_profile_counts(
                         sample_array,
                         (W, signature_names),
-                        func="MLE",
+                        func=DEFAULT_METHOD,
                         others_threshold=0.0,
                         enable_dummy=True,
+                        diagnostics=sample_optimizer,
                     )
 
                     # Extract non-zero signatures for this sample
@@ -451,6 +458,7 @@ def run_cohort_analysis(
                     signature_summary["per_sample"][sample_id] = {
                         "signatures": sample_sigs,
                         "total_mutations": int(sample_array.sum()),
+                        "diagnostics": sample_optimizer,
                     }
 
                 logger.info(
@@ -458,6 +466,7 @@ def run_cohort_analysis(
                 )
 
             results["signatures"] = signature_summary
+            results["analysis_status"]["signatures"] = "complete"
 
             decomposition_file = output_dir / "decomposition.json"
             with open(decomposition_file, "w") as df:
@@ -477,20 +486,26 @@ def run_cohort_analysis(
             logger.error(f"Signature decomposition failed: {e}")
             logger.error(error_trace)
             results["signatures"] = {
-                "method": "MLE",
+                "method": DEFAULT_METHOD,
                 "signatures": {},
                 "total_mutations": 0,
                 "per_sample": {},
                 "error": str(e),
             }
+            results["analysis_status"]["signatures"] = "failed"
 
         # Step 4: Classification (if requested)
         if config.get("classify", False):
-            logger.info("Running cancer type classification")
+            logger.warning("Cancer type classification is not implemented")
+            results["classification"] = {
+                "status": "unsupported",
+                "message": "Cancer type classification is not implemented.",
+            }
+            results["analysis_status"]["classification"] = "unsupported"
             try:
                 classification_file = output_dir / "classification.json"
                 with open(classification_file, "w") as cf:
-                    json.dump({"predicted_type": "Unknown", "confidence": 0.0}, cf)
+                    json.dump(results["classification"], cf)
 
                 results["files"].append(
                     {
@@ -772,17 +787,44 @@ def run_cohort_analysis(
         if config.get("motifs", False):
             logger.info("Analyzing motif enrichment")
             try:
+                from mutagene.motifs import identify_motifs
+
+                with open_input_file(input_file, "rt") as infile:
+                    _, context, _ = read_mutations(
+                        input_format,
+                        infile,
+                        str(genome_path),
+                        window_size=50,
+                        keep_filtered=keep_filtered,
+                        filter_column=filter_column,
+                    )
+                if not context:
+                    raise ValueError("No mutations have usable context for motif analysis")
+                matches = identify_motifs(context, strand="A", threshold=0.05, stat_type="fisher")
+                # Convert NumPy scalar counts before JSON serialization.
+                matches = [
+                    {
+                        key: value.item() if hasattr(value, "item") else value
+                        for key, value in match.items()
+                    }
+                    for match in matches
+                ]
+                status = "complete" if matches else "no significant results"
+                results["analysis_status"]["motifs"] = status
+                results["motifs"] = {"status": status, "motifs": matches}
                 motifs_file = output_dir / "motifs.json"
                 with open(motifs_file, "w") as mf:
-                    json.dump({"motifs": []}, mf)
+                    json.dump(results["motifs"], mf)
 
                 results["files"].append(
                     {"type": "motifs", "path": str(motifs_file), "size": motifs_file.stat().st_size}
                 )
             except Exception as e:
                 logger.warning(f"Motif enrichment failed: {e}")
+                results["analysis_status"]["motifs"] = "failed"
+                results["motifs"] = {"status": "failed", "error": str(e)}
 
-        logger.info("Analysis completed successfully")
+        logger.info("Analysis run finishes; inspect individual analysis statuses")
         return results
 
     except Exception as e:
