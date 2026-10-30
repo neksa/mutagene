@@ -1,19 +1,26 @@
 import argparse
+import json
 import logging
 import sys
+from pathlib import Path
 
+import numpy as np
 from tqdm import tqdm
 
 from mutagene.cli.genome_resolver import GenomeNotFoundError, resolve_genome
 from mutagene.io.context_window import read_mutations
 from mutagene.io.decomposition import write_decomposition
+from mutagene.io.matrix import read_count_matrix
 from mutagene.io.profile import read_signatures
+from mutagene.io.text import detect_mutation_format, open_text_input
 from mutagene.io.variant_filter import add_filter_argument
 from mutagene.profiles.profile import (
     generate_resampled_profiles,
     get_multisample_mutational_profile,
 )
 from mutagene.signatures.identify import IDENTIFY_MIN_FUNCTIONS, decompose_mutational_profile_counts
+from mutagene.signatures.likelihood import DEFAULT_BACKGROUND_SELECTION, DEFAULT_METHOD
+from mutagene.version import __version__
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +72,7 @@ mutagene signature -i sample1.maf -g hg19 -s COSMICv3 --bootstrap -br 1000
 
         required_group = parser.add_argument_group("Required arguments")
         required_group.add_argument(
-            "--infile", "-i", help="Input file in VCF or MAF format", type=argparse.FileType("r")
+            "--infile", "-i", help="Input file in VCF or MAF format", type=open_text_input
         )
         required_group.add_argument(
             "--genome",
@@ -87,10 +94,10 @@ mutagene signature -i sample1.maf -g hg19 -s COSMICv3 --bootstrap -br 1000
         optional_group.add_argument(
             "--input-format",
             "-f",
-            help="Input format: MAF, VCF",
-            type=str,
-            choices=["MAF", "VCF", "TCGI"],
-            default="MAF",
+            help="Input format: AUTO, MAF, VCF, TCGI, or a labelled SBS96 count MATRIX",
+            type=str.upper,
+            choices=["AUTO", "MAF", "VCF", "TCGI", "MATRIX"],
+            default="AUTO",
         )
         optional_group.add_argument(
             "--outfile",
@@ -110,10 +117,15 @@ mutagene signature -i sample1.maf -g hg19 -s COSMICv3 --bootstrap -br 1000
         advanced_group.add_argument(
             "--method",
             "-m",
-            help="Method defines the function minimized in the optimization procedure",
+            help="Fitting objective or subset selection (default: MLE)",
             type=str,
-            default="MLE",
-            nargs="?",
+            default=DEFAULT_METHOD,
+        )
+        advanced_group.add_argument(
+            "--background-selection",
+            choices=["fixed", "joint", "block"],
+            default=DEFAULT_BACKGROUND_SELECTION,
+            help="Sparse background selection: fixed, individual components, or complete block",
         )
         advanced_group.add_argument(
             "--no-unexplained-variance",
@@ -161,6 +173,14 @@ mutagene signature -i sample1.maf -g hg19 -s COSMICv3 --bootstrap -br 1000
             choices=["t", "p"],
             default="p",
         )
+        optional_group.add_argument(
+            "--diagnostics-out",
+            type=str,
+            help="Write sample counts and fitted null weights as JSON",
+        )
+        bootstrap_group.add_argument(
+            "--seed", type=int, help="Seed bootstrap sampling for reproducible runs"
+        )
         self.parser = parser
 
     def identify(self, args):
@@ -168,15 +188,13 @@ mutagene signature -i sample1.maf -g hg19 -s COSMICv3 --bootstrap -br 1000
             logger.warning(
                 "Provide input file in VCF or MAF format (-i) and a corresponding genome assembly (-g)"
             )
-            return
-        if not args.genome:
-            logger.warning(genome_error_message)
-            return
-        try:
-            args.genome = resolve_genome(args.genome)
-        except GenomeNotFoundError as e:
-            logger.error(str(e))
             sys.exit(1)
+        if args.input_format != "MATRIX":
+            try:
+                args.genome = resolve_genome(args.genome)
+            except GenomeNotFoundError as e:
+                logger.error(str(e))
+                sys.exit(1)
         if not args.signatures:
             logger.warning(
                 "Set of signatures required. Use 5 and 10 for MUTAGENE-5 and MUTAGENE-10. Use 30 for COSMIC-30"
@@ -185,83 +203,85 @@ mutagene signature -i sample1.maf -g hg19 -s COSMICv3 --bootstrap -br 1000
 
         if args.method.lower() not in IDENTIFY_MIN_FUNCTIONS:
             logger.warning("Unknown method provided")
-            return
+            sys.exit(1)
 
         if args.bootstrap_replicates < 10:
-            logger.warning("Number of bootstrap replicates too low. Specify at least 10 replicates")
-            return
+            logger.error("Specify at least 10 bootstrap replicates")
+            sys.exit(1)
 
-        if args.bootstrap_confidence_level < 70:
-            logger.warning("Specify confidence level of at least 70% and less than 99%")
-            return
+        if not 70 <= args.bootstrap_confidence_level < 99:
+            logger.error("Specify a confidence level from 70% to less than 99%")
+            sys.exit(1)
 
         only = None
         if args.keep_only is not None:
-            only = args.keep_only.split(",")
+            only = [name.strip() for name in args.keep_only.split(",") if name.strip()]
             if len(only) < 1:
-                logger.warning("List of signatures to keep for the analysis is empty")
-                return
+                logger.error("List of signatures to keep for the analysis is empty")
+                sys.exit(1)
             logger.warning(
                 "We will only analyze signatures in this list: {}".format(", ".join(only))
             )
 
-        if "input_format" not in args:
-            # guess format from file name
-            name = args.infile.name.upper()
-            if name.endswith("MAF"):
-                args.input_format = "MAF"
-            elif name.endswith("VCF"):
-                args.input_format = "VCF"
-            else:
-                logger.warning("Input format was not specified. Assuming it is MAF")
-                args.input_format = "MAF"
-
         W, signature_names = read_signatures(args.signatures, only=only)
+        if W is None or not signature_names or (only and len(only) != len(signature_names)):
+            logger.error("The signature selection contains unknown identifiers")
+            sys.exit(1)
 
         try:
-            mutations, _, processing_stats = read_mutations(
-                args.input_format,
-                args.infile,
-                args.genome,
-                window_size=1,
-                keep_filtered=args.keep_filtered,
-                filter_column=args.filter_column,
-            )
-        except Exception as e:
-            e_message = getattr(e, "message", repr(e))
-            logger.warning(
-                f"Parsing {args.input_format} failed. "
-                f"Check that the input file is in {args.input_format} format "
-                "or specify a different format using option -f \n"
-                f"{e_message}"
-            )
-
-            if logger.root.level == logging.DEBUG:
-                raise
-            # A failed parse is a failure, and returning quietly let the caller
-            # treat an empty output file as a successful run.
+            if args.input_format == "MATRIX":
+                samples_profiles = read_count_matrix(args.infile)
+            else:
+                if args.input_format == "AUTO":
+                    args.input_format = detect_mutation_format(args.infile)
+                mutations, _, _ = read_mutations(
+                    args.input_format,
+                    args.infile,
+                    args.genome,
+                    window_size=1,
+                    keep_filtered=args.keep_filtered,
+                    filter_column=args.filter_column,
+                )
+                if not mutations:
+                    raise ValueError("No mutations could be read for signature fitting")
+                samples_profiles = get_multisample_mutational_profile(mutations, counts=True)
+        except (ValueError, OSError, EOFError) as error:
+            logger.error(f"Cannot read {args.input_format} input: {error}")
             sys.exit(1)
 
-        if not mutations:
-            # An empty result is indistinguishable from a successful one to anything downstream, so a run that loaded nothing has to say so in its exit status.
-            logger.error(
-                "No mutations could be read, so there is nothing to decompose. "
-                "Check the input format and that the genome assembly matches it"
-            )
-            sys.exit(1)
-
-        samples_profiles = get_multisample_mutational_profile(mutations, counts=True)
         samples_results = {}
+        diagnostics = {
+            "mutagene_version": __version__,
+            "signature_set": args.signatures,
+            "method": args.method,
+            "seed": args.seed,
+            "samples": {},
+        }
+        rng = np.random.default_rng(args.seed)
 
         for sample, profile in samples_profiles.items():
-            _, _, results = decompose_mutational_profile_counts(
-                profile,
-                (W, signature_names),
-                args.method,
-                others_threshold=0.0,
-                enable_dummy=args.no_unexplained_variance,
-            )
+            optimizer = {}
+            try:
+                weights, _, results = decompose_mutational_profile_counts(
+                    profile,
+                    (W, signature_names),
+                    args.method,
+                    others_threshold=0.0,
+                    enable_dummy=args.no_unexplained_variance,
+                    background_selection=args.background_selection,
+                    diagnostics=optimizer,
+                )
+            except (ValueError, RuntimeError) as error:
+                logger.error(f"Signature fitting fails for {sample}: {error}")
+                sys.exit(1)
             samples_results[sample] = results
+            diagnostics["samples"][sample] = {
+                **optimizer,
+                "mutations": int(np.sum(profile)),
+                "known_signature_weight": float(np.sum(weights[: len(signature_names)])),
+                "null_weight": float(np.sum(weights[len(signature_names) :])),
+                "null_components": weights[len(signature_names) :].tolist(),
+            }
 
         if not args.bootstrap:
             write_decomposition(
@@ -275,16 +295,21 @@ mutagene signature -i sample1.maf -g hg19 -s COSMICv3 --bootstrap -br 1000
             for sample, profile in samples_profiles.items():
                 bootstrap_results = []
                 for resampled_profile in tqdm(
-                    generate_resampled_profiles(profile, args.bootstrap_replicates),
+                    generate_resampled_profiles(profile, args.bootstrap_replicates, rng=rng),
                     total=args.bootstrap_replicates,
                 ):
-                    _, _, results = decompose_mutational_profile_counts(
-                        resampled_profile,
-                        (W, signature_names),
-                        args.method,
-                        others_threshold=0.0,
-                        enable_dummy=args.no_unexplained_variance,
-                    )
+                    try:
+                        _, _, results = decompose_mutational_profile_counts(
+                            resampled_profile,
+                            (W, signature_names),
+                            args.method,
+                            others_threshold=0.0,
+                            enable_dummy=args.no_unexplained_variance,
+                            background_selection=args.background_selection,
+                        )
+                    except (ValueError, RuntimeError) as error:
+                        logger.error(f"Bootstrap fitting fails for {sample}: {error}")
+                        sys.exit(1)
                     bootstrap_results.append(results)
                 bootstrap_samples_results[sample] = bootstrap_results
 
@@ -298,6 +323,9 @@ mutagene signature -i sample1.maf -g hg19 -s COSMICv3 --bootstrap -br 1000
                 bootstrap_results=bootstrap_samples_results,
                 bootstrap_level=args.bootstrap_confidence_level,
             )
+
+        if args.diagnostics_out:
+            Path(args.diagnostics_out).write_text(json.dumps(diagnostics, indent=2) + "\n")
 
     def callback(self, args):
         self.identify(args)

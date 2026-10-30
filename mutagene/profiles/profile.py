@@ -96,9 +96,10 @@ def get_pooled_multisample_mutational_profile(samples_mutations, counts=False):
     return get_mutational_profile(mutational_profile_dict, counts)
 
 
-def generate_resampled_profiles(profile, k):
+def generate_resampled_profiles(profile, k, rng=None):
     profile = np.array(profile)
     N = np.sum(profile)
-    new_profiles = multinomial(N, profile / N, size=k)
+    sampler = multinomial if rng is None else rng.multinomial
+    new_profiles = sampler(int(N), profile / N, size=k)
     for i in range(k):
         yield new_profiles[i]

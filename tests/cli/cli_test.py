@@ -1,5 +1,7 @@
 import os
 
+import pytest
+
 from tests.cli import cli_test_utils
 
 
@@ -42,4 +44,7 @@ def test_signature(test_data):
 
     out_lines = cli_test_utils.get_file_lines(outfile, 2)
 
-    assert out_lines[1].startswith("TCGA-50-6593-01A-11D-1753-08\tMGA-1\t0.532422\t180")
+    fields = out_lines[1].strip().split("\t")
+    assert fields[:2] == ["TCGA-50-6593-01A-11D-1753-08", "MGA-1"]
+    assert float(fields[2]) == pytest.approx(0.532961, abs=1e-5)
+    assert int(fields[3]) == 181
