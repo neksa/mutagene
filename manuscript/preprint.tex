@@ -59,48 +59,48 @@ At 2,000 mutations, the corresponding errors are 0.01677 and 0.01863.
 These 32 profiles test two-component mixtures with an exact catalog match.
 
 \newpage
-\heading{Controlled benchmark}
-The validation panel uses 1,536 simulated profiles across eight cancer exposure distributions and six mutation burdens.
-Each draw supplies clean profiles and three conditions with 20\% added mass.
+\heading{Comparison across mutation burdens}
+A second benchmark simulates 3,072 profiles using empirical exposure distributions from eight cancer types \cite{benchmark2024}.
+It tests 12 mutation burdens from 10 to 10,000.
+Generation uses COSMIC v3.3.1 and fitting uses COSMIC v3.
+Each burden includes clean profiles and three conditions with 20\% additional mass.
 These conditions model missing reference signatures, uniform background, and substitution-specific background.
-The generator uses COSMIC v3.3.1 and the fitter uses COSMIC v3.
-The benchmark follows the SigFitTest design \cite{benchmark2024}.
 Total attribution error equals half the summed absolute errors across known-signature weights and aggregate background mass.
+Lower values indicate better recovery.
 
 \begin{center}
-\begin{tabular}{r rr r}
+\begin{tabular}{lrrr}
 \toprule
-Mutations per sample & Previous joint BIC & Adaptive joint BIC & Reduction \\
+Condition & Mutations & MutaGene & SigProfilerAssignment \\
 \midrule
-100    & 0.55723 & 0.38214 & 31.4\% \\
-250    & 0.42299 & 0.30457 & 28.0\% \\
-500    & 0.30563 & 0.23001 & 24.7\% \\
-1,000  & 0.21303 & 0.16865 & 20.8\% \\
-2,000  & 0.16861 & 0.16861 & 0.0\% \\
-50,000 & 0.07758 & 0.07758 & 0.0\% \\
+All conditions and burdens & All & 0.3269 & 0.3687 \\
+Clean & 10 & 0.7632 & 0.6664 \\
+Clean & 100 & 0.3116 & 0.4033 \\
+Clean & 2,000 & 0.0605 & 0.0584 \\
+20\% substitution-specific background & 2,000 & 0.1467 & 0.2908 \\
 \bottomrule
 \end{tabular}
 \end{center}
-Each row gives mean total attribution error across 256 matched profiles.
-Lower values indicate closer agreement with simulated exposures.
-At 100 mutations, the paired difference is $-0.17510$ (95\% within-cancer bootstrap interval $-0.21647$ to $-0.13481$).
-Both searches give identical weights for all 512 profiles above 1,000 mutations.
+Each individual condition and burden contributes 64 profiles.
+Of 48 paired bootstrap intervals, 23 favor MutaGene, three favor SigProfilerAssignment, and 22 include zero.
+All three intervals favoring SigProfilerAssignment occur at ten mutations.
+These descriptive 95\% intervals omit adjustment for multiple comparisons.
+Two conditions match MutaGene's fitted background family.
 
-\heading{Where other methods perform better}
-An earlier clean-profile panel directly compares SigProfilerAssignment against the preceding joint-BIC search.
-At 100 mutations, SigProfilerAssignment yields less error (0.28875 versus 0.50179).
-At 2,000 mutations, the difference narrows (0.05628 versus 0.05823).
-That experiment predates adaptive search.
-On a separate matched subset, 19 of 20 evaluable signeR chain pairs exceed 1.01 for maximum active-component $\hat R$.
-Those diagnostics limit conclusions about signeR.
-The adaptive validation panel compares two MutaGene searches only.
+\heading{Comparison with signeR}
+We refit the current MutaGene default on all 96 profiles from a separate fixed-catalog comparison.
+Mean error is 0.19347 for MutaGene, 0.28403 for SigProfilerAssignment, and 0.40704 for signeR.
+Adding six background components to signeR reduces its error to 0.33329.
+On eight clean profiles with 2,000 mutations, signeR yields 0.08803 and MutaGene yields 0.09354.
+Nineteen of twenty evaluable independent signeR chain pairs exceed 1.01 for maximum active-component $\hat R$.
+These diagnostics limit conclusions about signeR.
 
 \heading{Interpretation and availability}
 Fresh simulations test recovery of known mixtures under the specified generator.
 Independent tumor cohorts remain necessary for biological validation.
 The 1,000-mutation threshold can produce abrupt exposure changes.
 Source and benchmark summaries accompany the \href{https://github.com/neksa/mutagene}{MutaGene repository}.
-The \texttt{analysis/release-comparison} directory supplies the pilot script and per-profile scores.
+The \texttt{analysis/release-comparison} directory contains all three comparison summaries.
 Historical validation tables reside in \texttt{analysis/low-burden-2026/results}.
 
 {\small\begin{thebibliography}{3}
