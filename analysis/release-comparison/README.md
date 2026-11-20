@@ -1,5 +1,7 @@
 # Compare the release default with other attribution methods
 
+The [expanded benchmark](performance/README.md) compares six attribution methods and reports matched batch times.
+
 ## Paired signatures from the fitting catalog
 
 The pilot compares 32 simulated SBS96 profiles at two mutation burdens.
@@ -102,7 +104,7 @@ The script writes the reference, counts, SigProfilerAssignment output, and per-p
 The [per-profile scores](scores.tsv) record the generating pair and both errors for each sample.
 The [earlier comparator](../signature-benchmark-2026/background-report.qmd) uses empirical exposures and different generation and fitting catalogs.
 
-## End-to-end runtime on the 32-profile pilot
+## End-to-end runtime before the search optimization
 
 SigProfilerAssignment finishes the batch in 3.69 seconds at the median. MutaGene takes 5.88 seconds.
 The benchmark uses one Apple M1 Max, Python 3.12.12, MutaGene 2.0.0, and SigProfilerAssignment 1.1.5.

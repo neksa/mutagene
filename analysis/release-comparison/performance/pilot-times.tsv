@@ -1,0 +1,13 @@
+round	method	samples	seconds
+0	MutaGene	32	5.0256453331094235
+0	SigProfilerAssignment	32	3.356817875057459
+0	MutaGene (previous)	32	5.6954174160491675
+1	SigProfilerAssignment	32	3.4258234158623964
+1	MutaGene (previous)	32	5.807981375139207
+1	MutaGene	32	5.320297332946211
+2	MutaGene (previous)	32	5.83167012501508
+2	MutaGene	32	4.991514459019527
+2	SigProfilerAssignment	32	3.533026959048584
+3	MutaGene	32	5.343453290872276
+3	SigProfilerAssignment	32	3.5905249170027673
+3	MutaGene (previous)	32	6.174688667058945
