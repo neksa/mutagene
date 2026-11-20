@@ -17,8 +17,8 @@ MutaGene connects mutation calls, sample-level profiles, and estimates of mutati
 The same labelled count matrix supports repeatable command-line fits and exchange with R.
 A local web interface supports interactive analysis of mutation files.
 On 3,072 synthetic profiles, MutaGene recovers generating exposures with lower mean error than SigProfilerAssignment.
-MutaGene has the lowest mean error across six methods on a separate 96-profile panel.
-Three methods complete the matched timing benchmark faster.
+A separate comparison includes five attribution tools and a nonnegative least squares (NNLS) baseline.
+MutaGene has the lowest mean error at each of three mutation burdens.
 
 \heading{Implementation}
 MutaGene counts single-base substitutions in 96 trinucleotide channels using a coordinate-matched reference assembly \cite{mutagene}.
@@ -73,8 +73,8 @@ Across 48 comparisons, 23 paired bootstrap intervals favor MutaGene, three favor
 All three intervals favoring SigProfilerAssignment occur at ten mutations.
 These descriptive 95\% intervals omit adjustment for multiple comparisons.
 
-\heading{Accuracy and runtime across methods}
-Figure~\ref{fig:comparison} compares six methods on one profile per cancer distribution, burden, and condition.
+\heading{Attribution accuracy across methods}
+Figure~\ref{fig:comparison} shows one profile per cancer distribution, burden, and condition.
 Two conditions match MutaGene's fitted background family.
 Nineteen of twenty evaluable signeR chain pairs exceed 1.01 for maximum active-component $\hat R$.
 This limits interpretation of its estimates.
@@ -83,9 +83,9 @@ This limits interpretation of its estimates.
 \includegraphics[width=\linewidth]{../analysis/release-comparison/performance/performance.pdf}
 \end{center}
 \refstepcounter{figure}\label{fig:comparison}
-{\small Figure \thefigure. Lower values indicate better performance in both panels.
-Each timed method receives the same 24 profiles and uses one worker.
-The two signeR rows use archived estimates.}\par
+{\small Figure \thefigure. Lower error indicates closer recovery of the generating mixture.
+Whiskers reach the outermost observations within 1.5 interquartile ranges of the box.
+Asterisks identify the lowest means. The benchmark report gives batch times.}\par
 
 With 50,000 mutations and missing reference signatures, deconstructSigs has lower mean error than MutaGene (0.141 versus 0.250).
 Independent tumor cohorts remain necessary for biological validation.

@@ -132,5 +132,5 @@ The [release checklist](docs/release-readiness.md) separates source validation f
 The [research index](analysis/README.md) separates historical reports, current limitations, and artifact availability.
 The [SigProfilerAssignment adapter](examples/signatures/README.md) preserves explicit channel alignment.
 The [application-note draft](manuscript/preprint.pdf) describes two use cases and the matched synthetic benchmarks.
-The [benchmark figure](analysis/release-comparison/performance/performance.pdf) compares attribution error and runtime.
+The [benchmark figure](analysis/release-comparison/performance/performance.pdf) shows per-profile attribution errors and mean errors by mutation burden.
 The [editable source](manuscript/preprint.tex) accompanies the draft.

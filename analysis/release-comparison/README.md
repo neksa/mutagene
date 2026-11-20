@@ -1,6 +1,6 @@
 # Compare the release default with other attribution methods
 
-The [expanded benchmark](performance/README.md) compares six attribution methods and reports matched batch times.
+The [expanded benchmark](performance/README.md) compares five attribution tools with a nonnegative least squares baseline and reports batch times.
 
 ## Paired signatures from the fitting catalog
 
