@@ -101,3 +101,25 @@ uv pip install --python /tmp/mutagene-comparison-env/bin/python . -r analysis/si
 The script writes the reference, counts, SigProfilerAssignment output, and per-profile errors.
 The [per-profile scores](scores.tsv) record the generating pair and both errors for each sample.
 The [earlier comparator](../signature-benchmark-2026/background-report.qmd) uses empirical exposures and different generation and fitting catalogs.
+
+## End-to-end runtime on the 32-profile pilot
+
+SigProfilerAssignment finishes the batch in 3.69 seconds at the median. MutaGene takes 5.88 seconds.
+The benchmark uses one Apple M1 Max, Python 3.12.12, MutaGene 2.0.0, and SigProfilerAssignment 1.1.5.
+Both workflows use the pilot's 32 profiles and 67 COSMICv3 reference signatures.
+Each workflow uses one worker. Numerical libraries use one thread.
+
+| Batch wall time in seconds | Warm-up | Run 1 | Run 2 | Run 3 |
+|---|---:|---:|---:|---:|
+| MutaGene | 7.525 | 6.226 | 5.851 | 5.882 |
+| SigProfilerAssignment | 4.011 | 3.689 | 3.696 | 3.600 |
+
+Each run starts a fresh Python process and writes to a new output path.
+The workflows run sequentially and alternate order between pairs.
+The timer includes imports, input loading, fitting, and result writing.
+Each output contains all 32 sample identifiers.
+
+MutaGene uses `python -m mutagene signature -f MATRIX -s COSMICv3 -i matrix.tsv -o fit.tsv`.
+SigProfilerAssignment uses `examples/signatures/sigprofiler_assignment.py` with the pilot's reference and matrix.
+The adapter disables plots and uses `cpu=1`.
+These measurements describe complete workflows on this machine.
