@@ -112,3 +112,20 @@ def test_bootstrap_seed_reproduces_exposures(tmp_path):
         assert result.returncode == 0, result.stderr
         outputs.append(output.read_text())
     assert outputs[0] == outputs[1]
+
+
+def test_demo_records_full_output_path(tmp_path):
+    destination = tmp_path / "nested" / "demo"
+    record = tmp_path / "params.json"
+    result = run("demo", "--output-dir", str(destination), "--params-out", str(record))
+    assert result.returncode == 0, result.stderr
+    assert json.loads(record.read_text())["arguments"]["output_dir"] == str(destination)
+
+
+def test_demo_rejects_existing_file(tmp_path):
+    destination = tmp_path / "input.txt"
+    destination.write_text("preserve this input")
+    result = run("demo", "--output-dir", str(destination))
+    assert result.returncode != 0
+    assert "Choose an empty output directory" in result.stderr
+    assert destination.read_text() == "preserve this input"

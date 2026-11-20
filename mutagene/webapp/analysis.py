@@ -378,7 +378,7 @@ def run_cohort_analysis(
             logger.info(f"Profile array shape: {profile_array.shape}, sum: {profile_array.sum()}")
 
             # Decompose the pooled profile
-            optimizer = {}
+            optimizer: dict[str, Any] = {}
             _, _, decomp_results = decompose_mutational_profile_counts(
                 profile_array,
                 (W, signature_names),
@@ -430,7 +430,7 @@ def run_cohort_analysis(
                     sample_array = np.array(sample_profile, dtype=float)
 
                     # Decompose this sample
-                    sample_optimizer = {}
+                    sample_optimizer: dict[str, Any] = {}
                     _, _, sample_decomp = decompose_mutational_profile_counts(
                         sample_array,
                         (W, signature_names),
@@ -556,6 +556,7 @@ def run_cohort_analysis(
 
                     # Perform hierarchical clustering
                     if len(sample_ids) > MAX_CLUSTERING_SAMPLES:
+                        results["analysis_status"]["clustering"] = "sample limit exceeded"
                         logger.warning(
                             f"Skipping clustering: {len(sample_ids)} samples exceeds the "
                             f"limit of {MAX_CLUSTERING_SAMPLES} (pairwise distance matrix "
@@ -603,6 +604,7 @@ def run_cohort_analysis(
                                 "explained_variance": pca.explained_variance_ratio_.tolist(),
                             }
 
+                            results["analysis_status"]["clustering"] = "complete"
                             results["clustering"] = clustering_data
 
                             cluster_file = output_dir / "clustering.json"
@@ -623,15 +625,18 @@ def run_cohort_analysis(
                     else:
                         logger.warning("Need at least 2 samples for clustering")
                 else:
+                    results["analysis_status"]["clustering"] = "no per-sample signature data"
                     logger.warning("No per-sample signature data available for clustering")
 
             except Exception as e:
                 import traceback
 
                 error_trace = traceback.format_exc()
+                results["analysis_status"]["clustering"] = "failed"
                 logger.error(f"Clustering failed: {e}")
                 logger.error(error_trace)
         elif config.get("cluster", False) and num_samples == 1:
+            results["analysis_status"]["clustering"] = "requires multiple samples"
             logger.info("Skipping clustering: only 1 sample detected")
 
         # Step 6: Driver mutation ranking (hotspot detection)
@@ -747,6 +752,7 @@ def run_cohort_analysis(
                                 driver["known_driver"] = False
 
                         # Store in database
+                        results["analysis_status"]["drivers"] = "complete"
                         results["drivers"] = {
                             "total": len(drivers_data),
                             "drivers": [d for d in drivers_data if d.get("label") == "Driver"],
@@ -774,12 +780,14 @@ def run_cohort_analysis(
                             }
                         )
                 else:
+                    results["analysis_status"]["drivers"] = "no protein mutations"
                     logger.warning("No protein mutations found for driver ranking")
 
             except Exception as e:
                 import traceback
 
                 error_trace = traceback.format_exc()
+                results["analysis_status"]["drivers"] = "failed"
                 logger.error(f"Driver ranking failed: {e}")
                 logger.error(error_trace)
 

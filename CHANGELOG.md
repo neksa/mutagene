@@ -4,6 +4,30 @@ Notable changes to MutaGene. Dates are release dates; the format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [2.0.0] - Unreleased
+
+### Behaviour changes
+
+- Python, CLI, and web signature fitting now default to `sparse-bic` with joint background selection.
+- For full-model fitting, specify `--method MLE` or `func="MLE"`. The likelihood solver also changes.
+- Joint BIC uses a single-component start through 1,000 mutations when feasible. Larger profiles use the full-model start.
+- VCF input accepts at most one sample column.
+
+### Added
+
+- Export per-sample SBS96 matrices and fit them without a reference genome.
+- Run the bundled offline demo and inspect optimizer diagnostics.
+- Add optional AlphaMissense annotations to ranking output. These annotations preserve B-scores and driver labels.
+
+### Fixed
+
+- The local web interface loads its charts and progress client from the installed package.
+- Profile tooltips pair each count with its own channel label.
+- Upload and analysis requests display server errors.
+- Results show stored driver rankings and sample coordinates in dendrogram order.
+- Run records preserve complete paths for the demo output directory.
+- The release workflow tags the merge commit identified by the release pull request.
+
 ## [1.2.3] - 2026-09-11
 
 ### Fixed

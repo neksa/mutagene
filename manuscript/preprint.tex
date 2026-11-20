@@ -1,0 +1,110 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.95in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,microtype,booktabs,xcolor}
+\definecolor{ink}{HTML}{174C50}
+\usepackage[colorlinks=true,urlcolor=ink,linkcolor=ink,citecolor=ink]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\newcommand{\heading}[1]{\par\medskip{\large\sffamily\color{ink}#1}\par}
+\begin{document}
+{\sffamily\color{ink} Application note\hfill Preprint draft for author review}\par
+\vspace{7pt}
+{\LARGE MutaGene for sample-level mutation profiles\\ and sparse signature attribution}\par
+\smallskip
+\heading{Abstract}
+MutaGene connects mutation calls, sample-level profiles, and estimates of mutational signature activity.
+The same labelled count matrix supports repeatable command-line fits and exchange with R.
+A local web interface supports interactive analysis of mutation files.
+On synthetic profiles with 100 mutations, adaptive search reduces mean attribution error by 31.4\% against the preceding MutaGene search.
+Comparisons with external methods depend on mutation burden, background composition, and the error metric.
+
+\heading{Implementation}
+MutaGene counts single-base substitutions in 96 trinucleotide channels using a coordinate-matched reference assembly \cite{mutagene}.
+Each matrix column represents one sample.
+The fitter estimates nonnegative signature weights that sum to one.
+The default compares subsets of reference signatures and six substitution-specific background components using the Bayesian information criterion (BIC).
+Each subset receives a constrained multinomial maximum-likelihood fit.
+At up to 1,000 mutations, the search starts with the best feasible single component.
+Otherwise, it starts with the full model.
+Joint selection allows the search to remove or restore individual background components.
+The search finds a local optimum.
+
+\heading{Use case 1. Refit a cohort without rereading mutation calls}
+The offline example includes three synthetic samples with 24 mutations in total.
+The first command creates a labelled count matrix.
+The second fits each sample and records optimizer diagnostics.
+\begin{verbatim}
+mutagene demo --output-dir demo
+mutagene signature -f MATRIX -i demo/matrix.tsv -o fit.tsv \
+    --diagnostics-out fit.json
+\end{verbatim}
+The small fixture illustrates file exchange and sample identity.
+Researchers can substitute a cohort matrix with the same 96 labels.
+
+\heading{Use case 2. Examine recurrent protein changes}
+For a protein-annotated MAF, the rank command compares observed recurrence with expected mutability \cite{ranking}.
+The analyst selects a reference cohort and an assembly matching the input coordinates.
+Optional AlphaMissense annotations add functional evidence alongside each compatible variant.
+B-scores and driver labels retain their original definitions.
+Motif testing accepts curated or user-specified motifs.
+These workflows address known signatures and specified motifs. De novo discovery requires a separate analysis.
+
+\heading{Direct comparison with SigProfilerAssignment}
+Sixteen random pairs from the bundled COSMICv3 catalog generate clean 70:30 mixtures at two mutation burdens.
+Both fitters receive identical counts and the full 67-signature catalog.
+At 100 mutations, mean total attribution error is 0.08452 for MutaGene and 0.22125 for SigProfilerAssignment 1.1.5.
+At 2,000 mutations, the corresponding errors are 0.01677 and 0.01863.
+These 32 profiles test two-component mixtures with an exact catalog match.
+
+\newpage
+\heading{Controlled benchmark}
+The validation panel uses 1,536 simulated profiles across eight cancer exposure distributions and six mutation burdens.
+Each draw supplies clean profiles and three conditions with 20\% added mass.
+These conditions model missing reference signatures, uniform background, and substitution-specific background.
+The generator uses COSMIC v3.3.1 and the fitter uses COSMIC v3.
+The benchmark follows the SigFitTest design \cite{benchmark2024}.
+Total attribution error equals half the summed absolute errors across known-signature weights and aggregate background mass.
+
+\begin{center}
+\begin{tabular}{r rr r}
+\toprule
+Mutations per sample & Previous joint BIC & Adaptive joint BIC & Reduction \\
+\midrule
+100    & 0.55723 & 0.38214 & 31.4\% \\
+250    & 0.42299 & 0.30457 & 28.0\% \\
+500    & 0.30563 & 0.23001 & 24.7\% \\
+1,000  & 0.21303 & 0.16865 & 20.8\% \\
+2,000  & 0.16861 & 0.16861 & 0.0\% \\
+50,000 & 0.07758 & 0.07758 & 0.0\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+Each row gives mean total attribution error across 256 matched profiles.
+Lower values indicate closer agreement with simulated exposures.
+At 100 mutations, the paired difference is $-0.17510$ (95\% within-cancer bootstrap interval $-0.21647$ to $-0.13481$).
+Both searches give identical weights for all 512 profiles above 1,000 mutations.
+
+\heading{Where other methods perform better}
+An earlier clean-profile panel directly compares SigProfilerAssignment against the preceding joint-BIC search.
+At 100 mutations, SigProfilerAssignment yields less error (0.28875 versus 0.50179).
+At 2,000 mutations, the difference narrows (0.05628 versus 0.05823).
+That experiment predates adaptive search.
+On a separate matched subset, 19 of 20 evaluable signeR chain pairs exceed 1.01 for maximum active-component $\hat R$.
+Those diagnostics limit conclusions about signeR.
+The adaptive validation panel compares two MutaGene searches only.
+
+\heading{Interpretation and availability}
+Fresh simulations test recovery of known mixtures under the specified generator.
+Independent tumor cohorts remain necessary for biological validation.
+The 1,000-mutation threshold can produce abrupt exposure changes.
+Source and benchmark summaries accompany the \href{https://github.com/neksa/mutagene}{MutaGene repository}.
+The \texttt{analysis/release-comparison} directory supplies the pilot script and per-profile scores.
+Historical validation tables reside in \texttt{analysis/low-burden-2026/results}.
+
+{\small\begin{thebibliography}{3}
+\bibitem{mutagene} Goncearenco A et al. Exploring background mutational processes to decipher cancer genetic heterogeneity. \emph{Nucleic Acids Res.} (2017). \href{https://doi.org/10.1093/nar/gkx367}{doi:10.1093/nar/gkx367}.
+\bibitem{ranking} Brown AL et al. Finding driver mutations in cancer. \emph{PLoS Comput. Biol.} (2019). \href{https://doi.org/10.1371/journal.pcbi.1006981}{doi:10.1371/journal.pcbi.1006981}.
+\bibitem{benchmark2024} Medo M, Ng CKY, Medova M. A comprehensive comparison of tools for fitting mutational signatures. \emph{Nat. Commun.} (2024). \href{https://doi.org/10.1038/s41467-024-53711-6}{doi:10.1038/s41467-024-53711-6}.
+\end{thebibliography}}
+\end{document}

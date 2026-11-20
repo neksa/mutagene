@@ -12,7 +12,7 @@ The web interface requires additional dependencies:
 
 .. code-block:: bash
 
-   pip install mutagene[web]
+   pip install "mutagene[web]"
 
 Without these dependencies, ``mutagene serve`` reports the missing packages and exits.
 
@@ -42,7 +42,7 @@ Download an assembly before analysis:
 
 .. code-block:: bash
 
-   mutagene fetch genome hg19
+   mutagene fetch genome -g hg19
 
 The interface lists local assemblies and can download a missing assembly on request.
 The hg19 and hg38 files each require roughly 800 MB.

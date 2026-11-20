@@ -7,24 +7,19 @@ MutaGene is a Python package for analyzing mutations and mutational processes in
 
 ## Installation
 
-Requires Python 3.10+.
+MutaGene requires Python 3.10 or later.
+From the source checkout, install the command line with `pip install .`.
+For the local web interface, use `pip install ".[web]"`.
 
-Install this source checkout to use the unreleased workflows.
-Until the next package release, install this checkout with `pip install ".[web]"`.
-
-```bash
-pip install mutagene
-```
-
-For the local web interface:
-```bash
-pip install "mutagene[web]"
-```
+PyPI users can install the published version with `pip install mutagene`.
+The examples below use this checkout.
 
 ## Subcommands
 
 | Command | Description |
 |---------|-------------|
+| `mutagene demo` | Run the bundled synthetic example offline |
+| `mutagene benchmark` | Compare fits on simulated profiles |
 | `mutagene fetch` | Download genomes, cancer datasets, and cohorts from remote sources |
 | `mutagene profile` | Create mutational profiles from samples (MAF/VCF input) |
 | `mutagene rank` | Rank mutations by driver status using expected mutability |
@@ -136,4 +131,5 @@ The [release checklist](docs/release-readiness.md) separates source validation f
 
 The [research index](analysis/README.md) separates historical reports, current limitations, and artifact availability.
 The [SigProfilerAssignment adapter](examples/signatures/README.md) preserves explicit channel alignment.
-The [application-note draft](manuscript/README.md) requires revision before submission.
+The [application-note draft](manuscript/preprint.pdf) describes two use cases and the matched synthetic benchmarks.
+The [editable source](manuscript/preprint.tex) accompanies the draft.

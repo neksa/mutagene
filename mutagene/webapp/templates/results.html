@@ -14,12 +14,8 @@
     </div>
     <div>
         <a href="/" class="btn btn-secondary">New Analysis</a>
-        <button onclick="deleteAnalysis()" class="btn btn-danger">Delete</button>
+        <button onclick="deleteAnalysis({{ analysis.id }})" class="btn btn-danger">Delete</button>
     </div>
-</div>
-
-<div class="alert alert-info">
-    Analysis run finished. Check each analysis status below.
 </div>
 
 {% set statuses = results | selectattr('result_type', 'equalto', 'analysis_status') | list %}
@@ -45,14 +41,14 @@
 
 <!-- Tabs -->
 <div style="border-bottom: 2px solid #dee2e6; margin-bottom: 20px;">
-    <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
-    <button class="tab-btn" onclick="showTab('profiles')">Profiles</button>
-    <button class="tab-btn" onclick="showTab('signatures')">Signatures</button>
-    <button class="tab-btn" onclick="showTab('classification')">Classification</button>
-    <button class="tab-btn" onclick="showTab('clustering')">Clustering</button>
-    <button class="tab-btn" onclick="showTab('hotspots')">Hotspots</button>
-    <button class="tab-btn" onclick="showTab('motifs')">Motifs</button>
-    <button class="tab-btn" onclick="showTab('files')">Files</button>
+    <button class="tab-btn active" onclick="showTab(this, 'overview')">Overview</button>
+    <button class="tab-btn" onclick="showTab(this, 'profiles')">Profiles</button>
+    <button class="tab-btn" onclick="showTab(this, 'signatures')">Signatures</button>
+
+    <button class="tab-btn" onclick="showTab(this, 'clustering')">Clustering</button>
+    <button class="tab-btn" onclick="showTab(this, 'hotspots')">Driver ranking</button>
+    <button class="tab-btn" onclick="showTab(this, 'motifs')">Motifs</button>
+    <button class="tab-btn" onclick="showTab(this, 'files')">Files</button>
 </div>
 
 <!-- Tab Content -->
@@ -77,10 +73,7 @@
         </div>
     </div>
 
-    <p style="margin-top: 30px; color: #666;">
-        📊 This analysis includes mutational profiles, signature decomposition, and additional analyses based on your configuration.
-        Navigate through the tabs above to explore different aspects of the results.
-    </p>
+
 </div>
 
 <div id="profiles" class="tab-content">
@@ -100,15 +93,15 @@
             <!-- Data table -->
             <details>
                 <summary style="cursor: pointer; padding: 10px; background: #f8f9fa; border-radius: 4px; margin-bottom: 10px;">
-                    <strong>📊 View Detailed Data Table</strong>
+                    <strong>View channel counts</strong>
                 </summary>
                 <div style="max-height: 600px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px; padding: 15px; background: #f9f9f9; margin-top: 10px;">
                     <table style="width: 100%; border-collapse: collapse; font-family: monospace; font-size: 14px;">
                         <thead>
-                            <tr style="background: #667eea; color: white;">
-                                <th style="padding: 10px; text-align: left; position: sticky; top: 0; background: #667eea;">Mutation Context</th>
-                                <th style="padding: 10px; text-align: right; position: sticky; top: 0; background: #667eea;">Count</th>
-                                <th style="padding: 10px; text-align: right; position: sticky; top: 0; background: #667eea;">Percentage</th>
+                            <tr style="background: var(--accent); color: white;">
+                                <th style="padding: 10px; text-align: left; position: sticky; top: 0; background: var(--accent);">Mutation Context</th>
+                                <th style="padding: 10px; text-align: right; position: sticky; top: 0; background: var(--accent);">Count</th>
+                                <th style="padding: 10px; text-align: right; position: sticky; top: 0; background: var(--accent);">Percentage</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -126,6 +119,7 @@
             </details>
         </div>
 
+        <script src="{{ url_for('static', filename='vendor/plotly-2.26.0/plotly-basic.min.js') }}"></script>
         <script>
         // Create histogram visualization
         (function() {
@@ -137,7 +131,7 @@
                 'T>A': [], 'T>C': [], 'T>G': []
             };
 
-            const labels = [];
+
             // D3 category10 colors (matching original MutaGene website)
             const colors = {
                 'C>A': '#1f77b4',  // blue
@@ -155,8 +149,7 @@
                 if (match) {
                     const mutType = match[1] + '>' + match[2];
                     if (mutationTypes[mutType]) {
-                        mutationTypes[mutType].push(profileData[key]);
-                        labels.push(key);
+                        mutationTypes[mutType].push(key);
                     }
                 }
             });
@@ -165,7 +158,8 @@
             const traces = [];
             let offset = 0;
             Object.keys(mutationTypes).forEach(mutType => {
-                const counts = mutationTypes[mutType];
+                const labels = mutationTypes[mutType];
+                const counts = labels.map(label => profileData[label]);
                 const x = Array.from({length: counts.length}, (_, i) => offset + i);
 
                 traces.push({
@@ -174,7 +168,7 @@
                     type: 'bar',
                     name: mutType,
                     marker: { color: colors[mutType] },
-                    hovertemplate: labels.slice(offset, offset + counts.length).map((label, i) =>
+                    hovertemplate: labels.map((label, i) =>
                         `${label}<br>Count: ${counts[i]}<extra></extra>`
                     )
                 });
@@ -183,7 +177,6 @@
             });
 
             const layout = {
-                title: '96-Channel Trinucleotide Mutational Profile',
                 xaxis: {
                     title: 'Trinucleotide Context',
                     showticklabels: false
@@ -192,7 +185,7 @@
                 barmode: 'group',
                 showlegend: true,
                 legend: { orientation: 'h', y: -0.15 },
-                margin: { t: 50, b: 50, l: 60, r: 30 }
+                margin: { t: 15, b: 50, l: 60, r: 30 }
             };
 
             Plotly.newPlot('profileHistogram', traces, layout, {responsive: true});
@@ -213,12 +206,12 @@
             <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
                 <h4 style="margin-top: 0;">Decomposition Summary</h4>
                 <p style="color: #666;">
-                    <strong>Method:</strong> {{ sig_data.method or 'NNLS' }}<br>
+                    <strong>Method:</strong> {{ sig_data.method or 'Unknown' }}<br>
                     {% if sig_data.diagnostics and sig_data.diagnostics.background_selection %}
                     <strong>Background selection:</strong> {{ sig_data.diagnostics.background_selection }}<br>
                     {% endif %}
                     <strong>Total Mutations:</strong> {{ "{:,}".format(sig_data.total_mutations | default(0) | int) }}<br>
-                    <strong>Signature Set:</strong> {{ analysis.signatures or 'COSMICv3' }}
+                    <strong>Signature Set:</strong> {{ analysis.signatures or 'Unknown' }}
                 </p>
             </div>
 
@@ -227,9 +220,8 @@
             <div style="overflow-x: auto;">
                 <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
                     <thead>
-                        <tr style="background: #667eea; color: white;">
+                        <tr style="background: var(--accent); color: white;">
                             <th style="padding: 12px; text-align: left;">Signature</th>
-                            <th style="padding: 12px; text-align: center;">Preview</th>
                             <th style="padding: 12px; text-align: right;">Exposure</th>
                             <th style="padding: 12px; text-align: right;">Mutations</th>
                             <th style="padding: 12px; text-align: right;">Percentage</th>
@@ -241,12 +233,7 @@
                             <td style="padding: 12px;">
                                 <strong>{{ sig_name }}</strong>
                             </td>
-                            <td style="padding: 12px; text-align: center;">
-                                <div style="width: 100px; height: 30px; background: #f0f0f0; display: inline-block; border-radius: 4px;">
-                                    <!-- Mini signature SVG would go here -->
-                                    <svg width="100" height="30"></svg>
-                                </div>
-                            </td>
+
                             <td style="padding: 12px; text-align: right;">{{ "%.4f" | format(sig_info.exposure) }}</td>
                             <td style="padding: 12px; text-align: right;">{{ "{:,}".format(sig_info.mutations) }}</td>
                             <td style="padding: 12px; text-align: right;">{{ "%.2f" | format((sig_info.mutations / (sig_data.total_mutations | default(1)) * 100) if (sig_data.total_mutations | default(0)) > 0 else 0) }}%</td>
@@ -256,18 +243,7 @@
                 </table>
             </div>
             {% else %}
-            <div style="padding: 30px; text-align: center; background: #f8f9fa; border-radius: 8px; margin-top: 20px;">
-                <div style="font-size: 48px; margin-bottom: 15px;">🔬</div>
-                <h4>Signature Decomposition</h4>
-                <p style="color: #666; max-width: 600px; margin: 15px auto;">
-                    Signature decomposition identifies which mutational processes (COSMIC signatures)
-                    contributed to the observed mutation pattern. This analysis will decompose the
-                    96-channel profile into known signature components.
-                </p>
-                <p style="color: #999; font-size: 14px; margin-top: 15px;">
-                    <em>Full implementation coming soon - will show SBS signatures with mini-previews</em>
-                </p>
-            </div>
+            {% if not sig_data.error %}<p>This fit reports no named signatures.</p>{% endif %}
             {% endif %}
         </div>
     {% else %}
@@ -277,51 +253,40 @@
     {% endif %}
 </div>
 
-<div id="classification" class="tab-content">
-    <h3>Cancer Type Classification</h3>
-    <p>This release does not implement cancer type classification.</p>
-</div>
-
 <div id="clustering" class="tab-content">
-    <h3>Hierarchical Clustering</h3>
-    <div style="padding: 30px; text-align: center; background: #f8f9fa; border-radius: 8px; margin-top: 20px;">
-        <div style="font-size: 48px; margin-bottom: 15px;">🌳</div>
-        <h4>Multi-Sample Clustering</h4>
-        <p style="color: #666; max-width: 600px; margin: 15px auto;">
-            Hierarchical clustering analysis requires multiple samples to compare mutational patterns.
-            Upload a multi-sample MAF file to see clustering dendrograms and heatmaps.
-        </p>
-        <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 4px; display: inline-block;">
-            <strong>What you'll see:</strong>
-            <ul style="text-align: left; margin: 10px 0 0 0; padding-left: 20px;">
-                <li>Dendrogram showing sample relationships</li>
-                <li>Clustered heatmap of mutation profiles</li>
-                <li>Distance matrix</li>
-                <li>Cluster assignments</li>
-            </ul>
-        </div>
-    </div>
+    <h3>Hierarchical clustering</h3>
+    {% set clusters = results | selectattr('result_type', 'equalto', 'clustering') | list %}
+    {% if clusters and clusters[0].data.pca_coordinates and clusters[0].data.dendrogram %}
+    {% set data = clusters[0].data %}
+    <p>Samples follow dendrogram leaf order. The coordinates summarize variation in signature exposures.</p>
+    <table class="table">
+        <thead><tr><th>Sample</th><th>PC1</th><th>PC2</th></tr></thead>
+        <tbody>{% for sample in data.dendrogram.ivl %}
+        {% set point = data.pca_coordinates.get(sample) %}
+        <tr><td>{{ sample }}</td><td>{{ '%.4g'|format(point.x) if point else 'Unknown' }}</td>
+            <td>{{ '%.4g'|format(point.y) if point and data.explained_variance|default([])|length > 1 else 'Unavailable' }}</td></tr>
+        {% endfor %}</tbody>
+    </table>
+    {% else %}<p>This run contains no clustering coordinates.</p>{% endif %}
 </div>
 
 <div id="hotspots" class="tab-content">
-    <h3>Mutation Hotspots</h3>
-    <div style="padding: 30px; text-align: center; background: #f8f9fa; border-radius: 8px; margin-top: 20px;">
-        <div style="font-size: 48px; margin-bottom: 15px;">🔥</div>
-        <h4>Recurrent Mutation Sites</h4>
-        <p style="color: #666; max-width: 600px; margin: 15px auto;">
-            Hotspot detection identifies genes and specific positions with recurrent mutations.
-            Enable this analysis to discover statistically significant mutation clusters.
-        </p>
-        <div style="margin-top: 20px; padding: 15px; background: white; border-radius: 4px; display: inline-block;">
-            <strong>What you'll see:</strong>
-            <ul style="text-align: left; margin: 10px 0 0 0; padding-left: 20px;">
-                <li>Top mutated genes</li>
-                <li>Recurrent mutation positions</li>
-                <li>Statistical significance scores</li>
-                <li>Known cancer driver genes</li>
-            </ul>
-        </div>
-    </div>
+    <h3>Driver ranking</h3>
+    {% set rankings = results | selectattr('result_type', 'equalto', 'drivers') | list %}
+    {% if rankings %}
+    {% set data = rankings[0].data %}
+    <p>Ranked protein changes: {{ data.total }}. The drivers file contains the complete ranking.</p>
+    {% set hits = data.drivers|default([]) + data.potential_drivers|default([]) %}
+    {% if hits %}
+    <table class="table">
+        <thead><tr><th>Gene</th><th>Mutation</th><th>B-score</th><th>q-value</th><th>Label</th></tr></thead>
+        <tbody>{% for hit in hits %}
+        <tr><td>{{ hit.gene }}</td><td>{{ hit.mutation }}</td><td>{{ hit.bscore }}</td>
+            <td>{{ hit.qvalue }}</td><td>{{ hit.label }}</td></tr>
+        {% endfor %}</tbody>
+    </table>
+    {% else %}<p>No ranked change meets the driver or potential driver threshold.</p>{% endif %}
+    {% else %}<p>This run contains no driver ranking.</p>{% endif %}
 </div>
 
 <div id="motifs" class="tab-content">
@@ -386,14 +351,14 @@
         cursor: pointer;
         font-size: 16px;
         color: #666;
-        transition: all 0.3s;
+        transition: color 0.15s;
     }
     .tab-btn:hover {
-        color: #667eea;
+        color: var(--accent);
     }
     .tab-btn.active {
-        color: #667eea;
-        border-bottom-color: #667eea;
+        color: var(--accent);
+        border-bottom-color: var(--accent);
         font-weight: bold;
     }
     .tab-content {
@@ -403,7 +368,7 @@
         display: block;
     }
     .stat-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #214c50;
         color: white;
         padding: 20px;
         border-radius: 8px;
@@ -423,7 +388,7 @@
 
 {% block extra_js %}
 <script>
-function showTab(tabName) {
+function showTab(button, tabName) {
     // Hide all tabs
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
@@ -434,16 +399,11 @@ function showTab(tabName) {
 
     // Show selected tab
     document.getElementById(tabName).classList.add('active');
-    event.target.classList.add('active');
-}
-
-function deleteAnalysis() {
-    if (confirm('Are you sure you want to delete this analysis?')) {
-        fetch(`/api/delete/{{ analysis.id }}`, { method: 'DELETE' })
-            .then(() => {
-                window.location.href = '/';
-            });
+    button.classList.add('active');
+    if (tabName === 'profiles' && document.querySelector('#profileHistogram .plot-container')) {
+        Plotly.Plots.resize('profileHistogram');
     }
 }
+
 </script>
 {% endblock %}

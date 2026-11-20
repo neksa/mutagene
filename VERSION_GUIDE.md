@@ -1,14 +1,9 @@
-# Version Management
+# Prepare a release
 
-MutaGene uses semantic versioning (MAJOR.MINOR.PATCH).
+Choose the version according to the compatibility rules in [CONTRIBUTING.md](CONTRIBUTING.md).
+Change the version in `pyproject.toml` and `mutagene/version.py`.
+Run `uv lock` and add release notes to the matching section in `CHANGELOG.md`.
+Add the corresponding `major`, `minor`, or `patch` label to the release pull request.
 
-Version is defined in `pyproject.toml` and `mutagene/version.py`.
-
-## Bumping via PR labels (preferred)
-
-Add a label to your PR before merging:
-- `patch` — bug fixes (1.0.0 -> 1.0.1)
-- `minor` — new features (1.0.0 -> 1.1.0)
-- `major` — breaking changes (1.0.0 -> 2.0.0)
-
-GitHub Actions updates both files, creates a tag and release on merge.
+After merge, GitHub Actions tags the merge commit and creates the GitHub release.
+PyPI publication requires a separate upload.
