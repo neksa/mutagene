@@ -3,7 +3,9 @@ Estimate signature exposures
 
 Use ``mutagene signature`` to fit a sample against known signatures.
 The command reports an exposure and estimated mutation count for each reported signature.
-The command does not extract new signatures.
+The original MutaGene study uses nonsmooth nonnegative matrix factorization to derive MutaGene-5 and MutaGene-10.
+This command holds the selected signatures fixed and estimates their exposures in new samples.
+See the `original study <https://doi.org/10.1093/nar/gkx367>`_.
 
 Fit mutations or sample counts
 ------------------------------
