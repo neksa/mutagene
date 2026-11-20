@@ -1,8 +1,9 @@
 # Fixed-catalog attribution accuracy and runtime
 
-The [publication figure](performance.pdf) compares six attribution methods.
+The [publication figure](performance.pdf) compares five attribution tools with a nonnegative least squares (NNLS) baseline.
+Each point shows one profile. Each asterisk marks the lowest observed mean in its column.
 MutaGene has the lowest mean error on the 96-profile panel.
-NNLS has the shortest median batch time on the 24-profile timing subset.
+The NNLS baseline has the shortest median batch time on the 24-profile timing subset.
 The original timing pilot covered only MutaGene and SigProfilerAssignment on clean two-signature mixtures.
 
 | Method | Mean attribution error, 96 profiles | Median seconds, 24 profiles |
@@ -10,10 +11,10 @@ The original timing pilot covered only MutaGene and SigProfilerAssignment on cle
 | MutaGene | 0.1935 | 18.75 |
 | SigProfilerAssignment | 0.2840 | 4.30 |
 | deconstructSigs | 0.3126 | 61.27 |
-| signeR with background | 0.3333 | No matched timing |
+| signeR with background | 0.3333 | 871.30 |
 | MuSiCal | 0.3736 | 4.05 |
-| signeR | 0.4070 | No matched timing |
-| NNLS | 0.4529 | 0.70 |
+| signeR | 0.4070 | 701.73 |
+| NNLS baseline | 0.4529 | 0.70 |
 
 MutaGene has the lowest mean error in nine of twelve burden and background combinations.
 deconstructSigs leads at 2,000 and 50,000 mutations with missing reference signatures.
@@ -31,7 +32,7 @@ Each method receives the same 67 COSMIC v3 signatures and the same 96 labelled S
 | SigProfilerAssignment 1.1.5 | The custom-catalog workflow uses default assignment settings and one worker. [Method](https://pmc.ncbi.nlm.nih.gov/articles/PMC10746860/) |
 | MuSiCal 1.0.0 | The upstream `refit` function uses its default bidirectional likelihood selection. [Method](https://doi.org/10.1038/s41588-024-01659-0) |
 | deconstructSigs 1.9.0 | The upstream R fitter uses its default 6% cutoff and reports the remaining mass as unknown. [Method](https://doi.org/10.1186/s13059-016-0893-4) |
-| NNLS | SciPy fits nonnegative least squares across all catalog columns. |
+| NNLS baseline | SciPy minimizes squared reconstruction error across all catalog columns with nonnegative weights. [Solver](https://docs.scipy.org/doc/scipy/reference/generated/scipy.optimize.nnls.html) |
 | signeR 2.14.0 | The archived Bayesian fits use a fixed catalog, with and without six background components. [Method](https://doi.org/10.1093/bioinformatics/btw572) |
 
 The benchmark scales NNLS, MuSiCal, and SigProfilerAssignment activities to sum to one.
@@ -60,7 +61,9 @@ The final truth column contains the total generating mass outside the known sign
 
 [Per-profile errors](errors.tsv) give half the summed absolute deviations across known-signature weights and aggregate background mass.
 Error ranges from zero for exact recovery to one for disjoint mixtures.
-The figure reports arithmetic means.
+The table beside the box plots reports arithmetic means.
+Asterisks denote descriptive minima using full precision.
+Boxes cover the interquartile range. Their central lines mark medians.
 Each burden contributes 32 profiles.
 The [archived signeR results](../signer-panel-errors.tsv) supply both signeR rows.
 Nineteen of twenty evaluable independent chain pairs exceed 1.01 for maximum active-component R-hat.
@@ -78,12 +81,25 @@ Each method runs sequentially in a fresh process with one worker and one numeric
 The runner rotates method order between rounds.
 Elapsed time includes imports, input parsing, fitting, and native and common output writes.
 SigProfilerAssignment disables plots and writes its native assignment files.
-The R adapter sources the upstream fitting functions directly.
+The deconstructSigs adapter sources the upstream R fitting functions directly.
 MutaGene uses the Python fitting interface for the supplied reference.
 These measurements describe batch workflows on this machine.
 The earlier 32-profile pilot times the MutaGene CLI and uses different inputs.
-The archived signeR jobs use a different execution protocol.
-The runtime plot therefore covers five methods.
+The archived signeR jobs use concurrent workers.
+Across three measured batches, standard signeR takes 683.61 to 857.45 seconds.
+With background, it takes 862.69 to 876.26 seconds.
+The separate timing runner uses the same 24-profile matrix, hardware, thread limits, and repetition count as the other methods.
+It starts one fresh R process per batch and alternates the two configurations.
+Each sample uses its archived primary-chain seed, 10,000 burn-in iterations, and 2,000 retained draws.
+Timing includes package startup, fitting, median exposure extraction, and writing the weight matrix.
+Each timed round repeats the same seeds. The repeats measure timing variability.
+The archived independent chains provide the convergence diagnostics.
+The [repeat-fit errors](signer-timing-errors.tsv) record the fresh estimates on the 24 timing profiles.
+Fresh signeR scores on the timing subset differ from the archived estimates.
+Mean error changes from 0.4042 to 0.4181 for the standard fit.
+With background, it changes from 0.3372 to 0.3288.
+Individual absolute error differences reach 0.328 and 0.323, respectively.
+The figure uses the complete 96-profile accuracy panel for every method.
 Median batch time falls from 19.48 seconds to 18.75 seconds, a 3.7% reduction.
 NNLS takes 0.70 seconds, MuSiCal takes 4.05 seconds, and SigProfilerAssignment takes 4.30 seconds.
 deconstructSigs takes 61.27 seconds.
@@ -136,10 +152,26 @@ cd analysis/release-comparison/performance
 ```
 
 The last command renders the figure from the published tables in this directory.
-To render a new run, pass its error and timing tables and a new output filename.
+To render a new run, pass its error table with `--errors` and its output filename with `--output`.
 The runner checks sample identity, signature identity, unit mass, repeated weights, and agreement between MutaGene versions.
 For the CLI pilot, generate the inputs with [compare.py](../compare.py).
 Pass its output directory and a new results directory to `time_pilot.py`.
 
 The [preprint source](../../../manuscript/preprint.tex) includes the vector figure.
 From the manuscript directory, run `pdflatex -halt-on-error preprint.tex` twice to build the draft.
+
+### Reproduce the signeR timing
+
+Install signeR 2.14.0 from Bioconductor 3.23 in an isolated R library.
+The timing run uses the macOS arm64 R 4.6.2 framework with its reference BLAS.
+The runner checks the installed signeR version.
+
+From this directory, run the following command with the isolated library on the R library path.
+
+```sh
+R_LIBS=/path/to/library /tmp/mutagene-performance/bin/python time_signer.py \
+  /tmp/attribution-signer --rscript /usr/local/bin/Rscript
+```
+
+The [seeds](signer-seeds.tsv) select the archived primary fit for each configuration.
+The [background catalog](signer-background.tsv) contains the same six substitution-specific components as the accuracy study.
