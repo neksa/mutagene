@@ -80,3 +80,29 @@ def test_single_component_reference_finishes():
 def test_invalid_search_start_fails():
     with pytest.raises(ValueError, match="Search start"):
         fit_sparse(np.eye(2), [20, 80], 2, search_start="invalid")
+
+
+@pytest.mark.parametrize("burden", [100, 2000])
+def test_bic_screen_matches_all_additions(monkeypatch, burden):
+    rng = np.random.default_rng(49)
+    matrix = rng.dirichlet(np.ones(16), size=12).T
+    counts = rng.multinomial(burden, matrix[:, 0] * 0.7 + matrix[:, 4] * 0.3)
+    screened, exhaustive = {}, {}
+    weights = fit_sparse(matrix, counts, 10, diagnostics=screened)
+    monkeypatch.setattr(
+        "mutagene.signatures.sparse._bic_additions",
+        lambda design, *args: range(design.shape[1]),
+    )
+    expected = fit_sparse(matrix, counts, 10, diagnostics=exhaustive)
+    np.testing.assert_array_equal(weights, expected)
+    assert screened["selection_trace"] == exhaustive["selection_trace"]
+    assert screened["subset_refits"] < exhaustive["subset_refits"]
+
+
+def test_bic_screen_keeps_additions_when_the_bound_overflows():
+    from mutagene.signatures.sparse import _bic_additions
+
+    tiny = np.nextafter(0.0, 1.0)
+    design = np.array([[tiny, 0.9], [1.0, 0.1]])
+    retained = _bic_additions(design, [0.5, 0.5], [1.0, 0.0], (0,), 100)
+    assert list(retained) == [0, 1]

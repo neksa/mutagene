@@ -11,6 +11,7 @@ Notable changes to MutaGene. Dates are release dates; the format follows
 - Python, CLI, and web signature fitting now default to `sparse-bic` with joint background selection.
 - For full-model fitting, specify `--method MLE` or `func="MLE"`. The likelihood solver also changes.
 - Joint BIC uses a single-component start through 1,000 mutations when feasible. Larger profiles use the full-model start.
+- Joint BIC skips signature additions when a likelihood bound rules out improvement.
 - VCF input accepts at most one sample column.
 
 ### Added
