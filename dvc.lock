@@ -231,8 +231,8 @@ stages:
       size: 133600
     - path: manuscript/analysis/drivers.py
       hash: md5
-      md5: c9a81c5ddb194d1405db8bb89680e3f4
-      size: 8866
+      md5: 9b9a570398dd4591297680dcf00bfc49
+      size: 8879
     - path: manuscript/inputs/bgi-carriers.tsv.gz
       hash: md5
       md5: 592ec9f804ceebb0b036ad23f3b32477
@@ -304,8 +304,8 @@ stages:
       size: 24354
     - path: manuscript/figures/rank-recovery.tsv
       hash: md5
-      md5: 02835e8ac44d49a4ed7d725bddb581c0
-      size: 56198
+      md5: 1b52afb73881fabbe83961dd6db3aa3e
+      size: 58740
   paper:
     cmd: cd manuscript && export SOURCE_DATE_EPOCH=1704067200 
       FORCE_SOURCE_DATE=1 TZ=UTC && pdflatex -interaction=nonstopmode 
@@ -346,10 +346,10 @@ stages:
       size: 27239
     - path: manuscript/preprint.tex
       hash: md5
-      md5: 657a55f4d304610f9d1bba1294b06b91
-      size: 19958
+      md5: 76692745eda2450f2643bf452a57a49e
+      size: 20047
     outs:
     - path: manuscript/preprint.pdf
       hash: md5
-      md5: 4f911d8afea1b7d14ecccd38c5842790
-      size: 429454
+      md5: a3c46ebcd17dae000831ebcc665c4010
+      size: 429497

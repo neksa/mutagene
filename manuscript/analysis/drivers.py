@@ -149,7 +149,7 @@ def main():
         data.insert(0, "level", level)
         tables.append(data)
     results = pd.concat(tables, ignore_index=True)
-    results.to_csv(FIG / "rank-recovery.tsv", sep="\t", index=False)
+    results.to_csv(FIG / "rank-recovery.tsv", sep="\t", index=False, na_rep="NA")
     selected = results[(results.level == "allele") & results.budget.isin([10, 100, 1000])]
     table = selected.pivot(index="budget", columns="method", values="hotspots")[METHODS]
     tex_rows = [

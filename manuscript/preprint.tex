@@ -178,7 +178,9 @@ Both hotspot discovery and ranking use recurrence. Dataset overlap remains unkno
 \newpage
 \heading{Interpreting candidates in a cohort or a single tumor}
 At the default Driver threshold, 57/2,451 missense calls match exact hotspots, versus 30/4,188 other scored changes.
-This 3.25-fold enrichment compares threshold groups. Figure~\ref{fig:driversbudget} compares ranking methods at equal budgets.
+This 3.25-fold enrichment compares threshold groups.
+At the same 2,451 positions, recurrence recovers 42.5 hotspots on average across ties.
+The empirical B-score therefore gives 1.34-fold enrichment over recurrence.
 Bootstrap intervals resample genes 2,000 times, keeping scores fixed and variants from each gene together.
 Recurrent matches include PIK3CA E545K in nine tumors, FGFR3 Y373C in six, and HRAS Q61R in five.
 For a single tumor, a reference cohort supplies recurrence and background mutability.
