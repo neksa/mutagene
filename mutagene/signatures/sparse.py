@@ -25,6 +25,18 @@ def information_criterion(nll, dimensions, burden, criterion):
     raise ValueError("Sparse selection supports aicc or bic")
 
 
+def _bic_additions(design, target, weights, selected, burden):
+    """Bound the likelihood gain from each addition using the tangent at the current mixture."""
+    with np.errstate(divide="ignore", over="ignore", invalid="ignore", under="ignore"):
+        scores = (target / (design @ weights)) @ design
+    if not np.isfinite(scores).all():
+        return range(design.shape[1])
+    # Over the enlarged simplex, the linear bound reaches its maximum at a vertex.
+    gain = np.maximum(scores[list(selected)].max(), scores) - scores @ weights
+    # Retain borderline candidates when rounding could affect the comparison.
+    return np.flatnonzero(gain + 1e-9 >= 0.5 * np.log(burden) / burden)
+
+
 def fit_sparse(
     matrix,
     counts,
@@ -38,7 +50,7 @@ def fit_sparse(
 
     Joint BIC starts from one component through 1,000 mutations by default.
     Other configurations retain full-model initialization.
-    Every candidate subset uses a constrained likelihood refit.
+    Joint BIC skips additions when a likelihood bound rules out improvement.
     This local search does not guarantee a globally optimal subset.
     Candidate optimization failures stop selection.
     """
@@ -128,7 +140,13 @@ def fit_sparse(
                 }
             )
             continue
-        for add in range(optional_count):
+        additions = range(optional_count)
+        if criterion == "bic" and background_selection == "joint":
+            additions = _bic_additions(
+                matrix[observed], counts[observed] / burden, current[0], selected, burden
+            )
+        for add in additions:
+            add = int(add)
             if add in selected:
                 continue
             candidate = tuple(sorted((*selected, add)))
@@ -231,7 +249,10 @@ def _fit_forward(matrix, counts, known_count, diagnostics):
 
     record("start")
     while True:
-        neighbors = [tuple(sorted((*selected, i))) for i in range(size) if i not in selected]
+        additions = _bic_additions(
+            matrix[observed], counts[observed] / burden, current[0], selected, burden
+        )
+        neighbors = [tuple(sorted((*selected, int(i)))) for i in additions if i not in selected]
         neighbors += [tuple(i for i in selected if i != remove) for remove in selected]
         candidates = [(subset, fit(subset)) for subset in neighbors]
         candidates = [candidate for candidate in candidates if candidate[1] is not None]

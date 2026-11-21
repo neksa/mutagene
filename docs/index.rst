@@ -18,7 +18,7 @@ For the local web interface, install the web dependencies:
 
 .. code-block:: bash
 
-   pip install mutagene[web]
+   pip install "mutagene[web]"
 
 Choose a task
 -------------

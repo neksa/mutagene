@@ -60,4 +60,5 @@ def test_failed_refits_do_not_silently_use_nnls(monkeypatch):
         ),
     )
     with pytest.raises(RuntimeError, match="deliberate failure"):
-        fit_sparse(np.array([[0.8, 0.2], [0.2, 0.8]]), [80, 20], 2)
+        # This mixture requires a two-component refit.
+        fit_sparse(np.array([[0.8, 0.2], [0.2, 0.8]]), [65, 35], 2)

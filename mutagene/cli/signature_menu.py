@@ -8,15 +8,14 @@ import numpy as np
 from tqdm import tqdm
 
 from mutagene.cli.genome_resolver import GenomeNotFoundError, resolve_genome
-from mutagene.io.context_window import read_mutations
 from mutagene.io.decomposition import write_decomposition
-from mutagene.io.matrix import read_count_matrix
+from mutagene.io.matrix import read_count_matrix, read_reference_matrix
 from mutagene.io.profile import read_signatures
 from mutagene.io.text import detect_mutation_format, open_text_input
 from mutagene.io.variant_filter import add_filter_argument
 from mutagene.profiles.profile import (
     generate_resampled_profiles,
-    get_multisample_mutational_profile,
+    read_sample_profiles,
 )
 from mutagene.signatures.identify import IDENTIFY_MIN_FUNCTIONS, decompose_mutational_profile_counts
 from mutagene.signatures.likelihood import DEFAULT_BACKGROUND_SELECTION, DEFAULT_METHOD
@@ -33,12 +32,13 @@ class SignatureMenu:
         parser.description = """
 Identify the activity of known mutational signatures in samples.
 
-Mutational signatures are characteristic 96-channel profiles left behind by
-distinct mutagenic processes. This command decomposes the mutational profile of
+Mutational signatures describe the distribution of mutations across channels. This command decomposes the mutational profile of
 each sample into a non-negative linear combination of the signatures in the
 chosen collection and reports the exposure of each signature.
 
-Signature collections available with --signatures (-s):
+For SBS1536 or ID83, supply a matching labelled reference matrix. ID83 also requires classified counts.
+
+SBS96 signature collections available with --signatures (-s):
 
   MGA, 5        MutaGene-5, 5 signatures derived by MutaGene
   MGB, 10       MutaGene-10, 10 signatures derived by MutaGene
@@ -81,20 +81,33 @@ mutagene signature -i sample1.maf -g hg19 -s COSMICv3 --bootstrap -br 1000
             type=str,
             default="hg19",
         )
-        required_group.add_argument(
+        catalogs = required_group.add_mutually_exclusive_group()
+        catalogs.add_argument(
             "--signatures",
             "-s",
             choices=["5", "10", "30", "49", "53", "MGA", "MGB", "COSMICv2", "COSMICv3", "KUCAB"],
             help="Collection of signatures to use",
             type=str,
-            default="COSMICv2",
+            default=None,
         )
 
+        catalogs.add_argument(
+            "--reference-matrix",
+            type=open_text_input,
+            metavar="FILE",
+            help="Labelled channel-by-signature reference TSV",
+        )
         optional_group = parser.add_argument_group("Optional arguments")
+        optional_group.add_argument(
+            "--context",
+            choices=["SBS96", "SBS1536", "ID83"],
+            default="SBS96",
+            help="Mutation channels for fitting",
+        )
         optional_group.add_argument(
             "--input-format",
             "-f",
-            help="Input format: AUTO, MAF, VCF, TCGI, or a labelled SBS96 count MATRIX",
+            help="Input format: AUTO, MAF, VCF, TCGI, or a labelled count MATRIX",
             type=str.upper,
             choices=["AUTO", "MAF", "VCF", "TCGI", "MATRIX"],
             default="AUTO",
@@ -189,18 +202,16 @@ mutagene signature -i sample1.maf -g hg19 -s COSMICv3 --bootstrap -br 1000
                 "Provide input file in VCF or MAF format (-i) and a corresponding genome assembly (-g)"
             )
             sys.exit(1)
+        if args.context != "SBS96" and not args.reference_matrix:
+            self.parser.error(f"{args.context} fitting requires --reference-matrix")
+        if args.context == "ID83" and args.input_format != "MATRIX":
+            self.parser.error("ID83 fitting requires a classified indel count matrix (-f MATRIX)")
         if args.input_format != "MATRIX":
             try:
                 args.genome = resolve_genome(args.genome)
             except GenomeNotFoundError as e:
                 logger.error(str(e))
                 sys.exit(1)
-        if not args.signatures:
-            logger.warning(
-                "Set of signatures required. Use 5 and 10 for MUTAGENE-5 and MUTAGENE-10. Use 30 for COSMIC-30"
-            )
-            return
-
         if args.method.lower() not in IDENTIFY_MIN_FUNCTIONS:
             logger.warning("Unknown method provided")
             sys.exit(1)
@@ -223,28 +234,37 @@ mutagene signature -i sample1.maf -g hg19 -s COSMICv3 --bootstrap -br 1000
                 "We will only analyze signatures in this list: {}".format(", ".join(only))
             )
 
-        W, signature_names = read_signatures(args.signatures, only=only)
-        if W is None or not signature_names or (only and len(only) != len(signature_names)):
-            logger.error("The signature selection contains unknown identifiers")
-            sys.exit(1)
-
         try:
+            if args.reference_matrix is not None:
+                W, signature_names = read_reference_matrix(args.reference_matrix, args.context)
+                signature_set = args.reference_matrix.name
+                if only:
+                    if not set(only).issubset(signature_names) or len(only) != len(set(only)):
+                        raise ValueError(
+                            "The signature selection contains unknown or duplicate identifiers"
+                        )
+                    W = W[:, [signature_names.index(name) for name in only]]
+                    signature_names = only
+            else:
+                signature_set = args.signatures or "COSMICv2"
+                W, signature_names = read_signatures(signature_set, only=only)
+                if not signature_names or (only and len(only) != len(signature_names)):
+                    raise ValueError("The signature selection contains unknown identifiers")
             if args.input_format == "MATRIX":
-                samples_profiles = read_count_matrix(args.infile)
+                samples_profiles = read_count_matrix(args.infile, args.context)
             else:
                 if args.input_format == "AUTO":
                     args.input_format = detect_mutation_format(args.infile)
-                mutations, _, _ = read_mutations(
+                samples_profiles = read_sample_profiles(
                     args.input_format,
                     args.infile,
                     args.genome,
-                    window_size=1,
+                    args.context,
                     keep_filtered=args.keep_filtered,
                     filter_column=args.filter_column,
                 )
-                if not mutations:
+                if not samples_profiles:
                     raise ValueError("No mutations could be read for signature fitting")
-                samples_profiles = get_multisample_mutational_profile(mutations, counts=True)
         except (ValueError, OSError, EOFError) as error:
             logger.error(f"Cannot read {args.input_format} input: {error}")
             sys.exit(1)
@@ -252,13 +272,15 @@ mutagene signature -i sample1.maf -g hg19 -s COSMICv3 --bootstrap -br 1000
         samples_results = {}
         diagnostics = {
             "mutagene_version": __version__,
-            "signature_set": args.signatures,
+            "signature_set": signature_set,
+            "context": args.context,
             "method": args.method,
             "seed": args.seed,
             "samples": {},
         }
         rng = np.random.default_rng(args.seed)
 
+        enable_background = args.context == "SBS96" and args.no_unexplained_variance
         for sample, profile in samples_profiles.items():
             optimizer = {}
             try:
@@ -267,7 +289,7 @@ mutagene signature -i sample1.maf -g hg19 -s COSMICv3 --bootstrap -br 1000
                     (W, signature_names),
                     args.method,
                     others_threshold=0.0,
-                    enable_dummy=args.no_unexplained_variance,
+                    enable_dummy=enable_background,
                     background_selection=args.background_selection,
                     diagnostics=optimizer,
                 )
@@ -304,7 +326,7 @@ mutagene signature -i sample1.maf -g hg19 -s COSMICv3 --bootstrap -br 1000
                             (W, signature_names),
                             args.method,
                             others_threshold=0.0,
-                            enable_dummy=args.no_unexplained_variance,
+                            enable_dummy=enable_background,
                             background_selection=args.background_selection,
                         )
                     except (ValueError, RuntimeError) as error:

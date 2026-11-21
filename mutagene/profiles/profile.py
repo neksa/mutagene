@@ -9,11 +9,14 @@ from operator import add
 import numpy as np
 from numpy.random import multinomial
 
+from mutagene.dna import complementary_nucleotide
 from mutagene.io.context_stats import (
     merge_context_stats,
     new_context_stats,
     report_assembly_mismatch,
 )
+from mutagene.io.context_window import read_mutations
+from mutagene.io.matrix import channel_labels
 from mutagene.io.mutations_profile import read_auto_profile
 from mutagene.io.profile import get_profile_attributes_dict, write_profile_file
 
@@ -87,6 +90,48 @@ def get_multisample_mutational_profile(samples_mutations, counts=False):
         samples_profiles[sample] = get_mutational_profile(mutations, counts)
 
     return samples_profiles
+
+
+def read_sample_profiles(fmt, stream, genome, context, *, keep_filtered, filter_column):
+    """Count substitutions separately for each sample in the requested sequence context."""
+    if context not in {"SBS96", "SBS1536"}:
+        raise ValueError("Substitution calls require an SBS context")
+    mutations, sites, _ = read_mutations(
+        fmt,
+        stream,
+        genome,
+        window_size=2 if context == "SBS1536" else 1,
+        keep_filtered=keep_filtered,
+        filter_column=filter_column,
+    )
+    if context == "SBS96":
+        return get_multisample_mutational_profile(mutations, counts=True)
+
+    labels = channel_labels(context)
+    profiles = {}
+    for sample, records in sites.items():
+        counts = Counter()
+        for _, _, _, ref, alt, window in records:
+            sequence = "".join(base for _, _, base, _ in window)
+            if len(sequence) != 5 or any(base not in "ACGT" for base in sequence):
+                continue
+            if sequence[2] != ref:
+                ref, alt = complementary_nucleotide[ref], complementary_nucleotide[alt]
+            if sequence[2] != ref or ref == alt:
+                continue
+            if ref in "AG":
+                sequence = "".join(complementary_nucleotide[base] for base in reversed(sequence))
+                alt = complementary_nucleotide[alt]
+            counts[f"{sequence[:2]}[{sequence[2]}>{alt}]{sequence[3:]}"] += 1
+        if not counts:
+            raise ValueError(f"No substitutions have complete pentanucleotide contexts in {sample}")
+        skipped = len(records) - sum(counts.values())
+        if skipped:
+            logger.warning(
+                "Skip %d substitutions without a usable pentanucleotide in %s", skipped, sample
+            )
+        profiles[sample] = np.array([counts[label] for label in labels])
+    return profiles
 
 
 def get_pooled_multisample_mutational_profile(samples_mutations, counts=False):

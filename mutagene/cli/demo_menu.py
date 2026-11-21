@@ -23,7 +23,7 @@ class DemoMenu:
 
     def callback(self, args):
         destination = args.output_dir
-        if destination.exists() and any(destination.iterdir()):
+        if destination.exists() and (not destination.is_dir() or any(destination.iterdir())):
             raise SystemExit("Choose an empty output directory for the demo")
         destination.mkdir(parents=True, exist_ok=True)
         source = Path(__file__).resolve().parents[1] / "data" / "demo"

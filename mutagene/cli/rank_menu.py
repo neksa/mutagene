@@ -67,6 +67,16 @@ class RankMenu:
             const="",
         )
 
+        optional_group.add_argument(
+            "--enrichment-out",
+            type=Path,
+            help="Write known driver enrichment among ranked missense changes (TSV)",
+        )
+        optional_group.add_argument(
+            "--known-variants",
+            type=Path,
+            help="Reference TSV with gene and mutation columns for exact missense matches",
+        )
         add_filter_argument(optional_group)
         optional_group.add_argument(
             "--alphamissense",
@@ -104,6 +114,19 @@ class RankMenu:
 
     def callback(self, args):
         """Rank mutations"""
+
+        from mutagene.mutability.enrichment import driver_enrichment, read_known_variants
+
+        known_variants = None
+        if args.known_variants:
+            if not args.enrichment_out:
+                logger.error("--known-variants requires --enrichment-out")
+                sys.exit(1)
+            try:
+                known_variants = read_known_variants(args.known_variants)
+            except (ValueError, OSError) as error:
+                logger.error(str(error))
+                sys.exit(1)
 
         # no need to read mutations if there is a simple bail out
         if args.cohort is not None:
@@ -260,7 +283,7 @@ class RankMenu:
                 with AlphaMissenseLookup(args.alphamissense, assembly) as lookup:
                     annotations = annotate_protein_mutations(protein_mutations, lookup)
                     provenance["alphamissense"] = lookup.metadata
-            rank(
+            ranked = rank(
                 protein_mutations,
                 args.outfile,
                 profile,
@@ -270,7 +293,12 @@ class RankMenu:
                 args.threshold_passenger,
                 provenance=provenance,
                 annotations=annotations,
+                known_variants=known_variants,
             )
+            if args.enrichment_out:
+                driver_enrichment(ranked, known_variants).to_csv(
+                    args.enrichment_out, sep="\t", index=False, na_rep="NA"
+                )
         except ValueError as e:
             logger.error(str(e))
             sys.exit(1)

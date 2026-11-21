@@ -6,6 +6,7 @@ import sys
 import mutagene
 from mutagene.cli.benchmark_menu import BenchmarkMenu
 from mutagene.cli.demo_menu import DemoMenu
+from mutagene.cli.discover_menu import DiscoverMenu
 
 # from mutagene.io.profile import format_profile
 # from mutagene.io.mutations_profile import read_VCF_profile
@@ -70,37 +71,52 @@ class MutaGeneApp:
         )
 
         subparsers = parser.add_subparsers(
-            help="",
-            metavar="{fetch, profile, rank, motif, signature, serve, demo}",
-            description="""\
-        fetch - Load data such as genomes and cancer datasets from remote sources (alias: download)
-        profile - Create a mutational profile given a sample with mutations
-        rank - Predict driver mutations by ranking observed mutations with respect to their expected mutability
-        motif - Test samples for presence of mutational motifs
-        signature - Identify activity of existing mutational signatures in samples or derive new signatures (aliases: identify, decompose)
-        serve - Start local web server for interactive analysis
-        demo - Run an offline synthetic demonstration\
-            """,
             dest="command",
-            title="Choose MutaGene subpackage",
+            title="Commands",
+            metavar="COMMAND",
         )
 
         parser_mapping = {
-            "fetch": {"class": FetchMenu, "aliases": ["download"]},
-            "profile": {"class": ProfileMenu, "aliases": []},
-            "rank": {"class": RankMenu, "aliases": ["driver"]},
-            "motif": {"class": MotifMenu, "aliases": []},
-            "signature": {"class": SignatureMenu, "aliases": ["identify", "decompose"]},
-            "benchmark": {"class": BenchmarkMenu, "aliases": []},
-            "serve": {"class": ServeMenu, "aliases": []},
-            "demo": {"class": DemoMenu, "aliases": []},
+            "fetch": {
+                "help": "Download genomes and reference data",
+                "class": FetchMenu,
+                "aliases": ["download"],
+            },
+            "profile": {
+                "help": "Count mutations by sequence context",
+                "class": ProfileMenu,
+                "aliases": [],
+            },
+            "rank": {
+                "help": "Rank mutations by expected mutability",
+                "class": RankMenu,
+                "aliases": ["driver"],
+            },
+            "motif": {"help": "Test for motif enrichment", "class": MotifMenu, "aliases": []},
+            "signature": {
+                "help": "Fit known mutational signatures",
+                "class": SignatureMenu,
+                "aliases": ["identify", "decompose"],
+            },
+            "discover": {
+                "help": "Learn a candidate signature alongside a supplied reference catalog",
+                "class": DiscoverMenu,
+                "aliases": [],
+            },
+            "benchmark": {
+                "help": "Benchmark fits on simulated profiles",
+                "class": BenchmarkMenu,
+                "aliases": [],
+            },
+            "serve": {"help": "Start the local web interface", "class": ServeMenu, "aliases": []},
+            "demo": {"help": "Run the offline synthetic example", "class": DemoMenu, "aliases": []},
         }
 
         for command, menu in parser_mapping.items():
             # initialize parser object for each subparser
             subparser = subparsers.add_parser(
                 command,
-                add_help=True,
+                help=menu["help"],
                 aliases=menu["aliases"],
                 formatter_class=argparse.RawDescriptionHelpFormatter,
             )
@@ -178,8 +194,7 @@ class MutaGeneApp:
 
     @classmethod
     def signal_handler(cls, signal, frame):
-        # logger.warning('Interrupted')
-        sys.exit(0)
+        sys.exit(130)
 
 
 def main():

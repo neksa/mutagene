@@ -1,14 +1,14 @@
 # Prepare a public release
 
-The source changes require a new tested release before users can install them from PyPI.
-The existing public package does not include this draft's new workflows.
+Version 2.0.0 changes the default signature fit. Review the migration notes in the changelog before release.
 
 ## Validate the artifact
 
 Build the source distribution and wheel with `uv build`.
 Install the wheel in a clean environment outside the checkout.
 Run `tests/packaging/smoke_wheel.py` with the web extra installed.
-Run the full test suite and documentation build.
+Run the Chromium workflow in `tests/packaging/smoke_browser.py` against the installed wheel.
+Run the full test suite and strict documentation build.
 Review the benchmark provenance and manuscript claims independently.
 
 ## Publish deliberately

@@ -7,28 +7,27 @@ MutaGene is a Python package for analyzing mutations and mutational processes in
 
 ## Installation
 
-Requires Python 3.10+.
+MutaGene requires Python 3.10 or later.
+From the source checkout, install the command line with `pip install .`.
+For the local web interface, use `pip install ".[web]"`.
 
-Install this source checkout to use the unreleased workflows.
-Until the next package release, install this checkout with `pip install ".[web]"`.
-
-```bash
-pip install mutagene
-```
-
-For the local web interface:
-```bash
-pip install "mutagene[web]"
-```
+PyPI users can install the published version with `pip install mutagene`.
+Use a protein-annotated MAF for sample or cohort driver ranking.
+Add `--enrichment-out enrichment.tsv` to compare known driver genes.
+Supply `--known-variants hotspots.tsv` to compare exact missense changes.
+See the [driver comparison](https://github.com/neksa/mutagene/blob/paper/application-note/analysis/release-comparison/pcawg-penta/README.md) for cohort and single-tumor results.
 
 ## Subcommands
 
 | Command | Description |
 |---------|-------------|
+| `mutagene demo` | Run the bundled synthetic example offline |
+| `mutagene benchmark` | Compare fits on simulated profiles |
 | `mutagene fetch` | Download genomes, cancer datasets, and cohorts from remote sources |
 | `mutagene profile` | Create mutational profiles from samples (MAF/VCF input) |
-| `mutagene rank` | Rank mutations by driver status using expected mutability |
+| `mutagene rank` | Rank candidate drivers and compare known driver enrichment |
 | `mutagene motif` | Test samples for presence of mutational motifs |
+| `mutagene discover` | Learn a candidate signature and compare it with a supplied catalog |
 | `mutagene signature` | Decompose profiles into known mutational signatures |
 | `mutagene serve` | Start local web server for interactive analysis |
 
@@ -129,6 +128,9 @@ The [R bridge](examples/r/README.md) exchanges labelled SBS96 matrices through t
 The [likelihood guide](docs/likelihood-fitting.md) documents convergence and compatibility changes.
 Python, CLI, and web interfaces default to `sparse-bic` with `joint` background selection.
 Use `--method MLE` or `func="MLE"` for full-model likelihood fitting.
+The signature CLI fits SBS1536 pentanucleotide and ID83 indel catalogs with a matching reference matrix.
+See the [CLI examples](docs/signature_doc.rst) and [worked fits](https://github.com/neksa/mutagene/blob/paper/application-note/analysis/release-comparison/extended-contexts/README.md).
+
 The [sparse-fitting guide](docs/sparse-signatures.md) describes subset selection and its limitations.
 The [release checklist](docs/release-readiness.md) separates source validation from publication.
 
@@ -136,4 +138,6 @@ The [release checklist](docs/release-readiness.md) separates source validation f
 
 The [research index](analysis/README.md) separates historical reports, current limitations, and artifact availability.
 The [SigProfilerAssignment adapter](examples/signatures/README.md) preserves explicit channel alignment.
-The [application-note draft](manuscript/README.md) requires revision before submission.
+The [application-note draft](https://github.com/neksa/mutagene/blob/paper/application-note/manuscript/preprint.pdf) describes the fitting benchmarks, motif enrichment, signature extraction, and cohort examples.
+The [benchmark figure](https://github.com/neksa/mutagene/blob/paper/application-note/analysis/release-comparison/performance/performance.pdf) shows per-profile attribution errors and mean errors by mutation burden.
+The [editable source](https://github.com/neksa/mutagene/blob/paper/application-note/manuscript/preprint.tex) accompanies the draft.

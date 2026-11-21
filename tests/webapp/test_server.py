@@ -30,6 +30,7 @@ def app(tmp_path):
                 config={
                     "TESTING": True,
                     "UPLOAD_FOLDER": upload_dir,
+                    "RESULTS_FOLDER": results_dir,
                 }
             )
             app.config["_DB"] = real_db
@@ -314,3 +315,37 @@ def test_results_show_failure_details_and_motif_matches(client, db):
     assert b"Likelihood optimization fails certification" in response.data
     assert b"SAMPLE1" in response.data and b"TCW" in response.data
     assert b"Analysis completed successfully" not in response.data
+
+
+def test_results_show_stored_driver_and_clustering_values(client, db):
+    aid = db.create_analysis("cohort.maf", "hg19")
+    db.update_analysis_status(aid, "complete")
+    db.store_result(
+        aid,
+        "clustering",
+        {
+            "dendrogram": {"ivl": ["sample B"]},
+            "pca_coordinates": {"sample B": {"x": 0.125, "y": 0}},
+            "explained_variance": [1],
+        },
+    )
+    db.store_result(
+        aid,
+        "drivers",
+        {
+            "total": 1,
+            "gene_enrichment": {
+                "driver_hits": 1,
+                "driver_total": 1,
+                "other_hits": 0,
+                "other_total": 0,
+                "fold_enrichment": None,
+                "fisher_p": None,
+            },
+            "drivers": [{"gene": "TP53", "mutation": "R175H", "label": "Driver", "bscore": 0.001}],
+        },
+    )
+    page = client.get(f"/results/{aid}").get_data(as_text=True)
+    assert "sample B" in page and "0.125" in page and "Unavailable" in page
+    assert "TP53" in page and "R175H" in page and "0.001" in page
+    assert "Known driver genes occur in 1/1" in page

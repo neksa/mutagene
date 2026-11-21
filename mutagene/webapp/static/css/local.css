@@ -1,0 +1,28 @@
+:root { --ink: #183337; --accent: #126568; --line: #c5d4d3; }
+body { color: var(--ink); background: #f3f6f5; font: 16px/1.55 system-ui, sans-serif; }
+.masthead { background: #153c40; }
+.masthead nav, main, footer { max-width: 1024px; margin: auto; }
+.masthead nav { display: flex; gap: clamp(12px, 3vw, 32px); align-items: center; padding: 14px 20px; }
+.masthead a { color: #e5efed; font-size: 14px; }
+.masthead .brand { margin-right: auto; color: white; font: 600 clamp(20px, 3vw, 28px)/1.4 Georgia, serif; }
+a[aria-current] { text-decoration: underline; text-underline-offset: 5px; }
+main { padding: clamp(20px, 4vw, 48px); background: white; border-bottom: 1px solid var(--line); overflow-x: auto; }
+h1, h2, h3 { color: var(--ink); font-family: Georgia, serif; line-height: 1.2; }
+h1, main > h2:first-child { margin: 0 0 16px; font-size: clamp(28px, 4vw, 40px); }
+fieldset { margin: 24px 0; }
+legend { font-size: 17px; font-weight: 600; }
+.upload-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 18px; }
+.field { margin: 16px 0; }
+.field label { display: block; }
+.form-control { height: auto; padding: 9px; font-size: 16px; }
+.file-field { border: 1px dashed #7b9c9a; padding: 16px; border-radius: 5px; background: #f4f9f8; }
+.file-field.dragging { background: #deeeeb; }
+input[type=file] { max-width: 100%; }
+.options { display: flex; gap: 10px 24px; flex-wrap: wrap; }
+.options label { font-weight: normal; }
+.btn { border: 1px solid var(--line); }
+.btn-primary { background: var(--accent); color: white; }
+a { color: var(--accent); }
+:focus-visible { outline: 3px solid #b05812; outline-offset: 2px; }
+footer { display: flex; gap: 20px; padding: 20px; font-size: 14px; }
+.table { font-size: 14px; }

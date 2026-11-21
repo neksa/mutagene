@@ -1,14 +1,15 @@
 [build-system]
-requires = ["setuptools>=68.0", "wheel"]
+requires = ["setuptools>=77.0.3", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "mutagene"
-version = "1.2.3"
+version = "2.0.0"
 description = "Mutational analysis with Python"
 readme = "README.md"
 requires-python = ">=3.10"
-license = {text = "Public Domain"}
+license = "CC0-1.0"
+license-files = ["LICENSE", "mutagene/webapp/static/vendor/*/LICENSE*", "mutagene/webapp/static/vendor/*/*.LICENSE.txt"]
 authors = [
     {name = "Alexander Goncearenco", email = "alexandr.goncearenco@nih.gov"}
 ]
@@ -20,7 +21,6 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Operating System :: POSIX",
-    "License :: Public Domain",
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Medical Science Apps.",
@@ -61,7 +61,7 @@ Repository = "https://github.com/neksa/mutagene"
 mutagene = "mutagene.__main__:main"
 
 [tool.setuptools]
-packages = {find = {exclude = ["tests*", "docs*", "contrib*", "analysis*", "examples*", "manuscript*"]}}
+packages = {find = {include = ["mutagene", "mutagene.*"]}}
 
 [tool.setuptools.package-data]
 mutagene = ["data/**/*", "webapp/templates/*.html", "webapp/static/**/*"]

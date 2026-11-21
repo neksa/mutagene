@@ -101,3 +101,20 @@ class TestOutputPrecision:
 
         assert 0.0 <= float(values["bscore"]) <= 1.0
         assert float(values["mutability"]) > 0
+
+
+def test_driver_recurrence_counts_each_context(tmp_path):
+    mutations = {("TP53", "R248W"): {"seq5": {"ACGGA": 1, "TCGGA": 2}}}
+    with (tmp_path / "rank.tsv").open("w") as output:
+        result = rank(
+            mutations,
+            output,
+            [10.0] * 96,
+            None,
+            3,
+            8.03e-05,
+            0.0034,
+            known_variants={("TP53", "R248W")},
+        )
+    assert result.iloc[0].observed == 3
+    assert result.iloc[0].in_known_variants
