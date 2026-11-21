@@ -17,9 +17,9 @@ plt.rcParams.update(
 )
 
 
-def save(fig, name):
-    for suffix in ("pdf", "png"):
-        fig.savefig(HERE / f"{name}.{suffix}", dpi=165, bbox_inches="tight", pad_inches=0.12)
+def save(fig, name, output=None):
+    for target in ([output] if output else [HERE / f"{name}.pdf", HERE / f"{name}.png"]):
+        fig.savefig(target, dpi=165, bbox_inches="tight", pad_inches=0.12)
     plt.close(fig)
 
 
@@ -131,7 +131,7 @@ def motif_driver():
     save(fig, "motifs-and-drivers")
 
 
-def waterfall(counts):
+def waterfall(counts, output=None):
     fits = (
         pd.read_csv(HERE / "exposures.tsv", sep="\t")
         .pivot(index="sample", columns="signature", values="exposure")
@@ -193,7 +193,7 @@ def waterfall(counts):
         fontsize=9,
         handlelength=1,
     )
-    save(fig, "pcawg-exposures")
+    save(fig, "pcawg-exposures", output)
 
 
 if __name__ == "__main__":

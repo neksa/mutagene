@@ -149,7 +149,7 @@ def response(ax):
     ax.xaxis.set_major_formatter(PercentFormatter(1))
 
 
-def draw():
+def draw(output=None):
     plt.rcParams.update(
         {
             "font.size": 9.5,
@@ -177,8 +177,8 @@ def draw():
         ax.set_axisbelow(True)
     km.grid(axis="y", color="#e0e7e8", lw=0.7)
     rate.grid(axis="x", color="#e0e7e8", lw=0.7)
-    for ext in ["pdf", "png"]:
-        fig.savefig(HERE / f"cohorts.{ext}", dpi=210)
+    for target in ([output] if output else [HERE / "cohorts.pdf", HERE / "cohorts.png"]):
+        fig.savefig(target, dpi=210)
     plt.close(fig)
 
 

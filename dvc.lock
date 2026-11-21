@@ -1,0 +1,355 @@
+schema: '2.0'
+stages:
+  paper_accuracy:
+    cmd: env PYTHONPATH=. MPLBACKEND=Agg SOURCE_DATE_EPOCH=1704067200 
+      OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 OMP_NUM_THREADS=1 python 
+      manuscript/analysis/legacy_figures.py accuracy
+    deps:
+    - path: analysis/release-comparison/performance/errors.tsv
+      hash: md5
+      md5: 5d9b8b1cbe184999b53f263350637853
+      size: 15210
+    - path: analysis/release-comparison/performance/figure.py
+      hash: md5
+      md5: a7d065b4ab30879cb8b5e9be36617910
+      size: 4956
+    - path: analysis/release-comparison/performance/samples.tsv
+      hash: md5
+      md5: 79ea543cecba4b4f2daef6600e76cf0b
+      size: 8089
+    - path: analysis/release-comparison/signer-panel-errors.tsv
+      hash: md5
+      md5: aba092ee5928fa45af657ae5b86e8b62
+      size: 22509
+    - path: manuscript/analysis/legacy_figures.py
+      hash: md5
+      md5: 4964d48074f5e016a7d644ded512a928
+      size: 1543
+    - path: manuscript/requirements.txt
+      hash: md5
+      md5: a127f4a68dcbf603831c93415e701ee2
+      size: 152
+    outs:
+    - path: manuscript/figures/accuracy.pdf
+      hash: md5
+      md5: ba15691130b85ec10348027953450c57
+      size: 35879
+  paper_cohort:
+    cmd: env PYTHONPATH=. MPLBACKEND=Agg SOURCE_DATE_EPOCH=1704067200 
+      OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 OMP_NUM_THREADS=1 python 
+      manuscript/analysis/legacy_figures.py cohort
+    deps:
+    - path: analysis/release-comparison/cohort-examples/figure.py
+      hash: md5
+      md5: e7789ecb7b80e82cf35a40e4e5bb538a
+      size: 6421
+    - path: analysis/release-comparison/cohort-examples/pcawg-weights.tsv
+      hash: md5
+      md5: ae413d30688c97137bca637cf7e643d6
+      size: 90837
+    - path: analysis/release-comparison/cohort-examples/topacio.tsv
+      hash: md5
+      md5: 061fb1f4503057515b01d53034d5c235
+      size: 587
+    - path: manuscript/analysis/legacy_figures.py
+      hash: md5
+      md5: 4964d48074f5e016a7d644ded512a928
+      size: 1543
+    - path: manuscript/requirements.txt
+      hash: md5
+      md5: a127f4a68dcbf603831c93415e701ee2
+      size: 152
+    outs:
+    - path: manuscript/figures/cohort.pdf
+      hash: md5
+      md5: 9b39816c1fef9fec774bcc7b12b42d69
+      size: 35942
+  paper_penta:
+    cmd: env PYTHONPATH=. MPLBACKEND=Agg SOURCE_DATE_EPOCH=1704067200 
+      OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 OMP_NUM_THREADS=1 python 
+      manuscript/analysis/legacy_figures.py penta
+    deps:
+    - path: analysis/release-comparison/pcawg-penta/exposures.tsv
+      hash: md5
+      md5: 44c3decace4cc58b04b0c18af12d2c3f
+      size: 133410
+    - path: analysis/release-comparison/pcawg-penta/figure.py
+      hash: md5
+      md5: d44e791523a0155a71e8c8c509065677
+      size: 7663
+    - path: analysis/release-comparison/pcawg-penta/pcawg-counts.tsv.gz
+      hash: md5
+      md5: f5879363fa69e980d3c52a135de8e33a
+      size: 237959
+    - path: manuscript/analysis/legacy_figures.py
+      hash: md5
+      md5: 4964d48074f5e016a7d644ded512a928
+      size: 1543
+    - path: manuscript/requirements.txt
+      hash: md5
+      md5: a127f4a68dcbf603831c93415e701ee2
+      size: 152
+    outs:
+    - path: manuscript/figures/penta.pdf
+      hash: md5
+      md5: b2e21bf13e609e945cf2caac03122ea0
+      size: 27239
+  paper_contexts:
+    cmd: env PYTHONPATH=. MPLBACKEND=Agg SOURCE_DATE_EPOCH=1704067200 
+      OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 OMP_NUM_THREADS=1 python 
+      manuscript/analysis/legacy_figures.py contexts
+    deps:
+    - path: analysis/release-comparison/extended-contexts/example.py
+      hash: md5
+      md5: 8a5f7f27991fd0677d0d5932f0d05854
+      size: 5843
+    - path: manuscript/analysis/legacy_figures.py
+      hash: md5
+      md5: 4964d48074f5e016a7d644ded512a928
+      size: 1543
+    - path: manuscript/inputs/ID83-display.tsv
+      hash: md5
+      md5: f4d970cb590b9b11f20f6507c9459966
+      size: 1731
+    - path: manuscript/inputs/SBS1536-display.tsv
+      hash: md5
+      md5: 5313df7205f61677060b9cb1ba75fe74
+      size: 66353
+    - path: manuscript/requirements.txt
+      hash: md5
+      md5: a127f4a68dcbf603831c93415e701ee2
+      size: 152
+    outs:
+    - path: manuscript/figures/contexts.pdf
+      hash: md5
+      md5: a0707d373eb22c0909ea204fbf067ecb
+      size: 26955
+    - path: manuscript/figures/contexts.png
+      hash: md5
+      md5: 834a6c05fde9aa1953efc71e320ca09b
+      size: 108263
+  paper_motifs:
+    cmd: env PYTHONPATH=. MPLBACKEND=Agg SOURCE_DATE_EPOCH=1704067200 
+      OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 OMP_NUM_THREADS=1 python 
+      manuscript/analysis/motifs.py
+    deps:
+    - path: analysis/release-comparison/pcawg-penta/motifs.py
+      hash: md5
+      md5: f4deb0e7a568d19a14ef61fb970cda90
+      size: 3399
+    - path: analysis/release-comparison/pcawg-penta/pcawg-counts.tsv.gz
+      hash: md5
+      md5: f5879363fa69e980d3c52a135de8e33a
+      size: 237959
+    - path: manuscript/analysis/motifs.py
+      hash: md5
+      md5: 32aadb558bd51475ce3de9aaa3451090
+      size: 6630
+    - path: manuscript/inputs/bgi-sbs96.tsv
+      hash: md5
+      md5: 4ab72bb977539b8d21fe953cc6b3566b
+      size: 20431
+    - path: manuscript/inputs/bgi-stage.tsv
+      hash: md5
+      md5: dd2ea9389caffa357f588adf720802ee
+      size: 1196
+    - path: manuscript/requirements.txt
+      hash: md5
+      md5: a127f4a68dcbf603831c93415e701ee2
+      size: 152
+    - path: mutagene/data/motifs/motifs.json
+      hash: md5
+      md5: 6267c8135bd21de036219099d9520e15
+      size: 1549
+    - path: mutagene/dna.py
+      hash: md5
+      md5: e0dda343c0b2d8fbf2c5bd2e1ecb4f79
+      size: 3255
+    - path: mutagene/io/motifs.py
+      hash: md5
+      md5: 89668d7ed326ae8b26b90e4374c2e854
+      size: 722
+    outs:
+    - path: manuscript/figures/motif-controls.tsv
+      hash: md5
+      md5: ef5965af79baf032539248c58bb286d7
+      size: 14721
+    - path: manuscript/figures/motif-profiles.tsv
+      hash: md5
+      md5: bf05415b502f2a488d60c93a5bafb14a
+      size: 25408
+    - path: manuscript/figures/motif-screen.tsv.gz
+      hash: md5
+      md5: 507fef7a10c9264d89c629673e3f4bc8
+      size: 337432
+    - path: manuscript/figures/motif-stage.tsv
+      hash: md5
+      md5: c8e9fdee0854eacb858a7b986e016cc3
+      size: 4550
+    - path: manuscript/figures/motifs.pdf
+      hash: md5
+      md5: 00b63c6d1c9ad83b79e7dc16f73ea421
+      size: 31021
+  paper_spectra:
+    cmd: env PYTHONPATH=. MPLBACKEND=Agg SOURCE_DATE_EPOCH=1704067200 
+      OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 OMP_NUM_THREADS=1 python 
+      manuscript/analysis/spectra.py
+    deps:
+    - path: analysis/release-comparison/pcawg-penta/candidate-profiles.tsv
+      hash: md5
+      md5: 7ac27e5f4e050901ed1bb0b30a456f24
+      size: 136608
+    - path: analysis/release-comparison/pcawg-penta/candidate-summary.tsv
+      hash: md5
+      md5: f9f5e3aaf04003f423c3c21cf7f0bc68
+      size: 441
+    - path: manuscript/analysis/spectra.py
+      hash: md5
+      md5: ecfff134edd4acf8469a2ca760bf5a7d
+      size: 3082
+    - path: manuscript/inputs/SBS1536-display.tsv
+      hash: md5
+      md5: 5313df7205f61677060b9cb1ba75fe74
+      size: 66353
+    - path: manuscript/requirements.txt
+      hash: md5
+      md5: a127f4a68dcbf603831c93415e701ee2
+      size: 152
+    outs:
+    - path: manuscript/figures/fingerprints.pdf
+      hash: md5
+      md5: 47644a46d7908d463a56c5b11765b819
+      size: 31841
+  paper_drivers:
+    cmd: env PYTHONPATH=. MPLBACKEND=Agg SOURCE_DATE_EPOCH=1704067200 
+      OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 OMP_NUM_THREADS=1 python 
+      manuscript/analysis/drivers.py
+    deps:
+    - path: analysis/release-comparison/pcawg-penta/bgi-ranked.tsv.gz
+      hash: md5
+      md5: 21a4fe9f71026d3fa262be9928b8f071
+      size: 133600
+    - path: manuscript/analysis/drivers.py
+      hash: md5
+      md5: c9a81c5ddb194d1405db8bb89680e3f4
+      size: 8866
+    - path: manuscript/inputs/bgi-carriers.tsv.gz
+      hash: md5
+      md5: 592ec9f804ceebb0b036ad23f3b32477
+      size: 82337
+    - path: manuscript/inputs/bgi-codons.tsv.gz
+      hash: md5
+      md5: caae6b91660ec77fb83f932955b3c446
+      size: 83863
+    - path: manuscript/inputs/bgi-sbs96.tsv
+      hash: md5
+      md5: 4ab72bb977539b8d21fe953cc6b3566b
+      size: 20431
+    - path: manuscript/requirements.txt
+      hash: md5
+      md5: a127f4a68dcbf603831c93415e701ee2
+      size: 152
+    - path: mutagene/data/known_drivers.json
+      hash: md5
+      md5: fde6cd562a3b63d60d10d4bfa7e6f619
+      size: 4387
+    - path: mutagene/data/signatures/sigProfiler_SBS_signatures_2019_05_22.csv
+      hash: md5
+      md5: 11c110ea39c49658f580b243d8de9aa7
+      size: 60316
+    - path: mutagene/dna.py
+      hash: md5
+      md5: e0dda343c0b2d8fbf2c5bd2e1ecb4f79
+      size: 3255
+    - path: mutagene/io/profile.py
+      hash: md5
+      md5: d8859433b2ebd7660e3a9d5a0e1df8a0
+      size: 12916
+    - path: mutagene/mutability/enrichment.py
+      hash: md5
+      md5: 2b50a093c5eb8ba5c4b0211404f27aae
+      size: 2424
+    - path: mutagene/mutability/mutability.py
+      hash: md5
+      md5: cec057348611d5e3682faa3892d240cb
+      size: 9408
+    - path: mutagene/signatures/__init__.py
+      hash: md5
+      md5: 4255f5caafbe1d703b7f3588ad373177
+      size: 863
+    - path: mutagene/signatures/identify.py
+      hash: md5
+      md5: c982330f1113b736e8741a20c760b33a
+      size: 14156
+    - path: mutagene/signatures/likelihood.py
+      hash: md5
+      md5: a4e75b5846eb07776497a5ce38b68eef
+      size: 6879
+    - path: mutagene/signatures/sparse.py
+      hash: md5
+      md5: 640c9c5ed758f4bda8ab7471a9bd07ca
+      size: 13375
+    outs:
+    - path: manuscript/figures/allele-scores.tsv.gz
+      hash: md5
+      md5: 2841c45af60ef6aafebc30ea7a5ba02e
+      size: 113284
+    - path: manuscript/figures/driver-table.tex
+      hash: md5
+      md5: 905c7e6c048cb795edcfe7758eba3cb3
+      size: 219
+    - path: manuscript/figures/drivers.pdf
+      hash: md5
+      md5: 936532adc75c223534fbf839b9f6b8ef
+      size: 24354
+    - path: manuscript/figures/rank-recovery.tsv
+      hash: md5
+      md5: 02835e8ac44d49a4ed7d725bddb581c0
+      size: 56198
+  paper:
+    cmd: cd manuscript && export SOURCE_DATE_EPOCH=1704067200 
+      FORCE_SOURCE_DATE=1 TZ=UTC && pdflatex -interaction=nonstopmode 
+      -halt-on-error preprint.tex && pdflatex -interaction=nonstopmode 
+      -halt-on-error preprint.tex
+    deps:
+    - path: manuscript/figures/accuracy.pdf
+      hash: md5
+      md5: ba15691130b85ec10348027953450c57
+      size: 35879
+    - path: manuscript/figures/cohort.pdf
+      hash: md5
+      md5: 9b39816c1fef9fec774bcc7b12b42d69
+      size: 35942
+    - path: manuscript/figures/contexts.pdf
+      hash: md5
+      md5: a0707d373eb22c0909ea204fbf067ecb
+      size: 26955
+    - path: manuscript/figures/driver-table.tex
+      hash: md5
+      md5: 905c7e6c048cb795edcfe7758eba3cb3
+      size: 219
+    - path: manuscript/figures/drivers.pdf
+      hash: md5
+      md5: 936532adc75c223534fbf839b9f6b8ef
+      size: 24354
+    - path: manuscript/figures/fingerprints.pdf
+      hash: md5
+      md5: 47644a46d7908d463a56c5b11765b819
+      size: 31841
+    - path: manuscript/figures/motifs.pdf
+      hash: md5
+      md5: 00b63c6d1c9ad83b79e7dc16f73ea421
+      size: 31021
+    - path: manuscript/figures/penta.pdf
+      hash: md5
+      md5: b2e21bf13e609e945cf2caac03122ea0
+      size: 27239
+    - path: manuscript/preprint.tex
+      hash: md5
+      md5: 657a55f4d304610f9d1bba1294b06b91
+      size: 19958
+    outs:
+    - path: manuscript/preprint.pdf
+      hash: md5
+      md5: 4f911d8afea1b7d14ecccd38c5842790
+      size: 429454

@@ -1,0 +1,130 @@
+stages:
+  paper_accuracy:
+    cmd: env PYTHONPATH=. MPLBACKEND=Agg SOURCE_DATE_EPOCH=1704067200 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 OMP_NUM_THREADS=1 python manuscript/analysis/legacy_figures.py
+      accuracy
+    deps:
+    - manuscript/analysis/legacy_figures.py
+    - manuscript/requirements.txt
+    - analysis/release-comparison/performance/figure.py
+    - analysis/release-comparison/performance/samples.tsv
+    - analysis/release-comparison/performance/errors.tsv
+    - analysis/release-comparison/signer-panel-errors.tsv
+    outs:
+    - manuscript/figures/accuracy.pdf:
+        cache: false
+  paper_cohort:
+    cmd: env PYTHONPATH=. MPLBACKEND=Agg SOURCE_DATE_EPOCH=1704067200 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 OMP_NUM_THREADS=1 python manuscript/analysis/legacy_figures.py
+      cohort
+    deps:
+    - manuscript/analysis/legacy_figures.py
+    - manuscript/requirements.txt
+    - analysis/release-comparison/cohort-examples/figure.py
+    - analysis/release-comparison/cohort-examples/pcawg-weights.tsv
+    - analysis/release-comparison/cohort-examples/topacio.tsv
+    outs:
+    - manuscript/figures/cohort.pdf:
+        cache: false
+  paper_penta:
+    cmd: env PYTHONPATH=. MPLBACKEND=Agg SOURCE_DATE_EPOCH=1704067200 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 OMP_NUM_THREADS=1 python manuscript/analysis/legacy_figures.py
+      penta
+    deps:
+    - manuscript/analysis/legacy_figures.py
+    - manuscript/requirements.txt
+    - analysis/release-comparison/pcawg-penta/figure.py
+    - analysis/release-comparison/pcawg-penta/pcawg-counts.tsv.gz
+    - analysis/release-comparison/pcawg-penta/exposures.tsv
+    outs:
+    - manuscript/figures/penta.pdf:
+        cache: false
+  paper_contexts:
+    cmd: env PYTHONPATH=. MPLBACKEND=Agg SOURCE_DATE_EPOCH=1704067200 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 OMP_NUM_THREADS=1 python manuscript/analysis/legacy_figures.py
+      contexts
+    deps:
+    - manuscript/analysis/legacy_figures.py
+    - manuscript/requirements.txt
+    - analysis/release-comparison/extended-contexts/example.py
+    - manuscript/inputs/SBS1536-display.tsv
+    - manuscript/inputs/ID83-display.tsv
+    outs:
+    - manuscript/figures/contexts.pdf:
+        cache: false
+    - manuscript/figures/contexts.png:
+        cache: false
+  paper_motifs:
+    cmd: env PYTHONPATH=. MPLBACKEND=Agg SOURCE_DATE_EPOCH=1704067200 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 OMP_NUM_THREADS=1 python manuscript/analysis/motifs.py
+    deps:
+    - manuscript/analysis/motifs.py
+    - manuscript/requirements.txt
+    - manuscript/inputs/bgi-sbs96.tsv
+    - manuscript/inputs/bgi-stage.tsv
+    - analysis/release-comparison/pcawg-penta/motifs.py
+    - analysis/release-comparison/pcawg-penta/pcawg-counts.tsv.gz
+    - mutagene/io/motifs.py
+    - mutagene/dna.py
+    - mutagene/data/motifs/motifs.json
+    outs:
+    - manuscript/figures/motifs.pdf:
+        cache: false
+    - manuscript/figures/motif-controls.tsv:
+        cache: false
+    - manuscript/figures/motif-stage.tsv:
+        cache: false
+    - manuscript/figures/motif-screen.tsv.gz:
+        cache: false
+    - manuscript/figures/motif-profiles.tsv:
+        cache: false
+  paper_spectra:
+    cmd: env PYTHONPATH=. MPLBACKEND=Agg SOURCE_DATE_EPOCH=1704067200 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 OMP_NUM_THREADS=1 python manuscript/analysis/spectra.py
+    deps:
+    - manuscript/analysis/spectra.py
+    - manuscript/requirements.txt
+    - manuscript/inputs/SBS1536-display.tsv
+    - analysis/release-comparison/pcawg-penta/candidate-profiles.tsv
+    - analysis/release-comparison/pcawg-penta/candidate-summary.tsv
+    outs:
+    - manuscript/figures/fingerprints.pdf:
+        cache: false
+  paper_drivers:
+    cmd: env PYTHONPATH=. MPLBACKEND=Agg SOURCE_DATE_EPOCH=1704067200 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 OMP_NUM_THREADS=1 python manuscript/analysis/drivers.py
+    deps:
+    - manuscript/analysis/drivers.py
+    - manuscript/requirements.txt
+    - manuscript/inputs/bgi-sbs96.tsv
+    - manuscript/inputs/bgi-codons.tsv.gz
+    - manuscript/inputs/bgi-carriers.tsv.gz
+    - analysis/release-comparison/pcawg-penta/bgi-ranked.tsv.gz
+    - mutagene/mutability/mutability.py
+    - mutagene/mutability/enrichment.py
+    - mutagene/signatures/__init__.py
+    - mutagene/signatures/identify.py
+    - mutagene/signatures/likelihood.py
+    - mutagene/signatures/sparse.py
+    - mutagene/io/profile.py
+    - mutagene/dna.py
+    - mutagene/data/signatures/sigProfiler_SBS_signatures_2019_05_22.csv
+    - mutagene/data/known_drivers.json
+    outs:
+    - manuscript/figures/drivers.pdf:
+        cache: false
+    - manuscript/figures/driver-table.tex:
+        cache: false
+    - manuscript/figures/rank-recovery.tsv:
+        cache: false
+    - manuscript/figures/allele-scores.tsv.gz:
+        cache: false
+  paper:
+    cmd: cd manuscript && export SOURCE_DATE_EPOCH=1704067200 FORCE_SOURCE_DATE=1 TZ=UTC && pdflatex -interaction=nonstopmode -halt-on-error preprint.tex && pdflatex
+      -interaction=nonstopmode -halt-on-error preprint.tex
+    deps:
+    - manuscript/preprint.tex
+    - manuscript/figures/accuracy.pdf
+    - manuscript/figures/cohort.pdf
+    - manuscript/figures/penta.pdf
+    - manuscript/figures/contexts.pdf
+    - manuscript/figures/motifs.pdf
+    - manuscript/figures/fingerprints.pdf
+    - manuscript/figures/drivers.pdf
+    - manuscript/figures/driver-table.tex
+    outs:
+    - manuscript/preprint.pdf:
+        cache: false
