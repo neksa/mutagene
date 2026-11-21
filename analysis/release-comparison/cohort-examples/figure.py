@@ -15,13 +15,13 @@ NEGATIVE = "#a44b2a"
 DAYS_PER_MONTH = 365.25 / 12
 
 
-def cohort(ax):
+def cohort(ax, sbs3):
     weights = pd.read_csv(HERE / "pcawg-weights.tsv", sep="\t", index_col=0)
     if len(weights) != 146 or not np.allclose(weights.sum(axis=1), 1) or (weights < 0).any().any():
         raise ValueError("Expected 146 nonnegative exposure vectors with unit mass")
-    leading = list(weights.drop(columns="Background").mean().nlargest(5).index)
-    grouped = weights[leading].copy()
-    grouped["Other SBS"] = weights.drop(columns=[*leading, "Background"]).sum(axis=1)
+    leading = list(weights.drop(columns=["SBS3", "Background"]).mean().nlargest(5).index)
+    grouped = weights[["SBS3", *leading]].copy()
+    grouped["Other SBS"] = weights.drop(columns=["SBS3", *leading, "Background"]).sum(axis=1)
     grouped["Background"] = weights["Background"]
     histology = weights.index.str.split("::").str[0]
     groups = (
@@ -36,7 +36,17 @@ def cohort(ax):
         )
         .fillna("Other")
     )
-    colors = ["#267b84", "#76bab2", "#ce8055", "#6574aa", "#cfaf5b", "#b9c1c9", "#454e58"]
+    sbs3_color = "#9a3c73"
+    colors = [
+        sbs3_color,
+        "#267b84",
+        "#76bab2",
+        "#ce8055",
+        "#6574aa",
+        "#cfaf5b",
+        "#b9c1c9",
+        "#454e58",
+    ]
     offset = 0
     centers, labels = [], []
     for group in ["Melanoma", "Lung", "Colorectal", "Other"]:
@@ -54,12 +64,32 @@ def cohort(ax):
                 label=name if offset == 0 else None,
             )
             bottom += block[name].to_numpy()
+        values = block["SBS3"].to_numpy()
+        selected = values > 0
+        sbs3.scatter(x[~selected], values[~selected], color="#bbc3c5", s=4, linewidths=0)
+        sbs3.vlines(x[selected], 0, values[selected], color=sbs3_color, linewidth=0.65)
+        sbs3.scatter(x[selected], values[selected], color=sbs3_color, s=9, linewidths=0)
         centers.append(x.mean())
         labels.append(f"{group}\n{len(block)}")
         offset += len(block) + 1.5
     ax.set_xlim(-0.6, x[-1] + 0.6)
     ax.set_ylim(0, 1)
-    ax.set_xticks(centers, labels)
+    ax.set_xticks([])
+    sbs3.set_xlim(ax.get_xlim())
+    sbs3.set_ylim(-0.018, 0.21)
+    sbs3.set_yticks([0, 0.2], ["0%", "20%"])
+    sbs3.set_xticks(centers, labels)
+    sbs3.set_ylabel("SBS3", color=sbs3_color)
+    sbs3.grid(axis="y", color="#e5e9ea", linewidth=0.55)
+    nonzero = int((weights["SBS3"] > 0).sum())
+    sbs3.text(
+        0.015,
+        0.79,
+        f"{nonzero} of {len(weights)} tumors have nonzero SBS3 exposure",
+        transform=sbs3.transAxes,
+        color=sbs3_color,
+        fontsize=8.4,
+    )
     ax.set_yticks([0, 0.5, 1])
     ax.yaxis.set_major_formatter(PercentFormatter(1))
     ax.set_ylabel("Fitted exposure")
@@ -86,7 +116,14 @@ def progression(ax, risk):
         at_risk = table.sum(axis=1).iloc[::-1].cumsum().iloc[::-1]
         survival = (1 - table[0] / at_risk).cumprod()
         months = table.index / DAYS_PER_MONTH
-        ax.step([0, *months], [1, *survival], where="post", color=color, lw=1.9, label=group)
+        ax.step(
+            [0, *months],
+            [1, *survival],
+            where="post",
+            color=color,
+            lw=1.9,
+            label=f"Sig3 {group.lower()}",
+        )
         censored = table[1] > 0
         ax.plot(months[censored], survival[censored], "+", color=color, ms=7, mew=1.3)
         risk.text(-1.25, row, group, ha="right", va="center", color=color, fontsize=8.5)
@@ -126,7 +163,7 @@ def response(ax):
         xlim=(0, 1),
         ylim=(1.55, -0.5),
         yticks=[0, 1],
-        yticklabels=["Positive", "Negative"],
+        yticklabels=["Sig3 positive", "Sig3 negative"],
         xticks=[0, 0.5, 1],
         xlabel="Objective response rate",
     )
@@ -143,18 +180,19 @@ def draw():
             "ytick.color": "#36494e",
         }
     )
-    fig = plt.figure(figsize=(6.8, 5.85))
-    top = fig.add_axes([0.095, 0.635, 0.895, 0.205])
+    fig = plt.figure(figsize=(6.8, 6.0))
+    top = fig.add_axes([0.095, 0.727, 0.895, 0.12])
+    sbs3 = fig.add_axes([0.095, 0.601, 0.895, 0.086])
     km = fig.add_axes([0.11, 0.187, 0.377, 0.235])
     risk = fig.add_axes([0.11, 0.010, 0.377, 0.081])
     rate = fig.add_axes([0.665, 0.187, 0.306, 0.235])
     fig.text(0, 0.96, "A   Signature exposures in 146 PCAWG tumors", fontsize=13, color=INK)
-    fig.text(0, 0.487, "B   TOPACIO · Sig3 status", fontsize=13, color=INK)
-    fig.text(0.568, 0.487, "C   PETREMAC · Sig3 status", fontsize=13, color=INK)
-    cohort(top)
+    fig.text(0, 0.487, "B   TOPACIO · SigMA status", fontsize=13, color=INK)
+    fig.text(0.568, 0.487, "C   PETREMAC · SigMA status", fontsize=13, color=INK)
+    cohort(top, sbs3)
     progression(km, risk)
     response(rate)
-    for ax in (top, km, rate):
+    for ax in (top, sbs3, km, rate):
         ax.spines[["right", "top", "left"]].set_visible(False)
         ax.spines["bottom"].set_color("#b7c5c6")
         ax.tick_params(length=0, pad=4)

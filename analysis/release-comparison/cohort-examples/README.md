@@ -9,7 +9,13 @@ Medo et al. provide SBS96 counts for 146 PCAWG whole-genome catalogs with at lea
 The counts and histology labels come from the [pinned SigFitTest input](https://github.com/8medom/SigFitTest/blob/e94bac6e9b04fb13500d1904b5e0e8d58b00d8ad/real%20mutational%20catalogs/real_samples_WGS_PCAWG-146_input_profiles.dat).
 MutaGene fits each tumor with joint sparse BIC, the [67-signature catalog](../performance/reference.tsv), and six substitution-specific background components.
 The [exposure table](pcawg-weights.tsv) reports each reference weight and total fitted background mass.
-Each tumor contributes equally to the ranking of signatures by mean exposure.
+The stacked bars show SBS3 separately and highlight five other signatures by mean exposure.
+Each tumor contributes equally to that ranking.
+The aligned strip uses the same tumor order and a 0–20% scale.
+MutaGene assigns nonzero SBS3 weights to 19 of 146 tumors.
+Stomach-AdenoCA::SP105018 has the largest fitted weight (17.6%).
+A zero weight means that the sparse fit assigns zero exposure.
+The PCAWG analysis uses continuous exposures. The treatment studies use their own SigMA classifications.
 Within each group, the figure sorts tumors by decreasing exposure to the five leading signatures, in rank order.
 Lung combines adenocarcinoma and squamous cell carcinoma. Other includes the remaining histologies.
 The burden threshold limits generalization to tumors with fewer substitutions.
