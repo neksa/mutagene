@@ -5,6 +5,7 @@ Pages 2–4 cover SBS96, SBS1536, and ID83 fitting.
 Page 5 shows motif profiles, enrichment, and bladder tumor stage.
 Page 6 compares a learned signature with supplied references.
 Pages 7–8 compare hotspot recovery against recurrence and examine gene-level ranking.
+The [review notes](review.md) record the scientific reviewers' findings and the corresponding revisions.
 
 ## Reproduce all seven figures and the PDF
 
@@ -20,7 +21,8 @@ dvc repro --force paper
 dvc status dvc.yaml
 ```
 
-The [DVC pipeline](../dvc.yaml) generates seven vector figures and the hotspot recovery table before two LaTeX passes.
+The [DVC pipeline](../dvc.yaml) generates seven vector figures, two tables, and the abstract's pooled attribution errors.
+Two LaTeX passes compile the paper and resolve cross-references.
 The [lockfile](../dvc.lock) records checksums. Git stores the compact inputs and outputs. The build needs no DVC remote.
 A fixed rendering date keeps PDF metadata stable. Font and TeX versions can affect binary output across systems.
 
@@ -60,7 +62,8 @@ The [bladder study](https://doi.org/10.1038/ng.2798) supplies the clinical recor
 ## Interpret the new analyses
 
 - [Rank recovery](figures/rank-recovery.tsv) reports recall, precision, and precision relative to frequency at equal budgets.
-  Equal scores share the available positions. Two thousand paired gene bootstrap draws estimate uncertainty conditional on the scores.
+  Equal scores share the available positions. Two thousand paired gene bootstrap draws estimate precision differences after averaging ties.
+  These intervals condition on the fitted scores. Separate hypergeometric quantiles describe random tie orders within the observed cohort.
 - [Allele scores](figures/allele-scores.tsv.gz) give recurrence, empirical mutability, reconstructed mutability, and exact hotspot membership.
   The fitted spectrum preserves the total substitution count. Both backgrounds use MutaGene's exome trinucleotide opportunities.
 - [Gene recovery](figures/rank-recovery.tsv) uses distinct carrier counts as its baseline and the bundled driver gene list as its reference.

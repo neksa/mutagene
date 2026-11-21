@@ -11,6 +11,7 @@
 \newcommand{\subhead}[1]{\par\smallskip{\sffamily\color{ink}#1}\par}
 \newcommand{\panel}[2]{\par\begin{center}\includegraphics[width=#1\linewidth]{figures/#2.pdf}\end{center}}
 \newcommand{\legendtext}[1]{\refstepcounter{figure}{\small Figure \thefigure. #1}\par}
+\input{figures/burden-table.tex}
 \begin{document}
 {\sffamily\color{ink} Application note\hfill Preprint draft for author review}\par
 \vspace{6pt}
@@ -19,10 +20,11 @@
 \heading{Abstract}
 MutaGene estimates mutational signature exposures, tests sequence motifs, learns candidate signatures, and ranks recurrent protein changes.
 We illustrate these functions with 146 high-burden PCAWG tumors and 99 bladder tumors.
-Across 3,072 simulated profiles, MutaGene achieves lower mean attribution error than SigProfilerAssignment (0.3269 versus 0.3687).
+Across \profileCount{} simulated profiles, MutaGene gives lower mean attribution error than SigProfilerAssignment (\pooledErrors).
+Two conditions that match MutaGene's background model account for most of this difference.
 Withholding a known pentanucleotide signature tests discovery. MutaGene recovers its spectrum with cosine similarity 0.999.
 A signature-derived background recovers 32 of 87 observed hotspots among the first 1,000 bladder mutations.
-Ranking by frequency recovers 27.1 on average across ties and leads among the first ten.
+Frequency recovers 27.1 on average across ties and leads among the first ten. The interval for the precision gain includes zero.
 
 \heading{Background}
 A mutation can recur because its sequence context mutates frequently or because it gives tumor cells a selective advantage.
@@ -56,13 +58,15 @@ The local search starts with one component through 1,000 mutations and the full 
 \legendtext{Each point shows attribution error for one simulated profile. Boxes show quartiles and medians.
 Whiskers extend to observations within 1.5 interquartile ranges. Asterisks mark the lowest column means.
 Error equals half the summed absolute weight differences across signatures and aggregate background.}
+The benchmark normalizes SigProfilerAssignment, MuSiCal, and NNLS weights to one, leaving zero background mass.
+It scores the unattributed deconstructSigs fraction as background.
 The 96-profile panel crosses eight cancer exposure distributions, three burdens, and four background conditions \cite{benchmark2024}.
 MutaGene has the lowest mean error overall (0.1935).
 Its means are 0.091 on clean profiles and 0.318 when the catalog omits signatures.
 With two missing signatures, deconstructSigs leads (0.285). Nineteen of twenty evaluable signeR chain pairs exceed $\hat R=1.01$.
 A separate 12-burden benchmark favors MutaGene in 23 of 48 paired intervals and SigProfilerAssignment in three.
 The other 22 intervals include zero. All three favoring SigProfilerAssignment occur at ten mutations.
-Appendix results cover runtime, noise, and clean mixtures.
+Page~\pageref{sec:additional} gives condition-specific errors and batch times.
 
 \newpage
 \heading{Trinucleotide signatures: cohort exposures and treatment outcomes}
@@ -75,15 +79,16 @@ Other SBS combines the remaining references. Background combines six fitted back
 B. Kaplan--Meier curves show progression-free survival during niraparib plus pembrolizumab treatment. Crosses mark censoring.
 C. Points give response rates during preoperative olaparib treatment. Bars give 95\% Wilson intervals.}
 MutaGene assigns nonzero SBS3 exposure to 19 tumors. One gastric tumor has the largest estimate (17.6\%).
-In TOPACIO, median progression-free survival is 5.0 months for Sig3-positive patients and 2.2 months for Sig3-negative patients.
-In PETREMAC, 14 of 19 Sig3-positive patients and four of 13 Sig3-negative patients respond.
-These single-arm studies describe outcomes during treatment. Evaluating MutaGene as a response predictor requires linked profiles and outcomes.
+TOPACIO reports SigMA status for 39 of 62 patients. Median progression-free survival is 5.0 months among 20 Sig3-positive patients.
+The median is 2.2 months among 19 Sig3-negative patients.
+PETREMAC response percentages imply 14 responders among 19 Sig3-positive patients and four among 13 Sig3-negative patients.
+A nonzero MutaGene exposure estimates a continuous weight. SigMA supplies the binary classifications in these single-arm studies. Evaluating MutaGene as a response predictor requires linked profiles and outcomes.
 
 \newpage
 \heading{Pentanucleotide signatures: the same tumors at higher resolution}
 SBS1536 distinguishes two flanking bases on either side of the substitution.
 Summing over the two outer bases reproduces every SBS96 count across 28,088,341 substitutions.
-MutaGene fits 60 SignatureAnalyzer references at native pentanucleotide resolution.
+MutaGene fits 60 SignatureAnalyzer references at native pentanucleotide resolution \cite{pcawg}.
 \panel{1}{penta}
 \legendtext{Each bar shows one tumor. Colors identify SBS3\_P and the five other leading signatures by mean exposure.
 Other combines the remaining references. Within each histology group, tumor order follows the leading exposures.}
@@ -116,7 +121,7 @@ These fractions can overlap and need not sum to one.
 For APOBEC, we count T[C$>$G/T]W matches among all C$>$G and C$>$T substitutions. W denotes A or T.
 \panel{0.95}{motifs}
 \legendtext{A. Each column shows one PCAWG tumor. B. Cells compare median fractions within each histology against all remaining tumors.
-Asterisks mark Benjamini--Hochberg $q<0.05$ across seven curated motifs and 1,536 exact channels in five histologies.
+Asterisks mark one-sided enrichment tests with Benjamini--Hochberg $q<0.05$ across seven curated motifs and 1,536 exact channels in five histologies.
 C. Points show bladder tumor stage by APOBEC motif group. Bars give 95\% Wilson intervals.}
 The exact motif \texttt{CT[T>A]TC} shows 8.00-fold enrichment in melanoma. The CpG motif shows 4.98-fold enrichment in colorectal tumors.
 These cohort comparisons use other tumors as the reference. Genomic opportunity can also affect the observed differences.
@@ -129,12 +134,13 @@ The odds ratio is 1.46 (two-sided Fisher $p=0.412$). This cohort gives little ev
 \heading{Candidate signatures: discovery and catalog comparison}
 Rank-five nonnegative matrix factorization (NMF) learns five spectra directly from PCAWG tumors without supplying references.
 The original MutaGene-5 and MutaGene-10 catalogs use nonsmooth NMF \cite{mutagene}.
-Here, ten standard NMF initializations compete on reconstruction error. At SBS96 resolution, component 1 matches SBS7a at cosine similarity 0.988.
-At SBS1536 resolution, its nearest match is SBS7a\_S (0.992).
+At each resolution, ten standard NMF initializations compete on reconstruction error.
+The leading SBS96 component matches SBS7a at cosine similarity 0.988.
+The leading component from a separate SBS1536 fit matches SBS7a\_S (0.992).
 The \texttt{discover} command tests whether a supplied catalog misses a reproducible component.
 It fixes supplied signatures and learns one additional nonnegative profile from 104 tumors.
 In 42 held-out tumors, one random half of the mutations supplies exposures. The other half tests reconstruction.
-\panel{0.98}{fingerprints}
+\panel{0.90}{fingerprints}
 \legendtext{Bars give percent signature mass. Left panels sum both outer bases to display 96 channels.
 Right panels expand the candidate's strongest inner channel across all 16 outer pairs in alphabetical order.
 Each column shares its scale within each experiment. Similarity calculations use all 1,536 channels.}
@@ -148,13 +154,14 @@ Mean held-out error reduction & 0.000035 & 0.0630 \\
 95\% paired tumor bootstrap interval & $[-0.000004,0.000086]$ & $[0.0421,0.0838]$ \\ \bottomrule
 \end{tabular}\end{center}
 Error measures half the summed absolute difference in channel proportions.
-With all references, the interval includes zero. Withholding SBS7a\_S produces a recognizable missing signature.
+The held-out gain interval includes zero with the full catalog. It excludes zero when we omit SBS7a\_S.
+Both intervals condition on one split and its learned component.
 The reference catalog also uses PCAWG data. A claim of biological novelty requires independent replication.
 
 \newpage
 \heading{Driver mutations: does background adjustment improve ranking?}
 We rank 6,639 distinct scored missense changes from 99 BGI bladder tumors \cite{bgi}.
-Cancer Hotspots v2 lists 87 of these exact changes \cite{hotspots}. Both methods receive the same variants and tumor counts.
+Cancer Hotspots v2 lists 87 of these exact changes \cite{hotspots}. All three rankings use the same variants and tumor counts.
 The recurrence baseline sorts by the number of tumors carrying each change.
 The B-score ranks the binomial upper-tail probability for that count under background codon mutability \cite{ranking}.
 We compare observed SBS96 counts with their reconstruction from fitted signatures and background components.
@@ -170,18 +177,19 @@ Fractional recovery averages across ties. Of 6,639 changes, 6,594 occur once.}\l
 \begin{center}\small\renewcommand{\arraystretch}{1.14}
 \input{figures/driver-table.tex}
 \end{center}
-The table gives expected hotspot counts. At 1,000 changes, the signature background gives 1.18-fold enrichment over recurrence.
+The table gives mean hotspot counts across ties. Its 95\% range varies recurrence tie order within this fixed cohort. At 1,000 changes, the signature background gives 1.18-fold enrichment over recurrence.
 The precision gain is 0.49 percentage points (95\% gene bootstrap interval, $-0.27$ to $1.29$).
 Recurrence leads at ten changes. These results do not establish a consistent advantage.
 Both hotspot discovery and ranking use recurrence. Dataset overlap remains unknown, and unlisted variants have uncertain status.
 
 \newpage
 \heading{Interpreting candidates in a cohort or a single tumor}
-At the default Driver threshold, 57/2,451 missense calls match exact hotspots, versus 30/4,188 other scored changes.
+The default empirical B-score threshold classifies 2,451 missense changes as Driver.
+Of these, 57 match exact hotspots, compared with 30 among the other 4,188 changes.
 This 3.25-fold enrichment compares threshold groups.
 At the same 2,451 positions, recurrence recovers 42.5 hotspots on average across ties.
-The empirical B-score therefore gives 1.34-fold enrichment over recurrence.
-Bootstrap intervals resample genes 2,000 times, keeping scores fixed and variants from each gene together.
+The empirical B-score gives 1.34-fold enrichment over recurrence. The precision gain is 0.59 percentage points (95\% interval, 0.06 to 1.05).
+Paired bootstrap intervals resample genes 2,000 times and average over ties. They condition on the fitted scores.
 Recurrent matches include PIK3CA E545K in nine tumors, FGFR3 Y373C in six, and HRAS Q61R in five.
 For a single tumor, a reference cohort supplies recurrence and background mutability.
 Bladder tumor B10 has 55 scored missense changes against a 240-tumor bladder reference. None matches the hotspot catalog.
@@ -197,15 +205,18 @@ A calibrated gene-level test needs callable coding sequence, coverage, and oppor
 These data support mutation-level prioritization as the primary application.
 
 \heading{Reproducibility and scope}
-The DVC pipeline renders each manuscript figure from numerical inputs and compiles this LaTeX document.
-Archived benchmark tables preserve the original R and Python runs.
+We evaluate the \href{https://github.com/neksa/mutagene}{MutaGene} 2.0.0 source tree at revision \texttt{cc287916}.
+\par Run \verb|dvc repro --force paper| from the paper checkout to generate all seven figures and compile this document.
+Archived inputs supply benchmark fits, PCAWG exposures, candidate profiles, and exact hotspot labels.
 The driver stages reconstruct the cohort background and recompute scores, recovery curves, and paired gene bootstrap intervals.
 The motif analysis joins each bladder profile to its tumor stage using the specimen identifier.
 The PCAWG exposure cohort includes only six patients with available overall survival and status in the linked clinical tables.
 The stage analysis therefore uses the bladder cohort. Treatment comparisons retain each trial's published SigMA classifications.
 
-\heading{Additional benchmark results}
-Across 12 burdens, MutaGene and SigProfilerAssignment give mean attribution errors of 0.3269 and 0.3687, respectively.
+\heading{Additional benchmark results}\phantomsection\label{sec:additional}
+The table gives mean attribution error across 12 burdens for each condition.
+Two conditions add 20\% background within MutaGene's model family.
+\begin{center}\small\burdenTable\end{center}
 The 48 paired intervals omit multiplicity adjustment.
 On clean 70:30 mixtures, MutaGene gives mean errors of 0.08452 at 100 mutations and 0.01677 at 2,000.
 SigProfilerAssignment gives 0.22125 and 0.01863. On the 96-profile panel, uniform and substitution-specific noise give MutaGene means of 0.185 and 0.181.
@@ -217,12 +228,13 @@ Graded missing-signature fractions and downsampling of real tumors remain open c
 
 \newpage
 \heading{Supplementary profiles and independent comparisons}
-\panel{0.80}{contexts}
+\panel{0.75}{contexts}
 \legendtext{A. The grid shows all 1,536 SBS39\_P probabilities. B. Cells expand one inner channel and give percentage signature mass.
 C. Bars show the five largest ID1 channels.}\label{fig:contexts}
-We compare the five SBS96 components with five profiles learned from 99 bladder tumors, 315 GEL profiles, and 249 Hartwig profiles \cite{gel}.
+We compare the five PCAWG SBS96 components with five NMF profiles from 99 BGI bladder tumors.
+We also compare them with 315 published GEL profiles and 249 published Hartwig profiles \cite{gel}.
 Component 3 matches SBS13 at 0.649, a mixture of SBS2 and SBS13 at 0.908, and GEL SBS2+13 at 0.940.
-These comparisons favor an established mixture. Tumor type and catalog size affect the closest match.
+The strongest external match is the published GEL SBS2+13 profile. Cosine similarity alone cannot establish the underlying process.
 \begin{center}\small
 \begin{tabular}{lrrrrr}\toprule
 Closest profile (cosine) & Component 1 & 2 & 3 & 4 & 5 \\ \midrule
@@ -230,12 +242,13 @@ BGI & 0.712 & 0.730 & 0.797 & 0.101 & 0.187 \\
 GEL & 0.999 & 0.944 & 0.940 & 0.996 & 0.998 \\
 Hartwig & 0.998 & 0.939 & 0.929 & 0.995 & 0.960 \\ \bottomrule
 \end{tabular}\end{center}
-{\footnotesize\begin{thebibliography}{9}\raggedright\setlength{\itemsep}{1pt}\setlength{\parsep}{0pt}\setlength{\parskip}{0pt}
+{\footnotesize\begin{thebibliography}{10}\raggedright\setlength{\itemsep}{1pt}\setlength{\parsep}{0pt}\setlength{\parskip}{0pt}
 \bibitem{mutagene} Goncearenco A et al. Exploring background mutational processes to decipher cancer genetic heterogeneity. \emph{Nucleic Acids Res.} (2017). \href{https://doi.org/10.1093/nar/gkx367}{doi:10.1093/nar/gkx367}.
 \bibitem{ranking} Brown AL et al. Finding driver mutations in cancer. \emph{PLoS Comput. Biol.} (2019). \href{https://doi.org/10.1371/journal.pcbi.1006981}{doi:10.1371/journal.pcbi.1006981}.
 \bibitem{benchmark2024} Medo M, Ng CKY, Medova M. A comprehensive comparison of tools for fitting mutational signatures. \emph{Nat. Commun.} (2024). \href{https://doi.org/10.1038/s41467-024-53711-6}{doi:10.1038/s41467-024-53711-6}.
 \bibitem{topacio} F\"arkkil\"a A et al. Immunogenomic profiling determines responses to combined PARP and PD-1 inhibition in ovarian cancer. \emph{Nat. Commun.} (2020). \href{https://doi.org/10.1038/s41467-020-15315-8}{doi:10.1038/s41467-020-15315-8}.
 \bibitem{petremac} Batalini F et al. Mutational signature 3 detected from clinical panel sequencing is associated with responses to olaparib in breast and ovarian cancers. \emph{Clin. Cancer Res.} (2022). \href{https://doi.org/10.1158/1078-0432.CCR-22-0749}{doi:10.1158/1078-0432.CCR-22-0749}.
+\bibitem{pcawg} Alexandrov LB et al. The repertoire of mutational signatures in human cancer. \emph{Nature} (2020). \href{https://doi.org/10.1038/s41586-020-1943-3}{doi:10.1038/s41586-020-1943-3}.
 \bibitem{matrixgenerator} Bergstrom EN et al. SigProfilerMatrixGenerator: a tool for visualizing and exploring patterns of small mutational events. \emph{BMC Genomics} (2019). \href{https://doi.org/10.1186/s12864-019-6041-2}{doi:10.1186/s12864-019-6041-2}.
 \bibitem{bgi} Guo G et al. Whole-genome and whole-exome sequencing of bladder cancer. \emph{Nat. Genet.} (2013). \href{https://doi.org/10.1038/ng.2798}{doi:10.1038/ng.2798}.
 \bibitem{gel} Degasperi A et al. Substitution mutational signatures in whole-genome-sequenced cancers in the UK population. \emph{Science} (2022). \href{https://doi.org/10.1126/science.abl9283}{doi:10.1126/science.abl9283}.

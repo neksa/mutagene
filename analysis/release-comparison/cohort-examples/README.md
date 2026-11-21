@@ -70,7 +70,7 @@ The paper reports 5.0 and 2.2 months, respectively. [Study](https://doi.org/10.1
 
 Batalini et al. report objective response to neoadjuvant olaparib in 32 patients with primary triple-negative breast cancer.
 Figure 4D reports 74% response among 19 panel-Sig3-positive patients and 31% among 13 panel-Sig3-negative patients.
-These percentages correspond to 14 and four responders, respectively.
+These percentages correspond to 14 and four responders, respectively. The plot reads the [group counts](petremac.tsv).
 The figure shows 95% Wilson binomial intervals calculated from those counts.
 Both treatment studies use SigMA to determine Sig3 status.
 Neither study evaluates MutaGene predictions. [Study, cohort 2](https://doi.org/10.1158/1078-0432.CCR-22-0749)

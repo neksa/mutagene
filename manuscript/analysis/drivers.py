@@ -6,6 +6,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from scipy.stats import hypergeom
 
 from mutagene.io.profile import read_profile_str, read_signatures
 from mutagene.mutability.enrichment import is_missense
@@ -99,9 +100,20 @@ def curves(table, methods, hit, cluster, budgets):
         rows,
         columns=["method", "budget", "hotspots", "recall", "precision", "relative_to_recurrence"],
     )
+    # Only the tied block crossing a cutoff contributes random tie-order variation.
+    for method, idx in zip(methods, blocks):
+        sizes = np.bincount(idx)
+        successes = np.bincount(idx, weights=positive).astype(int)
+        end = sizes.cumsum()
+        block = end.searchsorted(budgets)
+        take = budgets - (end - sizes)[block]
+        certain = (successes.cumsum() - successes)[block]
+        for column, quantile in [("tie_hits_low", 0.025), ("tie_hits_high", 0.975)]:
+            boundary = hypergeom.ppf(quantile, sizes[block], successes[block], take)
+            result.loc[result.method == method, column] = certain + boundary
     # Resample genes together and keep all fitted scores fixed.
     intervals = []
-    checkpoints = [10, 100, 1000]
+    checkpoints = [10, 100, 1000, 2451]
     js = np.searchsorted(budgets, checkpoints)
     for _ in range(2000):
         weights = np.bincount(rng.integers(len(genes), size=len(genes)), minlength=len(genes))[
@@ -150,13 +162,17 @@ def main():
         tables.append(data)
     results = pd.concat(tables, ignore_index=True)
     results.to_csv(FIG / "rank-recovery.tsv", sep="\t", index=False, na_rep="NA")
-    selected = results[(results.level == "allele") & results.budget.isin([10, 100, 1000])]
+    selected = results[(results.level == "allele") & results.budget.isin([10, 100, 1000, 2451])]
     table = selected.pivot(index="budget", columns="method", values="hotspots")[METHODS]
+    recurrence = selected[selected.method == "Recurrence"].set_index("budget")
     tex_rows = [
-        f"{k:,} & " + " & ".join(f"{v:.1f}" for v in row) + r" \\" for k, row in table.iterrows()
+        f"{k:,} & {row['Recurrence']:.1f} & "
+        f"{recurrence.at[k, 'tie_hits_low']:.0f}--{recurrence.at[k, 'tie_hits_high']:.0f} & "
+        f"{row['Empirical B-score']:.1f} & {row['Signature B-score']:.1f}" + r" \\"
+        for k, row in table.iterrows()
     ]
-    header = r"""\begin{tabular}{rrrr}\toprule
-Changes reviewed & Recurrence & Empirical B-score & Signature B-score \\ \midrule
+    header = r"""\begin{tabular}{rrrrr}\toprule
+Reviewed & Recurrence & 95\% tie range & Empirical B-score & Signature B-score \\ \midrule
 """
     (FIG / "driver-table.tex").write_text(
         header + "\n".join(tex_rows) + "\n" + r"\bottomrule\end{tabular}" + "\n"

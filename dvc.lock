@@ -41,12 +41,16 @@ stages:
     deps:
     - path: analysis/release-comparison/cohort-examples/figure.py
       hash: md5
-      md5: e7789ecb7b80e82cf35a40e4e5bb538a
-      size: 6421
+      md5: 18ee20cec38b55e77dc9061d630a1eb0
+      size: 6571
     - path: analysis/release-comparison/cohort-examples/pcawg-weights.tsv
       hash: md5
       md5: ae413d30688c97137bca637cf7e643d6
       size: 90837
+    - path: analysis/release-comparison/cohort-examples/petremac.tsv
+      hash: md5
+      md5: aa33effd1f4ac8ddd0a6d629e4cbc281
+      size: 55
     - path: analysis/release-comparison/cohort-examples/topacio.tsv
       hash: md5
       md5: 061fb1f4503057515b01d53034d5c235
@@ -231,8 +235,8 @@ stages:
       size: 133600
     - path: manuscript/analysis/drivers.py
       hash: md5
-      md5: 9b9a570398dd4591297680dcf00bfc49
-      size: 8879
+      md5: 09223f52e0943864300e21a4222a6bb4
+      size: 9830
     - path: manuscript/inputs/bgi-carriers.tsv.gz
       hash: md5
       md5: 592ec9f804ceebb0b036ad23f3b32477
@@ -296,16 +300,16 @@ stages:
       size: 113284
     - path: manuscript/figures/driver-table.tex
       hash: md5
-      md5: 905c7e6c048cb795edcfe7758eba3cb3
-      size: 219
+      md5: 0657187179ec5e32beb374e73cdcbf7d
+      size: 293
     - path: manuscript/figures/drivers.pdf
       hash: md5
       md5: 936532adc75c223534fbf839b9f6b8ef
       size: 24354
     - path: manuscript/figures/rank-recovery.tsv
       hash: md5
-      md5: 1b52afb73881fabbe83961dd6db3aa3e
-      size: 58740
+      md5: 12c9991900c7c30842fab61de7be4e3f
+      size: 64851
   paper:
     cmd: cd manuscript && export SOURCE_DATE_EPOCH=1704067200 
       FORCE_SOURCE_DATE=1 TZ=UTC && pdflatex -interaction=nonstopmode 
@@ -316,6 +320,10 @@ stages:
       hash: md5
       md5: ba15691130b85ec10348027953450c57
       size: 35879
+    - path: manuscript/figures/burden-table.tex
+      hash: md5
+      md5: 7a069eff4de4378c2e9b67bf3d3fd380
+      size: 382
     - path: manuscript/figures/cohort.pdf
       hash: md5
       md5: 9b39816c1fef9fec774bcc7b12b42d69
@@ -326,8 +334,8 @@ stages:
       size: 26955
     - path: manuscript/figures/driver-table.tex
       hash: md5
-      md5: 905c7e6c048cb795edcfe7758eba3cb3
-      size: 219
+      md5: 0657187179ec5e32beb374e73cdcbf7d
+      size: 293
     - path: manuscript/figures/drivers.pdf
       hash: md5
       md5: 936532adc75c223534fbf839b9f6b8ef
@@ -346,10 +354,30 @@ stages:
       size: 27239
     - path: manuscript/preprint.tex
       hash: md5
-      md5: 76692745eda2450f2643bf452a57a49e
-      size: 20047
+      md5: fade471450ca94c485bd3d94f0027576
+      size: 21453
     outs:
     - path: manuscript/preprint.pdf
       hash: md5
-      md5: a3c46ebcd17dae000831ebcc665c4010
-      size: 429497
+      md5: 621656ce3f920981da04e28e38ceef84
+      size: 432786
+  paper_burden_table:
+    cmd: python manuscript/analysis/benchmark_table.py
+    deps:
+    - path: analysis/release-comparison/burden-panel-means.tsv
+      hash: md5
+      md5: a4b53fa8ab5d440b2403d0f8d9998002
+      size: 7690
+    - path: manuscript/analysis/benchmark_table.py
+      hash: md5
+      md5: 819f53dae18b3210fec459305802e8a6
+      size: 1494
+    - path: manuscript/requirements.txt
+      hash: md5
+      md5: a127f4a68dcbf603831c93415e701ee2
+      size: 152
+    outs:
+    - path: manuscript/figures/burden-table.tex
+      hash: md5
+      md5: 7a069eff4de4378c2e9b67bf3d3fd380
+      size: 382

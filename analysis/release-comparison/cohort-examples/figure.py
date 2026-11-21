@@ -133,7 +133,9 @@ def progression(ax, risk):
 
 
 def response(ax):
-    for y, (events, size, color) in enumerate([(14, 19, POSITIVE), (4, 13, NEGATIVE)]):
+    totals = pd.read_csv(HERE / "petremac.tsv", sep="\t").set_index("SigMA")
+    for y, (status, color) in enumerate([("Positive", POSITIVE), ("Negative", NEGATIVE)]):
+        events, size = totals.loc[status, ["responders", "patients"]]
         p = events / size
         low, high = binomtest(events, size).proportion_ci(method="wilson")
         ax.errorbar(p, y, xerr=[[p - low], [high - p]], fmt="o", color=color, capsize=4, ms=7)

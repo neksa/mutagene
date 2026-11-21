@@ -1,4 +1,13 @@
 stages:
+  paper_burden_table:
+    cmd: python manuscript/analysis/benchmark_table.py
+    deps:
+    - manuscript/analysis/benchmark_table.py
+    - manuscript/requirements.txt
+    - analysis/release-comparison/burden-panel-means.tsv
+    outs:
+    - manuscript/figures/burden-table.tex:
+        cache: false
   paper_accuracy:
     cmd: env PYTHONPATH=. MPLBACKEND=Agg SOURCE_DATE_EPOCH=1704067200 OPENBLAS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 OMP_NUM_THREADS=1 python manuscript/analysis/legacy_figures.py
       accuracy
@@ -20,6 +29,7 @@ stages:
     - manuscript/requirements.txt
     - analysis/release-comparison/cohort-examples/figure.py
     - analysis/release-comparison/cohort-examples/pcawg-weights.tsv
+    - analysis/release-comparison/cohort-examples/petremac.tsv
     - analysis/release-comparison/cohort-examples/topacio.tsv
     outs:
     - manuscript/figures/cohort.pdf:
@@ -125,6 +135,7 @@ stages:
     - manuscript/figures/fingerprints.pdf
     - manuscript/figures/drivers.pdf
     - manuscript/figures/driver-table.tex
+    - manuscript/figures/burden-table.tex
     outs:
     - manuscript/preprint.pdf:
         cache: false
