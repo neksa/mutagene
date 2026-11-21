@@ -93,3 +93,36 @@ python "$examples/figure.py"
 ```
 
 Use the last command alone to render the figure from the accompanying tables.
+
+## Compare the five components in independent cohorts
+
+We repeat the same rank-five extraction on 99 bladder tumors from the BGI study.
+The source MAF contains 10,655 single-base substitutions.
+The median tumor contributes 79 substitutions (range 4 to 464).
+This single-organ collection differs from the high-burden PCAWG discovery panel.
+The coding calls and sequencing designs also affect comparisons. [BGI study](https://doi.org/10.1038/ng.2798)
+
+We compare each PCAWG component with all five [BGI components](bgi-signatures.tsv).
+We also compare each component with 315 published Genomics England (GEL) profiles and 249 published Hartwig profiles.
+These organ-specific catalogs include profiles from independent extractions. [GEL and Hartwig study](https://doi.org/10.1126/science.abl9283)
+The [results](replication.tsv) give the highest cosine similarity within each collection.
+Larger collections provide more chances for close matches. These maxima describe spectral agreement.
+The [comparison figure](replication.pdf) shows the four spectra for component 3 with identical axes.
+
+Component 3 matches a BGI component at 0.797, GEL SBS2+13 at 0.940, and Hartwig SBS13 at 0.929.
+A two-signature NNLS fit uses the unit-mass COSMIC v3 SBS2 and SBS13 profiles.
+The normalized weights are 44.4% SBS2 and 55.6% SBS13. The mixture gives a cosine similarity of 0.908.
+These results support a combination of known patterns. They provide no independent evidence for a new biological process.
+
+To repeat the BGI extraction, use the benchmark environment, hg19, and the [study archive](https://datahub.assets.cbioportal.org/blca_bgi.tar.gz).
+The source MAF has SHA-256 `c09b911056ba5d5f750df589a856706a1eb782290b78bdf32b68521fcfffe7d7`.
+The comparison script retrieves version 2.03 of both external catalogs from a pinned commit.
+
+```sh
+examples=analysis/release-comparison/cohort-examples
+mkdir -p /tmp/bgi-extraction
+tar -xzOf blca_bgi.tar.gz blca_bgi/data_mutations.txt > /tmp/bgi.maf
+mutagene profile --per-sample -f MAF -g hg19 -i /tmp/bgi.maf -o /tmp/bgi-counts.tsv
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python "$examples/extract.py" /tmp/bgi-counts.tsv --output /tmp/bgi-extraction
+python "$examples/replicate.py" /tmp/bgi-extraction/extracted-signatures.tsv
+```

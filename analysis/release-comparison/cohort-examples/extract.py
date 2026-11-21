@@ -1,4 +1,4 @@
-"""Extract five candidate SBS96 signatures from the labelled PCAWG count matrix."""
+"""Extract five candidate SBS96 signatures from a labelled cohort count matrix."""
 
 import argparse
 from pathlib import Path
@@ -14,8 +14,8 @@ HERE = Path(__file__).resolve().parent
 def extract(matrix, output):
     counts = pd.read_csv(matrix, sep="\t", index_col=0)
     catalog = pd.read_csv(HERE.parent / "performance/reference.tsv", sep="\t", index_col=0)
-    if counts.shape != (96, 146) or not counts.index.equals(catalog.index):
-        raise ValueError("Expected 146 PCAWG profiles in reference channel order")
+    if counts.shape[1] < 5 or not counts.index.equals(catalog.index):
+        raise ValueError("Expected at least five SBS96 profiles in reference channel order")
     if (counts < 0).any().any() or not (counts.sum() > 0).all() or counts.isna().any().any():
         raise ValueError("Each tumor requires complete counts and positive total burden")
     profiles = counts.div(counts.sum()).T

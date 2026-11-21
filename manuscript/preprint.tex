@@ -24,7 +24,7 @@ MutaGene counts single-base substitutions in 96 trinucleotide channels using a c
 Each column of the count matrix represents one sample. The same matrix supports exchange with R.
 The local web interface accepts mutation files.
 The fitter estimates nonnegative signature weights that sum to one.
-The default compares subsets of reference signatures and six substitution-specific background components using the Bayesian information criterion (BIC).
+For SBS96, the Bayesian information criterion (BIC) selects reference signatures and substitution-specific background components.
 A likelihood bound skips unpromising additions during constrained multinomial fitting.
 The search starts with one component through 1,000 mutations and the full model above that threshold.
 This choice can change exposures abruptly near 1,000 mutations. The search returns a local optimum.
@@ -56,7 +56,7 @@ A separate analysis script learns five SBS96 profiles directly from the 146 PCAW
 It uses standard NMF on tumor proportions and selects the lowest reconstruction error across ten initializations.
 The closest reference for component 1 is SBS7a (cosine similarity 0.988).
 Component 3 has a weaker match to SBS13 (0.649).
-A weak match can reflect mixed processes. Biological novelty requires replication in independent tumors.
+Independent comparisons favor a combination of known signatures (page~\pageref{sec:replication}).
 
 \newpage
 \heading{Attribution accuracy across methods}
@@ -103,6 +103,42 @@ Testing MutaGene as a response predictor requires linked tumor profiles and trea
 
 
 \newpage
+\heading{Fit pentanucleotide and indel signatures}
+SBS1536 distinguishes two flanking bases on each side of a substitution.
+MutaGene fits these signatures from variant calls or a labelled matrix.
+ID83 fitting accepts classified indel counts and a matching reference \cite{matrixgenerator}.
+Both fits use the full channel resolution. The pentanucleotide example uses the SignatureAnalyzer PCAWG reference.
+In breast tumor PD10010a, SBS39\_P has the largest fitted exposure (14.0\% of 2,430 substitutions).
+In lung sample LUAD-US\_SP50263, ID1 leads (34.3\% of 522 indels).
+\begin{center}
+\includegraphics[width=\linewidth]{../analysis/release-comparison/extended-contexts/contexts.pdf}
+\end{center}
+\refstepcounter{figure}
+{\small Figure \thefigure. A. Each of 96 inner channels splits into 16 outer-base combinations.
+Color gives percent of total signature mass.
+B. The grid expands one inner channel and labels all 16 probabilities as percentages.
+C. Bars show the five largest ID1 channels.}\par
+
+A pilot tests all 15 signature pairs from the first six reference columns in each format.
+With 70:30 mixtures, mean SBS1536 error falls from 0.0598 at 100 mutations to 0.0158 at 1,000.
+The corresponding ID83 errors are 0.0421 and 0.0129.
+
+\heading{Independent comparisons of the PCAWG components}\label{sec:replication}
+We repeat rank-five extraction on 10,655 substitutions from 99 BGI bladder tumors \cite{bgi}.
+We also compare all components with published Genomics England (GEL) and Hartwig profiles \cite{gel}.
+The table gives the highest cosine similarity in each collection.
+\begin{center}\small
+\begin{tabular}{lrrrrr}
+ & Component 1 & 2 & 3 & 4 & 5 \\ \hline
+BGI (5 profiles) & 0.712 & 0.730 & 0.797 & 0.101 & 0.187 \\
+GEL (315 profiles) & 0.999 & 0.944 & 0.940 & 0.996 & 0.998 \\
+Hartwig (249 profiles) & 0.998 & 0.939 & 0.929 & 0.995 & 0.960 \\
+\end{tabular}\end{center}
+Component 3 most closely resembles GEL SBS2+13 and Hartwig SBS13.
+A mixture of COSMIC SBS2 and SBS13 matches it at 0.908.
+These comparisons favor a combination of known patterns. Catalog size and tumor type influence the closest match.
+
+\newpage
 \heading{Direct comparison with SigProfilerAssignment}
 Sixteen random pairs from the bundled COSMICv3 catalog generate clean 70:30 mixtures at two mutation burdens.
 Both fitters receive identical counts and the full 67-signature catalog.
@@ -127,14 +163,6 @@ It supplies no known generating exposures.
 Graded missing-signature fractions and real-tumor downsampling remain priorities for comparison.
 The two matched noise controls in Figure~\ref{fig:comparison} extend the published design.
 
-\heading{Larger sequence contexts and indels}
-For motif enrichment, MutaGene accepts reference windows from one to 5,000 bases on each side of a substitution.
-The current profile and signature commands use SBS96.
-A pentanucleotide catalog (SBS1536) uses two flanking bases on each side.
-An indel catalog (ID83) groups insertions and deletions by length, repeat context, and deletion microhomology \cite{matrixgenerator}.
-Both catalog types require matching reference signatures and separate benchmarks.
-SBS1536 and ID83 attribution remain proposed extensions.
-
 \heading{Runtime}
 Median batch time for 24 matched profiles is 18.75 seconds with MutaGene and 4.30 seconds with SigProfilerAssignment.
 MuSiCal takes 4.05 seconds. deconstructSigs takes 61.27 seconds.
@@ -149,5 +177,7 @@ The \href{https://github.com/neksa/mutagene}{repository} contains input matrices
 \bibitem{topacio} F\"arkkil\"a A et al. Immunogenomic profiling determines responses to combined PARP and PD-1 inhibition in ovarian cancer. \emph{Nat. Commun.} (2020). \href{https://doi.org/10.1038/s41467-020-15315-8}{doi:10.1038/s41467-020-15315-8}.
 \bibitem{petremac} Batalini F et al. Mutational signature 3 detected from clinical panel sequencing is associated with responses to olaparib in breast and ovarian cancers. \emph{Clin. Cancer Res.} (2022). \href{https://doi.org/10.1158/1078-0432.CCR-22-0749}{doi:10.1158/1078-0432.CCR-22-0749}.
 \bibitem{matrixgenerator} Bergstrom EN et al. SigProfilerMatrixGenerator: a tool for visualizing and exploring patterns of small mutational events. \emph{BMC Genomics} (2019). \href{https://doi.org/10.1186/s12864-019-6041-2}{doi:10.1186/s12864-019-6041-2}.
+\bibitem{bgi} Guo G et al. Whole-genome and whole-exome sequencing of bladder cancer. \emph{Nat. Genet.} (2013). \href{https://doi.org/10.1038/ng.2798}{doi:10.1038/ng.2798}.
+\bibitem{gel} Degasperi A et al. Substitution mutational signatures in whole-genome-sequenced cancers in the UK population. \emph{Science} (2022). \href{https://doi.org/10.1126/science.abl9283}{doi:10.1126/science.abl9283}.
 \end{thebibliography}}
 \end{document}

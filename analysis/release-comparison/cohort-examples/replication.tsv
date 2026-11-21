@@ -1,0 +1,21 @@
+component	cohort	profiles_compared	nearest	cosine
+Component 1	BGI	5	Component 2	0.7124377819034926
+Component 2	BGI	5	Component 1	0.7304529436504766
+Component 3	BGI	5	Component 3	0.7972322991347661
+Component 4	BGI	5	Component 1	0.1007253828135709
+Component 5	BGI	5	Component 1	0.18725568141861038
+Component 1	GEL	315	GEL-CNS_rare_SBS7a	0.9989581259286946
+Component 2	GEL	315	GEL-Lung_rare_SBS44	0.9437890756477505
+Component 3	GEL	315	GEL-CNS_rare_SBS2+13	0.9395623392213474
+Component 4	GEL	315	GEL-Colorectal_common_SBS17	0.9964441084096529
+Component 5	GEL	315	GEL-Ovary_rare_SBS10a	0.9976285946466341
+Component 1	Hartwig	249	Hartwig-Skin_common_SBS7a	0.9983315491882949
+Component 2	Hartwig	249	Hartwig-Lung_rare_SBS44	0.9391480519341323
+Component 3	Hartwig	249	Hartwig-Skin_common_SBS13	0.9290619075905537
+Component 4	Hartwig	249	Hartwig-Lung_common_SBS17	0.9950739530962155
+Component 5	Hartwig	249	Hartwig-Colorectal_rare_SBS10a	0.959899083211097
+Component 1	COSMIC v3	67	SBS7a	0.9879904869547745
+Component 2	COSMIC v3	67	SBS44	0.8245177746315264
+Component 3	COSMIC v3	67	SBS13	0.6487924064459853
+Component 4	COSMIC v3	67	SBS17b	0.939830778163136
+Component 5	COSMIC v3	67	SBS10a	0.9225821185372324
