@@ -1,6 +1,6 @@
 # Review the application-note draft
 
-The [current preprint](preprint.pdf) covers attribution benchmarks, PCAWG exposures, and published treatment outcomes.
+The [current preprint](preprint.pdf) covers attribution benchmarks, motif enrichment, candidate signature extraction, PCAWG exposures, and published treatment outcomes.
 See the [benchmark tables](../analysis/release-comparison/performance/README.md) and [cohort figure sources](../analysis/release-comparison/cohort-examples/README.md).
 To rebuild it, run `pdflatex -halt-on-error preprint.tex` twice from this directory.
 

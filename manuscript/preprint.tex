@@ -14,53 +14,49 @@
 \smallskip
 \heading{Abstract}
 MutaGene connects mutation calls, sample-level profiles, and estimates of mutational signature activity.
-The same labelled count matrix supports repeatable command-line fits and exchange with R.
-A local web interface supports interactive analysis of mutation files.
+The software also tests motif enrichment and ranks candidate driver mutations.
 On 3,072 synthetic profiles, MutaGene recovers generating exposures with lower mean error than SigProfilerAssignment.
 A separate comparison includes five attribution tools and a nonnegative least squares (NNLS) baseline.
 MutaGene has the lowest mean error at each of three mutation burdens.
 
 \heading{Implementation}
 MutaGene counts single-base substitutions in 96 trinucleotide channels using a coordinate-matched reference assembly \cite{mutagene}.
-Each column of the count matrix represents one sample.
+Each column of the count matrix represents one sample. The same matrix supports exchange with R.
+The local web interface accepts mutation files.
 The fitter estimates nonnegative signature weights that sum to one.
 The default compares subsets of reference signatures and six substitution-specific background components using the Bayesian information criterion (BIC).
-A likelihood bound rules out additions that cannot improve BIC.
-The fitter uses constrained multinomial maximum likelihood for the remaining candidates.
-At up to 1,000 mutations, the search starts with the best feasible single component.
-Otherwise, it starts with the full model.
-Joint selection allows the search to remove or restore individual background components.
-The result is a local optimum.
-The 1,000-mutation threshold can produce abrupt exposure changes.
+A likelihood bound skips unpromising additions during constrained multinomial fitting.
+The search starts with one component through 1,000 mutations and the full model above that threshold.
+This choice can change exposures abruptly near 1,000 mutations. The search returns a local optimum.
 
 \heading{Use case 1. Refit a cohort without rereading mutation calls}
-The offline example includes three synthetic samples with 24 mutations in total.
-The demo creates a labelled count matrix.
-The signature command fits each sample and records optimizer diagnostics.
+The demo creates a labelled matrix from three synthetic samples containing 24 mutations.
 \begin{verbatim}
 mutagene demo --output-dir demo
 mutagene signature -f MATRIX -i demo/matrix.tsv -o fit.tsv \
     --diagnostics-out fit.json
 \end{verbatim}
-Researchers can substitute a cohort matrix with the same 96 labels.
+Use the same 96 channel labels for a new cohort.
 
 \heading{Use case 2. Examine recurrent protein changes}
 For a protein-annotated MAF, the rank command compares observed recurrence with expected mutability \cite{ranking}.
-The analyst selects a reference cohort and an assembly matching the input coordinates.
-Optional AlphaMissense annotations add functional evidence alongside each compatible variant.
+Optional AlphaMissense annotations provide functional evidence for compatible variants.
 The B-score thresholds classify mutations as Driver, Potential Driver, or Passenger.
-The motif command tests curated motifs or a user-defined sequence pattern such as \texttt{C[C>T]G} for enrichment.
-The original study uses nonsmooth nonnegative matrix factorization to derive MutaGene-5 and MutaGene-10~\cite{mutagene}.
-The current signature command fits fixed catalogs. A new cohort requires a separate workflow for de novo extraction.
 
-\heading{Direct comparison with SigProfilerAssignment}
-Sixteen random pairs from the bundled COSMICv3 catalog generate clean 70:30 mixtures at two mutation burdens.
-Both fitters receive identical counts and the full 67-signature catalog.
-Total attribution error equals half the summed absolute errors across known-signature weights and aggregate background mass.
-At 100 mutations, mean total attribution error is 0.08452 for MutaGene and 0.22125 for SigProfilerAssignment 1.1.5.
-At 2,000 mutations, the corresponding errors are 0.01677 and 0.01863.
+\heading{Use case 3. Test a sequence motif}
+The motif command compares mutations matching a motif with available sequence contexts around those mutations.
+For the bundled \texttt{sample1.maf}, we test the curated motifs on either strand using hg19.
+The CpG motif \texttt{[C>T]G} shows 2.12-fold enrichment (Fisher's exact $p=0.00170$, adjusted $q=0.0119$).
+Users can also test longer patterns, such as \texttt{TT[C>T]GG}.
 
-
+\heading{Use case 4. Extract candidate signatures from a cohort}
+The original study derives MutaGene-5 and MutaGene-10 using nonsmooth nonnegative matrix factorization (NMF) \cite{mutagene}.
+The signature command estimates exposures against these fixed catalogs.
+A separate analysis script learns five SBS96 profiles directly from the 146 PCAWG tumors in Figure~\ref{fig:cohorts}.
+It uses standard NMF on tumor proportions and selects the lowest reconstruction error across ten initializations.
+The closest reference for component 1 is SBS7a (cosine similarity 0.988).
+Component 3 has a weaker match to SBS13 (0.649).
+A weak match can reflect mixed processes. Biological novelty requires replication in independent tumors.
 
 \newpage
 \heading{Attribution accuracy across methods}
@@ -89,11 +85,10 @@ Both studies determine status with SigMA on targeted sequencing data \cite{topac
 \begin{center}
 \includegraphics[width=\linewidth]{../analysis/release-comparison/cohort-examples/cohorts.pdf}
 \end{center}
-\refstepcounter{figure}
+\refstepcounter{figure}\label{fig:cohorts}
 {\small Figure \thefigure.
 A. Each bar shows one tumor with at least 50,000 substitutions.
 The bars show SBS3 and the five other signatures with the largest mean exposures.
-The aligned strip shows each tumor's SBS3 exposure on a 0--20\% scale.
 Other SBS combines the remaining reference signatures. Background combines the six fitted background weights.
 B. Kaplan--Meier curves show progression-free survival with niraparib plus pembrolizumab in recurrent ovarian cancer.
 Crosses mark censoring.
@@ -108,6 +103,13 @@ Testing MutaGene as a response predictor requires linked tumor profiles and trea
 
 
 \newpage
+\heading{Direct comparison with SigProfilerAssignment}
+Sixteen random pairs from the bundled COSMICv3 catalog generate clean 70:30 mixtures at two mutation burdens.
+Both fitters receive identical counts and the full 67-signature catalog.
+Total attribution error equals half the summed absolute errors across known-signature weights and aggregate background mass.
+At 100 mutations, mean total attribution error is 0.08452 for MutaGene and 0.22125 for SigProfilerAssignment 1.1.5.
+At 2,000 mutations, the corresponding errors are 0.01677 and 0.01863.
+
 \heading{Accuracy across 12 mutation burdens}
 A separate comparison uses 3,072 synthetic profiles across 12 burdens from 10 to 10,000 mutations.
 Generation uses COSMIC v3.3.1 and fitting uses COSMIC v3.
@@ -125,6 +127,14 @@ It supplies no known generating exposures.
 Graded missing-signature fractions and real-tumor downsampling remain priorities for comparison.
 The two matched noise controls in Figure~\ref{fig:comparison} extend the published design.
 
+\heading{Larger sequence contexts and indels}
+For motif enrichment, MutaGene accepts reference windows from one to 5,000 bases on each side of a substitution.
+The current profile and signature commands use SBS96.
+A pentanucleotide catalog (SBS1536) uses two flanking bases on each side.
+An indel catalog (ID83) groups insertions and deletions by length, repeat context, and deletion microhomology \cite{matrixgenerator}.
+Both catalog types require matching reference signatures and separate benchmarks.
+SBS1536 and ID83 attribution remain proposed extensions.
+
 \heading{Runtime}
 Median batch time for 24 matched profiles is 18.75 seconds with MutaGene and 4.30 seconds with SigProfilerAssignment.
 MuSiCal takes 4.05 seconds. deconstructSigs takes 61.27 seconds.
@@ -138,5 +148,6 @@ The \href{https://github.com/neksa/mutagene}{repository} contains input matrices
 \bibitem{benchmark2024} Medo M, Ng CKY, Medova M. A comprehensive comparison of tools for fitting mutational signatures. \emph{Nat. Commun.} (2024). \href{https://doi.org/10.1038/s41467-024-53711-6}{doi:10.1038/s41467-024-53711-6}.
 \bibitem{topacio} F\"arkkil\"a A et al. Immunogenomic profiling determines responses to combined PARP and PD-1 inhibition in ovarian cancer. \emph{Nat. Commun.} (2020). \href{https://doi.org/10.1038/s41467-020-15315-8}{doi:10.1038/s41467-020-15315-8}.
 \bibitem{petremac} Batalini F et al. Mutational signature 3 detected from clinical panel sequencing is associated with responses to olaparib in breast and ovarian cancers. \emph{Clin. Cancer Res.} (2022). \href{https://doi.org/10.1158/1078-0432.CCR-22-0749}{doi:10.1158/1078-0432.CCR-22-0749}.
+\bibitem{matrixgenerator} Bergstrom EN et al. SigProfilerMatrixGenerator: a tool for visualizing and exploring patterns of small mutational events. \emph{BMC Genomics} (2019). \href{https://doi.org/10.1186/s12864-019-6041-2}{doi:10.1186/s12864-019-6041-2}.
 \end{thebibliography}}
 \end{document}

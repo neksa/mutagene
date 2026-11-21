@@ -11,7 +11,6 @@ MutaGene fits each tumor with joint sparse BIC, the [67-signature catalog](../pe
 The [exposure table](pcawg-weights.tsv) reports each reference weight and total fitted background mass.
 The stacked bars show SBS3 separately and highlight five other signatures by mean exposure.
 Each tumor contributes equally to that ranking.
-The aligned strip uses the same tumor order and a 0–20% scale.
 MutaGene assigns nonzero SBS3 weights to 19 of 146 tumors.
 Stomach-AdenoCA::SP105018 has the largest fitted weight (17.6%).
 A zero weight means that the sparse fit assigns zero exposure.
@@ -25,6 +24,35 @@ Joining the 146 specimen identifiers to SAMPLE_ID identifies 131 distinct patien
 Only six have both OS_MONTHS and OS_STATUS.
 They span three histologies. This subset offers little information for survival comparisons by signature exposure.
 [Sample records](https://github.com/cBioPortal/datahub/blob/2a86a1f9289523cb5bdcceec5a2c61cf6a93ca26/public/pancan_pcawg_2020/data_clinical_sample.txt) · [Patient records](https://github.com/cBioPortal/datahub/blob/e7f71c358b4f7ecf9fc04f29823c2a487b4d32e1/public/pancan_pcawg_2020/data_clinical_patient.txt)
+
+## Extract candidate SBS96 signatures
+
+The [extraction script](extract.py) uses scikit-learn 1.9.1 and the same 146 PCAWG profiles as panel A.
+Each tumor contributes its SBS96 proportions. The reference catalog enters only after extraction.
+We fix the rank at five for this example. The script uses standard NMF with squared Frobenius loss.
+It selects the fit with the smallest reconstruction error across ten random starts (seeds 0 through 9).
+It scales each [component profile](extracted-signatures.tsv) to unit mass and orders components by mean activity.
+The [matches](signature-matches.tsv) give the largest cosine similarity across the 67 reference signatures for each component.
+A weak match alone cannot establish a new mutational process.
+The original study uses nonsmooth NMF to derive MutaGene-5 and MutaGene-10. [Original study](https://doi.org/10.1093/nar/gkx367)
+
+After preparing the PCAWG counts below, run the following command from the repository root.
+
+```sh
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 python analysis/release-comparison/cohort-examples/extract.py /tmp/pcawg-counts.tsv
+```
+
+## Test a motif in the example tumor
+
+The hg19 assembly must be available locally.
+Run this command from the repository root to reproduce the curated motif screen.
+
+```sh
+mutagene motif -i sample1.maf -g hg19 --strand A -o motifs.tsv
+```
+
+The CpG motif `[C>T]G` has enrichment 2.11727 and adjusted q-value 0.0118927 in sample TCGA-50-6593-01A-11D-1753-08.
+The motif window defaults to 50 bases on each side.
 
 ## TOPACIO progression-free survival
 
