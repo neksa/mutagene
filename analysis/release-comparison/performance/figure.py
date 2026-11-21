@@ -32,21 +32,11 @@ def draw(errors, output):
     means = errors.groupby(samples.burden).mean().T
     means.insert(0, "All", errors.mean())
     winners = means.eq(means.min())
-    mpl.rcParams.update({"font.size": 7.6, "pdf.fonttype": 42, "svg.fonttype": "none"})
-    fig = plt.figure(figsize=(7.4, 3.1))
-    grid = fig.add_gridspec(
-        1,
-        5,
-        width_ratios=[1, 1, 1, 0.08, 2.03],
-        left=0.187,
-        right=0.99,
-        top=0.77,
-        bottom=0.215,
-        wspace=0.16,
-    )
-    axes = [fig.add_subplot(grid[0, i]) for i in (0, 1, 2, 4)]
-    fig.text(0.185, 0.92, "A   Per-profile attribution error", fontsize=10)
-    fig.text(axes[-1].get_position().x0, 0.92, "B   Mean attribution error", fontsize=10)
+    mpl.rcParams.update({"font.size": 10, "pdf.fonttype": 42, "svg.fonttype": "none"})
+    fig = plt.figure(figsize=(6.8, 5.85))
+    grid = fig.add_gridspec(1, 3, left=0.245, right=0.985, top=0.885, bottom=0.535, wspace=0.18)
+    axes = [fig.add_subplot(grid[0, i]) for i in range(3)]
+    fig.text(0, 0.961, "A   Per-profile attribution error", fontsize=13, color="#174c50")
     rng = np.random.default_rng(177)
     for column, (ax, burden) in enumerate(zip(axes, (100, 2000, 50000))):
         subset = errors.loc[samples.burden == burden]
@@ -70,43 +60,45 @@ def draw(errors, output):
                 whiskerprops={"color": color, "linewidth": 0.7},
                 capprops={"color": color, "linewidth": 0.7},
             )
-            ax.scatter(values, row + offsets, s=3.5, color=color, alpha=0.55, linewidths=0)
+            ax.scatter(values, row + offsets, s=8, color=color, alpha=0.55, linewidths=0)
         ax.set_xlim(-0.045, 1.045)
         ax.set_xticks([0, 0.5, 1], ["0", "0.5", "1"])
-        ax.set_title(f"{burden:,} mutations", fontsize=7.6, pad=5)
+        ax.set_title(f"{burden:,} mutations", fontsize=10, pad=8)
         ax.set_yticks(range(len(LABELS)), list(LABELS.values()) if column == 0 else [])
         ax.grid(axis="x", color="#e1e6e5", linewidth=0.5)
         ax.set_axisbelow(True)
-    table = axes[-1]
-    table.set_xlim(-0.5, 3.5)
-    table.set_xticks(range(4), ["All", "100", "2,000", "50,000"])
-    table.xaxis.tick_top()
-    table.set_yticks([])
-    for row, method in enumerate(LABELS):
-        for column, value in enumerate(means.loc[method]):
-            marker = "*" if winners.iloc[row, column] else ""
+        ax.set_ylim(len(LABELS) - 0.5, -0.5)
+        ax.tick_params(axis="both", length=0, pad=4)
+        ax.spines[:].set_visible(False)
+    fig.text(0, 0.435, "B   Mean attribution error", fontsize=13, color="#174c50")
+    table = fig.add_axes([0, 0.032, 0.985, 0.38])
+    table.set_axis_off()
+    table.set_xlim(0, 1)
+    table.set_ylim(7.65, -0.8)
+    positions = [0.44, 0.60, 0.765, 0.93]
+    table.text(0.01, 0, "Method", va="center")
+    for x, label in zip(positions, ["All profiles", "100", "2,000", "50,000"]):
+        table.text(x, 0, label, ha="center", va="center")
+    table.axhline(0.52, color="#728889", lw=0.8)
+    for row, method in enumerate(LABELS, start=1):
+        table.text(0.01, row, LABELS[method], va="center", fontsize=10.5)
+        for column, (x, value) in enumerate(zip(positions, means.loc[method])):
+            best = winners.iloc[row - 1, column]
             table.text(
-                column,
+                x,
                 row,
-                f"{value:.3f}{marker}",
+                f"{value:.3f}{'*' if best else ''}",
                 ha="center",
                 va="center",
-                color="#056963" if marker else "#25343b",
-                fontsize=7.6,
+                color="#056963" if best else "#25343b",
+                fontsize=10.5,
             )
-    for ax in axes:
-        ax.set_ylim(len(LABELS) - 0.5, -0.5)
-        ax.tick_params(axis="both", length=0, pad=3)
-        ax.spines[:].set_visible(False)
+    table.axhline(7.52, color="#728889", lw=0.8)
     fig.text(
-        0.185, 0.095, "Boxes span the middle 50%. Lines inside boxes show medians.", fontsize=7.2
-    )
-    fig.text(table.get_position().x0, 0.095, "* Lowest column mean.", fontsize=7.2)
-    fig.text(
-        0.185,
-        0.025,
-        "Each point represents one synthetic profile. Each burden includes 32 profiles.",
-        fontsize=7.2,
+        0.01,
+        0.004,
+        "* Lowest column mean. The last three columns group profiles by mutation count.",
+        fontsize=9,
     )
     fig.savefig(output, dpi=200)
     plt.close(fig)

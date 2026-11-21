@@ -48,10 +48,10 @@ Researchers can substitute a cohort matrix with the same 96 labels.
 For a protein-annotated MAF, the rank command compares observed recurrence with expected mutability \cite{ranking}.
 The analyst selects a reference cohort and an assembly matching the input coordinates.
 Optional AlphaMissense annotations add functional evidence alongside each compatible variant.
-B-scores and driver labels retain their original definitions.
-Motif testing accepts curated or user-specified motifs.
+The B-score thresholds classify mutations as Driver, Potential Driver, or Passenger.
+The motif command tests curated motifs or a user-defined sequence pattern such as \texttt{C[C>T]G} for enrichment.
 The original study uses nonsmooth nonnegative matrix factorization to derive MutaGene-5 and MutaGene-10~\cite{mutagene}.
-The current signature command fits these reference catalogs to new samples.
+The current signature command fits fixed catalogs. A new cohort requires a separate workflow for de novo extraction.
 
 \heading{Direct comparison with SigProfilerAssignment}
 Sixteen random pairs from the bundled COSMICv3 catalog generate clean 70:30 mixtures at two mutation burdens.
@@ -61,39 +61,81 @@ At 100 mutations, mean total attribution error is 0.08452 for MutaGene and 0.221
 At 2,000 mutations, the corresponding errors are 0.01677 and 0.01863.
 
 
-\newpage
-\heading{Comparison across mutation burdens}
-Empirical exposures from eight cancer types generate 3,072 profiles across 12 burdens from 10 to 10,000 mutations \cite{benchmark2024}.
-Generation uses COSMIC v3.3.1 and fitting uses COSMIC v3.
-Each burden includes clean profiles and three conditions with 20\% additional mass.
-These conditions model missing reference signatures, uniform background, and substitution-specific background.
 
+\newpage
+\heading{Attribution accuracy across methods}
+Figure~\ref{fig:comparison} compares five attribution tools and an NNLS baseline on identical synthetic profiles.
+Each burden includes eight cancer exposure distributions crossed with four background conditions \cite{benchmark2024}.
+\begin{center}
+\includegraphics[width=\linewidth]{../analysis/release-comparison/performance/performance.pdf}
+\end{center}
+\refstepcounter{figure}\label{fig:comparison}
+{\small Figure \thefigure. Each point represents one profile. Boxes show quartiles and medians.
+Whiskers extend to the outermost observations within 1.5 interquartile ranges.
+Asterisks mark descriptive minima. Lower error indicates closer recovery of the generating mixture.}\par
+
+\heading{What changes with background?}
+Across burdens, MutaGene's mean errors are 0.091 on clean profiles and 0.318 with missing signatures.
+The corresponding means are 0.185 with uniform noise and 0.181 with substitution-specific noise.
+Each condition includes 24 profiles. Both noise controls add 20\% mass within MutaGene's background family.
+When two missing signatures each contribute 10\%, deconstructSigs has the lowest pooled mean error (0.285).
+Nineteen of twenty evaluable signeR chain pairs exceed 1.01 for maximum active-component $\hat R$.
+
+\newpage
+\heading{Cohort decomposition and treatment outcomes}
+MutaGene fits 67 reference signatures and six background components to 146 high-burden PCAWG tumor genomes \cite{benchmark2024}.
+Two independent treatment cohorts illustrate outcomes by signature-3 status.
+Both studies determine status with SigMA on targeted sequencing data \cite{topacio,petremac}.
+\begin{center}
+\includegraphics[width=\linewidth]{../analysis/release-comparison/cohort-examples/cohorts.pdf}
+\end{center}
+\refstepcounter{figure}
+{\small Figure \thefigure.
+A. Each bar shows one tumor with at least 50,000 substitutions.
+Colors identify the five largest signatures by mean exposure across tumors.
+Other SBS combines the remaining reference signatures. Background combines the six fitted background weights.
+B. Kaplan--Meier curves show progression-free survival with niraparib plus pembrolizumab in recurrent ovarian cancer.
+Crosses mark censoring.
+C. Points show objective response to preoperative olaparib in triple-negative breast cancer.
+Bars show 95\% Wilson intervals.}\par
+
+Across 65 melanomas, SBS7a and SBS7b contribute 85.4\% of fitted exposure on average.
+Median progression-free survival in TOPACIO is 5.0 months for Sig3-positive patients and 2.2 months for Sig3-negative patients.
+In PETREMAC, 14 of 19 Sig3-positive patients and four of 13 Sig3-negative patients respond.
+These single-arm studies measure associations within treated cohorts.
+Testing MutaGene as a response predictor requires linked tumor profiles and treatment outcomes.
+
+
+\newpage
+\heading{Accuracy across 12 mutation burdens}
+A separate comparison uses 3,072 synthetic profiles across 12 burdens from 10 to 10,000 mutations.
+Generation uses COSMIC v3.3.1 and fitting uses COSMIC v3.
+The four background conditions match those in Figure~\ref{fig:comparison}.
 Mean error is 0.3269 for MutaGene and 0.3687 for SigProfilerAssignment.
 Across 48 comparisons, 23 paired bootstrap intervals favor MutaGene, three favor SigProfilerAssignment, and 22 include zero.
 All three intervals favoring SigProfilerAssignment occur at ten mutations.
 These descriptive 95\% intervals omit adjustment for multiple comparisons.
 
-\heading{Attribution accuracy across methods}
-Figure~\ref{fig:comparison} shows one profile per cancer distribution, burden, and condition.
-Two conditions match MutaGene's fitted background family.
-Nineteen of twenty evaluable signeR chain pairs exceed 1.01 for maximum active-component $\hat R$.
-This limits interpretation of its estimates.
+\heading{Benchmark coverage}
+Medo et al. also test individual signatures, differences between simulated patient groups, and graded amounts of missing signatures \cite{benchmark2024}.
+Their real-tumor analyses compare tools and downsample observed catalogs.
+Our PCAWG example shows fitted mixtures at the original mutation burden.
+It supplies no known generating exposures.
+Graded missing-signature fractions and real-tumor downsampling remain priorities for comparison.
+The two matched noise controls in Figure~\ref{fig:comparison} extend the published design.
 
-\begin{center}
-\includegraphics[width=\linewidth]{../analysis/release-comparison/performance/performance.pdf}
-\end{center}
-\refstepcounter{figure}\label{fig:comparison}
-{\small Figure \thefigure. Lower error indicates closer recovery of the generating mixture.
-Whiskers reach the outermost observations within 1.5 interquartile ranges of the box.
-Asterisks identify the lowest means. The benchmark report gives batch times.}\par
-
-With 50,000 mutations and missing reference signatures, deconstructSigs has lower mean error than MutaGene (0.141 versus 0.250).
-Independent tumor cohorts remain necessary for biological validation.
-The \href{https://github.com/neksa/mutagene}{repository} includes inputs, individual scores, and timing records.
-
+\heading{Runtime}
+Median batch time for 24 matched profiles is 18.75 seconds with MutaGene and 4.30 seconds with SigProfilerAssignment.
+MuSiCal takes 4.05 seconds. deconstructSigs takes 61.27 seconds.
+signeR takes 701.73 seconds with the reference alone and 871.30 seconds with background.
+The NNLS baseline takes 0.70 seconds.
+Each workflow uses one worker on the same Apple M1 Max.
+The \href{https://github.com/neksa/mutagene}{repository} contains input matrices, sample scores, seeds, and timing records.
 {\small\begin{thebibliography}{3}\raggedright
 \bibitem{mutagene} Goncearenco A et al. Exploring background mutational processes to decipher cancer genetic heterogeneity. \emph{Nucleic Acids Res.} (2017). \href{https://doi.org/10.1093/nar/gkx367}{doi:10.1093/nar/gkx367}.
 \bibitem{ranking} Brown AL et al. Finding driver mutations in cancer. \emph{PLoS Comput. Biol.} (2019). \href{https://doi.org/10.1371/journal.pcbi.1006981}{doi:10.1371/journal.pcbi.1006981}.
 \bibitem{benchmark2024} Medo M, Ng CKY, Medova M. A comprehensive comparison of tools for fitting mutational signatures. \emph{Nat. Commun.} (2024). \href{https://doi.org/10.1038/s41467-024-53711-6}{doi:10.1038/s41467-024-53711-6}.
+\bibitem{topacio} F\"arkkil\"a A et al. Immunogenomic profiling determines responses to combined PARP and PD-1 inhibition in ovarian cancer. \emph{Nat. Commun.} (2020). \href{https://doi.org/10.1038/s41467-020-15315-8}{doi:10.1038/s41467-020-15315-8}.
+\bibitem{petremac} Batalini F et al. Mutational signature 3 detected from clinical panel sequencing is associated with responses to olaparib in breast and ovarian cancers. \emph{Clin. Cancer Res.} (2022). \href{https://doi.org/10.1158/1078-0432.CCR-22-0749}{doi:10.1158/1078-0432.CCR-22-0749}.
 \end{thebibliography}}
 \end{document}

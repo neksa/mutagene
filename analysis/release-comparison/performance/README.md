@@ -61,13 +61,34 @@ The final truth column contains the total generating mass outside the known sign
 
 [Per-profile errors](errors.tsv) give half the summed absolute deviations across known-signature weights and aggregate background mass.
 Error ranges from zero for exact recovery to one for disjoint mixtures.
-The table beside the box plots reports arithmetic means.
+The table below the box plots reports arithmetic means.
 Asterisks denote descriptive minima using full precision.
 Boxes cover the interquartile range. Their central lines mark medians.
 Each burden contributes 32 profiles.
 The [archived signeR results](../signer-panel-errors.tsv) supply both signeR rows.
 Nineteen of twenty evaluable independent chain pairs exceed 1.01 for maximum active-component R-hat.
 The [signeR assessment](../../signature-benchmark-2026/signer-report.qmd) documents convergence and sampler settings.
+
+## Accuracy by background condition
+
+Each cell gives mean attribution error across 24 synthetic profiles and three burdens.
+
+| Method | Clean | Missing signatures | Uniform noise | Substitution-specific noise |
+|---|---:|---:|---:|---:|
+| MutaGene | 0.091 | 0.318 | 0.185 | 0.181 |
+| SigProfilerAssignment | 0.124 | 0.359 | 0.294 | 0.360 |
+| deconstructSigs | 0.318 | 0.285 | 0.276 | 0.371 |
+| MuSiCal | 0.234 | 0.385 | 0.403 | 0.472 |
+| signeR | 0.287 | 0.445 | 0.399 | 0.497 |
+| signeR with background | 0.295 | 0.411 | 0.329 | 0.298 |
+| NNLS baseline | 0.316 | 0.474 | 0.468 | 0.554 |
+
+The two noise controls add mass within MutaGene's background family.
+The missing-signature control allocates 10% to each of two signatures outside the fitting catalog.
+Medo et al. also test individual signatures, between-group activity differences, reference pruning, and graded missing-signature fractions.
+They assess real-tumor downsampling and agreement between fitters.
+Our [PCAWG example](../cohort-examples/README.md) fits the original high-burden catalogs.
+A matched downsampling comparison and graded missing-signature sweep remain open. [Published benchmark](https://doi.org/10.1038/s41467-024-53711-6)
 
 ## Runtime
 

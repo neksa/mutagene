@@ -1,5 +1,11 @@
 # Review the application-note draft
 
+The [current preprint](preprint.pdf) covers attribution benchmarks, PCAWG exposures, and published treatment outcomes.
+See the [benchmark tables](../analysis/release-comparison/performance/README.md) and [cohort figure sources](../analysis/release-comparison/cohort-examples/README.md).
+To rebuild it, run `pdflatex -halt-on-error preprint.tex` twice from this directory.
+
+## Historical draft
+
 This historical draft predates the likelihood repair and sparse-selection assessment.
 Do not use its claims to describe the repaired implementation.
 The LaTeX source and PDF preserve the initial controlled benchmark results.
@@ -7,7 +13,7 @@ The draft does not claim a public release or clinical validation.
 The draft covers the initial benchmark and does not yet include the sparse-selection follow-up.
 The [sparse-selection report](../analysis/signature-benchmark-2026/sparse-report.html) documents that separate evaluation.
 The [likelihood repair report](../analysis/signature-benchmark-2026/repaired-report.html) documents later numerical corrections and reassessment.
-The current manuscript PDF does not yet incorporate either follow-up.
+The historical PDF preserves those earlier results.
 
 ## Build
 
