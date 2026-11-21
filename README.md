@@ -12,7 +12,10 @@ From the source checkout, install the command line with `pip install .`.
 For the local web interface, use `pip install ".[web]"`.
 
 PyPI users can install the published version with `pip install mutagene`.
-The examples below use this checkout.
+Use a protein-annotated MAF for sample or cohort driver ranking.
+Add `--enrichment-out enrichment.tsv` to compare known driver genes.
+Supply `--known-variants hotspots.tsv` to compare exact missense changes.
+See the [driver comparison](analysis/release-comparison/pcawg-penta/README.md) for cohort and single-tumor results.
 
 ## Subcommands
 
@@ -22,8 +25,9 @@ The examples below use this checkout.
 | `mutagene benchmark` | Compare fits on simulated profiles |
 | `mutagene fetch` | Download genomes, cancer datasets, and cohorts from remote sources |
 | `mutagene profile` | Create mutational profiles from samples (MAF/VCF input) |
-| `mutagene rank` | Rank mutations by driver status using expected mutability |
+| `mutagene rank` | Rank candidate drivers and compare known driver enrichment |
 | `mutagene motif` | Test samples for presence of mutational motifs |
+| `mutagene discover` | Learn a candidate signature and compare it with a supplied catalog |
 | `mutagene signature` | Decompose profiles into known mutational signatures |
 | `mutagene serve` | Start local web server for interactive analysis |
 

@@ -1,4 +1,4 @@
-"""Extract five candidate SBS96 signatures from a labelled cohort count matrix."""
+"""Extract five candidate signatures from a labelled cohort count matrix."""
 
 import argparse
 from pathlib import Path
@@ -11,13 +11,19 @@ from sklearn.metrics.pairwise import cosine_similarity
 HERE = Path(__file__).resolve().parent
 
 
-def extract(matrix, output):
+def extract(matrix, output, reference=HERE.parent / "performance/reference.tsv"):
     counts = pd.read_csv(matrix, sep="\t", index_col=0)
-    catalog = pd.read_csv(HERE.parent / "performance/reference.tsv", sep="\t", index_col=0)
-    if counts.shape[1] < 5 or not counts.index.equals(catalog.index):
-        raise ValueError("Expected at least five SBS96 profiles in reference channel order")
+    catalog = pd.read_csv(reference, sep="\t", index_col=0)
+    if (
+        counts.shape[1] < 5
+        or not counts.index.is_unique
+        or not catalog.index.is_unique
+        or set(counts.index) != set(catalog.index)
+    ):
+        raise ValueError("Expected at least five profiles with matching reference channels")
     if (counts < 0).any().any() or not (counts.sum() > 0).all() or counts.isna().any().any():
         raise ValueError("Each tumor requires complete counts and positive total burden")
+    catalog = catalog.loc[counts.index]
     profiles = counts.div(counts.sum()).T
     best_error = np.inf
     for seed in range(10):
@@ -51,5 +57,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("matrix", type=Path)
     parser.add_argument("--output", type=Path, default=HERE)
+    parser.add_argument("--reference", type=Path, default=HERE.parent / "performance/reference.tsv")
     args = parser.parse_args()
-    extract(args.matrix, args.output)
+    extract(args.matrix, args.output, args.reference)

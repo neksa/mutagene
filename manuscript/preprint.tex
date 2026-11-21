@@ -139,6 +139,89 @@ A mixture of COSMIC SBS2 and SBS13 matches it at 0.908.
 These comparisons favor a combination of known patterns. Catalog size and tumor type influence the closest match.
 
 \newpage
+\heading{Pentanucleotide exposures in the same 146 PCAWG tumors}
+The 1,536-channel matrix contains 28,088,341 substitutions.
+Summing over both outer bases reproduces every tumor's original SBS96 counts.
+MutaGene fits 60 SignatureAnalyzer references with sparse BIC.
+Eleven tumors have reported SBS3\_P exposure. The maximum is 5.41\% in a gastric tumor.
+Full-catalog maximum likelihood gives 5.32\% in the same tumor. Both methods pass all 146 numerical checks.
+\begin{center}
+\includegraphics[width=\linewidth]{../analysis/release-comparison/pcawg-penta/pcawg-exposures.pdf}
+\end{center}
+\refstepcounter{figure}
+{\small Figure \thefigure. Each bar represents one tumor. Colors distinguish SBS3\_P and the five other leading signatures by mean exposure.
+Other combines the remaining signatures. Within each histology group, bars follow the leading exposures in decreasing order.}\par
+
+\heading{Five signatures learned directly from the cohort}
+Rank-five NMF learns five profiles from all 146 tumors without reference signatures during training.
+We select the solution with the smallest reconstruction error across ten random starts.
+The table compares each component with its closest supplied pentanucleotide signature.
+\begin{center}
+\begin{tabular}{lrr}
+Component & Nearest reference & Cosine similarity \\ \hline
+1 & SBS7a\_S & 0.992 \\
+2 & SBS6\_S & 0.867 \\
+3 & SBS13\_P & 0.888 \\
+4 & SBS17b\_P & 0.982 \\
+5 & SBS61\_S & 0.978 \\
+\end{tabular}
+\end{center}
+\newpage
+\heading{Motif enrichment and driver ranking}
+\begin{center}
+\includegraphics[width=\linewidth]{../analysis/release-comparison/pcawg-penta/motifs-and-drivers.pdf}
+\end{center}
+\refstepcounter{figure}
+{\small Figure \thefigure. A. Each cell compares median motif fractions within compatible substitution classes.
+The denominator uses all other PCAWG tumors.
+Asterisks indicate Benjamini--Hochberg $q<0.05$ across 7,715 comparisons.
+B. \href{https://www.cancerhotspots.org}{Cancer Hotspots v2} supplies 2,464 distinct missense variants.
+Labels give exact matches among unique scored missense changes in 99 BGI bladder tumors.}\par
+
+The screen tests seven curated motifs and all 1,536 exact pentanucleotide substitutions across five histologies.
+Melanoma shows enrichment for \texttt{CT[T>A]TC} (8.00-fold).
+Colorectal tumors show enrichment for \texttt{[C>T]G} (4.98-fold).
+These comparisons measure differences in tumor spectra without genomic opportunity adjustment.
+
+The BGI cohort shows 3.25-fold exact hotspot enrichment among Driver calls (one-sided Fisher $p=4.87\times10^{-8}$).
+Recurrent matches include PIK3CA E545K (nine tumors), FGFR3 Y373C (six), and HRAS Q61R (five).
+The bundled driver gene list gives weaker enrichment (1.63-fold, $p=0.103$).
+For tumor B10, a 240-tumor bladder reference supplies background mutability and recurrence.
+None of its 55 scored missense changes matches the hotspot list.
+Both hotspot discovery and driver ranking use recurrence. Reference overlap remains unknown.
+
+\newpage
+\heading{Does a supplied catalog miss a signature?}
+We keep the supplied signatures fixed and learn one additional nonnegative component from 104 PCAWG tumors.
+We test the learned profile on 42 other tumors.
+Within each test tumor, we estimate exposures on half its mutations and predict the remaining spectrum.
+\begin{center}
+\includegraphics[width=\linewidth]{../analysis/release-comparison/pcawg-penta/candidate-comparison.pdf}
+\end{center}
+\refstepcounter{figure}
+{\small Figure \thefigure. Columns represent 96 inner channels. Rows represent 16 outer-base pairs in alphabetical order.
+All panels share a square-root color scale.
+A. The extra component resembles SBS17b\_P and a mixture of supplied signatures.
+B. Excluding SBS7a\_S gives a positive control with a known missing signature.}\par
+
+\begin{center}\small
+\begin{tabular}{lrr}
+ & Full catalog & Omit SBS7a\_S \\ \hline
+Nearest supplied signature (cosine) & SBS17b\_P (0.953) & SBS67\_S (0.847) \\
+Best supplied mixture (cosine) & 0.962 & 0.953 \\
+Cosine to omitted signature & & 0.999 \\
+Mean held-out error reduction & 0.000035 & 0.0630 \\
+95\% paired bootstrap interval & $[-0.000004,0.000086]$ & $[0.0421,0.0838]$ \\
+\end{tabular}\end{center}
+Error measures half the absolute difference summed across 1,536 channel proportions.
+Positive reductions favor the extra component.
+With all 60 references, the interval includes zero.
+Omitting SBS7a\_S produces a recognizable profile and improves held-out reconstruction.
+The reference catalog also uses PCAWG tumors. Establishing biological novelty requires an independent cohort.
+
+
+
+\newpage
 \heading{Direct comparison with SigProfilerAssignment}
 Sixteen random pairs from the bundled COSMICv3 catalog generate clean 70:30 mixtures at two mutation burdens.
 Both fitters receive identical counts and the full 67-signature catalog.

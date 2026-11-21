@@ -170,8 +170,8 @@ def read_protein_mutations_MAF(
             HGVSc = first_populated(data, "cdna_change", "txchange", "hgvsc")
 
             if HGVSc is None:
-                logger.warning("Could not find cDNA_Change or TxChange or HGVSc fields in MAF file")
-                break
+                N_skipped += 1
+                continue
 
             if ":" in HGVSc:
                 HGVSc = HGVSc.split(":")[1]
@@ -202,10 +202,8 @@ def read_protein_mutations_MAF(
             HGVSp = first_populated(data, "protein_change", "hgvsp_short", "aachange")
 
             if HGVSp is None:
-                logger.warning(
-                    "Could not find HGVSp_Short or Protein_Change or AAChange fields in MAF file"
-                )
-                break
+                N_skipped += 1
+                continue
 
             if not HGVSp.startswith("p."):
                 N_skipped += 1

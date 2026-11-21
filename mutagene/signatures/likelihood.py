@@ -81,7 +81,15 @@ def fit_likelihood(matrix, counts, diagnostics=None):
         if attempt == 1:
             start = uniform.copy()
         elif attempt == 2:
-            start = best * (1 - 1e-8) + 1e-8 * uniform
+            # Positive weights keep rare observed channels reachable during the final retry.
+            start = 0.99 * best + 0.01 * uniform
+            for _ in range(100):
+                _, gradient = likelihood_objective(start, design, target)
+                updated = start * -gradient
+                if not np.isfinite(updated).all() or updated.sum() <= 0:
+                    break
+                start = updated / updated.sum()
+            start = start * (1 - 1e-10) + 1e-10 * uniform
         if size == 1:
             raw, solver_success, message, iterations = uniform, True, "Single signature", 0
         else:
@@ -91,7 +99,7 @@ def fit_likelihood(matrix, counts, diagnostics=None):
                 args=(design, target),
                 jac=True,
                 method="SLSQP",
-                bounds=[(0, 1)] * size,
+                bounds=[(1e-12 if attempt == 2 else 0, 1)] * size,
                 constraints={
                     "type": "eq",
                     "fun": lambda w: w.sum() - 1,

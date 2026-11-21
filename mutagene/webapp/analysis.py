@@ -647,6 +647,7 @@ def run_cohort_analysis(
 
                 from mutagene.io.cohorts import read_cohort_mutations_from_tar
                 from mutagene.io.protein_mutations_MAF import read_protein_mutations_MAF
+                from mutagene.mutability.enrichment import driver_enrichment
                 from mutagene.mutability.mutability import (
                     THRESHOLD_DRIVER,
                     THRESHOLD_PASSENGER,
@@ -764,6 +765,12 @@ def run_cohort_analysis(
                             ],
                             "known_driver_hits": [d for d in drivers_data if d.get("known_driver")],
                         }
+
+                        if genome in ("hg19", "hg38"):
+                            summary = driver_enrichment(drivers_df)
+                            results["drivers"]["gene_enrichment"] = json.loads(
+                                summary.to_json(orient="records")
+                            )[0]
 
                         logger.info(
                             f"Identified {len(results['drivers']['drivers'])} driver mutations"

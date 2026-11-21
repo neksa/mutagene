@@ -6,6 +6,7 @@ import sys
 import mutagene
 from mutagene.cli.benchmark_menu import BenchmarkMenu
 from mutagene.cli.demo_menu import DemoMenu
+from mutagene.cli.discover_menu import DiscoverMenu
 
 # from mutagene.io.profile import format_profile
 # from mutagene.io.mutations_profile import read_VCF_profile
@@ -96,6 +97,11 @@ class MutaGeneApp:
                 "help": "Fit known mutational signatures",
                 "class": SignatureMenu,
                 "aliases": ["identify", "decompose"],
+            },
+            "discover": {
+                "help": "Learn a candidate signature alongside a supplied reference catalog",
+                "class": DiscoverMenu,
+                "aliases": [],
             },
             "benchmark": {
                 "help": "Benchmark fits on simulated profiles",

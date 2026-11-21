@@ -144,3 +144,25 @@ Their fitted weights do not constitute a Bayesian prior or prove technical noise
 
 Use ``--no-unexplained-variance`` to compare a fit without these components.
 Inspect ``--diagnostics-out`` for the selected subset, search trace, and optimizer status.
+
+Compare a new candidate with supplied signatures
+------------------------------------------------
+
+Use at least six tumors and a reference matrix with matching channel labels.
+Supply integer mutation counts, with one column per tumor.
+Use ``histology::sample`` column names to stratify the training and test split.
+Each group with three or more tumors contributes held-out samples.
+The optional ``--withhold`` control removes a named reference and tests its recovery.
+
+.. code-block:: sh
+
+   mutagene discover -i counts.tsv --reference-matrix SBS1536-reference.tsv \
+       -o candidates --withhold SBS7a_S
+
+The command learns one nonnegative component while holding supplied profiles fixed.
+It compares the component with each reference and the best reference mixture.
+The output includes channel probabilities, cosine similarities, mixture weights, and held-out reconstruction errors.
+Positive error reduction means the candidate improves held-out reconstruction.
+Independent replication tests whether the candidate represents a new biological process.
+When no reference overlaps a fitting observation, predictions use equal reference weights.
+A disjoint candidate has zero catalog similarity and undefined mixture weights.

@@ -16,11 +16,18 @@ Notable changes to MutaGene. Dates are release dates; the format follows
 
 ### Added
 
+- Learn a candidate signature alongside a supplied catalog with `mutagene discover`.
+- Fit SBS1536 and ID83 count matrices against a supplied reference catalog.
+- Compare known driver genes and exact missense variants with ranked candidates.
+
 - Export per-sample SBS96 matrices and fit them without a reference genome.
 - Run the bundled offline demo and inspect optimizer diagnostics.
 - Add optional AlphaMissense annotations to ranking output. These annotations preserve B-scores and driver labels.
 
 ### Fixed
+
+- Driver ranking continues past incomplete annotations and counts recurrence across sequence contexts.
+- The likelihood solver uses a positive restart for difficult sparse signature subsets.
 
 - The local web interface loads its charts and progress client from the installed package.
 - Profile tooltips pair each count with its own channel label.

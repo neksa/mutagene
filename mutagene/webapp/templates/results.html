@@ -276,6 +276,13 @@
     {% if rankings %}
     {% set data = rankings[0].data %}
     <p>Ranked protein changes: {{ data.total }}. The drivers file contains the complete ranking.</p>
+    {% if data.gene_enrichment %}
+    {% set e = data.gene_enrichment %}
+    <p>Known driver genes occur in {{ e.driver_hits }}/{{ e.driver_total }} genes with a Driver missense call.
+    Other scored genes contain {{ e.other_hits }}/{{ e.other_total }} matches.
+    {% if e.fold_enrichment is not none %}Fold enrichment {{ "%.2f"|format(e.fold_enrichment) }}.{% endif %}
+    {% if e.fisher_p is not none %}One-sided Fisher p = {{ "%.3g"|format(e.fisher_p) }}.{% endif %}</p>
+    {% endif %}
     {% set hits = data.drivers|default([]) + data.potential_drivers|default([]) %}
     {% if hits %}
     <table class="table">

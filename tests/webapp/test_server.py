@@ -334,9 +334,18 @@ def test_results_show_stored_driver_and_clustering_values(client, db):
         "drivers",
         {
             "total": 1,
+            "gene_enrichment": {
+                "driver_hits": 1,
+                "driver_total": 1,
+                "other_hits": 0,
+                "other_total": 0,
+                "fold_enrichment": None,
+                "fisher_p": None,
+            },
             "drivers": [{"gene": "TP53", "mutation": "R175H", "label": "Driver", "bscore": 0.001}],
         },
     )
     page = client.get(f"/results/{aid}").get_data(as_text=True)
     assert "sample B" in page and "0.125" in page and "Unavailable" in page
     assert "TP53" in page and "R175H" in page and "0.001" in page
+    assert "Known driver genes occur in 1/1" in page

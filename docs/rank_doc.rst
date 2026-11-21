@@ -312,3 +312,38 @@ GRINA    Y99F      1.879e-07   1         3.758e-06  5.453e-05  Driver
 N4BP2L2  K143I     2.277e-07   1         4.555e-06  5.453e-05  Driver
 ZC3H3    R59G      2.476e-07   1         4.952e-06  5.453e-05  Driver
 =======  ========  ==========  ========  =========  =========  ======
+
+Compare known drivers in a sample or cohort
+--------------------------------------------
+
+Supply a protein-annotated MAF and its matching genome assembly.
+For a cohort, each tumor needs a distinct sample barcode.
+MutaGene estimates the background profile and recurrence from the input cohort.
+
+.. code-block:: sh
+
+   mutagene rank -i cohort.maf -g hg19 -o ranked.tsv \
+       --enrichment-out enrichment.tsv --known-variants hotspots.tsv
+
+For one tumor, supply a relevant reference cohort and its archive.
+
+.. code-block:: sh
+
+   mutagene rank -i tumor.maf -g hg19 -c Bladder_Urothelial_Carcinoma \
+       --cohorts-file cohorts.tar.gz -o tumor-ranked.tsv \
+       --enrichment-out tumor-enrichment.tsv --known-variants hotspots.tsv
+
+The optional reference TSV requires columns named ``gene`` and ``mutation``.
+Use gene symbols and one-letter missense changes, such as ``PIK3CA`` and ``E545K``.
+Use matching transcript numbering.
+The ranking table flags exact matches in ``in_known_variants``.
+
+The enrichment table compares Driver calls with Potential driver and Passenger calls.
+The comparison includes only scored missense substitutions.
+The gene comparison counts each gene once against the bundled common driver gene list.
+Any Driver call places its gene in the Driver group.
+The optional variant comparison counts each distinct protein change once per gene.
+The fold enrichment divides the reference-match rate among Driver calls by the rate among other calls.
+The table gives one-sided Fisher exact p-values.
+A missing comparison group or zero comparison rate prevents a fold estimate.
+Both ranking and hotspot discovery use recurrence, so enrichment measures agreement with the reference.

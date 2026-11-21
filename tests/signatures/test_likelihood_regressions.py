@@ -247,3 +247,19 @@ def test_large_integer_counts_keep_the_validated_float_representation():
     loglik = next(row["score"] for row in results if row["name"] == "LogLik")
     assert np.isfinite(loglik)
     assert loglik == pytest.approx(-float(2**63) * np.log(2))
+
+
+def test_final_retry_restores_a_rare_signature(monkeypatch):
+    def solver(fun, start, **options):
+        if options["bounds"][0][0] == 0:
+            candidate = np.array([1.0, 0.0])
+        else:
+            assert np.all(start > 0)
+            candidate = start
+        return SimpleNamespace(x=candidate, success=True, message="test", nit=1)
+
+    monkeypatch.setattr("mutagene.signatures.likelihood.minimize", solver)
+    info = {}
+    weights = fit_likelihood(np.eye(2), [9999, 1], info)
+    assert weights == pytest.approx([0.9999, 0.0001], abs=1e-9)
+    assert info["optimizer_retries"] == 2
