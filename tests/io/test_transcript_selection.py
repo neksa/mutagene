@@ -132,6 +132,11 @@ class TestOrderIndependence:
         assert long_first.keys() == short_first.keys()
         assert {t["transcript"] for t in short_first.values()} == {"LONG"}
 
+    @pytest.mark.parametrize("missing", [{"change": ""}, {"protein": ""}])
+    def test_incomplete_annotation_preserves_later_rows(self, missing):
+        flat, _ = self.read(self.row("LONG", **missing), self.row("LONG"))
+        assert ("TP53", "R2C") in flat
+
     def test_the_chosen_transcript_is_reported(self):
         flat, _ = self.read(self.row("ENST00000269305", length="2000"))
 

@@ -5,7 +5,7 @@ import sys
 from mutagene.cli.genome_resolver import GenomeNotFoundError, resolve_genome
 from mutagene.io.text import open_text_input
 from mutagene.io.variant_filter import add_filter_argument
-from mutagene.profiles.profile import calc_profile
+from mutagene.profiles.profile import calc_profile, read_sample_profiles
 
 logger = logging.getLogger(__name__)
 genome_error_message = """requires genome name argument -g hg19, hg38, mm10, see http://hgdownload.soe.ucsc.edu/downloads.html for more
@@ -32,7 +32,14 @@ class ProfileMenu:
         parser.add_argument(
             "--per-sample",
             action="store_true",
-            help="Write a labelled SBS96 count matrix with one column per sample",
+            help="Write a labelled substitution count matrix with one column per sample",
+        )
+
+        parser.add_argument(
+            "--context",
+            choices=["SBS96", "SBS1536"],
+            default="SBS96",
+            help="Channel scheme for the per-sample matrix",
         )
 
         # for backwards compatibility with 0.8.X add a hidden action that would just take anything as a valid input
@@ -61,26 +68,25 @@ class ProfileMenu:
             sys.exit(1)
 
         try:
+            if args.context == "SBS1536" and not args.per_sample:
+                raise ValueError("SBS1536 profile output requires --per-sample")
             if args.per_sample:
-                from mutagene.io.context_window import read_mutations
                 from mutagene.io.matrix import write_count_matrix
                 from mutagene.io.text import detect_mutation_format
-                from mutagene.profiles.profile import get_multisample_mutational_profile
 
                 profiles = {}
                 for stream in args.infile:
                     fmt = args.input_format.upper()
                     if fmt == "AUTO":
                         fmt = detect_mutation_format(stream)
-                    mutations, _, _ = read_mutations(
+                    current = read_sample_profiles(
                         fmt,
                         stream,
                         args.genome,
-                        window_size=1,
+                        args.context,
                         keep_filtered=args.keep_filtered,
                         filter_column=args.filter_column,
                     )
-                    current = get_multisample_mutational_profile(mutations, counts=True)
                     if profiles.keys() & current.keys():
                         raise ValueError(
                             "Sample names repeat across input files; supply unique sample names"
@@ -88,7 +94,7 @@ class ProfileMenu:
                     profiles.update(current)
                 if not profiles:
                     raise ValueError("No mutations could be read for the sample matrix")
-                write_count_matrix(args.outfile, profiles)
+                write_count_matrix(args.outfile, profiles, args.context)
                 return
             stats = calc_profile(
                 args.infile,

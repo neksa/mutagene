@@ -228,7 +228,9 @@ def decompose_mutational_profile_counts(
             }
         )
 
-    # Background components use the fixed SBS96 channel order.
+    # Extended catalogs have no SBS96 background basis.
+    if enable_dummy is None and W.shape[0] in (83, 1536):
+        config["enable_dummy"] = False
     if config["enable_dummy"] and W.shape[0] != 96:
         raise ValueError("Context-independent background requires 96 channels")
     if config["enable_dummy"]:

@@ -158,6 +158,7 @@ def rank(
     threshold_passenger,
     provenance=None,
     annotations=None,
+    known_variants=None,
 ):
     # profile_dict = profile_to_dict(profile)
     mutation_model = calculate_base_substitution_mutability(profile, cohort_size)
@@ -172,8 +173,9 @@ def rank(
     results = []
     for mutation_key, mutation_value in mutations_to_rank.items():
         gene, mut = mutation_key
-        for seq5, observed_k in mutation_value["seq5"].items():
-            break
+        contexts = mutation_value["seq5"]
+        seq5 = min(contexts, key=lambda context: (-contexts[context], context))
+        observed_k = sum(contexts.values())
         # if gene == "BRAF" and mut == "V600E":
         #     print("BRAF V600E", seq5)
         #     print(mutation_model)
@@ -234,6 +236,8 @@ def rank(
         return
     df = pd.DataFrame(results)
     df.drop(df[df.mutability == 0].index, inplace=True)
+    if known_variants is not None:
+        df["in_known_variants"] = [(g, m) in known_variants for g, m in zip(df.gene, df.mutation)]
     try:
         if provenance:
             write_provenance(outfile, provenance)
@@ -243,3 +247,4 @@ def rank(
         df.to_csv(outfile, sep="\t", index=False, doublequote=False, float_format="%.4g")
     except (OSError, BrokenPipeError):
         pass
+    return df

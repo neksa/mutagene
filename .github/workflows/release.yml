@@ -11,32 +11,23 @@ on:
 # request" and no release is ever cut. This tags what was merged instead.
 jobs:
   release:
-    if: github.event.pull_request.merged == true
+    if: >-
+      github.event.pull_request.merged &&
+      (contains(github.event.pull_request.labels.*.name, 'major') ||
+       contains(github.event.pull_request.labels.*.name, 'minor') ||
+       contains(github.event.pull_request.labels.*.name, 'patch'))
     runs-on: ubuntu-latest
     permissions:
       contents: write
 
     steps:
-      - name: Check for a release label
-        id: label
-        run: |
-          LABELS=$(echo '${{ toJson(github.event.pull_request.labels.*.name) }}' | jq -r '.[]')
-          if echo "$LABELS" | grep -qE '^(major|minor|patch)$'; then
-            echo "release=yes" >> $GITHUB_OUTPUT
-          else
-            echo "release=no" >> $GITHUB_OUTPUT
-            echo "No major/minor/patch label; nothing to release."
-          fi
-
       - uses: actions/checkout@v4
-        if: steps.label.outputs.release == 'yes'
         with:
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.base.ref }}
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
 
       - name: Read the version the pull request set
         id: version
-        if: steps.label.outputs.release == 'yes'
         run: |
           VERSION=$(sed -n 's/^__version__ = "\(.*\)"$/\1/p' mutagene/version.py)
           if [ -z "$VERSION" ]; then
@@ -52,7 +43,6 @@ jobs:
           fi
 
       - name: Require a changelog entry and an unused tag
-        if: steps.label.outputs.release == 'yes'
         run: |
           VERSION="${{ steps.version.outputs.version }}"
 
@@ -70,7 +60,6 @@ jobs:
           fi
 
       - name: Tag and release
-        if: steps.label.outputs.release == 'yes'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

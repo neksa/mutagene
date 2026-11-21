@@ -2,7 +2,7 @@
 
 Sparse BIC supplies the shared Python, CLI, and web default.
 The default background selection policy is `joint`.
-Each candidate subset receives a constrained multinomial MLE refit.
+The fitter compares subsets with constrained multinomial maximum likelihood.
 Use `--method MLE` for full-model fitting without subset selection.
 
 ## Run a sparse fit
@@ -26,7 +26,9 @@ The command retains the existing option name for compatibility.
 
 The fitter minimizes multinomial negative log likelihood under nonnegative weights that sum to one.
 It scales the objective by mutation burden and supplies its analytic gradient to SLSQP.
-It refits each candidate subset before comparing information criteria.
+Joint BIC skips additions when a likelihood bound rules out improvement.
+The tangent to the log likelihood bounds the gain at every vertex of the enlarged simplex.
+The fitter refits all remaining feasible candidates.
 Backward steps remove optional components; forward steps reconsider excluded components.
 The search stops when no single removal or addition improves the criterion.
 This procedure finds a local subset optimum, not a guaranteed global optimum.

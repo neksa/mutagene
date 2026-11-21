@@ -61,6 +61,9 @@ def _describe(value):
         described = [_describe(item) for item in value]
         return _UNRECORDABLE if any(d is _UNRECORDABLE for d in described) else described
 
+    if isinstance(value, Path):
+        return str(value)
+
     name = getattr(value, "name", None)
     if name is not None:
         # An open file from argparse.FileType. Record where it points rather

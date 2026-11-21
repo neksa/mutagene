@@ -23,6 +23,14 @@ jobs:
         cd "$RUNNER_TEMP"
         "$RUNNER_TEMP/wheel-env/bin/python" "$GITHUB_WORKSPACE/tests/packaging/smoke_wheel.py"
 
+    - name: Exercise upload and results in Chromium
+      run: |
+        PYTHON="$RUNNER_TEMP/wheel-env/bin/python"
+        uv pip install --python "$PYTHON" playwright==1.59.0
+        "$PYTHON" -m playwright install --with-deps chromium
+        cd "$RUNNER_TEMP"
+        "$PYTHON" "$GITHUB_WORKSPACE/tests/packaging/smoke_browser.py"
+
   test:
     runs-on: ${{ matrix.os }}
     env:
@@ -77,14 +85,12 @@ jobs:
 
     - name: Run ruff
       run: uv run ruff check .
-      continue-on-error: true
 
     - name: Run black check
       run: uv run black --check .
 
     - name: Run mypy
       run: uv run mypy mutagene/ --ignore-missing-imports
-      continue-on-error: true
 
   docs:
     # The published documentation drifted for months without anyone noticing:

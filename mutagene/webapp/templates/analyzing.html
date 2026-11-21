@@ -1,16 +1,22 @@
 {% extends "base.html" %}
 
-{% block title %}Analysis in Progress - MutaGene{% endblock %}
+{% block title %}{{ analysis.name }}{% endblock %}
 
 {% block content %}
-<h2>Analysis in Progress</h2>
+{% if analysis.status == 'error' %}
+<h1>Analysis failed</h1>
+<p>{{ analysis.name }}</p>
+<p class="alert alert-danger">{{ (analysis.error_message or 'Unknown error').splitlines()[0] }}</p>
+<a href="/history">Analysis history</a>
+{% else %}
+<h1>Analysis in progress</h1>
 <p><strong>{{ analysis.name }}</strong></p>
 
 <div id="progressContainer" style="margin-top: 30px;">
     <div class="alert alert-info">
-        <h3 style="margin-bottom: 15px;">🔄 <span id="currentStep">Initializing...</span></h3>
+        <h3 style="margin-bottom: 15px;"><span id="currentStep">Initializing...</span></h3>
         <div style="background: white; border-radius: 4px; height: 30px; overflow: hidden;">
-            <div id="progressBar" style="background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; width: 0%; transition: width 0.5s; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+            <div id="progressBar" style="background: var(--accent); height: 100%; width: 0%; transition: width 0.5s; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
                 <span id="progressPercent">0%</span>
             </div>
         </div>
@@ -25,9 +31,12 @@
 <div style="margin-top: 20px;">
     <a href="/" class="btn btn-secondary">Back to Home</a>
 </div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
+{% if analysis.status != 'error' %}
+<script src="{{ url_for('static', filename='vendor/socket-4.5.4/socket.io.min.js') }}"></script>
 <script>
 const socket = io();
 const analysisId = {{ analysis.id }};
@@ -78,7 +87,6 @@ function showFailure(message) {
 
 socket.on('error', (data) => {
     if (data.analysis_id === analysisId) {
-        document.getElementById('currentStep').textContent = '❌ Error occurred';
         showFailure(data.error);
         addLog(`ERROR: ${data.error}`, 'error');
     }
@@ -114,4 +122,5 @@ setInterval(async () => {
     }
 }, 5000);
 </script>
+{% endif %}
 {% endblock %}

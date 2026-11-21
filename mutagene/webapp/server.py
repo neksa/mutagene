@@ -176,7 +176,7 @@ def _ensure_genomes(genome_manager, auto_download=True, required=("hg19", "hg38"
 
     if not auto_download:
         logger.warning(f"Missing genome files: {', '.join(missing)}")
-        logger.warning("Download them with: mutagene fetch genome <name>")
+        logger.warning("Download them with: mutagene fetch genome -g <name>")
         return
 
     def download_missing():
